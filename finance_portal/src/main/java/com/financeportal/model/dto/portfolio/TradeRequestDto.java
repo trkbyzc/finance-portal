@@ -1,0 +1,18 @@
+package com.financeportal.model.dto;
+
+import com.financeportal.model.enums.AssetType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class TradeRequestDto {
+    private String symbol;       // THYAO.IS, BTC vb.
+    private AssetType assetType; // STOCK, CRYPTO vb.
+    private BigDecimal quantity; // Kaç adet/miktar alınacak?
+    private BigDecimal price;    // Anlık alış fiyatı
+}

@@ -1,0 +1,46 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// 🚀 YENİ EKLENEN CONTEXT PROVIDER
+import { CurrencyProvider } from './context/CurrencyContext';
+
+// Component ve Sayfa Importları
+import Navbar from './components/layout/Navbar/Navbar.jsx';
+import Dashboard from './pages/Dashboard/Dashboard.jsx';
+import MarketPage from './pages/MarketPage/MarketPage.jsx';
+import NewsPage from './pages/NewsPage/NewsPage';
+import NewsDetailPage from './pages/NewsDetailPage/NewsDetailPage';
+import LiveMarketPage from './pages/LiveMarketPage/LiveMarketPage';
+import InterestPage from './pages/InterestPage/InterestPage.jsx';
+import AssetDetailPage from './pages/AssetDetailPage/AssetDetailPage';
+import MarketListPage from "./pages/MarketListPage/MarketListPage.jsx";
+import BankCurrenciesPage from './pages/BankCurrenciesPage/BankCurrenciesPage.jsx';
+import TurkishGoldPage from './pages/TurkishGoldPage/TurkishGoldPage.jsx';
+
+function App() {
+    return (
+        <CurrencyProvider>  {/* 🚀 TÜM UYGULAMAYI SARMALADIK */}
+            <Router>
+                <div className="min-h-screen bg-[#050505] text-[#d1d4dc] font-sans selection:bg-[#2962ff] selection:text-white">
+                    <Navbar />
+                    <main>
+                        <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/markets/:category" element={<MarketPage />} />
+                            <Route path="/markets/:category/list" element={<MarketListPage />} />
+                            <Route path="/chart/:symbol" element={<AssetDetailPage />} />
+                            <Route path="/markets/bank-currencies" element={<BankCurrenciesPage />} />
+                            <Route path="/markets/turkish-gold" element={<TurkishGoldPage />} />
+                            <Route path="/news" element={<NewsPage />} />
+                            <Route path="/news/detail" element={<NewsDetailPage />} />
+                            <Route path="/markets/live" element={<LiveMarketPage />} />
+                            <Route path="/interest" element={<InterestPage />} />
+                        </Routes>
+                    </main>
+                </div>
+            </Router>
+        </CurrencyProvider>
+    );
+}
+
+export default App;

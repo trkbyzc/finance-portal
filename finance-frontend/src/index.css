@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* 🚀 TÜM UYGULAMA İÇİN GLOBAL DARK MODE SCROLLBAR */
+
+/* Chrome, Edge ve Safari için */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0b0e14; /* Sitemizin ana koyu arkaplanı */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2a2e39; /* Çubuğun kendisi */
+    border-radius: 8px;
+    border: 2px solid #0b0e14; /* Çubuğun kenarlarını inceltip daha zarif yapar */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2962ff; /* Fareyle üstüne gelince bizim siber mavi şov yapsın */
+}
+
+/* Firefox Uyumluluğu İçin Bütün Elementlere Uygula */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #2a2e39 #0b0e14;
+}

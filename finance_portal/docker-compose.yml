@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: finance_postgres
+    environment:
+      POSTGRES_DB: finance_db
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: finance_keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/finance_db
+      KC_DB_USERNAME: finance_user
+      KC_DB_PASSWORD: finance_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: finance_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: finance_openldap
+    environment:
+      LDAP_ADMIN_PASSWORD: adminpassword
+      LDAP_DOMAIN: "finance.local"
+    ports:
+      - "1389:389"
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: finance_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: finance_kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    restart: unless-stopped
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    container_name: finance_opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true # Güvenlik tamamen kapalı!
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    restart: unless-stopped
+    # 🚀 YENİ: OpenSearch'ün tam olarak ayağa kalktığını anlayan doktor
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.11.1
+    container_name: finance_os_dashboards
+    ports:
+      - "5601:5601"
+    environment:
+      OPENSEARCH_HOSTS: '["http://finance_opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    restart: unless-stopped # 🚀 YENİ: Kapanırsa otomatik yeniden başlasın
+    depends_on:
+      opensearch:
+        condition: service_healthy # 🚀 YENİ: Sadece OpenSearch "Healthy" olunca başla
+
+  logstash:
+    image: opensearchproject/logstash-oss-with-opensearch-output-plugin:8.9.0
+    container_name: finance_logstash
+    volumes:
+      - ./logs:/usr/share/logstash/logs
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    restart: unless-stopped # 🚀 YENİ: Kapanırsa otomatik yeniden başlasın
+    depends_on:
+      opensearch:
+        condition: service_healthy # 🚀 YENİ: Sadece OpenSearch "Healthy" olunca başla
+
+volumes:
+  postgres_data:
+  opensearch_data:

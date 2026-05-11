@@ -1,0 +1,100 @@
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronRight, Loader2 } from 'lucide-react';
+
+import { useLiveMarketData } from '../../hooks/useLiveMarketData';
+import ChartSection from './components/ChartSection';
+import IndicesSection from './components/IndicesSection';
+import TurkishStocksSection from './components/TurkishStocksSection';
+import CommoditiesSection from './components/CommoditiesSection';
+import ForexSection from './components/ForexSection';
+import BondsSection from './components/BondsSection';
+import EconomySection from './components/EconomySection';
+import IpoSection from './components/IpoSection';
+
+// 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
+export default function LiveMarketPage() {
+    const navigate = useNavigate();
+
+    const {
+        loading, indices, ipos, trBonds,
+        highestVolume, mostVolatile, topGainers, topLosers,
+        commodityCards, sortedForexList,
+        economyMacro, // 🚀 EKLENDİ
+        economyMetric, setEconomyMetric, economyRange, setEconomyRange, economyData, economyLoading
+    } = useLiveMarketData();
+
+    // 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
+    const defaultSymbol = useMemo(() => {
+        if (!loading && indices && indices.length > 0) {
+            return indices[0].symbol;
+        }
+        return '';
+    }, [loading, indices]);
+
+    const [selectedSymbol, setSelectedSymbol] = useState(defaultSymbol);
+
+    const handleNavigateToDetail = (sym) => navigate(`/chart/${sym}`);
+
+    if (loading) return <div className="h-screen bg-[#0b0e14] flex items-center justify-center text-[#2962ff]"><Loader2 className="animate-spin" size={48} /></div>;
+
+    return (
+        <div className="min-h-screen bg-[#0b0e14] text-white p-4 md:p-8">
+            <div className="max-w-[1400px] mx-auto">
+                <h1 className="text-3xl md:text-4xl font-bold mb-8 flex items-center gap-3">
+                    Piyasalar, her yerde <ChevronRight className="text-[#2a2e39]" />
+                </h1>
+
+                {/* 1. ENDEKSLER */}
+                <IndicesSection
+                    indices={indices}
+                    selectedSymbol={selectedSymbol}
+                    setSelectedSymbol={setSelectedSymbol}
+                />
+
+                {/* 2. GRAFİK ALANI */}
+                <ChartSection selectedSymbol={selectedSymbol || defaultSymbol} />
+
+                {/* 3. TÜRK HİSSELERİ */}
+                <TurkishStocksSection
+                    highestVolume={highestVolume}
+                    mostVolatile={mostVolatile}
+                    topGainers={topGainers}
+                    topLosers={topLosers}
+                    onSelect={handleNavigateToDetail}
+                />
+
+                {/* 4. EMTİALAR */}
+                <CommoditiesSection
+                    commodityCards={commodityCards}
+                    onSelect={handleNavigateToDetail}
+                    navigate={navigate}
+                />
+
+                {/* 5. PARA BİRİMLERİ */}
+                <ForexSection
+                    sortedForexList={sortedForexList}
+                    onSelect={handleNavigateToDetail}
+                />
+
+                {/* 6. DEVLET TAHVİLLERİ */}
+                <BondsSection trBonds={trBonds} />
+
+                {/* 7. TÜRKİYE EKONOMİSİ */}
+                <EconomySection
+                    economyMacro={economyMacro} // 🚀 EKLENDİ
+                    economyMetric={economyMetric}
+                    setEconomyMetric={setEconomyMetric}
+                    economyRange={economyRange}
+                    setEconomyRange={setEconomyRange}
+                    economyData={economyData}
+                    economyLoading={economyLoading}
+                />
+
+                {/* 8. HALKA ARZ TAKVİMİ */}
+                <IpoSection ipos={ipos} />
+
+            </div>
+        </div>
+    );
+}

@@ -1,0 +1,27 @@
+name: Finance Portal CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu Cek (Checkout)
+        uses: actions/checkout@v3
+
+      - name: JDK 17 Kurulumu
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Maven ile Build ve Unit Testleri Calistir
+        run: mvn clean install
+
+      - name: Docker Compose Testi (Build Kontrolu)
+        run: docker-compose build
