@@ -1,0 +1,144 @@
+package com.financeportal.domains.stock.client;
+
+import com.financeportal.domains.stock.dto.StockDto;
+import com.financeportal.model.dto.fintables.FintablesChartResponse;
+import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.util.BistConstants;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class BistStockClient {
+
+    private final RestTemplate restTemplate;
+
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+        headers.set("Referer", "https://fintables.com/");
+        return headers;
+    }
+
+    public List<StockDto> fetchTurkishStocks() {
+        long startTime = System.currentTimeMillis();
+        List<StockDto> stocks = new ArrayList<>();
+        Set<String> activeBist30 = BistConstants.BIST_30;
+        Set<String> activeBist50 = BistConstants.BIST_50_EK_HISSELER;
+        Set<String> activeBist100 = BistConstants.BIST_100_EK_HISSELER;
+
+        try {
+            String url = "https://markets.fintables.com/barbar/server/query?fields=C,CP,V&type=equity";
+            HttpEntity<String> entity = new HttpEntity<>(getHeaders());
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+
+            if (response.getBody() != null && response.getBody().get("results") != null) {
+                Map<String, List<Map<String, Object>>> results = (Map<String, List<Map<String, Object>>>) response.getBody().get("results");
+
+                for (Map.Entry<String, List<Map<String, Object>>> entry : results.entrySet()) {
+                    String symbol = entry.getKey();
+                    List<Map<String, Object>> values = entry.getValue();
+
+                    if (values != null && values.size() >= 3) {
+                        StockDto dto = new StockDto();
+                        dto.setSymbol(symbol + ".IS");
+                        dto.setYahooSymbol(symbol + ".IS");
+                        dto.setName(symbol);
+                        dto.setAssetType("HİSSE SENEDİ");
+                        dto.setAssetCategory("STOCK");
+                        dto.setChartType("CANDLE");
+
+                        boolean is30 = activeBist30 != null && activeBist30.contains(symbol);
+                        boolean is50 = is30 || (activeBist50 != null && activeBist50.contains(symbol));
+                        boolean is100 = is50 || (activeBist100 != null && activeBist100.contains(symbol));
+
+                        dto.setInBist30(is30); dto.setInBist50(is50); dto.setInBist100(is100);
+
+                        Object priceObj = values.get(0).get("v");
+                        dto.setPrice(priceObj instanceof Number ? new BigDecimal(priceObj.toString()) : BigDecimal.ZERO);
+                        Object changeObj = values.get(1).get("v");
+                        dto.setChangePercent(changeObj instanceof Number ? new BigDecimal(changeObj.toString()) : BigDecimal.ZERO);
+                        Object volObj = values.get(2).get("v");
+                        dto.setVolume(volObj instanceof Number ? ((Number) volObj).longValue() : 0L);
+
+                        if (dto.getPrice().compareTo(BigDecimal.ZERO) > 0) stocks.add(dto);
+                    }
+                }
+                log.info("[BIST_STOCK] Fetched {} Turkish stocks in {} ms.", stocks.size(), (System.currentTimeMillis() - startTime));
+            }
+        } catch (Exception e) {
+            log.error("[BIST_STOCK] Failed to fetch Turkish stocks: {}", e.getMessage());
+        }
+        return stocks;
+    }
+
+    public List<HistoricalDataDto> fetchIndexHistory(String symbol, String range) {
+        long startTime = System.currentTimeMillis();
+        List<HistoricalDataDto> historyList = new ArrayList<>();
+        try {
+            long to = Instant.now().getEpochSecond();
+            long from; String resolution;
+            String safeRange = (range != null) ? range.toLowerCase() : "1mo";
+
+            switch (safeRange) {
+                case "1d": from = Instant.now().minus(2, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "5"; break;
+                case "5d": from = Instant.now().minus(7, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "60"; break;
+                case "1mo": from = Instant.now().minus(30, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                case "3mo": from = Instant.now().minus(90, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                case "6mo": from = Instant.now().minus(180, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                case "ytd":
+                    java.time.LocalDate now = java.time.LocalDate.now();
+                    from = java.time.LocalDate.of(now.getYear(), 1, 1).atStartOfDay(java.time.ZoneOffset.UTC).toEpochSecond();
+                    resolution = "D";
+                    break;
+                case "1y": from = Instant.now().minus(365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                case "5y": from = Instant.now().minus(5 * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                default: from = Instant.now().minus(20 * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+            }
+
+            String url = String.format("https://markets.fintables.com/barbar/udf/history?symbol=%s&resolution=%s&from=%d&to=%d", symbol, resolution, from, to);
+            HttpEntity<String> entity = new HttpEntity<>(getHeaders());
+            ResponseEntity<FintablesChartResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, FintablesChartResponse.class);
+
+            if (response.getBody() != null && "ok".equals(response.getBody().getS()) && response.getBody().getT() != null) {
+                List<Long> times = response.getBody().getT();
+                List<BigDecimal> closes = response.getBody().getC();
+                List<BigDecimal> opens = response.getBody().getO();
+                List<BigDecimal> highs = response.getBody().getH();
+                List<BigDecimal> lows = response.getBody().getL();
+                List<Long> volumes = response.getBody().getV();
+
+                for (int i = 0; i < times.size(); i++) {
+                    HistoricalDataDto dto = new HistoricalDataDto();
+                    dto.setTimestamp(times.get(i) * 1000);
+                    dto.setDate(Instant.ofEpochMilli(dto.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDate());
+                    dto.setClose(closes != null && i < closes.size() ? closes.get(i) : BigDecimal.ZERO);
+                    dto.setPrice(dto.getClose());
+                    dto.setOpen(opens != null && i < opens.size() ? opens.get(i) : dto.getClose());
+                    dto.setHigh(highs != null && i < highs.size() ? highs.get(i) : dto.getClose());
+                    dto.setLow(lows != null && i < lows.size() ? lows.get(i) : dto.getClose());
+                    dto.setVolume(volumes != null && i < volumes.size() && volumes.get(i) != null ? volumes.get(i) : 0L);
+                    historyList.add(dto);
+                }
+            }
+        } catch (Exception e) {
+            log.error("[BIST_INDEX_CHART] Failed to fetch history for {}: {}", symbol, e.getMessage());
+        }
+        return historyList;
+    }
+}
