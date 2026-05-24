@@ -1,17 +1,15 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.user;
 
-import lombok.AllArgsConstructor;
+import com.financeportal.model.enums.RiskProfile; // 🚀 IMPORT ŞART
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserResponseDto {
     private UUID id;
     private String name;
     private String email;
-    private LocalDateTime createdAt;
+    private com.financeportal.model.enums.RiskProfile riskProfile; // 🚀 BU EKSİKTİ
+    private java.time.LocalDateTime createdAt;
 }

@@ -1,4 +1,4 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.user;
 
 import lombok.Data;
 import java.util.Map;

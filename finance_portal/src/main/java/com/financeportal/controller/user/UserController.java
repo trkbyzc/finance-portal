@@ -1,77 +1,47 @@
-package com.financeportal.controller;
+package com.financeportal.controller.user;
 
-import com.financeportal.model.dto.user.UserCreateDto;
 import com.financeportal.model.dto.user.UserRegistrationDto;
 import com.financeportal.model.dto.user.UserResponseDto;
-import com.financeportal.model.entity.User;
-import com.financeportal.model.enums.RiskProfile;
-import com.financeportal.repository.UserRepository;
-import com.financeportal.service.RiskAnalysisService;
 import com.financeportal.service.user.UserService;
 import com.financeportal.security.SecurityUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "Kullanıcı Yönetimi", description = "Profil, KYC ve Üyelik İşlemleri")
 public class UserController {
 
-    // Mevcut servis
     private final UserService userService;
-
-    // KYC için yeni eklenen bağımlılıklar
-    private final RiskAnalysisService riskAnalysisService;
-    private final UserRepository userRepository;
     private final SecurityUtils securityUtils;
 
-    @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserCreateDto dto) {
-        return ResponseEntity.ok(userService.createUser(dto));
+    @GetMapping("/me")
+    @Operation(summary = "Kendi Profil Bilgilerimi Getir")
+    public ResponseEntity<UserResponseDto> getMyProfile() {
+        UUID userId = securityUtils.getCurrentUserId();
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
-
-    @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable UUID id, @RequestBody UserCreateDto dto) {
-        return ResponseEntity.ok(userService.updateUser(id, dto));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // --- YENİ EKLENEN KYC (RİSK PROFİLLEME) ENDPOINT'İ ---
 
     @PostMapping("/kyc")
-    public ResponseEntity<?> submitKyc(@RequestBody UserRegistrationDto registrationDto) {
-        // SecurityUtils kullanarak token'ı olan mevcut kullanıcının ID'sini alıyoruz
+    @Operation(summary = "Yatırımcı Profilini Belirle (KYC)", description = "Anket sonuçlarına göre risk profilini hesaplar ve kaydeder.")
+    public ResponseEntity<Map<String, String>> submitKyc(@RequestBody UserRegistrationDto registrationDto) {
         UUID userId = securityUtils.getCurrentUserId();
+        String profileName = userService.processKyc(userId, registrationDto);
+        return ResponseEntity.ok(Map.of("message", "Anket tamamlandı. Profiliniz: " + profileName));
+    }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı. Lütfen tekrar giriş yapın."));
-
-        // Servise anket cevaplarını gönderip profili hesaplatıyoruz
-        RiskProfile calculatedProfile = riskAnalysisService.calculateProfile(registrationDto.getSurveyAnswers());
-
-        // Kullanıcının profilini güncelleyip kaydediyoruz
-        user.setRiskProfile(calculatedProfile);
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Anket başarıyla tamamlandı. Yatırımcı Profiliniz: " + calculatedProfile.name());
+    // Admin için listeleme
+    @GetMapping
+    @Operation(summary = "Tüm Kullanıcıları Listele (Admin)")
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }

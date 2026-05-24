@@ -12,13 +12,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Data // Bu notasyon sayesinde Getter, Setter, toString vb. otomatik oluşur.
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
 
     @Id
-    private UUID id;
+    private UUID id; // @GeneratedValue kaldırdık! ID'yi Keycloak verecek.
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -26,12 +26,11 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false) // Şifre alanını buraya ekledik
+    @Column(nullable = false)
     private String password;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -42,4 +41,23 @@ public class User {
     @Column(name = "banned_until")
     private LocalDateTime bannedUntil;
 
+    // 🚀 2FA ALANLARI TAMAMEN SİLİNDİ! (Artık Keycloak ilgileniyor)
+
+    // 🚀 RICH DOMAIN MODEL: Kendi kendini başlatan "Zengin" metod
+    public static User createNewUser(UUID id, String username, String email) {
+        User user = new User();
+        user.setId(id); // ID doğrudan Keycloak'tan gelecek
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword("MANAGED_BY_KEYCLOAK"); // Şifreyi kendi DB'mizde tutmuyoruz
+        user.setRole(Role.USER);
+        user.setBannedUntil(null);
+        user.setCreatedAt(LocalDateTime.now());
+        return user;
+    }
+
+    // 🚀 RICH DOMAIN MODEL: İş mantığını barındıran metod
+    public void applyKycProfile(RiskProfile profile) {
+        this.riskProfile = profile;
+    }
 }
