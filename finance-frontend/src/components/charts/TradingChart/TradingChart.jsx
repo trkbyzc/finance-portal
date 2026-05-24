@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { registerCustomOverlays } from '../../../config/customOverlays.js';
 import { useChartData } from '../../../hooks/charts/useChartData';
 import { historicalApi } from '../../../services/api';
@@ -29,6 +30,7 @@ registerCustomOverlays();
 
 function TradingChart({ asset, initialRange = '1y' }) {
     const klineContainer = useRef();
+    const { t } = useTranslation('charts');
 
     // Symbol ve chart type hesaplamaları
     const backendSymbol = useMemo(() => normalizeSymbol(asset), [asset]);
@@ -195,10 +197,10 @@ function TradingChart({ asset, initialRange = '1y' }) {
         }
     }, [chartData, useRechartsFinal, isNone, candleType]);
 
-    if (isNone) return <div className="h-[500px] flex items-center justify-center bg-[#131722] text-[#868993]">📊 Desteklenmiyor.</div>;
+    if (isNone) return <div className="h-125 flex items-center justify-center bg-surface text-text-muted">📊 Desteklenmiyor.</div>;
 
     return (
-        <div className="w-full h-full min-h-[600px] flex flex-col rounded-xl overflow-hidden bg-[#131722] relative shadow-2xl">
+        <div className="w-full h-full min-h-150 flex flex-col rounded-xl overflow-hidden bg-surface relative shadow-2xl">
             <ChartHeader
                 displayName={displayName} isTrBond={isTrBond} activeRange={activeRange} setActiveRange={setActiveRange}
                 isLineChart={useRechartsFinal} chartType={candleType} changeChartType={setCandleType}
@@ -211,8 +213,8 @@ function TradingChart({ asset, initialRange = '1y' }) {
 
             {/* 🆕 BIST karşılaştırma toggle bar — sadece TR hisseleri için görünür */}
             {isTrStock && (
-                <div className="h-11 bg-[#131722] border-b border-[#2a2e39] flex items-center px-4 gap-2 shrink-0">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#787b86] mr-2">BIST Karşılaştır:</span>
+                <div className="h-11 bg-surface border-b border-border flex items-center px-4 gap-2 shrink-0">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted mr-2">{t('bistCompare')}</span>
                     {BIST_OPTIONS.map(b => {
                         const active = activeBists[b.key];
                         return (
@@ -221,8 +223,8 @@ function TradingChart({ asset, initialRange = '1y' }) {
                                 onClick={() => toggleBist(b.key)}
                                 className={`px-3 py-1 text-xs font-bold rounded-md border transition-all ${
                                     active
-                                        ? 'text-white shadow-lg'
-                                        : 'bg-[#1e222d] hover:bg-[#2a2e39]'
+                                        ? 'text-text shadow-lg'
+                                        : 'bg-surface-2 hover:bg-surface-hover'
                                 }`}
                                 style={active ? {
                                     backgroundColor: b.color,
@@ -238,8 +240,8 @@ function TradingChart({ asset, initialRange = '1y' }) {
                         );
                     })}
                     {hasBistOverlay && (
-                        <span className="ml-auto text-[10px] text-[#868993] italic">
-                            Karşılaştırma aktif · grafik % normalize edildi · diğer butonlar pasif
+                        <span className="ml-auto text-[10px] text-text-muted italic">
+                            {t('bistCompareActive')}
                         </span>
                     )}
                 </div>
@@ -250,12 +252,12 @@ function TradingChart({ asset, initialRange = '1y' }) {
                     <ChartSidebar onDraw={createOverlay} onRemoveAll={removeAllOverlays} />
                 )}
 
-                <div className="flex-1 w-full bg-[#131722] relative p-2">
+                <div className="flex-1 w-full bg-surface relative p-2">
                     <ChartStatusOverlay isLoading={isLoading} error={error} />
 
                     {showBistChart ? (
                         // 🆕 BIST overlay modu: asset + active BIST'ler aynı eksende, % normalize, area chart
-                        <div key="bist-overlay" className="absolute top-2 left-2 right-2 bottom-2 p-4 bg-[#131722]">
+                        <div key="bist-overlay" className="absolute top-2 left-2 right-2 bottom-2 p-4 bg-surface">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={bistOverlayChartData}>
                                     <defs>
@@ -306,7 +308,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                                         <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
                                         <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} />
                                         <YAxis stroke="#787b86" orientation="right" domain={['auto', 'auto']} tickFormatter={(v) => isYield ? `%${v.toFixed(2)}` : formatPriceLabel(v)} />
-                                        <RechartsTooltip contentStyle={{ backgroundColor: '#1e222d', border: '1px solid #2a2e39' }} formatter={(v) => isYield ? [`%${Number(v).toFixed(3)}`, 'Yield'] : [formatPriceLabel(v), 'Fiyat']} />
+                                        <RechartsTooltip contentStyle={{ backgroundColor: '#1e222d', border: '1px solid #2a2e39' }} formatter={(v) => isYield ? [`%${Number(v).toFixed(3)}`, t('yield')] : [formatPriceLabel(v), t('price')]} />
                                         <Area type="monotone" dataKey="close" stroke={isEurobond ? '#ff9800' : '#2962ff'} strokeWidth={3} fillOpacity={1} fill="url(#colorClose)" />
                                     </AreaChart>
                                 ) : (
@@ -314,7 +316,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                                         <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
                                         <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} />
                                         <YAxis stroke="#787b86" orientation="right" tickFormatter={(v) => isYield ? `%${v.toFixed(2)}` : formatPriceLabel(v)} />
-                                        <RechartsTooltip contentStyle={{ backgroundColor: '#1e222d', border: '1px solid #2a2e39' }} formatter={(v) => isYield ? [`%${Number(v).toFixed(3)}`, 'Yield'] : [formatPriceLabel(v), 'Fiyat']} />
+                                        <RechartsTooltip contentStyle={{ backgroundColor: '#1e222d', border: '1px solid #2a2e39' }} formatter={(v) => isYield ? [`%${Number(v).toFixed(3)}`, t('yield')] : [formatPriceLabel(v), t('price')]} />
                                         <Line type="monotone" dataKey="close" stroke="#2962ff" strokeWidth={3} dot={false} />
                                     </LineChart>
                                 )}
@@ -326,7 +328,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
 
                     {editingText && (
                         <input
-                            type="text" autoFocus className="absolute bg-[#131722] text-white border border-[#2962ff] px-2 py-1 z-50 rounded outline-none"
+                            type="text" autoFocus className="absolute bg-surface text-text border border-primary px-2 py-1 z-50 rounded outline-none"
                             style={{ left: editingText.x, top: editingText.y }}
                             value={editingText.text}
                             onChange={(e) => setEditingText({...editingText, text: e.target.value})}

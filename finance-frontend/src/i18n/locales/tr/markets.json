@@ -1,0 +1,195 @@
+{
+  "ticker": {
+    "live": "CANLI",
+    "marketStatus": "PİYASA"
+  },
+  "live": {
+    "title": "Canlı Piyasalar",
+    "indices": "Endeksler",
+    "snapshotSubtitle": "Anlık Fiyat Özeti",
+    "viewAllStocks": "Tüm {{name}} Hisselerini Gör",
+    "turkishStocks": "Türk Hisseleri",
+    "highestVolume": "En Yüksek Hacimli",
+    "mostVolatile": "En Değişken",
+    "topGainers": "Artanlar",
+    "topLosers": "Düşenler",
+    "commodities": "Vadeli İşlemler ve Emtialar",
+    "forex": "Döviz Kurları",
+    "bonds": "Devlet Tahvilleri",
+    "economy": "Türkiye Ekonomisi",
+    "ipoCalendar": "Halka Arz Takvimi",
+    "forexPair": "Döviz Çifti",
+    "today": "Bugün",
+    "week": "Hafta",
+    "month": "Ay",
+    "sixMonth": "6 Ay",
+    "year": "Yıl",
+    "fiveYear": "5 Yıl",
+    "yieldCurveTr": "Türkiye Getiri Eğrisi (EVDS)",
+    "currentYield": "Mevcut",
+    "yieldPct": "Getiri %",
+    "maturityDate": "Vade Tarihi",
+    "loadingBonds": "Tahvil verileri yükleniyor...",
+    "demandPrice": "Talep Fiyatı",
+    "noIpos": "Yaklaşan halka arz yok",
+    "noIposDetail": "Şu an için onaylanmış yeni bir halka arz bulunmamaktadır.",
+    "interestRate": "Faiz Oranı",
+    "inflationRate": "Enflasyon Oranı",
+    "unemploymentRate": "İşsizlik Oranı",
+    "dataSource": "Veri Kaynağı",
+    "goldUsdOz": "Altın (USD / ONS)",
+    "silverUsdOz": "Gümüş (USD / ONS)",
+    "goldTryGr": "Altın (TRY / GRAM)",
+    "crudeOil": "Brent Petrol",
+    "bondLabels": {
+      "short": "Kısa Vadeli",
+      "medium": "Orta Vadeli",
+      "long": "Uzun Vadeli",
+      "dibs": "DİBS",
+      "tahvil": "Tahvil",
+      "ay": "Ay",
+      "yil": "Yıl"
+    }
+  },
+  "categories": {
+    "trStocks": "Türk Hisse Senetleri",
+    "usStocks": "ABD Hisse Senetleri",
+    "viop": "VİOP",
+    "currencies": "Döviz",
+    "bankCurrencies": "Banka Kurları",
+    "crypto": "Kripto",
+    "turkishGold": "Türkiye Altın",
+    "commodities": "Emtialar",
+    "bonds": "Tahviller",
+    "eurobonds": "Eurobond",
+    "trFunds": "Türk Fonları",
+    "globalFunds": "Küresel Fonlar"
+  },
+  "common": {
+    "headerLive": "Canlı Veri",
+    "headerOffline": "Çevrimdışı",
+    "lastUpdate": "Son Güncelleme",
+    "source": "Kaynak",
+    "searchPlaceholder": "Sembol veya isim ara...",
+    "totalCount": "Toplam {{count}} varlık",
+    "viewChart": "Grafiği Gör",
+    "viewDetail": "Detayı Gör",
+    "topGainers": "En Çok Yükselenler",
+    "topLosers": "En Çok Düşenler",
+    "mostActive": "En Aktif İşlem",
+    "noResults": "Aramanızla eşleşen varlık bulunamadı"
+  },
+  "stocks": {
+    "headerTitle": "Türk Hisse Senetleri Piyasası",
+    "headerSubtitle": "BIST 100 ve diğer Türk borsa endeksleri",
+    "usHeaderTitle": "ABD Hisse Senetleri",
+    "usHeaderSubtitle": "S&P 500, NASDAQ, Dow Jones takip edin",
+    "indexLabel": "Endeks",
+    "indexValue": "Değer",
+    "indexChange": "Değişim",
+    "topMovers": "Öne Çıkanlar",
+    "stockList": "Hisse Listesi",
+    "listedStocks": "Listelenen Hisse",
+    "marketDirection": "Piyasa Yönü",
+    "bullish": "Pozitif Ağırlıklı",
+    "bearish": "Negatif Ağırlıklı",
+    "gainersShort": "Yükselen",
+    "losersShort": "Düşen",
+    "allStocks": "Tüm Hisse Senetleri",
+    "topGainers": "En Çok Artanlar",
+    "topLosers": "En Çok Düşenler",
+    "tableCols": {
+      "symbol": "Sembol",
+      "name": "Şirket",
+      "price": "Fiyat",
+      "change": "Değişim",
+      "changePercent": "Değişim %",
+      "volume": "Hacim"
+    }
+  },
+  "crypto": {
+    "headerTitle": "Kripto Piyasası",
+    "headerSubtitle": "Top 100 kripto para birimi, canlı veriler",
+    "marketCap": "Piyasa Değeri",
+    "volume24h": "24s Hacim",
+    "btcDominance": "BTC Dominans",
+    "activeCoins": "Aktif Coin",
+    "newsTitle": "Kripto Haberleri"
+  },
+  "currencies": {
+    "headerTitle": "Döviz Kurları",
+    "headerSubtitle": "TCMB resmi gösterge kurları",
+    "bankHeaderTitle": "Banka Döviz Kurları",
+    "bankHeaderSubtitle": "Bankaların güncel alış / satış oranları",
+    "majorCurrencies": "Ana Para Birimleri",
+    "rateAgainst": "TL Karşılığı",
+    "spread": "Makas",
+    "tabs": {
+      "all": "Tümü",
+      "major": "Ana",
+      "exotic": "Egzotik"
+    }
+  },
+  "gold": {
+    "headerTitle": "Türkiye Altın Piyasası",
+    "headerSubtitle": "Gram, çeyrek, yarım, tam altın ve daha fazlası",
+    "gramGold": "Gram Altın",
+    "quarter": "Çeyrek Altın",
+    "half": "Yarım Altın",
+    "full": "Tam Altın",
+    "republic": "Cumhuriyet Altını",
+    "rezeneed": "Reşat Altın",
+    "ata": "Ata Altın",
+    "purity": "Saflık"
+  },
+  "commodity": {
+    "headerTitle": "Emtia Piyasası",
+    "headerSubtitle": "Küresel kıymetli madenler, enerji ve tarım",
+    "spotlight": "Öne Çıkan Emtialar",
+    "tabs": {
+      "all": "Tümü",
+      "preciousMetals": "Kıymetli Metaller",
+      "energy": "Enerji",
+      "agriculture": "Tarım",
+      "industrial": "Sanayi Metalleri"
+    }
+  },
+  "bonds": {
+    "headerTitle": "Küresel Tahviller",
+    "headerSubtitle": "ABD Hazine getirileri ve daha fazlası",
+    "trHeaderTitle": "Türkiye Tahvil & Bono",
+    "trHeaderSubtitle": "TCMB EVDS verisi, 10 yıllık gösterge",
+    "yieldCurve": "Getiri Eğrisi",
+    "treasury": "Hazine",
+    "tabs": {
+      "us": "ABD",
+      "tr": "Türkiye",
+      "global": "Küresel"
+    }
+  },
+  "eurobonds": {
+    "headerTitle": "Türkiye Eurobond Görünümü",
+    "headerSubtitle": "Dış borçlanma stoku ve 10 yıllık TR USD tahvil getirisi",
+    "externalDebt": "Dış Borçlanma Görünümü",
+    "tr10y": "TR 10Y USD Tahvil Getirisi",
+    "currencyMix": "Döviz Cinsi Dağılımı",
+    "maturityMix": "Vade Dağılımı",
+    "totalStock": "Toplam Eurobond Stoku"
+  },
+  "funds": {
+    "trHeaderTitle": "Türk Yatırım Fonları",
+    "trHeaderSubtitle": "TEFAS verisi, tüm fon türleri",
+    "globalHeaderTitle": "Küresel ETF / Fonlar",
+    "globalHeaderSubtitle": "ABD ve dünya ETF piyasaları",
+    "fundType": "Fon Tipi",
+    "fundCode": "Fon Kodu",
+    "nav": "Birim Pay Değeri"
+  },
+  "viop": {
+    "headerTitle": "Vadeli İşlemler (VİOP)",
+    "headerSubtitle": "Endeks, döviz, emtia ve hisse vadeli sözleşmeler",
+    "contract": "Sözleşme",
+    "expiry": "Vade",
+    "settlement": "Uzlaşma"
+  }
+}

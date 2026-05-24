@@ -26,7 +26,7 @@ export default function CryptoDashboard() {
     }, [searchQuery, coins]);
 
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
             <CryptoHeader
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}

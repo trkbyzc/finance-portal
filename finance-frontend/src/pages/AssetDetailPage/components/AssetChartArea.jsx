@@ -24,7 +24,7 @@ export default function AssetChartArea({ asset, isViop }) {
     const finalCategory = getFinalCategory();
 
     return (
-        <div className="bg-[#131722] border border-[#2a2e39] rounded-3xl p-1 h-[650px] shadow-2xl mb-8 overflow-hidden">
+        <div className="bg-surface border border-border rounded-3xl p-1 h-[650px] shadow-2xl mb-8 overflow-hidden">
             {isViop ? (
                 <ViopTradingChart asset={asset} theme="dark" />
             ) : isGlobalEtf ? (

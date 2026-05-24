@@ -1,0 +1,53 @@
+{
+  "back": "Back",
+  "addToPortfolio": "Add to Portfolio",
+  "showInCurrency": "Show in Currency",
+  "currentPrice": "Current Price",
+  "changeToday": "Today's Change",
+  "openPrice": "Open",
+  "highPrice": "High",
+  "lowPrice": "Low",
+  "previousClose": "Previous Close",
+  "volume": "Volume",
+  "yearHigh": "52W High",
+  "yearLow": "52W Low",
+  "tabs": {
+    "chart": "Chart",
+    "stats": "Stats",
+    "fundamentals": "Fundamentals",
+    "comparison": "Comparison",
+    "news": "News"
+  },
+  "chart": {
+    "loading": "Loading chart...",
+    "noData": "No chart data available for this asset",
+    "candle": "Candle",
+    "line": "Line",
+    "area": "Area",
+    "interval": "Interval",
+    "indicators": "Indicators",
+    "addIndicator": "Add Indicator",
+    "tools": "Drawing Tools"
+  },
+  "comparison": {
+    "title": "Comparison",
+    "addAsset": "Add Asset",
+    "removeAsset": "Remove",
+    "normalized": "Normalized (%)",
+    "noComparison": "Add assets to compare"
+  },
+  "bond": {
+    "yield": "Yield",
+    "maturity": "Maturity",
+    "couponRate": "Coupon Rate",
+    "duration": "Duration",
+    "yieldCurve": "Yield Curve"
+  },
+  "fund": {
+    "navHistory": "NAV History",
+    "fundType": "Fund Type",
+    "fundManager": "Manager",
+    "minInvestment": "Min. Investment",
+    "expenseRatio": "Expense Ratio"
+  }
+}

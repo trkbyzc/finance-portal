@@ -22,14 +22,14 @@ export default function BankCurrenciesPage() {
     const filteredRates = rates.filter(r => r.currencyCode === selectedCurrency);
 
     if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-[#0b0e14]">
-            <Loader2 className="animate-spin text-[#2962ff]" size={48} />
+        <div className="h-screen flex items-center justify-center bg-bg">
+            <Loader2 className="animate-spin text-primary" size={48} />
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-4 md:p-8">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-8">
+            <div className="max-w-container mx-auto">
                 <BankCurrencyHeader />
                 <BankCurrencyTabs selectedCurrency={selectedCurrency} setSelectedCurrency={setSelectedCurrency} />
 
@@ -40,7 +40,7 @@ export default function BankCurrenciesPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="w-full p-8 text-center text-[#868993] bg-[#131722] rounded-2xl border border-[#2a2e39]">
+                    <div className="w-full p-8 text-center text-text-muted bg-surface rounded-2xl border border-border">
                         Bu döviz cinsi için güncel banka verisi bulunamadı.
                     </div>
                 )}

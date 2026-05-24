@@ -1,0 +1,19 @@
+{
+  "generic": "An error occurred",
+  "tryAgain": "Please try again",
+  "networkError": "Network error",
+  "notFound": "Page not found",
+  "unauthorized": "Unauthorized access",
+  "forbidden": "You don't have permission for this action",
+  "serverError": "Server error",
+  "timeout": "Request timed out",
+  "fieldRequired": "This field is required",
+  "invalidEmail": "Enter a valid email address",
+  "invalidNumber": "Enter a valid number",
+  "tooShort": "Too short (min {{min}} characters)",
+  "tooLong": "Too long (max {{max}} characters)",
+  "noData": "No data found",
+  "loadFailed": "Failed to load",
+  "saveFailed": "Failed to save",
+  "deleteFailed": "Failed to delete"
+}

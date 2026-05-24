@@ -1,0 +1,53 @@
+{
+  "back": "Geri",
+  "addToPortfolio": "Portföye Ekle",
+  "showInCurrency": "Para Biriminde Göster",
+  "currentPrice": "Anlık Fiyat",
+  "changeToday": "Bugünkü Değişim",
+  "openPrice": "Açılış",
+  "highPrice": "Yüksek",
+  "lowPrice": "Düşük",
+  "previousClose": "Önceki Kapanış",
+  "volume": "Hacim",
+  "yearHigh": "52H Yüksek",
+  "yearLow": "52H Düşük",
+  "tabs": {
+    "chart": "Grafik",
+    "stats": "İstatistik",
+    "fundamentals": "Temel Veriler",
+    "comparison": "Karşılaştırma",
+    "news": "Haberler"
+  },
+  "chart": {
+    "loading": "Grafik yükleniyor...",
+    "noData": "Bu varlık için grafik verisi mevcut değil",
+    "candle": "Mum",
+    "line": "Çizgi",
+    "area": "Alan",
+    "interval": "Aralık",
+    "indicators": "Göstergeler",
+    "addIndicator": "Gösterge Ekle",
+    "tools": "Çizim Araçları"
+  },
+  "comparison": {
+    "title": "Karşılaştırma",
+    "addAsset": "Varlık Ekle",
+    "removeAsset": "Kaldır",
+    "normalized": "Normalize Edilmiş (%)",
+    "noComparison": "Karşılaştırma için varlık ekleyin"
+  },
+  "bond": {
+    "yield": "Getiri",
+    "maturity": "Vade",
+    "couponRate": "Kupon Oranı",
+    "duration": "Durasyon",
+    "yieldCurve": "Getiri Eğrisi"
+  },
+  "fund": {
+    "navHistory": "Birim Pay Değeri Geçmişi",
+    "fundType": "Fon Türü",
+    "fundManager": "Yöneticisi",
+    "minInvestment": "Min. Yatırım",
+    "expenseRatio": "Yönetim Ücreti"
+  }
+}

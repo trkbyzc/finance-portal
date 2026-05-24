@@ -1,0 +1,64 @@
+{
+  "hero": {
+    "tagline": "Live Market Terminal",
+    "titleLine1": "All markets",
+    "titleLine2": "on one screen.",
+    "subtitle": "Track stocks, FX, commodities and crypto in real-time. Professional terminal experience with an intuitive interface.",
+    "exploreMarkets": "Explore Markets",
+    "viewNews": "View News",
+    "stat1": "400+ crypto",
+    "stat2": "BIST + US stocks",
+    "stat3": "Historical analysis"
+  },
+  "tabs": {
+    "stocks": "Stocks",
+    "currencies": "Forex",
+    "commodities": "Commodities",
+    "crypto": "Crypto",
+    "title": "Live Markets",
+    "subtitle": "Browse the most-watched assets by switching between tabs"
+  },
+  "calculator": {
+    "title": "Quick Convert",
+    "subtitle": "Instant currency conversion",
+    "amount": "Amount",
+    "from": "From",
+    "to": "TRY Equivalent",
+    "result": "Result",
+    "rate": "Rate Used"
+  },
+  "cta": {
+    "tagline": "Member Benefits",
+    "titleLine1": "Sign Up Free,",
+    "titleLine2": "Take Control of the Market",
+    "subtitle": "Watching as a guest is nice, but building your own financial base is much better. Sign up now and discover the perks.",
+    "favorites": "Favorites List",
+    "priceAlerts": "Price Alerts",
+    "createAccount": "Create Account"
+  },
+  "features": {
+    "title": "All Markets Under One Roof",
+    "subtitle": "Support your financial decisions with professional tools",
+    "realtime": {
+      "title": "Real-Time Data",
+      "desc": "Live prices from BIST, NYSE, NASDAQ, crypto and FX markets"
+    },
+    "tools": {
+      "title": "Professional Tools",
+      "desc": "Advanced charts, technical indicators and comparison tools"
+    },
+    "portfolio": {
+      "title": "Portfolio Management",
+      "desc": "Holdings tracking, P/L analysis and performance reports"
+    },
+    "secure": {
+      "title": "Secure Access",
+      "desc": "Keycloak-based authentication with 2FA-protected sessions"
+    }
+  },
+  "errors": {
+    "accessDenied": "Access Denied",
+    "accessDeniedMessage": "Your account access is restricted.",
+    "accessDeniedDetail": "Please contact administration for details."
+  }
+}

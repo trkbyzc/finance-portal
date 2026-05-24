@@ -52,9 +52,9 @@ export default function NewsDetailPage() {
         .slice(0, 5);
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#0b0e14]">
+        <div className="flex flex-col min-h-screen bg-bg">
             <MarketTicker />
-            <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-white flex flex-col lg:flex-row gap-10 w-full mt-4">
+            <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-text flex flex-col lg:flex-row gap-10 w-full mt-4">
                 <NewsArticle
                     newsItem={newsItem}
                     content={contentData || ''}

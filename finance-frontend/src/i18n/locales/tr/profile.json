@@ -1,0 +1,31 @@
+{
+  "pageTitle": "Profilim",
+  "pageSubtitle": "Hesap bilgilerinizi yönetin",
+  "sections": {
+    "info": "Hesap Bilgileri",
+    "security": "Güvenlik",
+    "preferences": "Tercihler",
+    "danger": "Tehlikeli Bölge"
+  },
+  "fields": {
+    "username": "Kullanıcı Adı",
+    "email": "E-posta",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "fullName": "Tam Ad",
+    "role": "Rol",
+    "memberSince": "Üyelik Tarihi",
+    "lastLogin": "Son Giriş"
+  },
+  "actions": {
+    "edit": "Düzenle",
+    "changePassword": "Şifre Değiştir",
+    "enable2fa": "2FA'yı Etkinleştir",
+    "manageInKeycloak": "Keycloak'ta Yönet",
+    "deleteAccount": "Hesabı Sil"
+  },
+  "roles": {
+    "admin": "Yönetici",
+    "user": "Standart Kullanıcı"
+  }
+}

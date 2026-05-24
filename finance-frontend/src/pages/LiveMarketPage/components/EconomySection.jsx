@@ -1,13 +1,14 @@
 import React from 'react';
-import { ChevronRight, Loader2, TrendingUp, Users, UserPlus, Percent } from 'lucide-react';
+import { ChevronRight, Loader2, TrendingUp, Users, Percent } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const CustomEconomyTooltip = ({ active, payload, label, economyMetric }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[#0b0e14] border border-[#2a2e39] p-3 rounded-xl shadow-2xl">
-                <p className="text-[#868993] text-[10px] font-bold mb-1 uppercase tracking-wider">{label}</p>
-                <p className="text-[#089981] text-lg font-mono font-black">
+            <div className="bg-bg border border-border p-3 rounded-xl shadow-2xl">
+                <p className="text-text-muted text-[10px] font-bold mb-1 uppercase tracking-wider">{label}</p>
+                <p className="text-buy text-lg font-mono font-black">
                     {Number(payload[0].value).toFixed(2)}<span className="text-[10px] ml-1">{economyMetric === 'population' ? 'M' : '%'}</span>
                 </p>
             </div>
@@ -16,20 +17,26 @@ const CustomEconomyTooltip = ({ active, payload, label, economyMetric }) => {
     return null;
 };
 
-// 🚀 ARTIK PROPLARIN İÇİNDE economyMacro DA VAR
 export default function EconomySection({ economyMacro, economyMetric, setEconomyMetric, economyRange, setEconomyRange, economyData, economyLoading }) {
+    const { t } = useTranslation(['markets', 'common']);
 
-    // 🚀 DİNAMİK KARTLAR: Backend'den gelen veriyle besleniyor
     const dynamicEconomyMetrics = [
-        { id: 'interestRate', label: 'Faiz Oranı', value: economyMacro?.interestRate ? `${economyMacro.interestRate}%` : '-%', icon: <Percent size={18} /> },
-        { id: 'inflationRate', label: 'Enflasyon Oranı', value: economyMacro?.inflationRate ? `${economyMacro.inflationRate}%` : '-%', icon: <TrendingUp size={18} /> },
-        { id: 'unemploymentRate', label: 'İşsizlik Oranı', value: economyMacro?.unemploymentRate ? `${economyMacro.unemploymentRate}%` : '-%', icon: <Users size={18} /> }
+        { id: 'interestRate', label: t('markets:live.interestRate'), value: economyMacro?.interestRate ? `${economyMacro.interestRate}%` : '-%', icon: <Percent size={18} /> },
+        { id: 'inflationRate', label: t('markets:live.inflationRate'), value: economyMacro?.inflationRate ? `${economyMacro.inflationRate}%` : '-%', icon: <TrendingUp size={18} /> },
+        { id: 'unemploymentRate', label: t('markets:live.unemploymentRate'), value: economyMacro?.unemploymentRate ? `${economyMacro.unemploymentRate}%` : '-%', icon: <Users size={18} /> }
+    ];
+
+    const ranges = [
+        { key: '1y', value: '1y' },
+        { key: '5y', value: '5y' },
+        { key: '10y', value: '10y' },
+        { key: 'all', value: 'all' }
     ];
 
     return (
         <div className="mb-16">
             <h2 className="text-2xl font-bold mb-8 flex items-center gap-2">
-                Türkiye Ekonomisi <ChevronRight className="text-[#868993]" size={24} />
+                {t('markets:live.economy')} <ChevronRight className="text-text-muted" size={24} />
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-8">
@@ -37,21 +44,21 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
                     <button
                         key={m.id}
                         onClick={() => setEconomyMetric(m.id)}
-                        className={`p-6 rounded-2xl border transition-all duration-300 text-left group ${economyMetric === m.id ? 'bg-[#1e222d] border-[#2962ff] ring-1 ring-[#2962ff]' : 'bg-[#131722] border-[#2a2e39] hover:border-[#868993]'}`}
+                        className={`p-6 rounded-2xl border transition-all duration-300 text-left group ${economyMetric === m.id ? 'bg-surface-2 border-primary ring-1 ring-[#2962ff]' : 'bg-surface border-border hover:border-border-strong'}`}
                     >
-                        <div className="text-[10px] font-black text-[#868993] mb-1 uppercase tracking-[0.1em]">{m.label}</div>
-                        <div className="text-2xl font-mono font-bold flex items-center justify-between text-[#d1d4dc]">
+                        <div className="text-[10px] font-black text-text-muted mb-1 uppercase tracking-[0.1em]">{m.label}</div>
+                        <div className="text-2xl font-mono font-bold flex items-center justify-between text-text">
                             {m.value}
-                            <div className={`p-2 rounded-lg transition-colors ${economyMetric === m.id ? 'bg-[#2962ff]/20 text-[#2962ff]' : 'bg-[#2a2e39] text-[#868993] group-hover:text-white'}`}>{m.icon}</div>
+                            <div className={`p-2 rounded-lg transition-colors ${economyMetric === m.id ? 'bg-primary/20 text-primary' : 'bg-surface-hover text-text-muted group-hover:text-text'}`}>{m.icon}</div>
                         </div>
                     </button>
                 ))}
             </div>
 
-            <div className="bg-[#131722] border border-[#2a2e39] rounded-3xl p-8 shadow-2xl relative flex flex-col">
+            <div className="bg-surface border border-border rounded-3xl p-8 shadow-2xl relative flex flex-col">
                 <div className="h-[400px] w-full mt-4">
                     {economyLoading ? (
-                        <div className="h-full flex items-center justify-center text-[#2962ff]"><Loader2 className="animate-spin" size={40} /></div>
+                        <div className="h-full flex items-center justify-center text-primary"><Loader2 className="animate-spin" size={40} /></div>
                     ) : (
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={economyData} margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
@@ -65,20 +72,18 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
                     )}
                 </div>
 
-                <div className="mt-8 flex items-center justify-between border-t border-[#2a2e39] pt-6">
-                    <div className="flex items-center gap-1 bg-[#0b0e14] p-1.5 rounded-xl border border-[#2a2e39]">
-                        {['1Y', '5Y', '10Y', 'Tümü'].map((label) => {
-                            const val = label.toLowerCase();
-                            const isActive = (economyRange === val || (val === 'tümü' && economyRange === 'all'));
+                <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
+                    <div className="flex items-center gap-1 bg-bg p-1.5 rounded-xl border border-border">
+                        {ranges.map((r) => {
+                            const isActive = economyRange === r.value;
                             return (
-                                <button key={label} onClick={() => setEconomyRange(val === 'tümü' ? 'all' : val)} className={`px-5 py-2 text-[11px] font-bold rounded-lg transition-all ${isActive ? 'bg-[#2962ff] text-white shadow-lg' : 'text-[#787b86] hover:text-white hover:bg-[#1e222d]'}`}>{label}</button>
+                                <button key={r.value} onClick={() => setEconomyRange(r.value)} className={`px-5 py-2 text-[11px] font-bold rounded-lg transition-all ${isActive ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text hover:bg-surface-2'}`}>{t(`common:ranges.${r.key}`)}</button>
                             );
                         })}
                     </div>
                     <div className="flex flex-col items-end">
-                        <span className="text-[11px] text-[#5d606b] font-bold uppercase tracking-widest">Veri Kaynağı</span>
-                        {/* 🚀 SON DOKUNUŞ: TCMB EVDS İMZASI */}
-                        <span className="text-[11px] text-[#2962ff] font-bold tracking-wide">TCMB EVDS</span>
+                        <span className="text-[11px] text-text-muted font-bold uppercase tracking-widest">{t('markets:live.dataSource')}</span>
+                        <span className="text-[11px] text-primary font-bold tracking-wide">TCMB EVDS</span>
                     </div>
                 </div>
             </div>

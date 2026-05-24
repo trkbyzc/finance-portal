@@ -1,0 +1,86 @@
+{
+  "header": {
+    "live": "LIVE",
+    "chartType": "Chart Type",
+    "interval": "Interval",
+    "indicators": "Indicators",
+    "tools": "Tools",
+    "settings": "Settings",
+    "save": "Save",
+    "fullscreen": "Fullscreen"
+  },
+  "types": {
+    "candle": "Candle",
+    "candleSolid": "Solid Candle",
+    "ohlc": "OHLC",
+    "line": "Line",
+    "area": "Area",
+    "bar": "Bar"
+  },
+  "intervals": {
+    "1m": "1 Minute",
+    "5m": "5 Minutes",
+    "15m": "15 Minutes",
+    "30m": "30 Minutes",
+    "1h": "1 Hour",
+    "4h": "4 Hours",
+    "1d": "Daily",
+    "1w": "Weekly",
+    "1mo": "Monthly"
+  },
+  "indicators": {
+    "MA": "Moving Average (MA)",
+    "EMA": "Exponential Moving Average (EMA)",
+    "BOLL": "Bollinger Bands",
+    "MACD": "MACD",
+    "RSI": "RSI",
+    "VOL": "Volume",
+    "KDJ": "KDJ",
+    "addIndicator": "Add Indicator",
+    "removeAll": "Remove All"
+  },
+  "tools": {
+    "trendLine": "Trend Line",
+    "horizontalLine": "Horizontal Line",
+    "rectangle": "Rectangle",
+    "fibonacci": "Fibonacci",
+    "removeAll": "Clear All Drawings"
+  },
+  "sidebar": {
+    "openInterest": "Open Interest",
+    "details": "Details",
+    "stats": "Statistics",
+    "rangeStats": "{{range}} Statistics",
+    "low": "Low",
+    "high": "High",
+    "avg": "Average",
+    "volumeAvg": "Avg. Volume"
+  },
+  "status": {
+    "noData": "No data available for this asset",
+    "loadingChart": "Loading chart...",
+    "errorLoading": "Error loading chart",
+    "retry": "Retry"
+  },
+  "bistCompare": "Compare with BIST:",
+  "bistCompareActive": "Comparison active · chart normalized to % · other buttons disabled",
+  "price": "Price",
+  "yield": "Yield",
+  "trInflation": "TR Inflation",
+  "usInflation": "US Inflation",
+  "fund": {
+    "navHistory": "NAV History",
+    "range1y": "1 Year",
+    "range3y": "3 Years",
+    "range5y": "5 Years",
+    "rangeAll": "All"
+  },
+  "viop": {
+    "contract": "Contract",
+    "currentPrice": "Current Price",
+    "openInterest": "Open Interest",
+    "settlement": "Settlement",
+    "volume": "Volume",
+    "expiry": "Expiry"
+  }
+}

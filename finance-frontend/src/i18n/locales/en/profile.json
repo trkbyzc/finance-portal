@@ -1,0 +1,31 @@
+{
+  "pageTitle": "My Profile",
+  "pageSubtitle": "Manage your account information",
+  "sections": {
+    "info": "Account Information",
+    "security": "Security",
+    "preferences": "Preferences",
+    "danger": "Danger Zone"
+  },
+  "fields": {
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "fullName": "Full Name",
+    "role": "Role",
+    "memberSince": "Member Since",
+    "lastLogin": "Last Login"
+  },
+  "actions": {
+    "edit": "Edit",
+    "changePassword": "Change Password",
+    "enable2fa": "Enable 2FA",
+    "manageInKeycloak": "Manage in Keycloak",
+    "deleteAccount": "Delete Account"
+  },
+  "roles": {
+    "admin": "Admin",
+    "user": "Standard User"
+  }
+}

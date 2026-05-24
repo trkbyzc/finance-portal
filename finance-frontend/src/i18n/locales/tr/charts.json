@@ -1,0 +1,86 @@
+{
+  "header": {
+    "live": "CANLI",
+    "chartType": "Grafik Tipi",
+    "interval": "Periyot",
+    "indicators": "Göstergeler",
+    "tools": "Araçlar",
+    "settings": "Ayarlar",
+    "save": "Kaydet",
+    "fullscreen": "Tam Ekran"
+  },
+  "types": {
+    "candle": "Mum",
+    "candleSolid": "Dolu Mum",
+    "ohlc": "OHLC",
+    "line": "Çizgi",
+    "area": "Alan",
+    "bar": "Bar"
+  },
+  "intervals": {
+    "1m": "1 Dakika",
+    "5m": "5 Dakika",
+    "15m": "15 Dakika",
+    "30m": "30 Dakika",
+    "1h": "1 Saat",
+    "4h": "4 Saat",
+    "1d": "Günlük",
+    "1w": "Haftalık",
+    "1mo": "Aylık"
+  },
+  "indicators": {
+    "MA": "Hareketli Ortalama (MA)",
+    "EMA": "Üstel Hareketli Ortalama (EMA)",
+    "BOLL": "Bollinger Bantları",
+    "MACD": "MACD",
+    "RSI": "RSI",
+    "VOL": "Hacim",
+    "KDJ": "KDJ",
+    "addIndicator": "Gösterge Ekle",
+    "removeAll": "Tümünü Kaldır"
+  },
+  "tools": {
+    "trendLine": "Trend Çizgisi",
+    "horizontalLine": "Yatay Çizgi",
+    "rectangle": "Dikdörtgen",
+    "fibonacci": "Fibonacci",
+    "removeAll": "Tüm Çizimleri Sil"
+  },
+  "sidebar": {
+    "openInterest": "Açık Pozisyon",
+    "details": "Detaylar",
+    "stats": "İstatistikler",
+    "rangeStats": "{{range}} İstatistikleri",
+    "low": "Düşük",
+    "high": "Yüksek",
+    "avg": "Ortalama",
+    "volumeAvg": "Ort. Hacim"
+  },
+  "status": {
+    "noData": "Bu varlık için veri bulunamadı",
+    "loadingChart": "Grafik yükleniyor...",
+    "errorLoading": "Grafik yüklenirken hata oluştu",
+    "retry": "Tekrar Dene"
+  },
+  "bistCompare": "BIST Karşılaştır:",
+  "bistCompareActive": "Karşılaştırma aktif · grafik % normalize edildi · diğer butonlar pasif",
+  "price": "Fiyat",
+  "yield": "Getiri",
+  "trInflation": "TR Enflasyon",
+  "usInflation": "ABD Enflasyon",
+  "fund": {
+    "navHistory": "Birim Pay Değeri",
+    "range1y": "1 Yıl",
+    "range3y": "3 Yıl",
+    "range5y": "5 Yıl",
+    "rangeAll": "Tümü"
+  },
+  "viop": {
+    "contract": "Sözleşme",
+    "currentPrice": "Anlık Fiyat",
+    "openInterest": "Açık Pozisyon",
+    "settlement": "Uzlaşma Fiyatı",
+    "volume": "Hacim",
+    "expiry": "Vade"
+  }
+}

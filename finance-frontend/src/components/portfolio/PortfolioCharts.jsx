@@ -1,22 +1,12 @@
 import React from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+import { useTranslation } from 'react-i18next';
 
 const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
-    // 🔍 DEBUG: Portfolio'yu konsola yazdır
-    console.log('📦 Portfolio Data:', portfolio);
+    const { t } = useTranslation(['portfolio', 'markets']);
 
-    // Varlık türüne göre dağılım (Pie Chart için)
     const assetTypeDistribution = portfolio?.reduce((acc, item) => {
         const calc = calculateProfitLoss(item);
-
-        // 🔍 DEBUG: Her varlık için hesaplama
-        console.log(`📊 ${item.symbol} (${item.assetType}):`, {
-            currentValue: calc.currentValue,
-            currentPrice: calc.currentPrice,
-            quantity: item.quantity
-        });
-
         const existing = acc.find(a => a.name === item.assetType);
 
         if (existing) {
@@ -31,50 +21,41 @@ const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
         return acc;
     }, []) || [];
 
-    // 🔍 DEBUG: Dağılım sonucu
-    console.log('📊 Asset Type Distribution:', assetTypeDistribution);
-
-    // Varlık bazlı kar/zarar (Bar Chart için)
     const assetProfitLoss = portfolio?.map(item => {
         const calc = calculateProfitLoss(item);
         return {
             name: item.symbol,
-            assetType: item.assetType, // 🎨 Varlık türünü ekle
-            'Kar/Zarar': calc.profitLoss,
-            'Yatırım': item.averagePrice * item.quantity,
-            'Güncel Değer': calc.currentValue
+            assetType: item.assetType,
+            'pnl': calc.profitLoss,
+            'invested': item.averagePrice * item.quantity,
+            'current': calc.currentValue
         };
     }) || [];
 
-
-    // Pie Chart renkleri
     const COLORS = ['#2962ff', '#089981', '#f23645', '#ff9800', '#9c27b0', '#00bcd4'];
 
-    // Türkçe isimler
     const assetTypeNames = {
-        'STOCK': 'Hisse',
-        'CRYPTO': 'Kripto',
-        'CURRENCY': 'Döviz',
-        'COMMODITY': 'Emtia',
-        'BOND': 'Tahvil',
-        'FUND': 'Fon',
-        'FUTURE': 'Vadeli'
+        'STOCK': t('markets:categories.trStocks'),
+        'CRYPTO': t('markets:categories.crypto'),
+        'CURRENCY': t('markets:categories.currencies'),
+        'COMMODITY': t('markets:categories.commodities'),
+        'BOND': t('markets:categories.bonds'),
+        'FUND': t('markets:categories.trFunds'),
+        'FUTURE': t('markets:categories.viop')
     };
 
-    // 🎨 YENİ: Varlık türüne göre renk döndüren fonksiyon
     const getColorByAssetType = (assetType) => {
         const typeIndex = Object.keys(assetTypeNames).indexOf(assetType);
         return COLORS[typeIndex % COLORS.length];
     };
 
-    // Custom label renderer - daha iyi görünüm için
     const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
         const RADIAN = Math.PI / 180;
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-        if (percent < 0.05) return null; // %5'ten küçük dilimleri gösterme
+        if (percent < 0.05) return null;
 
         return (
             <text
@@ -92,9 +73,8 @@ const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            {/* Varlık Türü Dağılımı (Pie Chart) */}
-            <div className="bg-[#1a1d29] rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4">Varlık Türü Dağılımı</h3>
+            <div className="bg-surface-2 rounded-lg p-6">
+                <h3 className="text-xl font-bold mb-4">{t('portfolio:charts.distribution')}</h3>
                 {assetTypeDistribution.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
@@ -129,15 +109,14 @@ const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
                         </PieChart>
                     </ResponsiveContainer>
                 ) : (
-                    <div className="h-[300px] flex items-center justify-center text-[#868993]">
-                        Henüz varlık bulunmuyor
+                    <div className="h-[300px] flex items-center justify-center text-text-muted">
+                        {t('portfolio:holdings.noHoldings')}
                     </div>
                 )}
             </div>
 
-            {/* Varlık Bazlı Kar/Zarar (Bar Chart) */}
-            <div className="bg-[#1a1d29] rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4">Varlık Bazlı Kar/Zarar</h3>
+            <div className="bg-surface-2 rounded-lg p-6">
+                <h3 className="text-xl font-bold mb-4">{t('portfolio:stats.totalPnl')}</h3>
                 {assetProfitLoss.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={assetProfitLoss}>
@@ -161,7 +140,7 @@ const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
                                 }}
                             />
                             <Legend wrapperStyle={{ color: '#868993' }} />
-                            <Bar dataKey="Kar/Zarar">
+                            <Bar dataKey="pnl" name={t('portfolio:stats.totalPnl')}>
                                 {assetProfitLoss.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={getColorByAssetType(entry.assetType)} />
                                 ))}
@@ -169,12 +148,11 @@ const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
                         </BarChart>
                     </ResponsiveContainer>
                 ) : (
-                    <div className="h-[300px] flex items-center justify-center text-[#868993]">
-                        Henüz varlık bulunmuyor
+                    <div className="h-[300px] flex items-center justify-center text-text-muted">
+                        {t('portfolio:holdings.noHoldings')}
                     </div>
                 )}
             </div>
-
         </div>
     );
 };

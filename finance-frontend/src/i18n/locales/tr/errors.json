@@ -1,0 +1,19 @@
+{
+  "generic": "Bir hata oluştu",
+  "tryAgain": "Lütfen tekrar deneyin",
+  "networkError": "Bağlantı hatası",
+  "notFound": "Sayfa bulunamadı",
+  "unauthorized": "Yetkisiz erişim",
+  "forbidden": "Bu işlem için yetkiniz yok",
+  "serverError": "Sunucu hatası",
+  "timeout": "İşlem zaman aşımına uğradı",
+  "fieldRequired": "Bu alan zorunludur",
+  "invalidEmail": "Geçerli bir e-posta adresi girin",
+  "invalidNumber": "Geçerli bir sayı girin",
+  "tooShort": "Çok kısa (min {{min}} karakter)",
+  "tooLong": "Çok uzun (max {{max}} karakter)",
+  "noData": "Veri bulunamadı",
+  "loadFailed": "Yüklenemedi",
+  "saveFailed": "Kaydedilemedi",
+  "deleteFailed": "Silinemedi"
+}

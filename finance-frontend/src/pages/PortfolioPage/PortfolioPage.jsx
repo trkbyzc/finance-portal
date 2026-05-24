@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2, Edit2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { apiClient } from '../../config/apiClient';
 import AddToPortfolioModal from '../../components/portfolio/AddToPortfolioModal';
@@ -9,18 +10,17 @@ import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
 
 const PortfolioPage = () => {
+    const { t } = useTranslation(['portfolio', 'common']);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingAsset, setEditingAsset] = useState(null);
     const queryClient = useQueryClient();
 
-    // Portföyü çek
     const { data: portfolio, isLoading, error } = useQuery({
         queryKey: ['portfolio'],
         queryFn: portfolioApi.getMyPortfolio
     });
 
-    // 🚀 YENİ: Tüm piyasa verilerini çek (güncel fiyatlar için)
     const { data: marketData } = useQuery({
         queryKey: ['allMarketData'],
         queryFn: async () => {
@@ -35,10 +35,9 @@ const PortfolioPage = () => {
 
             return { stocks, cryptos, currencies, commodities, bonds, funds };
         },
-        staleTime: 30000 // 30 saniye cache
+        staleTime: 30000
     });
 
-    // 🚀 Fonlar için güncel fiyatları çek
     const { data: fundPrices } = useQuery({
         queryKey: ['fundPrices', portfolio],
         queryFn: async () => {
@@ -64,7 +63,7 @@ const PortfolioPage = () => {
                         };
                     }
                 } catch (error) {
-                    console.warn(`Fon fiyatı çekilemedi: ${fund.symbol}`, error);
+                    console.warn(`Fund price fetch failed: ${fund.symbol}`, error);
                 }
                 return { symbol: fund.symbol, price: 0 };
             });
@@ -79,21 +78,19 @@ const PortfolioPage = () => {
         staleTime: 30000
     });
 
-    // Varlık ekleme mutation
     const addAssetMutation = useMutation({
         mutationFn: portfolioApi.addManualEntry,
         onSuccess: () => {
             queryClient.invalidateQueries(['portfolio']);
-            alert('✅ Varlık başarıyla portföye eklendi!');
+            alert(t('portfolio:modal.saveSuccess'));
         }
     });
 
-    // Varlık silme mutation
     const deleteAssetMutation = useMutation({
         mutationFn: portfolioApi.removeFromPortfolio,
         onSuccess: () => {
             queryClient.invalidateQueries(['portfolio']);
-            alert('✅ Varlık portföyden çıkarıldı!');
+            alert(t('portfolio:modal.deleteSuccess'));
         }
     });
 
@@ -101,7 +98,7 @@ const PortfolioPage = () => {
         mutationFn: portfolioApi.updateManualEntry,
         onSuccess: () => {
             queryClient.invalidateQueries(['portfolio']);
-            alert('✅ Varlık başarıyla güncellendi!');
+            alert(t('portfolio:modal.saveSuccess'));
         }
     });
 
@@ -110,7 +107,7 @@ const PortfolioPage = () => {
     };
 
     const handleDeleteAsset = async (item) => {
-        if (!confirm(`${item.symbol} sembolünü portföyden çıkarmak istediğinize emin misiniz?`)) {
+        if (!confirm(t('portfolio:modal.deleteConfirm'))) {
             return;
         }
 
@@ -121,7 +118,6 @@ const PortfolioPage = () => {
         });
     };
 
-    // 🆕 Düzenleme handler'ı
     const handleEditAsset = (item) => {
         setEditingAsset(item);
         setIsEditModalOpen(true);
@@ -131,7 +127,6 @@ const PortfolioPage = () => {
         await editAssetMutation.mutateAsync(data);
     };
 
-    // 🚀 YENİ: Frontend'te güncel fiyat bul
     const getCurrentPrice = (symbol, assetType) => {
         if (!marketData) return null;
 
@@ -158,7 +153,6 @@ const PortfolioPage = () => {
                     return bond?.price;
 
                 case 'FUND':
-                    // 🚀 Fonlar için ayrı çekilen fiyatları kullan
                     return fundPrices?.[symbol] || null;
 
                 default:
@@ -169,9 +163,7 @@ const PortfolioPage = () => {
         }
     };
 
-    // Kar/Zarar hesaplama (frontend'te güncel fiyatla)
     const calculateProfitLoss = (item) => {
-        // Frontend'ten güncel fiyat al
         const currentPrice = getCurrentPrice(item.symbol, item.assetType) || item.currentPrice;
 
         const profitLoss = (currentPrice - item.averagePrice) * item.quantity;
@@ -187,10 +179,10 @@ const PortfolioPage = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+            <div className="min-h-screen bg-bg flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2962ff] mx-auto mb-4"></div>
-                    <p className="text-[#868993]">Portföy yükleniyor...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-text-muted">{t('common:status.loading')}</p>
                 </div>
             </div>
         );
@@ -198,39 +190,36 @@ const PortfolioPage = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+            <div className="min-h-screen bg-bg flex items-center justify-center">
                 <div className="text-center text-red-500">
-                    <p>❌ Portföy yüklenirken hata oluştu</p>
-                    <p className="text-sm text-[#868993] mt-2">{error.message}</p>
+                    <p>{t('common:status.error')}</p>
+                    <p className="text-sm text-text-muted mt-2">{error.message}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] p-6">
-            <div className="max-w-7xl mx-auto">
-                {/* Header */}
+        <div className="min-h-screen bg-bg p-6">
+            <div className="max-w-container mx-auto">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h1 className="text-3xl font-bold">Portföyüm</h1>
-                        <p className="text-[#868993] mt-1">Varlıklarınızı takip edin</p>
+                        <h1 className="text-3xl font-bold">{t('portfolio:pageTitle')}</h1>
+                        <p className="text-text-muted mt-1">{t('portfolio:pageSubtitle')}</p>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="px-6 py-3 bg-[#2962ff] hover:bg-[#1e4db7] rounded font-semibold transition"
+                        className="px-6 py-3 bg-primary hover:bg-primary-hover rounded font-semibold transition"
                     >
-                        + Varlık Ekle
+                        + {t('common:actions.add')}
                     </button>
                 </div>
 
-                {/* Özet İstatistikler */}
                 <PortfolioStats
                     portfolio={portfolio}
                     calculateProfitLoss={calculateProfitLoss}
                 />
 
-                {/* Grafikler */}
                 {portfolio && portfolio.length > 0 && (
                     <PortfolioCharts
                         portfolio={portfolio}
@@ -238,39 +227,38 @@ const PortfolioPage = () => {
                     />
                 )}
 
-                {/* Varlık Listesi */}
                 {!portfolio || portfolio.length === 0 ? (
-                    <div className="bg-[#1a1d29] rounded-lg p-12 text-center">
-                        <p className="text-[#868993] text-lg mb-4">📊 Henüz portföyünüzde varlık bulunmuyor</p>
-                        <p className="text-[#868993] text-sm">Varlık eklemek için yukarıdaki butona tıklayın</p>
+                    <div className="bg-surface-2 rounded-lg p-12 text-center">
+                        <p className="text-text-muted text-lg mb-4">{t('portfolio:holdings.noHoldings')}</p>
+                        <p className="text-text-muted text-sm">{t('portfolio:holdings.addFirst')}</p>
                     </div>
                 ) : (
-                    <div className="bg-[#1a1d29] rounded-lg overflow-hidden">
+                    <div className="bg-surface-2 rounded-lg overflow-hidden">
                         <table className="w-full">
-                            <thead className="bg-[#0d0f15] border-b border-[#2a2e39]">
+                            <thead className="bg-bg border-b border-border">
                             <tr>
-                                <th className="text-left p-4 text-[#868993] font-semibold">Sembol</th>
-                                <th className="text-left p-4 text-[#868993] font-semibold">Tür</th>
-                                <th className="text-right p-4 text-[#868993] font-semibold">Miktar</th>
-                                <th className="text-right p-4 text-[#868993] font-semibold">Ort. Alış</th>
-                                <th className="text-right p-4 text-[#868993] font-semibold">Güncel Fiyat</th>
-                                <th className="text-right p-4 text-[#868993] font-semibold">Güncel Değer</th>
-                                <th className="text-right p-4 text-[#868993] font-semibold">Kar/Zarar</th>
-                                <th className="text-center p-4 text-[#868993] font-semibold">İşlem</th>
+                                <th className="text-left p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.asset')}</th>
+                                <th className="text-left p-4 text-text-muted font-semibold">{t('common:labels.type')}</th>
+                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.quantity')}</th>
+                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.avgPrice')}</th>
+                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.currentPrice')}</th>
+                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.totalValue')}</th>
+                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.pnl')}</th>
+                                <th className="text-center p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.actions')}</th>
                             </tr>
                             </thead>
                             <tbody>
                             {portfolio.map((item, idx) => {
                                 const calc = calculateProfitLoss(item);
                                 return (
-                                    <tr key={idx} className="border-b border-[#2a2e39] hover:bg-[#0d0f15] transition">
+                                    <tr key={idx} className="border-b border-border hover:bg-bg transition">
                                         <td className="p-4 font-semibold">{item.symbol}</td>
-                                        <td className="p-4 text-[#868993]">{item.assetType}</td>
+                                        <td className="p-4 text-text-muted">{item.assetType}</td>
                                         <td className="p-4 text-right">{item.quantity}</td>
                                         <td className="p-4 text-right">{item.averagePrice.toFixed(2)} ₺</td>
                                         <td className="p-4 text-right">{calc.currentPrice.toFixed(2)} ₺</td>
                                         <td className="p-4 text-right font-semibold">{calc.currentValue.toFixed(2)} ₺</td>
-                                        <td className={`p-4 text-right font-semibold ${calc.profitLoss >= 0 ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                                        <td className={`p-4 text-right font-semibold ${calc.profitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
                                             {calc.profitLoss >= 0 ? '+' : ''}{calc.profitLoss.toFixed(2)} ₺
                                             <span className="text-sm ml-1">({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)</span>
                                         </td>
@@ -279,14 +267,14 @@ const PortfolioPage = () => {
                                                 <button
                                                     onClick={() => handleEditAsset(item)}
                                                     className="text-blue-500 hover:text-blue-400 transition"
-                                                    title="Düzenle"
+                                                    title={t('common:actions.edit')}
                                                 >
                                                     <Edit2 size={18} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteAsset(item)}
                                                     className="text-red-500 hover:text-red-400 transition"
-                                                    title="Portföyden Çıkar"
+                                                    title={t('common:actions.delete')}
                                                 >
                                                     <Trash2 size={18} />
                                                 </button>
@@ -301,14 +289,12 @@ const PortfolioPage = () => {
                 )}
             </div>
 
-            {/* Ekleme Modalı */}
             <AddToPortfolioModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleAddAsset}
             />
 
-            {/* Düzenleme Modalı */}
             <EditPortfolioModal
                 isOpen={isEditModalOpen}
                 onClose={() => {

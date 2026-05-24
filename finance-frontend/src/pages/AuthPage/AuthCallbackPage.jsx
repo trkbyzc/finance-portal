@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import authApi from '../../services/api/authApi';
 import tokenManager from '../../utils/tokenManager';
 
 const AuthCallbackPage = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [message, setMessage] = useState('Giriş yapılıyor...');
+    const { t } = useTranslation('auth');
+    const [message, setMessage] = useState(t('callback.processing'));
 
     useEffect(() => {
         const processCallback = async () => {
@@ -14,58 +16,49 @@ const AuthCallbackPage = () => {
             const error = searchParams.get('error');
 
             if (error) {
-                console.error('❌ Keycloak error:', error);
-                setMessage('Giriş iptal edildi');
+                console.error('Keycloak error:', error);
+                setMessage(t('callback.error'));
                 setTimeout(() => navigate('/'), 3000);
                 return;
             }
 
             if (!code) {
-                console.error('❌ Authorization code bulunamadı');
-                setMessage('Geçersiz yanıt');
+                console.error('No authorization code');
+                setMessage(t('callback.error'));
                 setTimeout(() => navigate('/'), 3000);
                 return;
             }
 
-            console.log('🔵 Authorization code alındı:', code.substring(0, 20) + '...');
-
             try {
-                // Backend'e değil, direkt Keycloak'a code gönder, token al (Faz-2 güncel)
                 const tokenData = await authApi.exchangeCodeForToken(code);
-                console.log('🔵 Keycloak Token data:', tokenData);
 
                 if (tokenData && tokenData.access_token) {
-                    // Token'ları localStorage'a kaydet
                     tokenManager.setTokens(tokenData.access_token, tokenData.refresh_token);
-                    console.log('✅ Token başarıyla alındı ve kaydedildi');
+                    setMessage(t('callback.success'));
 
-                    setMessage('✅ Giriş başarılı!');
-
-                    // Sayfayı yenile (AuthContext token'ı okuyacak)
                     setTimeout(() => {
                         window.location.href = '/';
                     }, 500);
 
                 } else {
-                    console.error('❌ Token alınamadı, response boş geldi');
-                    setMessage('Token verisi hatalı');
+                    setMessage(t('callback.error'));
                     setTimeout(() => navigate('/'), 3000);
                 }
             } catch (err) {
-                console.error('❌ Callback hatası:', err);
-                setMessage('Dönüşümde hata oluştu: ' + (err.error_description || err.message || err));
+                console.error('Callback error:', err);
+                setMessage(t('callback.error'));
                 setTimeout(() => navigate('/'), 3000);
             }
         };
 
         processCallback();
-    }, [searchParams, navigate]);
+    }, [searchParams, navigate, t]);
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-[#050505]">
+        <div className="flex items-center justify-center min-h-screen bg-bg">
             <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2962ff] mx-auto mb-4"></div>
-                <p className="text-[#d1d4dc] text-lg font-semibold">{message}</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-text text-lg font-semibold">{message}</p>
             </div>
         </div>
     );

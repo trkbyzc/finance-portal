@@ -1,23 +1,26 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';
+import { formatNumber } from '../../../utils/formatters/numberFormatter';
 
 export default function MarketTable({ data, navigate, routeCategory }) {
+    const { t } = useTranslation(['markets', 'common']);
     return (
-        <div className="bg-[#131722] border border-[#2a2e39] rounded-2xl overflow-hidden shadow-2xl">
+        <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                    <tr className="bg-[#1e222d] text-[#868993] text-xs uppercase tracking-wider">
-                        <th className="p-4 font-bold border-b border-[#2a2e39]">Sembol / İsim</th>
-                        <th className="p-4 font-bold border-b border-[#2a2e39] text-right">Fiyat</th>
-                        <th className="p-4 font-bold border-b border-[#2a2e39] text-right">Değişim (24S)</th>
-                        <th className="p-4 font-bold border-b border-[#2a2e39] text-center">İşlem</th>
+                    <tr className="bg-surface-2 text-text-muted text-xs uppercase tracking-wider">
+                        <th className="p-4 font-bold border-b border-border">{t('markets:stocks.tableCols.symbol')} / {t('markets:stocks.tableCols.name')}</th>
+                        <th className="p-4 font-bold border-b border-border text-right">{t('common:labels.price')}</th>
+                        <th className="p-4 font-bold border-b border-border text-right">{t('common:labels.change')} (24h)</th>
+                        <th className="p-4 font-bold border-b border-border text-center">{t('markets:common.viewChart')}</th>
                     </tr>
                     </thead>
                     <tbody className="divide-y divide-[#2a2e39]">
                     {data.map((item, idx) => {
                         const symbol = item.symbol || item.yahooSymbol || item.currencyCode;
-                        const cleanSymbol = symbol ? symbol.replace('.IS', '').replace('-USD', '') : 'BİLİNMİYOR';
+                        const cleanSymbol = symbol ? symbol.replace('.IS', '').replace('-USD', '') : '—';
                         const isPositive = (item.changePercent || 0) >= 0;
 
                         const cat = item.assetCategory || routeCategory || detectCategoryFromSymbol(symbol);
@@ -26,29 +29,29 @@ export default function MarketTable({ data, navigate, routeCategory }) {
                             <tr
                                 key={idx}
                                 onClick={() => navigate(target)}
-                                className="hover:bg-[#1e222d] transition-colors cursor-pointer group"
+                                className="hover:bg-surface-2 transition-colors cursor-pointer group"
                             >
                                 <td className="p-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-[#2a2e39] flex items-center justify-center font-bold text-[10px] text-[#868993]">
+                                        <div className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center font-bold text-[10px] text-text-muted">
                                             {cleanSymbol.substring(0, 2)}
                                         </div>
                                         <div>
-                                            <div className="font-bold text-sm text-white group-hover:text-[#2962ff] transition-colors">{cleanSymbol}</div>
-                                            <div className="text-xs text-[#868993] truncate max-w-[200px]">{item.name || item.currencyName}</div>
+                                            <div className="font-bold text-sm text-text group-hover:text-primary transition-colors">{cleanSymbol}</div>
+                                            <div className="text-xs text-text-muted truncate max-w-[200px]">{item.name || item.currencyName}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="p-4 text-right font-mono text-sm text-white">
-                                    {(item.price || item.forexSelling)?.toLocaleString('tr-TR')}
+                                <td className="p-4 text-right font-mono text-sm text-text">
+                                    {formatNumber(item.price || item.forexSelling)}
                                 </td>
                                 <td className="p-4 text-right">
-                                        <span className={`px-2 py-1 rounded text-xs font-bold ${isPositive ? 'bg-[#089981]/10 text-[#089981]' : 'bg-[#f23645]/10 text-[#f23645]'}`}>
+                                        <span className={`px-2 py-1 rounded text-xs font-bold ${isPositive ? 'bg-buy/10 text-buy' : 'bg-sell/10 text-sell'}`}>
                                             {isPositive ? '+' : ''}{(item.changePercent || 0).toFixed(2)}%
                                         </span>
                                 </td>
                                 <td className="p-4 text-center">
-                                    <span className="text-[#868993] group-hover:text-[#2962ff] text-xs font-bold transition-all">Grafiği Aç &rarr;</span>
+                                    <span className="text-text-muted group-hover:text-primary text-xs font-bold transition-all">{t('markets:common.viewChart')} &rarr;</span>
                                 </td>
                             </tr>
                         );

@@ -1,0 +1,64 @@
+{
+  "hero": {
+    "tagline": "Canlı Piyasa Terminali",
+    "titleLine1": "Tüm piyasalar",
+    "titleLine2": "tek ekranda.",
+    "subtitle": "Borsa, döviz, emtia ve kripto dünyasını anlık verilerle takip et. Profesyonel terminal deneyimi, sezgisel arayüz.",
+    "exploreMarkets": "Piyasaları Keşfet",
+    "viewNews": "Haberleri Gör",
+    "stat1": "400+ kripto",
+    "stat2": "BIST + ABD hisseleri",
+    "stat3": "Tarihsel veri analizi"
+  },
+  "tabs": {
+    "stocks": "Hisseler",
+    "currencies": "Dövizler",
+    "commodities": "Emtia",
+    "crypto": "Kripto",
+    "title": "Anlık Piyasalar",
+    "subtitle": "En çok takip edilen varlıkları sekmeler arasında geçiş yaparak inceleyin"
+  },
+  "calculator": {
+    "title": "Hızlı Hesaplama",
+    "subtitle": "Anlık döviz dönüşümü",
+    "amount": "Miktar",
+    "from": "Kaynak",
+    "to": "TL Karşılığı",
+    "result": "Sonuç",
+    "rate": "Kullanılan Kur"
+  },
+  "cta": {
+    "tagline": "Üye Avantajları",
+    "titleLine1": "Ücretsiz Kayıt Ol,",
+    "titleLine2": "Piyasayı Sen Yönet",
+    "subtitle": "Misafir olarak verileri izlemek güzel, ancak kendi finansal üssünü kurmak çok daha iyi. Hemen kayıt ol ve ayrıcalıkları keşfet.",
+    "favorites": "Favori Listesi",
+    "priceAlerts": "Fiyat Alarmları",
+    "createAccount": "Hesap Oluştur"
+  },
+  "features": {
+    "title": "Tek Çatı Altında Tüm Piyasalar",
+    "subtitle": "Profesyonel araçlarla finansal kararlarınızı destekleyin",
+    "realtime": {
+      "title": "Gerçek Zamanlı Veri",
+      "desc": "BIST, NYSE, NASDAQ, kripto ve döviz piyasalarından anlık fiyatlar"
+    },
+    "tools": {
+      "title": "Profesyonel Araçlar",
+      "desc": "İleri seviye grafik analizi, teknik göstergeler ve karşılaştırma araçları"
+    },
+    "portfolio": {
+      "title": "Portföy Yönetimi",
+      "desc": "Holdings takibi, kâr/zarar analizi ve performans raporları"
+    },
+    "secure": {
+      "title": "Güvenli Erişim",
+      "desc": "Keycloak tabanlı kimlik doğrulama, 2FA destekli güvenli oturum"
+    }
+  },
+  "errors": {
+    "accessDenied": "Erişim Engellendi",
+    "accessDeniedMessage": "Hesabınıza erişim kısıtlanmıştır.",
+    "accessDeniedDetail": "Detaylı bilgi için yönetim ile iletişime geçiniz."
+  }
+}

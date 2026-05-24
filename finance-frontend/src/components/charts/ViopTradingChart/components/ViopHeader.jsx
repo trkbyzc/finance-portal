@@ -1,6 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatNumber } from '../../../../utils/formatters/numberFormatter';
 
 export default function ViopHeader({ asset }) {
+    const { t } = useTranslation(['common']);
+
     const calculateRealFark = () => {
         if (!asset?.price || !asset?.changePercent) return "0.00";
         const prevClose = asset.price / (1 + (asset.changePercent / 100));
@@ -9,30 +13,31 @@ export default function ViopHeader({ asset }) {
     };
 
     const isPositive = asset?.changePercent >= 0;
+    const trendClass = isPositive ? 'text-buy' : 'text-sell';
 
     return (
-        <div className="p-6 bg-[#131722] border-b border-[#2a2e39]">
-            <h1 className="text-2xl font-bold text-white mb-4 uppercase tracking-tight">
+        <div className="p-6 bg-surface border-b border-border">
+            <h1 className="text-2xl font-bold text-text mb-4 uppercase tracking-tight">
                 {asset?.name || asset?.symbol}
             </h1>
 
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-10 flex-wrap">
                 <div>
-                    <div className={`text-4xl font-mono font-bold ${isPositive ? 'text-[#089981]' : 'text-[#f23645]'}`}>
-                        {asset?.price?.toLocaleString('tr-TR', { minimumFractionDigits: 4 })}
+                    <div className={`text-4xl font-mono font-bold ${trendClass}`}>
+                        {formatNumber(asset?.price, 4, 4)}
                     </div>
                 </div>
 
                 <div className="text-left">
-                    <div className="text-[#868993] text-[10px] uppercase font-bold mb-1">Fark</div>
-                    <div className={`font-mono font-bold ${isPositive ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                    <div className="text-text-muted text-[10px] uppercase font-bold mb-1 tracking-wider">{t('labels.change')}</div>
+                    <div className={`font-mono font-bold ${trendClass}`}>
                         {calculateRealFark()}
                     </div>
                 </div>
 
                 <div className="text-left">
-                    <div className="text-[#868993] text-[10px] uppercase font-bold mb-1">Değişim</div>
-                    <div className={`font-mono font-bold ${isPositive ? 'text-[#089981]' : 'text-[#f23645]'}`}>
+                    <div className="text-text-muted text-[10px] uppercase font-bold mb-1 tracking-wider">{t('labels.changePercent')}</div>
+                    <div className={`font-mono font-bold ${trendClass}`}>
                         {asset?.changePercent > 0 ? '+' : ''}{asset?.changePercent?.toFixed(2)}%
                     </div>
                 </div>

@@ -1,24 +1,25 @@
 import React from 'react';
-import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown } from 'lucide-react'; // 🚀 Plus eklendi
+import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
-import { useAuth } from '../../../context/AuthContext'; // 🚀 Giriş kontrolü için eklendi
+import { useAuth } from '../../../context/AuthContext';
+import { formatNumber } from '../../../utils/formatters/numberFormatter';
 
-export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) { // 🚀 onAddPortfolioClick prop'u eklendi
+export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
     const { currency, toggleCurrency, formatPrice } = useCurrency();
-    const { isAuthenticated } = useAuth(); // 🚀 Kullanıcı giriş yaptı mı kontrolü
+    const { isAuthenticated } = useAuth();
+    const { t } = useTranslation(['asset', 'common']);
 
     const getInitials = () => {
         if (asset?.currencyCode) return asset.currencyCode.substring(0, 2).toUpperCase();
         if (asset?.symbol) return asset.symbol.replace('TRY=X', '').replace('=X', '').substring(0, 2).toUpperCase();
-        return 'XX';
+        return '?';
     };
 
-    // Değişim oranı (listeleme sayfalarındaki ile aynı format)
     const changePercent = asset?.changePercent != null ? Number(asset.changePercent) : null;
     const isPositive = changePercent != null && changePercent >= 0;
-    const changeColor = isPositive ? '#089981' : '#f23645';
+    const changeColor = isPositive ? 'var(--buy)' : 'var(--sell)';
 
-    // Döviz varlıklarında TRY/USD toggle saçma — kur zaten TL bazlı (1 USD = X TL). Sadece TRY göster.
     const isCurrency = asset?.assetCategory === 'CURRENCY';
     const showCurrencyToggle = !asset?.isYieldBased && !isCurrency;
 
@@ -26,80 +27,75 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) { 
         <>
             <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 text-[#868993] hover:text-white mb-6 transition bg-[#1e222d] px-4 py-2 rounded-lg border border-[#2a2e39] hover:border-[#868993] w-fit"
+                className="flex items-center gap-2 text-text-muted hover:text-text mb-6 transition-colors bg-surface border border-border hover:border-border-strong px-4 py-2 rounded-lg w-fit text-sm font-medium"
             >
-                <ArrowLeft size={18} /> Geri Dön
+                <ArrowLeft size={16} /> {t('asset:back')}
             </button>
 
-            <div className="mb-6 flex flex-col md:flex-row md:items-center justify-start gap-8">
-                {/* SOL TARAF: LOGO VE İSİM */}
+            <div className="mb-8 flex flex-col md:flex-row md:items-center justify-start gap-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-[#2a2e39] flex items-center justify-center font-bold text-[#868993] text-xl uppercase shadow-lg shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary/15 to-primary/5 border border-primary/30 flex items-center justify-center font-black text-primary text-xl uppercase shadow-lg shadow-primary/10 shrink-0">
                         {getInitials()}
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black uppercase text-white tracking-tight flex items-center gap-3">
+                        <h1 className="text-3xl font-black uppercase text-text tracking-tight">
                             {asset?.name || asset?.symbol?.replace('-USD','').replace('.IS','')}
                         </h1>
-                        <p className="text-[#868993] text-sm flex items-center gap-2 mt-1">
-                            <BarChart2 size={14} /> Detaylı Analiz & Performans Karşılaştırması
+                        <p className="text-text-muted text-sm flex items-center gap-2 mt-1">
+                            <BarChart2 size={14} className="text-primary" />
+                            {t('asset:tabs.fundamentals')}
                         </p>
                     </div>
                 </div>
 
-                {/* SAĞ TARAF: FİYAT KUTUSU VE PORTFÖYE EKLE BUTONU */}
-                <div className="flex items-center gap-4 flex-wrap">
-                    {/* FİYAT KUTUSU */}
+                <div className="flex items-center gap-3 flex-wrap md:ml-auto">
                     {asset?.displayPrice > 0 && (
-                        <div className="flex items-center gap-5 bg-[#131722] px-6 py-3 rounded-2xl border border-[#2a2e39] shadow-xl shrink-0">
+                        <div className="flex items-center gap-5 bg-surface border border-border px-6 py-3 rounded-2xl shadow-md">
                             <div className="flex flex-col items-start">
-                                <span className="text-[#868993] text-[10px] font-bold uppercase tracking-wider mb-1">
-                                    {asset.isYieldBased ? 'Anlık Getiri' : 'Anlık Fiyat'}
+                                <span className="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">
+                                    {asset.isYieldBased ? t('asset:bond.yield') : t('asset:currentPrice')}
                                 </span>
-                                <span className="text-3xl font-mono font-black text-white">
+                                <span className="text-3xl font-mono font-black text-text leading-none">
                                     {asset.isYieldBased
                                         ? `%${Number(asset.displayPrice).toFixed(3)}`
                                         : isCurrency
-                                            // Döviz için TRY zorla — global currency state ne olursa olsun
-                                            ? `₺${Number(asset.displayPrice).toLocaleString('tr-TR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`
+                                            ? `₺${formatNumber(asset.displayPrice, 4, 4)}`
                                             : formatPrice(asset.displayPrice, asset.nativeCurrency)}
                                 </span>
                                 {changePercent != null && (
                                     <span
-                                        className="font-mono font-bold text-sm mt-1 flex items-center gap-1"
+                                        className="font-mono font-bold text-sm mt-1.5 flex items-center gap-1"
                                         style={{ color: changeColor }}
                                     >
                                         {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                                         {isPositive ? '+' : ''}{changePercent.toFixed(2)}%
-                                        <span className="text-[#868993] text-[10px] font-normal ml-1">(Günlük)</span>
+                                        <span className="text-text-muted text-[10px] font-medium ml-1">({t('asset:changeToday')})</span>
                                     </span>
                                 )}
                             </div>
 
-                            {/* Yield bazlı varlıklarda (TR Tahvil) ve döviz kurlarında TRY/USD toggle anlamsız */}
                             {showCurrencyToggle && (
                                 <button
                                     onClick={toggleCurrency}
-                                    className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#2962ff]/10 hover:bg-[#2962ff]/20 text-[#2962ff] border border-[#2962ff]/30 transition-all shadow-[0_0_15px_rgba(41,98,255,0.15)] group ml-2"
-                                    title={`Para Birimini Değiştir (Şu an: ${currency})`}
+                                    className="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-all hover:scale-105 group"
+                                    title={`${t('asset:showInCurrency')} (${currency})`}
                                 >
                                     {currency === 'TRY' ? (
-                                        <DollarSign size={24} className="group-hover:scale-110 transition-transform" />
+                                        <DollarSign size={22} className="group-hover:scale-110 transition-transform" strokeWidth={2.5} />
                                     ) : (
-                                        <span className="text-2xl font-bold group-hover:scale-110 transition-transform">₺</span>
+                                        <span className="text-2xl font-black group-hover:scale-110 transition-transform">₺</span>
                                     )}
                                 </button>
                             )}
                         </div>
                     )}
 
-                    {/* 🚀 PORTFÖYE EKLE BUTONU (Sadece giriş yapan üyeler görür) */}
                     {isAuthenticated && (
                         <button
                             onClick={onAddPortfolioClick}
-                            className="flex items-center gap-2 bg-[#2962ff] hover:bg-[#2962ff]/80 text-white px-5 py-3 rounded-2xl font-bold shadow-[0_0_15px_rgba(41,98,255,0.3)] transition-all shrink-0"
+                            className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-fg px-5 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all"
                         >
-                            <Plus size={20} /> Portföye Ekle
+                            <Plus size={20} /> {t('asset:addToPortfolio')}
                         </button>
                     )}
                 </div>

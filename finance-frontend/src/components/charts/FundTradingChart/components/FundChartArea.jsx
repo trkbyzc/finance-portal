@@ -1,15 +1,17 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { formatNumber } from '../../../../utils/formatters/numberFormatter';
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[#0b0e14] border border-[#2a2e39] p-3 rounded-xl shadow-2xl">
-                <p className="text-[#868993] text-xs font-bold mb-1">{label}</p>
-                <p className="text-[#2962ff] text-lg font-mono font-black">
-                    {payload[0].value.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-                    <span className="text-[10px] text-[#868993] ml-1">TRY</span>
+            <div className="bg-bg border border-border p-3 rounded-xl shadow-2xl">
+                <p className="text-text-muted text-xs font-bold mb-1">{label}</p>
+                <p className="text-primary text-lg font-mono font-black">
+                    {formatNumber(payload[0].value, 2, 4)}
+                    <span className="text-[10px] text-text-muted ml-1">TRY</span>
                 </p>
             </div>
         );
@@ -18,20 +20,20 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function FundChartArea({ chartData, loading }) {
-    // Veri kontrolü
+    const { t } = useTranslation('common');
     const hasData = chartData && Array.isArray(chartData) && chartData.length > 0;
-    
+
     return (
-        <div className="flex-1 relative bg-[#131722] p-4">
+        <div className="flex-1 relative bg-surface p-4">
             {loading && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0b0e14]/60 backdrop-blur-sm">
-                    <Loader2 className="animate-spin text-[#2962ff]" size={40} />
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg/60 backdrop-blur-sm">
+                    <Loader2 className="animate-spin text-primary" size={40} />
                 </div>
             )}
 
             {!loading && !hasData && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <p className="text-[#868993] text-sm">Veri bulunamadı</p>
+                    <p className="text-text-muted text-sm">{t('status.noData')}</p>
                 </div>
             )}
 

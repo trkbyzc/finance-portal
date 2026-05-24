@@ -1,42 +1,77 @@
 import React from 'react';
-import { Calculator } from 'lucide-react';
+import { Calculator, ArrowDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function DashboardCalculator({ calcAmount, setCalcAmount, calcCurrency, setCalcCurrency, calculatedResult, usdRate }) {
+    const { t } = useTranslation('dashboard');
     return (
-        <div className="bg-[#1e222d] border border-[#2a2e39] rounded-2xl p-8 shadow-2xl relative overflow-hidden group">
+        <div className="relative bg-surface border border-border rounded-2xl p-7 shadow-xl overflow-hidden">
             {usdRate === 0 && (
-                <div className="absolute inset-0 bg-[#131722]/80 backdrop-blur-sm z-10 flex items-center justify-center text-xs text-[#787b86] animate-pulse">
-                    Canlı Kurlar Bağlanıyor...
+                <div className="absolute inset-0 bg-surface/80 backdrop-blur-sm z-10 flex items-center justify-center text-xs text-text-muted animate-pulse">
+                    {t('calculator.subtitle')}
                 </div>
             )}
+
             <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-[#2962ff]/10 rounded-lg">
-                    <Calculator className="text-[#2962ff]" size={22}/>
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+                    <Calculator className="text-primary" size={20}/>
                 </div>
-                <h3 className="text-lg font-bold">Hızlı Döviz Çevirici</h3>
+                <div>
+                    <h3 className="text-base font-bold text-text">{t('calculator.title')}</h3>
+                    <p className="text-[10px] text-text-muted uppercase tracking-wider">{t('calculator.rate')}</p>
+                </div>
             </div>
+
             <div className="space-y-4">
-                <input
-                    type="number"
-                    value={calcAmount}
-                    onChange={(e) => setCalcAmount(e.target.value)}
-                    placeholder="Miktar girin"
-                    className="w-full bg-[#131722] border border-[#2a2e39] rounded-lg p-3 text-white outline-none focus:border-[#2962ff] transition-colors font-mono"
-                />
-                <div className="flex gap-2">
-                    {['USD', 'EUR'].map(c => (
-                        <button
-                            key={c}
-                            onClick={() => setCalcCurrency(c)}
-                            className={`flex-1 py-2 rounded-lg border text-xs font-bold transition ${calcCurrency === c ? 'bg-[#2962ff]/20 border-[#2962ff] text-[#2962ff]' : 'bg-[#131722] border-[#2a2e39] text-[#787b86] hover:text-white hover:border-[#787b86]'}`}
-                        >
-                            {c}
-                        </button>
-                    ))}
+                <div className="relative">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-text-muted mb-2">
+                        {t('calculator.amount')}
+                    </label>
+                    <div className="relative">
+                        <input
+                            type="number"
+                            value={calcAmount}
+                            onChange={(e) => setCalcAmount(e.target.value)}
+                            placeholder="0"
+                            className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3.5 pr-16 text-text outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all font-mono text-lg font-semibold"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted font-bold text-sm">
+                            {calcCurrency}
+                        </span>
+                    </div>
                 </div>
-                <div className="pt-6 border-t border-[#2a2e39] mt-2">
-                    <div className="text-3xl font-black text-white font-mono tracking-tight">₺ {calculatedResult}</div>
-                    <p className="text-[10px] text-[#787b86] mt-3">Bu araç arka planda TCMB canlı veri akışını kullanmaktadır.</p>
+
+                <div className="flex gap-2">
+                    {['USD', 'EUR'].map(c => {
+                        const active = calcCurrency === c;
+                        return (
+                            <button
+                                key={c}
+                                onClick={() => setCalcCurrency(c)}
+                                className={`flex-1 py-2.5 rounded-lg border text-xs font-bold transition-all ${
+                                    active
+                                        ? 'bg-primary/15 border-primary text-primary'
+                                        : 'bg-surface-2 border-border text-text-muted hover:text-text hover:border-border-strong'
+                                }`}
+                            >
+                                {c}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <div className="flex flex-col items-center justify-center py-3">
+                    <ArrowDown size={18} className="text-text-muted/50" />
+                </div>
+
+                <div className="bg-surface-2 border border-border rounded-xl p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted mb-2">{t('calculator.to')}</p>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-text-muted text-2xl font-mono">₺</span>
+                        <span className="text-3xl font-black text-text font-mono tracking-tight">
+                            {calculatedResult}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

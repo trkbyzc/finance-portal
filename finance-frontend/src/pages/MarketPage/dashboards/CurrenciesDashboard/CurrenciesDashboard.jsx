@@ -11,7 +11,7 @@ const MAJOR_CURRENCIES = ['USD', 'EUR', 'GBP', 'CHF'];
 
 export default function CurrenciesDashboard() {
     const { data: currencies, loading: isLoading } = useMarketData('currencies');
-    const { news, loading: loadingNews } = useNewsData('Döviz Kurları');
+    const { news, loading: loadingNews } = useNewsData('Döviz & Forex');
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredCurrencies = useMemo(() => {
@@ -45,7 +45,7 @@ export default function CurrenciesDashboard() {
     }, [currencies]);
 
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
 
             <CurrencyHeader
                 searchQuery={searchQuery}

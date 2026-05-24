@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Newspaper, Loader2, PlusCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-// 🚀 GÜNCELLENDİ: Eski newsService silindi, yeni newsApi eklendi!
 import { newsApi } from '../../services/api';
 import MarketTicker from '../../components/layout/MarketTicker/MarketTicker.jsx';
 import NewsCategoryTabs from './components/NewsCategoryTabs';
@@ -19,32 +19,39 @@ const validateImage = (url) => {
     });
 };
 
+// Backend NewsCategoryClassifier sabitleri ile birebir eşleşmek zorunda.
+const CATEGORIES = [
+    { value: 'Tümü', tKey: 'categories.all' },
+    { value: 'Genel Ekonomi', tKey: 'categories.general' },
+    { value: 'Borsa', tKey: 'categories.stock' },
+    { value: 'Döviz & Forex', tKey: 'categories.currency' },
+    { value: 'Kripto', tKey: 'categories.crypto' },
+    { value: 'Emtialar', tKey: 'categories.commodity' },
+    { value: 'Tahvil & Faiz', tKey: 'categories.bond' },
+    { value: 'Yatırım Fonları', tKey: 'categories.fund' }
+];
+
 export default function NewsPage() {
     const navigate = useNavigate();
+    const { t } = useTranslation(['news', 'common']);
 
     const [activeCategory, setActiveCategory] = useState('Tümü');
     const [page, setPage] = useState(0);
     const [accumulatedNews, setAccumulatedNews] = useState([]);
     const [verifiedImages, setVerifiedImages] = useState({});
 
-    const categories = ['Tümü', 'Genel Ekonomi', 'Döviz Kurları', 'Kripto', 'Emtialar'];
-
-    // 🚀 Yeni İstek - React Query
     const { data: responseData, isLoading: loading, isFetching: loadingMore } = useQuery({
         queryKey: ['newsPage', activeCategory, page],
-        // 🚀 GÜNCELLENDİ: newsService yerine newsApi kullanıyoruz
         queryFn: () => newsApi.getNewsPage(activeCategory, page),
         staleTime: 60 * 1000,
         keepPreviousData: true
     });
 
-    // Kategori değiştiğinde geçmişi sıfırla
     useEffect(() => {
         setPage(0);
         setAccumulatedNews([]);
     }, [activeCategory]);
 
-    // Veri ReactQuery'den her geldiğinde listeye ekle ve görsellerini doğrula
     useEffect(() => {
         if (!responseData || !responseData.content) return;
 
@@ -52,7 +59,6 @@ export default function NewsPage() {
             page === 0 ? responseData.content : [...prev, ...responseData.content]
         );
 
-        // Async Resim doğrulamaları
         responseData.content.forEach(async (item) => {
             const isValid = await validateImage(item.imageUrl);
             setVerifiedImages(prev => ({ ...prev, [item.imageUrl]: isValid }));
@@ -67,23 +73,23 @@ export default function NewsPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#0b0e14]">
+        <div className="flex flex-col min-h-screen bg-bg">
             <MarketTicker />
-            <div className="p-6 md:p-8 max-w-[1100px] mx-auto text-white w-full">
+            <div className="p-6 md:p-8 max-w-[1100px] mx-auto text-text w-full">
                 <header className="mb-8 mt-4">
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Newspaper className="text-[#2962ff]" size={36} /> Haberler
+                        <Newspaper className="text-primary" size={36} /> {t('news:pageTitle')}
                     </h1>
                 </header>
 
                 <NewsCategoryTabs
-                    categories={categories}
+                    categories={CATEGORIES}
                     activeCategory={activeCategory}
                     setActiveCategory={setActiveCategory}
                 />
 
                 {loading && page === 0 ? (
-                    <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#2962ff]" size={48} /></div>
+                    <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" size={48} /></div>
                 ) : (
                     <div className="flex flex-col gap-6">
                         {accumulatedNews.map((item, index) => (
@@ -99,9 +105,9 @@ export default function NewsPage() {
                             <button
                                 onClick={() => setPage(p => p + 1)}
                                 disabled={loadingMore}
-                                className="mt-8 mb-12 mx-auto flex items-center gap-2 px-10 py-4 bg-[#1e222d] border border-[#2a2e39] rounded-full hover:bg-[#2962ff] transition-all text-sm font-bold shadow-2xl disabled:opacity-50"
+                                className="mt-8 mb-12 mx-auto flex items-center gap-2 px-10 py-4 bg-surface-2 border border-border rounded-full hover:bg-primary transition-all text-sm font-bold shadow-2xl disabled:opacity-50"
                             >
-                                {loadingMore ? <Loader2 className="animate-spin" size={20} /> : <><PlusCircle size={20}/> Daha Fazla Haber Yükle</>}
+                                {loadingMore ? <Loader2 className="animate-spin" size={20} /> : <><PlusCircle size={20}/> {t('common:actions.viewMore')}</>}
                             </button>
                         )}
                     </div>

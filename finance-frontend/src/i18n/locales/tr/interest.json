@@ -1,0 +1,33 @@
+{
+  "pageTitle": "Mevduat Simülatörü",
+  "pageSubtitle": "Vadeli mevduat hesabınızın getirisini hesaplayın",
+  "form": {
+    "amount": "Anapara",
+    "amountPlaceholder": "10.000",
+    "duration": "Vade (Gün)",
+    "durationPlaceholder": "32",
+    "currency": "Para Birimi",
+    "ratesSource": "Faiz Oranları Kaynağı",
+    "submit": "Hesapla",
+    "reset": "Sıfırla"
+  },
+  "results": {
+    "title": "Sonuçlar",
+    "subtitle": "{{count}} bankadan en iyi teklifler",
+    "noResults": "Sonuç bulunamadı, parametreleri değiştirin",
+    "cols": {
+      "bank": "Banka",
+      "rate": "Net Faiz Oranı",
+      "grossRate": "Brüt Oran",
+      "interest": "Faiz Getirisi",
+      "totalReturn": "Toplam Tutar"
+    },
+    "bestRate": "En İyi Oran",
+    "loading": "Bankalardan veri alınıyor..."
+  },
+  "info": {
+    "title": "Bilgi",
+    "withholding": "Stopaj oranları vade ve para birimine göre değişir",
+    "disclaimer": "Hesaplamalar yaklaşık değerlerdir, kesin tutar için ilgili bankaya başvurun"
+  }
+}

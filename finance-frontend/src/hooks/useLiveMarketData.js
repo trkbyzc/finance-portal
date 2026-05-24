@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
     indexApi, stockApi, commodityApi,
     currencyApi, bondFundApi, economyApi
 } from '../services/api';
 
 export const useLiveMarketData = () => {
-    // A. EKONOMİ STATE MANTIKLARI
+    const { t } = useTranslation('markets');
+
     const [economyMetric, setEconomyMetric] = useState('inflationRate');
     const [economyRange, setEconomyRange] = useState('10y');
 
-    // B. REACT QUERY
     const results = useQueries({
         queries: [
             { queryKey: ['indices'], queryFn: indexApi.getIndices },
@@ -49,40 +50,34 @@ export const useLiveMarketData = () => {
         queryFn: () => economyApi.getHistoricalEconomy(economyMetric, economyRange)
     });
 
-    // E. BUSINESS LOGIC
     const turkishStocks = stocks.filter(stock => stock.symbol && stock.symbol.endsWith('.IS'));
     const highestVolume = [...turkishStocks].sort((a, b) => (b.volume || 0) - (a.volume || 0)).slice(0, 5);
     const mostVolatile = [...turkishStocks].sort((a, b) => Math.abs(b.changePercent || 0) - Math.abs(a.changePercent || 0)).slice(0, 5);
     const topGainers = [...turkishStocks].sort((a, b) => (b.changePercent || 0) - (a.changePercent || 0)).slice(0, 5);
     const topLosers = [...turkishStocks].sort((a, b) => (a.changePercent || 0) - (b.changePercent || 0)).slice(0, 5);
 
-    // 🚀 TERTEMİZ KART OLUŞTURMA: Manuel matematik yok, backend'den al bas!
     const commodityCards = [
-        // 1. GLOBAL ONS ALTIN
         commodities.find(c => c.symbol === 'GC=F') && {
             ...commodities.find(c => c.symbol === 'GC=F'),
-            name: 'Gold (USD / OZ)',
+            name: t('goldUsdOz'),
             iconColor: 'bg-[#ff9800]',
             currency: 'USD'
         },
-        // 2. GÜMÜŞ
         commodities.find(c => c.symbol === 'SI=F') && {
             ...commodities.find(c => c.symbol === 'SI=F'),
-            name: 'Silver (USD / OZ)',
+            name: t('silverUsdOz'),
             iconColor: 'bg-[#9e9e9e]',
             currency: 'USD'
         },
-        // 3. GRAM ALTIN (Trunçgil 'GRAM' döner, Yedek servis 'XAU_TRY_CALC' döner)
         (commodities.find(c => c.symbol === 'GRAM') || commodities.find(c => c.symbol === 'XAU_TRY_CALC')) && {
             ...(commodities.find(c => c.symbol === 'GRAM') || commodities.find(c => c.symbol === 'XAU_TRY_CALC')),
-            name: 'Altın (TRY / gram)',
+            name: t('goldTryGr'),
             iconColor: 'bg-[#ff9800]',
             currency: 'TRY / GRM'
         },
-        // 4. BRENT PETROL
         commodities.find(c => c.symbol === 'CL=F') && {
             ...commodities.find(c => c.symbol === 'CL=F'),
-            name: 'Brent Petrol',
+            name: t('crudeOil'),
             iconColor: 'bg-[#424242]',
             currency: 'USD'
         }

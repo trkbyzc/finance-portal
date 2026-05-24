@@ -1,0 +1,35 @@
+{
+  "pageTitle": "Finans Haberleri",
+  "pageSubtitle": "Güncel piyasa gelişmeleri ve analizler",
+  "categories": {
+    "all": "Tümü",
+    "general": "Genel Ekonomi",
+    "stock": "Borsa",
+    "currency": "Döviz & Forex",
+    "crypto": "Kripto",
+    "commodity": "Emtialar",
+    "bond": "Tahvil & Faiz",
+    "fund": "Yatırım Fonları"
+  },
+  "card": {
+    "readMore": "Devamını Oku",
+    "source": "Kaynak",
+    "publishedAt": "Yayınlandı",
+    "minutesAgo": "{{count}} dakika önce",
+    "hoursAgo": "{{count}} saat önce",
+    "daysAgo": "{{count}} gün önce"
+  },
+  "detail": {
+    "back": "Haberlere Dön",
+    "readFullArticle": "Tam Makaleyi Oku",
+    "relatedNews": "İlgili Haberler",
+    "share": "Paylaş",
+    "loading": "Haber yükleniyor...",
+    "notFound": "Haber bulunamadı"
+  },
+  "filters": {
+    "latest": "En Yeni",
+    "popular": "Popüler",
+    "sortBy": "Sırala"
+  }
+}

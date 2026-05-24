@@ -13,16 +13,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IpoService {
 
+    // v2 — date-range parsing bug fix, eski hatalı cache'i invalidate eder.
+    private static final String CACHE_KEY = "cache:ipos:v2";
+
     private final IpoScraperClient ipoScraperClient;
     private final CacheService cacheService;
 
     public List<IpoDto> getIPOCalendar() {
-        return cacheService.getOrFetch("cache:ipos", ipoScraperClient::scrapeIPOCalendar, 60);
+        return cacheService.getOrFetch(CACHE_KEY, ipoScraperClient::scrapeIPOCalendar, 60);
     }
 
-    @Scheduled(fixedRate = 3600000)
+    // initialDelay=5sn → startup'tan sonra hemen ilk fetch.
+    @Scheduled(initialDelay = 5000, fixedRate = 3600000)
     public void fetchIPOs() {
         List<IpoDto> ipos = ipoScraperClient.scrapeIPOCalendar();
-        if (ipos != null && !ipos.isEmpty()) cacheService.save("cache:ipos", ipos, 60);
+        // Boş liste de geçerli: tüm arzlar bitmiş olabilir. Her durumda cache'i tazele.
+        if (ipos != null) {
+            if (!ipos.isEmpty()) {
+                cacheService.save(CACHE_KEY, ipos, 60);
+            } else {
+                cacheService.delete(CACHE_KEY);
+            }
+        }
     }
 }

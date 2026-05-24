@@ -107,24 +107,29 @@ public class IpoScraperClient {
             for (int i = 0; i < months.length; i++) {
                 if (lowerDate.contains(months[i])) { monthIdx = i + 1; break; }
             }
-            if (monthIdx == -1) return true;
+            // Ay bilgisi yoksa muhtemelen "Sonuçlandı" gibi bir durum — güvenli taraf: GÖSTERME.
+            if (monthIdx == -1) return false;
 
             int year = today.getYear();
             Matcher ym = Pattern.compile("\\b(202[0-9])\\b").matcher(dateStr);
             if (ym.find()) year = Integer.parseInt(ym.group(1));
 
+            // Yıl bilgisini stringten çıkar ki gün regex'i "2026"yı "20"+"26" diye yutmasın.
+            // Word-boundary'li \\b\\d{1,2}\\b da güvenli, ikisini birlikte kullanıyoruz.
+            String dayHaystack = dateStr.replaceAll("\\b202[0-9]\\b", "");
             int day = 1;
-            Matcher dm = Pattern.compile("(\\d{1,2})").matcher(dateStr);
+            Matcher dm = Pattern.compile("\\b(\\d{1,2})\\b").matcher(dayHaystack);
             int lastDayFound = -1;
             while (dm.find()) {
                 int val = Integer.parseInt(dm.group(1));
-                if (val <= 31) lastDayFound = val; else break;
+                if (val >= 1 && val <= 31) lastDayFound = val;
             }
             if (lastDayFound != -1) day = lastDayFound;
 
+            // Bitiş tarihi bugünden önce ise = arz bitti = gösterme.
             return !LocalDate.of(year, monthIdx, day).isBefore(today);
         } catch (Exception e) {
-            return true;
+            return false;
         }
     }
 }

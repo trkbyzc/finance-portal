@@ -1,0 +1,35 @@
+{
+  "pageTitle": "Financial News",
+  "pageSubtitle": "Latest market developments and analysis",
+  "categories": {
+    "all": "All",
+    "general": "Economy",
+    "stock": "Stocks",
+    "currency": "Forex",
+    "crypto": "Crypto",
+    "commodity": "Commodities",
+    "bond": "Bonds & Rates",
+    "fund": "Funds"
+  },
+  "card": {
+    "readMore": "Read More",
+    "source": "Source",
+    "publishedAt": "Published",
+    "minutesAgo": "{{count}} minutes ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago"
+  },
+  "detail": {
+    "back": "Back to News",
+    "readFullArticle": "Read Full Article",
+    "relatedNews": "Related News",
+    "share": "Share",
+    "loading": "Loading article...",
+    "notFound": "Article not found"
+  },
+  "filters": {
+    "latest": "Latest",
+    "popular": "Popular",
+    "sortBy": "Sort by"
+  }
+}

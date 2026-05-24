@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 // 🚀 İçe Aktarmalar
 import TurkishStocksDashboard from './dashboards/TurkishStocksDashboard/TurkishStocksDashboard';
@@ -19,6 +20,7 @@ import MiniListsSection from './dashboards/CurrenciesDashboard/components/MiniLi
 
 export default function MarketPage() {
     const { category } = useParams();
+    const { t } = useTranslation('markets');
 
     // 1. Borsa İstanbul
     if (category === 'tr-stocks') {
@@ -72,9 +74,9 @@ export default function MarketPage() {
 
     // DEFAULT (JENERİK) VİTRİN
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-6 lg:p-10">
-            <h1 className="text-3xl font-black uppercase text-white mb-6">
-                {category.replace('-', ' ')} Piyasası
+        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+            <h1 className="text-3xl font-black uppercase text-text mb-6">
+                {category.replace('-', ' ')} {t('common.headerLive')}
             </h1>
             <ShowcaseSlider category={category} />
             <MainChartArea category={category} />

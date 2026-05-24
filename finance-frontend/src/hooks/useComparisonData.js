@@ -1,12 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { historicalApi, aggregateApi, economyApi, currencyApi } from '../services/api';
 import { useCurrency } from '../context/CurrencyContext';
 import { detectNativeCurrency } from '../utils/currencyConversion';
 
-// Enflasyon overlay'leri için sabit renkler (varlık paletinden ayrı dursun)
-const TR_INFLATION_LABEL = 'TR Enflasyon';
-const USD_INFLATION_LABEL = 'ABD Enflasyon';
 const TR_INFLATION_COLOR = '#f23645';
 const USD_INFLATION_COLOR = '#ff9800';
 
@@ -51,6 +49,10 @@ const findRateForDate = (lookup, sortedDates, avg, dateStr) => {
 };
 
 export const useComparisonData = (primaryYahoo, primaryLabel, actualAssetSymbol, isTrBond, primaryCategory) => {
+    const { t } = useTranslation('charts');
+    const TR_INFLATION_LABEL = t('trInflation');
+    const USD_INFLATION_LABEL = t('usInflation');
+
     const [comparisonAssets, setComparisonAssets] = useState([]);
     const [trInflationActive, setTrInflationActive] = useState(false);
     const [usdInflationActive, setUsdInflationActive] = useState(false);

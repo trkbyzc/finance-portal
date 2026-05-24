@@ -1,28 +1,29 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-const RANGES = [
-    { label: '1A', value: '1mo' },
-    { label: '3A', value: '3mo' },
-    { label: '6A', value: '6mo' },
-    { label: 'YTD', value: 'ytd' },
-    { label: '1Y', value: '1y' },
-    { label: '3Y', value: '3y' },
-    { label: '5Y', value: '5y' }
+const RANGE_KEYS = [
+    { key: '1m', value: '1mo' },
+    { key: '3m', value: '3mo' },
+    { key: '6m', value: '6mo' },
+    { key: 'ytd', value: 'ytd' },
+    { key: '1y', value: '1y' },
+    { key: '5y', value: '5y' }
 ];
 
 export default function FundRangeSelector({ range, setRange }) {
+    const { t } = useTranslation('common');
     return (
-        <div className="px-6 py-4 flex items-center bg-[#131722] border-b border-[#2a2e39]">
-            <div className="flex gap-1 bg-[#1e222d] p-1 rounded-lg border border-[#2a2e39]">
-                {RANGES.map(btn => (
+        <div className="px-6 py-4 flex items-center bg-surface border-b border-border">
+            <div className="flex gap-1 bg-surface-2 p-1 rounded-lg border border-border">
+                {RANGE_KEYS.map(btn => (
                     <button
                         key={btn.value}
                         onClick={() => setRange(btn.value)}
                         className={`px-4 py-1.5 rounded-md font-bold text-xs transition-all ${
-                            range === btn.value ? 'bg-[#2962ff] text-white shadow-md' : 'text-[#868993] hover:text-white hover:bg-[#2a2e39]'
+                            range === btn.value ? 'bg-primary text-text shadow-md' : 'text-text-muted hover:text-text hover:bg-surface-hover'
                         }`}
                     >
-                        {btn.label}
+                        {t(`ranges.${btn.key}`)}
                     </button>
                 ))}
             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { BarChart2, Activity, Mountain, SlidersHorizontal, Calendar, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ChartHeader({
                                         displayName, isTrBond, activeRange, setActiveRange,
@@ -11,14 +12,20 @@ export default function ChartHeader({
                                         // BIST overlay aktif olduğunda mum/çubuk/indikatör butonları kullanılamaz
                                         disableInteraction = false
                                     }) {
+    const { t } = useTranslation(['charts', 'common']);
     const disabledClass = disableInteraction ? 'opacity-40 pointer-events-none cursor-not-allowed' : '';
-    const disabledTitle = disableInteraction ? 'BIST karşılaştırması aktifken kullanılamaz' : '';
+    const disabledTitle = disableInteraction ? '' : '';
     const allTimeframes = [
-        { label: '1G', value: '1d' }, { label: '1H', value: '5d' }, { label: '1A', value: '1mo' },
-        { label: '3A', value: '3mo' }, { label: '6A', value: '6mo' }, { label: 'YTD', value: 'ytd' },
-        { label: '1Y', value: '1y' }, { label: '5Y', value: '5y' }
+        { label: t('common:ranges.1d'), value: '1d' },
+        { label: t('common:ranges.1w'), value: '5d' },
+        { label: t('common:ranges.1m'), value: '1mo' },
+        { label: t('common:ranges.3m'), value: '3mo' },
+        { label: t('common:ranges.6m'), value: '6mo' },
+        { label: t('common:ranges.ytd'), value: 'ytd' },
+        { label: t('common:ranges.1y'), value: '1y' },
+        { label: t('common:ranges.5y'), value: '5y' }
     ];
-    const timeframes = isTrBond ? [{ label: 'YTD', value: 'ytd' }] : allTimeframes;
+    const timeframes = isTrBond ? [{ label: t('common:ranges.ytd'), value: 'ytd' }] : allTimeframes;
 
     // 🆕 Tarih popover state — Portal ile body'ye render edilir, böylece header'ın overflow-x-auto'su tarafından kırpılmaz
     const [pickerOpen, setPickerOpen] = useState(false);
@@ -59,10 +66,10 @@ export default function ChartHeader({
     const datesValid = !!customStartDate && !!customEndDate && customStartDate <= customEndDate
         && customStartDate >= minDate && customEndDate <= maxDate;
     const validationMsg = (() => {
-        if (!customStartDate || !customEndDate) return 'Hem başlangıç hem bitiş tarihi seçilmelidir';
-        if (customStartDate > customEndDate) return 'Başlangıç tarihi bitişten sonra olamaz';
-        if (customStartDate < minDate) return `En eski tarih: ${minDate}`;
-        if (customEndDate > maxDate) return `Gelecek tarih seçilemez (max: ${maxDate})`;
+        if (!customStartDate || !customEndDate) return t('common:labels.date');
+        if (customStartDate > customEndDate) return t('common:status.error');
+        if (customStartDate < minDate) return `${minDate}`;
+        if (customEndDate > maxDate) return `max: ${maxDate}`;
         return null;
     })();
 
@@ -87,21 +94,21 @@ export default function ChartHeader({
 
     const customRangeLabel = activeRange === 'custom' && datesValid
         ? `${customStartDate} → ${customEndDate}`
-        : 'Özel Aralık';
+        : t('common:labels.date');
 
     return (
-        <div className="h-14 bg-[#1e222d] border-b border-[#2a2e39] flex items-center px-4 gap-4 z-10 select-none overflow-x-auto hide-scrollbar relative">
+        <div className="h-14 bg-surface border-b border-border flex items-center px-4 gap-4 z-10 select-none overflow-x-auto hide-scrollbar relative">
             <div className="flex items-center gap-3 shrink-0">
-                <span className="font-bold text-lg text-white uppercase tracking-wide">{displayName}</span>
+                <span className="font-bold text-lg text-text uppercase tracking-wide">{displayName}</span>
             </div>
-            <div className="w-[1px] h-6 bg-[#2a2e39] mx-1 shrink-0"></div>
+            <div className="w-px h-6 bg-surface-hover mx-1 shrink-0"></div>
 
             <div className="flex gap-1 shrink-0 items-center">
                 {timeframes.map((tf) => (
                     <button
                         key={tf.value}
                         onClick={() => setActiveRange(tf.value)}
-                        className={`text-[11px] font-bold px-3 py-1.5 rounded transition-all ${activeRange === tf.value ? 'bg-[#2962ff] text-white shadow-md' : 'text-[#787b86] hover:text-white hover:bg-[#2a2e39]'}`}
+                        className={`text-[11px] font-bold px-3 py-1.5 rounded transition-all ${activeRange === tf.value ? 'bg-primary text-text shadow-md' : 'text-text-muted hover:text-text hover:bg-surface-hover'}`}
                     >
                         {tf.label}
                     </button>
@@ -115,10 +122,10 @@ export default function ChartHeader({
                             onClick={() => setPickerOpen(prev => !prev)}
                             className={`flex items-center gap-2 text-[11px] font-bold px-3 py-1.5 rounded transition-all border ${
                                 activeRange === 'custom'
-                                    ? 'bg-[#2962ff] text-white border-[#2962ff] shadow-md'
-                                    : 'bg-[#131722] text-[#d1d4dc] border-[#2a2e39] hover:border-[#2962ff] hover:text-white'
+                                    ? 'bg-primary text-text border-primary shadow-md'
+                                    : 'bg-surface-2 text-text border-border hover:border-primary hover:text-text'
                             }`}
-                            title="Özel tarih aralığı seç"
+                            title={t('common:labels.date')}
                         >
                             <Calendar size={13} />
                             <span className="font-mono">{customRangeLabel}</span>
@@ -128,16 +135,16 @@ export default function ChartHeader({
                             <div
                                 ref={popoverRef}
                                 style={{ position: 'fixed', top: popoverPos.top, left: popoverPos.left, zIndex: 9999 }}
-                                className="w-[340px] bg-[#131722] border border-[#2a2e39] rounded-xl shadow-2xl p-5"
+                                className="w-[340px] bg-surface-2 border border-border rounded-xl shadow-2xl p-5"
                             >
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                                        <Calendar size={14} className="text-[#2962ff]" />
-                                        Özel Tarih Aralığı
+                                    <h3 className="text-sm font-bold text-text flex items-center gap-2">
+                                        <Calendar size={14} className="text-primary" />
+                                        {t('common:labels.date')}
                                     </h3>
                                     <button
                                         onClick={() => setPickerOpen(false)}
-                                        className="text-[#868993] hover:text-white"
+                                        className="text-text-muted hover:text-text"
                                     >
                                         <X size={16} />
                                     </button>
@@ -145,8 +152,8 @@ export default function ChartHeader({
 
                                 <div className="space-y-3">
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#868993] mb-1.5">
-                                            Başlangıç Tarihi
+                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-text-muted mb-1.5">
+                                            {t('common:time.today')}
                                         </label>
                                         <input
                                             type="date"
@@ -154,13 +161,13 @@ export default function ChartHeader({
                                             min={minDate}
                                             max={maxDate}
                                             onChange={e => setCustomStartDate(e.target.value)}
-                                            className="w-full bg-[#1e222d] border border-[#2a2e39] hover:border-[#2962ff] focus:border-[#2962ff] focus:ring-1 focus:ring-[#2962ff] text-white text-sm font-mono px-3 py-2 rounded-lg outline-none transition cursor-pointer [color-scheme:dark]"
+                                            className="w-full bg-surface border border-border hover:border-primary focus:border-primary focus:ring-1 focus:ring-[#2962ff] text-text text-sm font-mono px-3 py-2 rounded-lg outline-none transition cursor-pointer "
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#868993] mb-1.5">
-                                            Bitiş Tarihi
+                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-text-muted mb-1.5">
+                                            {t('common:labels.date')}
                                         </label>
                                         <input
                                             type="date"
@@ -168,18 +175,18 @@ export default function ChartHeader({
                                             min={customStartDate || minDate}
                                             max={maxDate}
                                             onChange={e => setCustomEndDate(e.target.value)}
-                                            className="w-full bg-[#1e222d] border border-[#2a2e39] hover:border-[#2962ff] focus:border-[#2962ff] focus:ring-1 focus:ring-[#2962ff] text-white text-sm font-mono px-3 py-2 rounded-lg outline-none transition cursor-pointer [color-scheme:dark]"
+                                            className="w-full bg-surface border border-border hover:border-primary focus:border-primary focus:ring-1 focus:ring-[#2962ff] text-text text-sm font-mono px-3 py-2 rounded-lg outline-none transition cursor-pointer "
                                         />
                                     </div>
 
                                     {validationMsg && (
-                                        <div className="text-[11px] text-[#f23645] bg-[#f23645]/10 border border-[#f23645]/30 px-3 py-2 rounded-md">
+                                        <div className="text-[11px] text-sell bg-sell/10 border border-sell/30 px-3 py-2 rounded-md">
                                             ⚠ {validationMsg}
                                         </div>
                                     )}
 
-                                    <div className="text-[10px] text-[#868993] italic">
-                                        Veri aralığı: {minDate} → {maxDate}
+                                    <div className="text-[10px] text-text-muted italic">
+                                        {minDate} → {maxDate}
                                     </div>
 
                                     <div className="flex gap-2 pt-1">
@@ -188,20 +195,20 @@ export default function ChartHeader({
                                                 setCustomStartDate('');
                                                 setCustomEndDate('');
                                             }}
-                                            className="flex-1 px-3 py-2 text-xs font-bold rounded-lg bg-[#1e222d] border border-[#2a2e39] text-[#868993] hover:text-white hover:border-[#868993] transition"
+                                            className="flex-1 px-3 py-2 text-xs font-bold rounded-lg bg-surface border border-border text-text-muted hover:text-text hover:border-border-strong transition"
                                         >
-                                            Temizle
+                                            {t('common:actions.reset')}
                                         </button>
                                         <button
                                             onClick={handleApply}
                                             disabled={!datesValid}
                                             className={`flex-1 px-3 py-2 text-xs font-bold rounded-lg transition shadow ${
                                                 datesValid
-                                                    ? 'bg-[#2962ff] hover:bg-[#1e4db7] text-white'
-                                                    : 'bg-[#2a2e39] text-[#868993] cursor-not-allowed opacity-50'
+                                                    ? 'bg-primary hover:bg-primary-hover text-text'
+                                                    : 'bg-surface-hover text-text-muted cursor-not-allowed opacity-50'
                                             }`}
                                         >
-                                            Uygula
+                                            {t('common:actions.apply')}
                                         </button>
                                     </div>
                                 </div>
@@ -213,17 +220,17 @@ export default function ChartHeader({
 
             {!isLineChart && (
                 <>
-                    <div className="w-[1px] h-6 bg-[#2a2e39] mx-1 shrink-0"></div>
+                    <div className="w-px h-6 bg-surface-hover mx-1 shrink-0"></div>
                     <div className={`flex gap-1 shrink-0 ${disabledClass}`} title={disabledTitle}>
-                        <button onClick={() => changeChartType('candle_solid')} className={`p-1.5 rounded transition-colors ${chartType === 'candle_solid' ? 'text-[#2962ff] bg-[#2962ff]/10' : 'text-[#787b86] hover:text-white hover:bg-[#2a2e39]'}`} title={disabledTitle || "Mum Grafik"}><BarChart2 size={18} /></button>
-                        <button onClick={() => changeChartType('ohlc')} className={`p-1.5 rounded transition-colors ${chartType === 'ohlc' ? 'text-[#2962ff] bg-[#2962ff]/10' : 'text-[#787b86] hover:text-white hover:bg-[#2a2e39]'}`} title={disabledTitle || "Çubuk Grafik"}><Activity size={18} /></button>
-                        <button onClick={() => changeChartType('area')} className={`p-1.5 rounded transition-colors ${chartType === 'area' ? 'text-[#2962ff] bg-[#2962ff]/10' : 'text-[#787b86] hover:text-white hover:bg-[#2a2e39]'}`} title={disabledTitle || "Alan Grafiği"}><Mountain size={18} /></button>
+                        <button onClick={() => changeChartType('candle_solid')} className={`p-1.5 rounded transition-colors ${chartType === 'candle_solid' ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-text hover:bg-surface-hover'}`} title={t('charts:types.candle')}><BarChart2 size={18} /></button>
+                        <button onClick={() => changeChartType('ohlc')} className={`p-1.5 rounded transition-colors ${chartType === 'ohlc' ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-text hover:bg-surface-hover'}`} title={t('charts:types.ohlc')}><Activity size={18} /></button>
+                        <button onClick={() => changeChartType('area')} className={`p-1.5 rounded transition-colors ${chartType === 'area' ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-text hover:bg-surface-hover'}`} title={t('charts:types.area')}><Mountain size={18} /></button>
                     </div>
-                    <div className="w-[1px] h-6 bg-[#2a2e39] mx-1 shrink-0"></div>
-                    <div className={`flex gap-1 items-center bg-[#131722] border border-[#2a2e39] px-2 py-1 rounded-md shrink-0 ${disabledClass}`} title={disabledTitle}>
-                        <SlidersHorizontal size={14} className="text-[#787b86] mr-1" />
+                    <div className="w-px h-6 bg-surface-hover mx-1 shrink-0"></div>
+                    <div className={`flex gap-1 items-center bg-surface-2 border border-border px-2 py-1 rounded-md shrink-0 ${disabledClass}`} title={disabledTitle}>
+                        <SlidersHorizontal size={14} className="text-text-muted mr-1" />
                         {['MA', 'BOLL', 'MACD', 'RSI', 'VOL'].map((ind) => (
-                            <button key={ind} onClick={() => toggleIndicator(ind)} className={`text-[11px] px-2 py-1 rounded transition-all font-bold ${activeIndicators.includes(ind) ? 'text-[#2962ff] bg-[#2962ff]/10' : 'text-[#787b86] hover:text-white'}`}>{ind}</button>
+                            <button key={ind} onClick={() => toggleIndicator(ind)} className={`text-[11px] px-2 py-1 rounded transition-all font-bold ${activeIndicators.includes(ind) ? 'text-primary bg-primary/10' : 'text-text-muted hover:text-text'}`}>{ind}</button>
                         ))}
                     </div>
                 </>

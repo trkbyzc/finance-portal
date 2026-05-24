@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 
 export default function NavLogo() {
     return (
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="font-black text-white tracking-widest text-xl">
-                FINANS<span className="text-[#2962ff]">PORTAL</span>
+        <Link to="/" className="flex items-center gap-2 shrink-0 group">
+            <span className="font-black tracking-widest text-lg text-nav-text uppercase">
+                FINANS<span className="text-primary group-hover:opacity-80 transition-opacity">PORTAL</span>
             </span>
         </Link>
     );

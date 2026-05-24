@@ -1,0 +1,195 @@
+{
+  "ticker": {
+    "live": "LIVE",
+    "marketStatus": "MARKET"
+  },
+  "live": {
+    "title": "Live Markets",
+    "indices": "Indices",
+    "snapshotSubtitle": "Live Price Snapshot",
+    "viewAllStocks": "View All {{name}} Stocks",
+    "turkishStocks": "Turkish Stocks",
+    "highestVolume": "Highest Volume",
+    "mostVolatile": "Most Volatile",
+    "topGainers": "Gainers",
+    "topLosers": "Losers",
+    "commodities": "Futures & Commodities",
+    "forex": "Forex Rates",
+    "bonds": "Government Bonds",
+    "economy": "Turkish Economy",
+    "ipoCalendar": "IPO Calendar",
+    "forexPair": "Currency Pair",
+    "today": "Today",
+    "week": "Week",
+    "month": "Month",
+    "sixMonth": "6M",
+    "year": "Year",
+    "fiveYear": "5Y",
+    "yieldCurveTr": "Turkey Yield Curve (CBRT)",
+    "currentYield": "Current",
+    "yieldPct": "Yield %",
+    "maturityDate": "Maturity",
+    "loadingBonds": "Loading bond data...",
+    "demandPrice": "Offer Price",
+    "noIpos": "No upcoming IPOs",
+    "noIposDetail": "There are no approved new IPOs at this time.",
+    "interestRate": "Interest Rate",
+    "inflationRate": "Inflation Rate",
+    "unemploymentRate": "Unemployment Rate",
+    "dataSource": "Data Source",
+    "goldUsdOz": "Gold (USD / OZ)",
+    "silverUsdOz": "Silver (USD / OZ)",
+    "goldTryGr": "Gold (TRY / GRAM)",
+    "crudeOil": "Crude Oil (Brent)",
+    "bondLabels": {
+      "short": "Short Term",
+      "medium": "Medium Term",
+      "long": "Long Term",
+      "dibs": "TR Gov. Bond",
+      "tahvil": "Bond",
+      "ay": "Month",
+      "yil": "Year"
+    }
+  },
+  "categories": {
+    "trStocks": "Turkish Stocks",
+    "usStocks": "US Stocks",
+    "viop": "VIOP",
+    "currencies": "Forex",
+    "bankCurrencies": "Bank Rates",
+    "crypto": "Crypto",
+    "turkishGold": "Turkish Gold",
+    "commodities": "Commodities",
+    "bonds": "Bonds",
+    "eurobonds": "Eurobonds",
+    "trFunds": "Turkish Funds",
+    "globalFunds": "Global Funds"
+  },
+  "common": {
+    "headerLive": "Live Data",
+    "headerOffline": "Offline",
+    "lastUpdate": "Last Update",
+    "source": "Source",
+    "searchPlaceholder": "Search symbol or name...",
+    "totalCount": "{{count}} assets total",
+    "viewChart": "View Chart",
+    "viewDetail": "View Detail",
+    "topGainers": "Top Gainers",
+    "topLosers": "Top Losers",
+    "mostActive": "Most Active",
+    "noResults": "No assets match your search"
+  },
+  "stocks": {
+    "headerTitle": "Turkish Stock Market",
+    "headerSubtitle": "BIST 100 and other Turkish indices",
+    "usHeaderTitle": "US Stocks",
+    "usHeaderSubtitle": "Track S&P 500, NASDAQ, Dow Jones",
+    "indexLabel": "Index",
+    "indexValue": "Value",
+    "indexChange": "Change",
+    "topMovers": "Top Movers",
+    "stockList": "Stock List",
+    "listedStocks": "Listed Stocks",
+    "marketDirection": "Market Direction",
+    "bullish": "Bullish",
+    "bearish": "Bearish",
+    "gainersShort": "Up",
+    "losersShort": "Down",
+    "allStocks": "All Stocks",
+    "topGainers": "Top Gainers",
+    "topLosers": "Top Losers",
+    "tableCols": {
+      "symbol": "Symbol",
+      "name": "Company",
+      "price": "Price",
+      "change": "Change",
+      "changePercent": "Change %",
+      "volume": "Volume"
+    }
+  },
+  "crypto": {
+    "headerTitle": "Crypto Market",
+    "headerSubtitle": "Top 100 cryptocurrencies, live data",
+    "marketCap": "Market Cap",
+    "volume24h": "24h Volume",
+    "btcDominance": "BTC Dominance",
+    "activeCoins": "Active Coins",
+    "newsTitle": "Crypto News"
+  },
+  "currencies": {
+    "headerTitle": "FX Rates",
+    "headerSubtitle": "CBRT official indicative rates",
+    "bankHeaderTitle": "Bank FX Rates",
+    "bankHeaderSubtitle": "Live buy / sell rates from banks",
+    "majorCurrencies": "Major Currencies",
+    "rateAgainst": "TRY Equivalent",
+    "spread": "Spread",
+    "tabs": {
+      "all": "All",
+      "major": "Major",
+      "exotic": "Exotic"
+    }
+  },
+  "gold": {
+    "headerTitle": "Turkish Gold Market",
+    "headerSubtitle": "Gram, quarter, half, full gold and more",
+    "gramGold": "Gram Gold",
+    "quarter": "Quarter Gold",
+    "half": "Half Gold",
+    "full": "Full Gold",
+    "republic": "Republic Gold",
+    "rezeneed": "Resat Gold",
+    "ata": "Ata Gold",
+    "purity": "Purity"
+  },
+  "commodity": {
+    "headerTitle": "Commodities Market",
+    "headerSubtitle": "Global precious metals, energy and agriculture",
+    "spotlight": "Spotlight Commodities",
+    "tabs": {
+      "all": "All",
+      "preciousMetals": "Precious Metals",
+      "energy": "Energy",
+      "agriculture": "Agriculture",
+      "industrial": "Industrial Metals"
+    }
+  },
+  "bonds": {
+    "headerTitle": "Global Bonds",
+    "headerSubtitle": "US Treasury yields and more",
+    "trHeaderTitle": "Turkish Bonds",
+    "trHeaderSubtitle": "CBRT EVDS data, 10-year benchmark",
+    "yieldCurve": "Yield Curve",
+    "treasury": "Treasury",
+    "tabs": {
+      "us": "US",
+      "tr": "Turkey",
+      "global": "Global"
+    }
+  },
+  "eurobonds": {
+    "headerTitle": "Turkey Eurobond Overview",
+    "headerSubtitle": "External debt stock and 10Y TR USD bond yield",
+    "externalDebt": "External Debt Overview",
+    "tr10y": "TR 10Y USD Bond Yield",
+    "currencyMix": "Currency Mix",
+    "maturityMix": "Maturity Mix",
+    "totalStock": "Total Eurobond Stock"
+  },
+  "funds": {
+    "trHeaderTitle": "Turkish Investment Funds",
+    "trHeaderSubtitle": "TEFAS data, all fund types",
+    "globalHeaderTitle": "Global ETF / Funds",
+    "globalHeaderSubtitle": "US and global ETF markets",
+    "fundType": "Fund Type",
+    "fundCode": "Fund Code",
+    "nav": "NAV"
+  },
+  "viop": {
+    "headerTitle": "Futures (VIOP)",
+    "headerSubtitle": "Index, FX, commodity and equity futures",
+    "contract": "Contract",
+    "expiry": "Expiry",
+    "settlement": "Settlement"
+  }
+}

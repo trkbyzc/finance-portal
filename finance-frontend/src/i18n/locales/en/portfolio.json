@@ -1,0 +1,57 @@
+{
+  "pageTitle": "My Portfolio",
+  "pageSubtitle": "Live value, P/L and distribution of your investments",
+  "stats": {
+    "totalValue": "Total Value",
+    "totalCost": "Total Cost",
+    "totalPnl": "Total P/L",
+    "totalPnlPercent": "P/L (%)",
+    "dailyPnl": "Daily P/L",
+    "assetCount": "Asset Count"
+  },
+  "charts": {
+    "distribution": "Asset Distribution",
+    "performance": "Performance History",
+    "byCategory": "By Category",
+    "byAsset": "By Asset"
+  },
+  "holdings": {
+    "title": "Holdings",
+    "noHoldings": "You haven't added any assets yet",
+    "addFirst": "Add Your First Asset",
+    "cols": {
+      "asset": "Asset",
+      "quantity": "Quantity",
+      "avgPrice": "Avg. Cost",
+      "currentPrice": "Current Price",
+      "totalValue": "Total Value",
+      "pnl": "P/L",
+      "pnlPercent": "P/L %",
+      "actions": "Actions"
+    }
+  },
+  "modal": {
+    "addTitle": "Add to Portfolio",
+    "editTitle": "Edit Holding",
+    "selectAsset": "Select Asset",
+    "quantity": "Quantity",
+    "purchasePrice": "Purchase Price",
+    "purchaseDate": "Purchase Date",
+    "notes": "Notes (optional)",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this holding?",
+    "saveSuccess": "Holding saved successfully",
+    "deleteSuccess": "Holding deleted successfully"
+  },
+  "filters": {
+    "all": "All",
+    "gainers": "Gainers",
+    "losers": "Losers",
+    "sortBy": "Sort by",
+    "byValue": "By Value",
+    "byPnl": "By P/L",
+    "byName": "By Name"
+  }
+}

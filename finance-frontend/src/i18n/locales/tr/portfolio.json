@@ -1,0 +1,57 @@
+{
+  "pageTitle": "Portföyüm",
+  "pageSubtitle": "Yatırımlarınızın anlık değeri, kar/zarar ve dağılımı",
+  "stats": {
+    "totalValue": "Toplam Değer",
+    "totalCost": "Toplam Maliyet",
+    "totalPnl": "Toplam K/Z",
+    "totalPnlPercent": "K/Z (%)",
+    "dailyPnl": "Günlük K/Z",
+    "assetCount": "Varlık Sayısı"
+  },
+  "charts": {
+    "distribution": "Varlık Dağılımı",
+    "performance": "Performans Geçmişi",
+    "byCategory": "Kategoriye Göre",
+    "byAsset": "Varlığa Göre"
+  },
+  "holdings": {
+    "title": "Holdings",
+    "noHoldings": "Henüz hiç varlık eklemediniz",
+    "addFirst": "İlk Varlığınızı Ekleyin",
+    "cols": {
+      "asset": "Varlık",
+      "quantity": "Adet",
+      "avgPrice": "Ort. Maliyet",
+      "currentPrice": "Anlık Fiyat",
+      "totalValue": "Toplam Değer",
+      "pnl": "K/Z",
+      "pnlPercent": "K/Z %",
+      "actions": "İşlemler"
+    }
+  },
+  "modal": {
+    "addTitle": "Portföye Ekle",
+    "editTitle": "Holding Düzenle",
+    "selectAsset": "Varlık Seç",
+    "quantity": "Adet",
+    "purchasePrice": "Alış Fiyatı",
+    "purchaseDate": "Alış Tarihi",
+    "notes": "Notlar (opsiyonel)",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "deleteConfirm": "Bu holding'i silmek istediğinize emin misiniz?",
+    "saveSuccess": "Holding başarıyla kaydedildi",
+    "deleteSuccess": "Holding başarıyla silindi"
+  },
+  "filters": {
+    "all": "Tümü",
+    "gainers": "Kazandıranlar",
+    "losers": "Kaybettirenler",
+    "sortBy": "Sırala",
+    "byValue": "Değere Göre",
+    "byPnl": "K/Z'ye Göre",
+    "byName": "İsme Göre"
+  }
+}

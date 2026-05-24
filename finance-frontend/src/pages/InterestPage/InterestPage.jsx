@@ -32,7 +32,7 @@ export default function InterestPage() {
     return (
         <div className="flex flex-col min-h-screen">
             <MarketTicker />
-            <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-white w-full mt-4">
+            <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-text w-full mt-4">
                 <InterestHeader />
                 <div className="grid lg:grid-cols-12 gap-8">
                     <div className="lg:col-span-4">

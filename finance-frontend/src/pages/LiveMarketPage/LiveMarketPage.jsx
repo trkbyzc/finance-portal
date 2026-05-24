@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useLiveMarketData } from '../../hooks/useLiveMarketData';
 import ChartSection from './components/ChartSection';
@@ -15,6 +16,7 @@ import IpoSection from './components/IpoSection';
 // 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
 export default function LiveMarketPage() {
     const navigate = useNavigate();
+    const { t } = useTranslation('markets');
 
     const {
         loading, indices, ipos, trBonds,
@@ -53,13 +55,13 @@ export default function LiveMarketPage() {
         navigate(url);
     };
 
-    if (loading) return <div className="h-screen bg-[#0b0e14] flex items-center justify-center text-[#2962ff]"><Loader2 className="animate-spin" size={48} /></div>;
+    if (loading) return <div className="h-screen bg-bg flex items-center justify-center text-primary"><Loader2 className="animate-spin" size={48} /></div>;
 
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-4 md:p-8">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-8">
             <div className="max-w-[1400px] mx-auto">
                 <h1 className="text-3xl md:text-4xl font-bold mb-8 flex items-center gap-3">
-                    Piyasalar, her yerde <ChevronRight className="text-[#2a2e39]" />
+                    {t('ticker.live')} {t('ticker.marketStatus')} <ChevronRight className="text-border" />
                 </h1>
 
                 {/* 1. ENDEKSLER */}

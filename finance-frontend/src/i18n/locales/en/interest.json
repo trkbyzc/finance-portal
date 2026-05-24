@@ -1,0 +1,33 @@
+{
+  "pageTitle": "Deposit Simulator",
+  "pageSubtitle": "Calculate the return on your time deposit",
+  "form": {
+    "amount": "Principal",
+    "amountPlaceholder": "10,000",
+    "duration": "Term (Days)",
+    "durationPlaceholder": "32",
+    "currency": "Currency",
+    "ratesSource": "Interest Rate Source",
+    "submit": "Calculate",
+    "reset": "Reset"
+  },
+  "results": {
+    "title": "Results",
+    "subtitle": "Best offers from {{count}} banks",
+    "noResults": "No results, try adjusting parameters",
+    "cols": {
+      "bank": "Bank",
+      "rate": "Net Rate",
+      "grossRate": "Gross Rate",
+      "interest": "Interest",
+      "totalReturn": "Total Return"
+    },
+    "bestRate": "Best Rate",
+    "loading": "Fetching bank data..."
+  },
+  "info": {
+    "title": "Information",
+    "withholding": "Withholding rates vary by term and currency",
+    "disclaimer": "Calculations are approximate; contact your bank for exact figures"
+  }
+}

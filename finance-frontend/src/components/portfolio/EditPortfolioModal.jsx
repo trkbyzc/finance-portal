@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
+    const { t } = useTranslation(['portfolio', 'common']);
     const [quantity, setQuantity] = useState('');
     const [averagePrice, setAveragePrice] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Modal açıldığında mevcut değerleri doldur
     useEffect(() => {
         if (asset) {
             setQuantity(asset.quantity.toString());
@@ -28,8 +29,8 @@ const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
 
             onClose();
         } catch (error) {
-            console.error('Düzenleme hatası:', error);
-            alert('Hata: ' + (error.response?.data?.message || error.message));
+            console.error('Edit error:', error);
+            alert((error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }
@@ -39,71 +40,64 @@ const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#1a1d29] rounded-lg w-full max-w-md relative">
-                {/* Close Button */}
+            <div className="bg-surface-2 rounded-lg w-full max-w-md relative">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-[#868993] hover:text-white"
+                    className="absolute top-4 right-4 text-text-muted hover:text-text"
                 >
                     <X size={24} />
                 </button>
 
                 <div className="p-6">
-                    {/* Header */}
-                    <h2 className="text-2xl font-bold mb-6">Varlık Düzenle</h2>
+                    <h2 className="text-2xl font-bold mb-6">{t('portfolio:modal.editTitle')}</h2>
 
-                    {/* Varlık Bilgisi */}
-                    <div className="bg-[#0d0f15] border border-[#2a2e39] rounded-lg p-4 mb-6">
+                    <div className="bg-bg border border-border rounded-lg p-4 mb-6">
                         <div className="font-semibold text-lg">{asset.symbol}</div>
-                        <div className="text-sm text-[#868993]">{asset.assetType}</div>
+                        <div className="text-sm text-text-muted">{asset.assetType}</div>
                     </div>
 
-                    {/* Form */}
                     <form onSubmit={handleSubmit}>
-                        {/* Miktar */}
                         <div className="mb-4">
-                            <label className="block text-sm font-semibold mb-2">Miktar</label>
+                            <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.quantity')}</label>
                             <input
                                 type="number"
                                 step="0.00000001"
                                 value={quantity}
                                 onChange={(e) => setQuantity(e.target.value)}
-                                className="w-full bg-[#0d0f15] border border-[#2a2e39] rounded-lg px-4 py-3 focus:outline-none focus:border-[#2962ff]"
+                                className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                                 required
                                 autoFocus
                             />
                         </div>
 
-                        {/* Ortalama Alış Fiyatı */}
                         <div className="mb-6">
                             <label className="block text-sm font-semibold mb-2">
-                                Ortalama Alış Fiyatı (₺)
+                                {t('portfolio:modal.purchasePrice')} (₺)
                             </label>
                             <input
                                 type="number"
                                 step="0.01"
                                 value={averagePrice}
                                 onChange={(e) => setAveragePrice(e.target.value)}
-                                className="w-full bg-[#0d0f15] border border-[#2a2e39] rounded-lg px-4 py-3 focus:outline-none focus:border-[#2962ff]"
+                                className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                                 required
                             />
                         </div>
 
-                        {/* Buttons */}
                         <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-4 py-3 bg-[#2a2e39] hover:bg-[#3a3e49] rounded-lg font-semibold transition"
+                                className="flex-1 px-4 py-3 bg-surface-hover hover:bg-surface-hover rounded-lg font-semibold transition"
                             >
-                                İptal
+                                {t('common:actions.cancel')}
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 px-4 py-3 bg-[#2962ff] hover:bg-[#1e4db7] rounded-lg font-semibold transition disabled:opacity-50"
+                                className="flex-1 px-4 py-3 bg-primary hover:bg-primary-hover rounded-lg font-semibold transition disabled:opacity-50"
                             >
-                                {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                                {loading ? t('common:actions.loadingDots') : t('common:actions.save')}
                             </button>
                         </div>
                     </form>

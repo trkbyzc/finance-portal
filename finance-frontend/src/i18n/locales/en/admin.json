@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Admin Panel",
+  "pageSubtitle": "User management and system settings",
+  "tabs": {
+    "users": "Users",
+    "stats": "Statistics",
+    "system": "System",
+    "logs": "Logs"
+  },
+  "users": {
+    "title": "User List",
+    "totalUsers": "Total Users",
+    "active": "Active",
+    "banned": "Banned",
+    "search": "Search user...",
+    "cols": {
+      "username": "Username",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "actions": {
+      "ban": "Ban",
+      "unban": "Unban",
+      "makeAdmin": "Make Admin",
+      "removeAdmin": "Remove Admin",
+      "delete": "Delete"
+    },
+    "confirmBan": "Are you sure you want to ban this user?",
+    "confirmDelete": "Are you sure you want to permanently delete this user?"
+  },
+  "stats": {
+    "title": "System Statistics",
+    "registeredUsers": "Registered Users",
+    "activeUsers": "Active Users (30 days)",
+    "totalPortfolios": "Total Portfolios",
+    "apiCalls": "API Calls (24h)"
+  }
+}

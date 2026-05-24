@@ -1,32 +1,34 @@
-// src/pages/MarketPage/dashboards/GlobalFundsDashboard/GlobalFundsDashboard.jsx
 import React from 'react';
 import { useMarketData } from '../../../../hooks/useMarketData';
-import { Globe, TrendingUp, ChevronRight } from 'lucide-react';
+import { Globe, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { formatNumber } from '../../../../utils/formatters/numberFormatter';
 
 export default function GlobalFundsDashboard() {
     const navigate = useNavigate();
     const { data: etfs, loading } = useMarketData('global-funds');
+    const { t } = useTranslation(['markets', 'common']);
 
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
             <div className="mb-10">
                 <h1 className="text-3xl font-black uppercase flex items-center gap-3">
-                    <span className="w-2 h-8 bg-[#8b5cf6] rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"></span>
-                    Küresel Fonlar (ETF)
+                    <span className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"></span>
+                    {t('markets:funds.globalHeaderTitle')}
                 </h1>
-                <p className="text-[#868993] text-sm mt-2 ml-5 flex items-center gap-2">
-                    <Globe size={16} className="text-[#8b5cf6]" /> Uluslararası Borsa Yatırım Fonları
+                <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
+                    <Globe size={16} className="text-primary" /> {t('markets:funds.globalHeaderSubtitle')}
                 </p>
             </div>
 
-            <div className="bg-[#131722] border border-[#2a2e39] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-[#1e222d] text-[#868993] text-xs uppercase font-bold">
+                    <thead className="bg-surface-2 text-text-muted text-xs uppercase font-bold">
                     <tr>
-                        <th className="p-5">Fon Bilgisi</th>
-                        <th className="p-5 text-right">Fiyat</th>
-                        <th className="p-5 text-right">Değişim</th>
+                        <th className="p-5">{t('markets:funds.fundType')}</th>
+                        <th className="p-5 text-right">{t('common:labels.price')}</th>
+                        <th className="p-5 text-right">{t('common:labels.change')}</th>
                         <th className="p-5"></th>
                     </tr>
                     </thead>
@@ -36,18 +38,18 @@ export default function GlobalFundsDashboard() {
                         const isPositive = (etf.changePercent || 0) >= 0;
 
                         return (
-                            <tr key={i} onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}?cat=FUND`)} className="hover:bg-[#1e222d] transition-colors cursor-pointer group">
+                            <tr key={i} onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}?cat=FUND`)} className="hover:bg-surface-2 transition-colors cursor-pointer group">
                                 <td className="p-5">
-                                    <div className="font-bold text-[#d1d4dc] group-hover:text-white transition">{etf.currencyName || etf.name}</div>
-                                    <div className="text-[10px] text-[#868993] font-mono">{symbol}</div>
+                                    <div className="font-bold text-text group-hover:text-text transition">{etf.currencyName || etf.name}</div>
+                                    <div className="text-[10px] text-text-muted font-mono">{symbol}</div>
                                 </td>
-                                <td className="p-5 text-right font-mono text-white">
-                                    ${Number(etf.forexBuying || etf.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                <td className="p-5 text-right font-mono text-text">
+                                    ${formatNumber(etf.forexBuying || etf.price || 0)}
                                 </td>
-                                <td className={`p-5 text-right font-bold ${isPositive ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
+                                <td className={`p-5 text-right font-bold ${isPositive ? 'text-buy' : 'text-sell'}`}>
                                     {isPositive ? '+' : ''}{etf.changePercent}%
                                 </td>
-                                <td className="p-5 text-right text-[#868993] group-hover:text-[#8b5cf6] transition">
+                                <td className="p-5 text-right text-text-muted group-hover:text-primary transition">
                                     <ChevronRight size={18} />
                                 </td>
                             </tr>

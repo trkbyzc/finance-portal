@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Yönetim Paneli",
+  "pageSubtitle": "Kullanıcı yönetimi ve sistem ayarları",
+  "tabs": {
+    "users": "Kullanıcılar",
+    "stats": "İstatistikler",
+    "system": "Sistem",
+    "logs": "Loglar"
+  },
+  "users": {
+    "title": "Kullanıcı Listesi",
+    "totalUsers": "Toplam Kullanıcı",
+    "active": "Aktif",
+    "banned": "Yasaklı",
+    "search": "Kullanıcı ara...",
+    "cols": {
+      "username": "Kullanıcı Adı",
+      "email": "E-posta",
+      "role": "Rol",
+      "status": "Durum",
+      "createdAt": "Kayıt Tarihi",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "ban": "Yasakla",
+      "unban": "Yasağı Kaldır",
+      "makeAdmin": "Admin Yap",
+      "removeAdmin": "Admin Yetkisini Kaldır",
+      "delete": "Sil"
+    },
+    "confirmBan": "Bu kullanıcıyı yasaklamak istediğinize emin misiniz?",
+    "confirmDelete": "Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?"
+  },
+  "stats": {
+    "title": "Sistem İstatistikleri",
+    "registeredUsers": "Kayıtlı Kullanıcı",
+    "activeUsers": "Aktif Kullanıcı (30 gün)",
+    "totalPortfolios": "Toplam Portföy",
+    "apiCalls": "API Çağrıları (24s)"
+  }
+}

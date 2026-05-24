@@ -1,26 +1,55 @@
 import React from 'react';
-import { Activity, ArrowRight, UserPlus } from 'lucide-react';
+import { Activity, ArrowRight, UserPlus, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function DashboardHero({ navigate }) {
+    const { t } = useTranslation('dashboard');
     return (
-        <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2962ff]/10 border border-[#2962ff]/20 text-[#2962ff] text-sm font-medium">
-                <Activity size={16} /> Canlı Piyasa Terminali
+        <div className="space-y-7">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider">
+                <Activity size={14} className="animate-pulse" /> {t('hero.tagline')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-                Tüm piyasalar <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2962ff] to-[#00c853]">tek ekranda.</span>
+
+            <h1 className="text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight text-text">
+                {t('hero.titleLine1')}
+                <br />
+                <span className="bg-linear-to-r from-primary via-primary to-buy bg-clip-text text-transparent">
+                    {t('hero.titleLine2')}
+                </span>
             </h1>
-            <p className="text-lg text-[#787b86] max-w-lg">
-                Borsa, döviz, emtia ve kripto dünyasını anlık verilerle takip et. Gerçek zamanlı verilerle finansal rotanı belirle.
+
+            <p className="text-lg text-text-muted max-w-lg leading-relaxed">
+                {t('hero.subtitle')}
             </p>
-            <div className="flex flex-wrap gap-4">
-                <button onClick={() => navigate('/markets/live')} className="px-8 py-3.5 rounded-lg bg-[#2962ff] hover:bg-[#1e4eb8] transition-colors font-semibold flex items-center gap-2">
-                    Piyasaları Keşfet <ArrowRight size={18} />
+
+            <div className="flex flex-wrap gap-3 pt-2">
+                <button
+                    onClick={() => navigate('/markets/live')}
+                    className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-primary-fg font-semibold flex items-center gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all"
+                >
+                    {t('hero.exploreMarkets')} <ArrowRight size={18} />
                 </button>
-                <button onClick={() => navigate('/register')} className="px-8 py-3.5 rounded-lg bg-[#1e222d] hover:bg-[#2a2e39] border border-[#2a2e39] transition-colors font-semibold flex items-center gap-2 text-white">
-                    <UserPlus size={18} /> Ücretsiz Kayıt Ol
+                <button
+                    onClick={() => navigate('/register')}
+                    className="px-6 py-3 rounded-xl bg-surface hover:bg-surface-hover border border-border hover:border-border-strong text-text font-semibold flex items-center gap-2 transition-all"
+                >
+                    <UserPlus size={18} /> {t('cta.createAccount')}
                 </button>
+            </div>
+
+            <div className="flex items-center gap-6 pt-3 text-xs text-text-muted">
+                <div className="flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-buy" />
+                    {t('hero.stat1')}
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-primary" />
+                    {t('hero.stat2')}
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-warning" />
+                    {t('hero.stat3')}
+                </div>
             </div>
         </div>
     );

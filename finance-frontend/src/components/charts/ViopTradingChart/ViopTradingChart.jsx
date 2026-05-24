@@ -104,7 +104,7 @@ export default function ViopTradingChart({ asset }) {
     }, [chartData]);
 
     return (
-        <div className="flex flex-col w-full h-full bg-[#0b0e14] text-white">
+        <div className="flex flex-col w-full h-full bg-bg text-text">
             <ViopHeader asset={asset} />
             <ViopControls
                 range={range}

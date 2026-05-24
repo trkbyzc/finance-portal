@@ -19,19 +19,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NewsSyncService {
 
-    protected static final String REDIS_KEY = "cache:news:v13";
+    // Bumped to v15 — Dünya Gazetesi (genel feed) kaldırıldı, yerine AA Ekonomi (kategori-spesifik) geldi.
+    protected static final String REDIS_KEY = "cache:news:v15";
     private final RedisTemplate<String, Object> redisTemplate;
     private final RssIntegrationClient rssIntegrationClient;
     private final ObjectMapper objectMapper;
     private final NewsCategoryClassifier categoryClassifier;
 
-    private static final Map<String, String> SOURCES = Map.of(
-            "https://www.bloomberght.com/rss", "Bloomberg HT",
-            "https://www.trthaber.com/ekonomi_articles.rss", "TRT Haber Ekonomi",
-            "https://uzmancoin.com/feed/", "Uzmancoin"
+    // Açık kaynak RSS 2.0 feed'leri (Atom feed'ler client'ımızda parse edilemiyor).
+    // Map.ofEntries — Map.of() 10 entry sınırı için.
+    private static final Map<String, String> SOURCES = Map.ofEntries(
+            Map.entry("https://www.bloomberght.com/rss", "Bloomberg HT"),
+            Map.entry("https://www.trthaber.com/ekonomi_articles.rss", "TRT Haber Ekonomi"),
+            Map.entry("https://uzmancoin.com/feed/", "Uzmancoin"),
+            Map.entry("https://coin-turk.com/feed", "CoinTurk"),
+            Map.entry("https://www.aa.com.tr/tr/rss/default?cat=ekonomi", "Anadolu Ajansı Ekonomi"),
+            Map.entry("https://www.hurriyet.com.tr/rss/ekonomi", "Hürriyet Ekonomi"),
+            Map.entry("https://www.haberturk.com/rss/kategori/ekonomi.xml", "Habertürk Ekonomi"),
+            Map.entry("https://www.sabah.com.tr/rss/ekonomi.xml", "Sabah Ekonomi")
     );
 
-    @Scheduled(fixedRate = 900000)
+    // initialDelay=5sn → startup'tan 5 saniye sonra ilk fetch, sonra 15dk'da bir.
+    @Scheduled(initialDelay = 5000, fixedRate = 900000)
     public void fetchAndCacheNews() {
         long startTime = System.currentTimeMillis();
         List<NewsDto> masterList = getCachedNews();

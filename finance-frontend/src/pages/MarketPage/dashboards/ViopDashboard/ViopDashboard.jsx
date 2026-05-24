@@ -1,14 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Zap, ChevronRight, Activity, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNavigate } from 'react-router-dom';
+import { formatNumber } from '../../../../utils/formatters/numberFormatter';
 
 export default function ViopDashboard() {
     const { data: contracts, loading: isLoading } = useMarketData('viop');
     const navigate = useNavigate();
+    const { t } = useTranslation(['markets', 'common']);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Arama filtrelemesi
     const filteredContracts = useMemo(() => {
         const query = searchQuery.toLowerCase().trim();
         if (!query) return contracts;
@@ -18,7 +20,6 @@ export default function ViopDashboard() {
         );
     }, [searchQuery, contracts]);
 
-    // Anlık İstatistikler
     const stats = useMemo(() => {
         if (!contracts.length) return { total: 0, gainers: 0, losers: 0 };
         const gainers = contracts.filter(c => (c.changePercent || c.regularMarketChangePercent || 0) > 0).length;
@@ -27,77 +28,74 @@ export default function ViopDashboard() {
     }, [contracts]);
 
     return (
-        <div className="min-h-screen bg-[#0b0e14] text-white p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
 
-            {/* ÜST BAŞLIK */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
-                    <h1 className="text-3xl font-black uppercase text-white tracking-tight flex items-center gap-3">
-                        <span className="w-2 h-8 bg-[#ff9800] rounded-full"></span>
-                        VİOP Piyasası
+                    <h1 className="text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                        <span className="w-2 h-8 bg-warning rounded-full"></span>
+                        {t('markets:viop.headerTitle')}
                     </h1>
-                    <p className="text-[#868993] text-sm mt-2 ml-5 flex items-center gap-2">
-                        <Zap size={16} className="text-[#ff9800]" /> Vadeli İşlem ve Opsiyon Piyasası Sözleşmeleri
+                    <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
+                        <Zap size={16} className="text-warning" /> {t('markets:viop.headerSubtitle')}
                     </p>
                 </div>
 
                 <div className="relative w-full md:w-80">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#868993]" />
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
                     <input
                         type="text"
-                        placeholder="Sözleşme ara (örn: F_XU030)..."
+                        placeholder={t('markets:common.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-[#131722] border border-[#2a2e39] focus:border-[#ff9800] text-white rounded-xl outline-none text-sm transition shadow-lg"
+                        className="w-full pl-12 pr-4 py-3 bg-surface border border-border focus:border-warning text-text rounded-xl outline-none text-sm transition shadow-lg"
                     />
                 </div>
             </div>
 
-            {/* İSTATİSTİK KARTLARI */}
             {!isLoading && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-[#131722] border border-[#2a2e39] p-5 rounded-xl flex items-center justify-between shadow-lg">
+                    <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
                         <div>
-                            <p className="text-[#868993] text-xs font-bold uppercase tracking-wider mb-1">Aktif Sözleşme</p>
-                            <h3 className="text-2xl font-black text-white">{stats.total}</h3>
+                            <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{t('markets:viop.contract')}</p>
+                            <h3 className="text-2xl font-black text-text">{stats.total}</h3>
                         </div>
-                        <div className="w-12 h-12 bg-[#ff9800]/10 rounded-full flex items-center justify-center text-[#ff9800]">
+                        <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center text-warning">
                             <Clock size={24} />
                         </div>
                     </div>
-                    <div className="bg-[#131722] border border-[#2a2e39] p-5 rounded-xl flex items-center justify-between shadow-lg">
+                    <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
                         <div>
-                            <p className="text-[#868993] text-xs font-bold uppercase tracking-wider mb-1">Yükselenler</p>
-                            <h3 className="text-2xl font-black text-[#089981]">{stats.gainers}</h3>
+                            <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{t('markets:common.topGainers')}</p>
+                            <h3 className="text-2xl font-black text-buy">{stats.gainers}</h3>
                         </div>
-                        <div className="w-12 h-12 bg-[#089981]/10 rounded-full flex items-center justify-center text-[#089981]">
+                        <div className="w-12 h-12 bg-buy/10 rounded-full flex items-center justify-center text-buy">
                             <Activity size={24} />
                         </div>
                     </div>
-                    <div className="bg-[#131722] border border-[#2a2e39] p-5 rounded-xl flex items-center justify-between shadow-lg">
+                    <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
                         <div>
-                            <p className="text-[#868993] text-xs font-bold uppercase tracking-wider mb-1">Düşenler</p>
-                            <h3 className="text-2xl font-black text-[#f23645]">{stats.losers}</h3>
+                            <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{t('markets:common.topLosers')}</p>
+                            <h3 className="text-2xl font-black text-sell">{stats.losers}</h3>
                         </div>
-                        <div className="w-12 h-12 bg-[#f23645]/10 rounded-full flex items-center justify-center text-[#f23645]">
+                        <div className="w-12 h-12 bg-sell/10 rounded-full flex items-center justify-center text-sell">
                             <Activity size={24} />
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* ANA TABLO */}
             {isLoading ? (
-                <div className="h-96 animate-pulse bg-[#131722] border border-[#2a2e39] rounded-2xl"></div>
+                <div className="h-96 animate-pulse bg-surface border border-border rounded-2xl"></div>
             ) : (
-                <div className="bg-[#131722] border border-[#2a2e39] rounded-2xl shadow-2xl overflow-hidden">
+                <div className="bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
                     <div className="overflow-x-auto max-h-[600px] custom-scrollbar">
                         <table className="w-full text-left border-collapse">
-                            <thead className="bg-[#1e222d] sticky top-0 z-10 shadow-md">
+                            <thead className="bg-surface-2 sticky top-0 z-10 shadow-md">
                             <tr>
-                                <th className="p-5 text-xs font-bold text-[#868993] uppercase tracking-wider">Sözleşme Kodu</th>
-                                <th className="p-5 text-xs font-bold text-[#868993] uppercase tracking-wider text-right">Uzlaşma Fiyatı</th>
-                                <th className="p-5 text-xs font-bold text-[#868993] uppercase tracking-wider text-right">Değişim (%)</th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider">{t('markets:viop.contract')}</th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:viop.settlement')}</th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:stocks.tableCols.changePercent')}</th>
                                 <th className="p-5"></th>
                             </tr>
                             </thead>
@@ -113,34 +111,34 @@ export default function ViopDashboard() {
                                         <tr
                                             key={contract.symbol}
                                             onClick={() => navigate(`/chart/${encodeURIComponent(contract.symbol)}?cat=VIOP`)}
-                                            className="hover:bg-[#1e222d] transition cursor-pointer group"
+                                            className="hover:bg-surface-2 transition cursor-pointer group"
                                         >
                                             <td className="p-5">
-                                                <div className="font-bold text-[#d1d4dc] group-hover:text-white transition flex items-center gap-2">
+                                                <div className="font-bold text-text group-hover:text-text transition flex items-center gap-2">
                                                     {contract.symbol}
                                                 </div>
-                                                <div className="text-[10px] text-[#868993] mt-1 max-w-[250px] truncate uppercase">
-                                                    {contract.name || 'VİOP Sözleşmesi'}
+                                                <div className="text-[10px] text-text-muted mt-1 max-w-[250px] truncate uppercase">
+                                                    {contract.name || ''}
                                                 </div>
                                             </td>
-                                            <td className="p-5 text-right font-mono font-medium text-white">
-                                                {price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                                            <td className="p-5 text-right font-mono font-medium text-text">
+                                                {formatNumber(price, 2, 4)}
                                             </td>
                                             <td className="p-5 text-right">
-                                                <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-bold text-sm ${isPositive ? 'bg-[#089981]/10 text-[#089981]' : isNegative ? 'bg-[#f23645]/10 text-[#f23645]' : 'bg-[#2a2e39] text-[#868993]'}`}>
+                                                <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-bold text-sm ${isPositive ? 'bg-buy/10 text-buy' : isNegative ? 'bg-sell/10 text-sell' : 'bg-surface-hover text-text-muted'}`}>
                                                     {isPositive ? '+' : ''}{change.toFixed(2)}%
                                                 </div>
                                             </td>
                                             <td className="p-5 text-right">
-                                                <ChevronRight size={18} className="text-[#868993] group-hover:text-[#ff9800] transition" />
+                                                <ChevronRight size={18} className="text-text-muted group-hover:text-warning transition" />
                                             </td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="p-10 text-center text-[#868993]">
-                                        Sözleşme bulunamadı.
+                                    <td colSpan="4" className="p-10 text-center text-text-muted">
+                                        {t('markets:common.noResults')}
                                     </td>
                                 </tr>
                             )}

@@ -1,14 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { newsApi } from '../services/api';
 
-export const useNewsData = () => {
+/**
+ * @param {string} category - Backend NewsCategoryClassifier sabitlerinden biri.
+ *   Geçerli değerler: 'Tümü', 'Genel Ekonomi', 'Borsa', 'Döviz & Forex',
+ *   'Kripto', 'Emtialar', 'Tahvil & Faiz', 'Yatırım Fonları'.
+ *   Verilmezse tüm haberler döner.
+ */
+export const useNewsData = (category = 'Tümü') => {
     const { data, isLoading: loading, error } = useQuery({
-        queryKey: ['allNews'],
+        queryKey: ['news', category],
         queryFn: async () => {
             try {
-                const response = await newsApi.getAllNews();
-                // Response objesinin içinde nerede content varsa onu al, yoksa boş array
-                return Array.isArray(response) ? response : (response?.data || response?.content || response?.items || []);
+                const response = await newsApi.getNewsPage(category, 0, 20);
+                if (Array.isArray(response)) return response;
+                return response?.content || response?.data || response?.items || [];
             } catch (err) {
                 console.error("Haberler çekilirken hata oluştu:", err);
                 return [];
@@ -17,11 +23,7 @@ export const useNewsData = () => {
         staleTime: 5 * 60 * 1000
     });
 
-    // 🚀 DÜZELTME: Sidebar vb bileşenlerin "news.map is not a function" diyerek çökmesini ENGELLE.
-    // Her ne olursa olsun her zaman Map'lenebilir ARRAY dön.
     const news = Array.isArray(data) ? data : [];
-
-    // Slice çalıştırırken array olduğundan emin olduğumuz için artık hata vermez
     const topNews = news.length > 0 ? news.slice(0, 5) : [];
     const recentNews = news.length > 5 ? news.slice(5) : [];
 

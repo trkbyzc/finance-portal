@@ -1,29 +1,225 @@
 @import "tailwindcss";
 
-/* 🚀 TÜM UYGULAMA İÇİN GLOBAL DARK MODE SCROLLBAR */
+/* ============================================================
+   FINANSPORTAL DESIGN SYSTEM
+   Tabanı: Google Stitch + Material 3 inspired tokens
+   3 tema: Dark (default) · Light · Hybrid
+   ============================================================ */
 
-/* Chrome, Edge ve Safari için */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ----------- TAILWIND v4 THEME EXTENSIONS ----------- */
+@theme {
+    /* Fontlar */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+    /* Semantic renkler — CSS variable'lara bağlı, tema ile değişir */
+    --color-bg: var(--bg);
+    --color-bg-elevated: var(--bg-elevated);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-surface-hover: var(--surface-hover);
+    --color-text: var(--text);
+    --color-text-muted: var(--text-muted);
+    --color-text-subtle: var(--text-subtle);
+    --color-border: var(--border);
+    --color-border-strong: var(--border-strong);
+
+    /* Brand — sabit (3 temada da aynı) */
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-soft: rgba(37, 99, 235, 0.12);
+    --color-primary-fg: #ffffff;
+
+    /* Finansal semantik — kazanç/kayıp */
+    --color-buy: #00a572;
+    --color-buy-soft: rgba(0, 165, 114, 0.12);
+    --color-buy-light: #4edea3;
+    --color-sell: #d22348;
+    --color-sell-soft: rgba(210, 35, 72, 0.12);
+    --color-sell-light: #ffb2b7;
+
+    /* Uyarı/info */
+    --color-warning: #f59e0b;
+    --color-warning-soft: rgba(245, 158, 11, 0.12);
+
+    /* Nav-specific (hybrid temada farklı) */
+    --color-nav-bg: var(--nav-bg);
+    --color-nav-text: var(--nav-text);
+    --color-nav-border: var(--nav-border);
+
+    /* Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-full: 9999px;
+
+    /* Container */
+    --spacing-container: 1440px;
+}
+
+/* ============================================================
+   TEMA: DARK (default) — Stitch'in özelleştirilmiş hali
+   Pure black değil, slate-tabanlı navy
+   ============================================================ */
+:root,
+[data-theme="dark"] {
+    --bg: #0f172a;                /* slate-900 */
+    --bg-elevated: #131b2e;       /* sayfa altı varyantı */
+    --surface: #1e293b;           /* card/widget */
+    --surface-2: #131b2e;         /* alt-card, input bg */
+    --surface-hover: #222a3d;     /* hover state */
+    --text: #f1f5f9;              /* slate-100 */
+    --text-muted: #94a3b8;        /* slate-400 */
+    --text-subtle: #64748b;       /* slate-500 */
+    --border: #334155;            /* slate-700 */
+    --border-strong: #475569;     /* slate-600 */
+    --nav-bg: rgba(15, 23, 42, 0.85);   /* glassmorphic header */
+    --nav-text: #f1f5f9;
+    --nav-border: rgba(51, 65, 85, 0.6);
+    color-scheme: dark;
+}
+
+/* ============================================================
+   TEMA: LIGHT — kurumsal bankacılık estetiği
+   ============================================================ */
+[data-theme="light"] {
+    --bg: #f1f5f9;                /* slate-100 */
+    --bg-elevated: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;         /* slate-50 */
+    --surface-hover: #f1f5f9;
+    --text: #0f172a;              /* slate-900 */
+    --text-muted: #475569;        /* slate-600 */
+    --text-subtle: #64748b;       /* slate-500 */
+    --border: #e2e8f0;            /* slate-200 */
+    --border-strong: #cbd5e1;     /* slate-300 */
+    --nav-bg: rgba(255, 255, 255, 0.85);
+    --nav-text: #0f172a;
+    --nav-border: rgba(226, 232, 240, 0.8);
+    color-scheme: light;
+}
+
+/* ============================================================
+   TEMA: HYBRID — koyu header/sidebar + tinted açık içerik
+   Modern dashboard tarzı, navy accent her yerde hissedilir
+   ============================================================ */
+[data-theme="hybrid"] {
+    /* Slate-tinted açık zemin — saf beyaz değil, hafif navy çalan */
+    --bg: #e2e8f0;                /* slate-200 — content altı */
+    --bg-elevated: #f8fafc;        /* slate-50 — yükseltilmiş yüzey */
+    --surface: #ffffff;            /* card */
+    --surface-2: #f1f5f9;          /* slate-100 — alt-card */
+    --surface-hover: #e2e8f0;      /* slate-200 — hover */
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-subtle: #64748b;
+    /* Koyu navy accent border — hibrit karakter */
+    --border: #cbd5e1;             /* slate-300 — daha belirgin */
+    --border-strong: #94a3b8;      /* slate-400 */
+    /* Header/Sidebar koyu navy */
+    --nav-bg: rgba(15, 23, 42, 0.95);
+    --nav-text: #f1f5f9;
+    --nav-border: rgba(51, 65, 85, 0.5);
+    color-scheme: light;
+}
+
+/* Hybrid'e özel: kartlarda derin gölge + üst kenarda koyu accent çizgi */
+[data-theme="hybrid"] .bg-surface,
+[data-theme="hybrid"] .bg-surface-2 {
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08),
+                0 4px 12px -2px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Hybrid scrollbar — daha koyu */
+[data-theme="hybrid"] ::-webkit-scrollbar-thumb {
+    background: #64748b;
+    border: 2px solid #e2e8f0;
+}
+
+/* ============================================================
+   GLOBAL STYLES
+   ============================================================ */
+html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Mono font için utility — fiyat/sayı/ticker'larda */
+.font-mono,
+[class*="font-mono"] {
+    font-family: var(--font-mono);
+    font-feature-settings: 'tnum' 1, 'zero' 1;  /* tabular numbers + slashed zero */
+}
+
+/* ============================================================
+   SCROLLBAR — tema-aware
+   ============================================================ */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-    background: #0b0e14; /* Sitemizin ana koyu arkaplanı */
+    background: var(--bg);
 }
-
 ::-webkit-scrollbar-thumb {
-    background: #2a2e39; /* Çubuğun kendisi */
+    background: var(--border);
     border-radius: 8px;
-    border: 2px solid #0b0e14; /* Çubuğun kenarlarını inceltip daha zarif yapar */
+    border: 2px solid var(--bg);
 }
-
 ::-webkit-scrollbar-thumb:hover {
-    background: #2962ff; /* Fareyle üstüne gelince bizim siber mavi şov yapsın */
+    background: var(--primary);
 }
-
-/* Firefox Uyumluluğu İçin Bütün Elementlere Uygula */
 * {
     scrollbar-width: thin;
-    scrollbar-color: #2a2e39 #0b0e14;
+    scrollbar-color: var(--border) var(--bg);
+}
+
+/* Hide-scrollbar utility (mevcut kullanım) */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
+}
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   UTILITY: tablo zebra stripe (dark only)
+   ============================================================ */
+[data-theme="dark"] .table-zebra tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.015);
+}
+[data-theme="light"] .table-zebra tbody tr:nth-child(even),
+[data-theme="hybrid"] .table-zebra tbody tr:nth-child(even) {
+    background-color: rgba(15, 23, 42, 0.02);
 }

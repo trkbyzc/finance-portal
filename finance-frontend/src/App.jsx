@@ -32,7 +32,7 @@ function App() {
         <AuthProvider>
             <CurrencyProvider>
                 <Router>
-                    <div className="min-h-screen bg-[#050505] text-[#d1d4dc] font-sans selection:bg-[#2962ff] selection:text-white">
+                    <div className="min-h-screen bg-bg text-text font-sans selection:bg-primary selection:text-primary-fg">
                         <Navbar />
                         <main>
                             <Routes>
