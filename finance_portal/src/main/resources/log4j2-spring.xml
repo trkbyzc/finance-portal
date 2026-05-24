@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
-        <!-- Konsol Appender'ı (Debug/Local testler için) -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{traceId:-}] [SpanId: %X{spanId:-}] %c{1}:%L - %m%n" />
         </Console>
 
-        <!-- Kafka Appender'ı -->
-        <Kafka name="Kafka" topic="finance-app-logs">
-            <!-- LogstashFormat / JsonTemplateLayout ile JSON üretimi -->
+        <Kafka name="Kafka" topic="finance-app-logs" syncSend="false">
             <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"/>
             <Property name="bootstrap.servers">localhost:9092</Property>
         </Kafka>
     </Appenders>
 
     <Loggers>
+        <!-- Kafka'nın kendi hatalarını Kafka'ya göndermesini engelle, sadece konsola yaz -->
+        <Logger name="org.apache.kafka" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
         <Root level="info">
             <AppenderRef ref="Console" />
             <AppenderRef ref="Kafka" />

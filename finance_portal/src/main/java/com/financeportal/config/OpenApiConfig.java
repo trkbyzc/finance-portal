@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "Finance Portal API", version = "v1", description = "Finance Portal Backend Endpoints (Developed by GitHub Copilot)"),
+        info = @Info(title = "Finance Portal API", version = "v1", description = "Finance Portal Backend Endpoints"),
         security = @SecurityRequirement(name = "bearerAuth") // Bu sayede tum API'lere kilit isareti gelir
 )
 @SecurityScheme(

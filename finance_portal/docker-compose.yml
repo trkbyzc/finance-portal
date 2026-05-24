@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: finance_postgres
+    container_name: finance-postgres
     environment:
       POSTGRES_DB: finance_db
       POSTGRES_USER: finance_user
@@ -16,7 +16,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
-    container_name: finance_keycloak
+    container_name: finance-keycloak
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/finance_db
@@ -27,30 +27,48 @@ services:
     command: start-dev
     ports:
       - "8080:8080"
+    volumes:
+      - ./keycloak-themes:/opt/keycloak/themes
     depends_on:
       - postgres
     restart: unless-stopped
 
   redis:
     image: redis:7
-    container_name: finance_redis
+    container_name: finance-redis
     ports:
       - "6379:6379"
     restart: unless-stopped
 
   openldap:
     image: osixia/openldap:1.5.0
-    container_name: finance_openldap
+    container_name: finance-openldap
     environment:
-      LDAP_ADMIN_PASSWORD: adminpassword
+      LDAP_ORGANISATION: "Finance Portal"
       LDAP_DOMAIN: "finance.local"
+      LDAP_ADMIN_PASSWORD: "adminpassword"
     ports:
       - "1389:389"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    restart: unless-stopped
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: finance-phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "finance-openldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8082:80"
+    depends_on:
+      - openldap
     restart: unless-stopped
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
-    container_name: finance_zookeeper
+    container_name: finance-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -60,7 +78,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: finance_kafka
+    container_name: finance-kafka
     depends_on:
       - zookeeper
     ports:
@@ -68,16 +86,26 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      # 🚀 DÜZELTİLDİ: Listener haritası tutarlı hale getirildi
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://finance-kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ALLOW_AUTO_CREATE_TOPICS: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
     restart: unless-stopped
 
   opensearch:
     image: opensearchproject/opensearch:2.11.1
-    container_name: finance_opensearch
+    container_name: finance-opensearch
     environment:
       - discovery.type=single-node
-      - plugins.security.disabled=true # Güvenlik tamamen kapalı!
+      - plugins.security.disabled=true
       - bootstrap.memory_lock=true
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
@@ -86,7 +114,6 @@ services:
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     restart: unless-stopped
-    # 🚀 YENİ: OpenSearch'ün tam olarak ayağa kalktığını anlayan doktor
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:9200 || exit 1"]
       interval: 10s
@@ -95,28 +122,31 @@ services:
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.11.1
-    container_name: finance_os_dashboards
+    container_name: finance-os-dashboards
     ports:
       - "5601:5601"
     environment:
-      OPENSEARCH_HOSTS: '["http://finance_opensearch:9200"]'
+      # 🚀 DÜZELTİLDİ: Alt tire (finance_opensearch) tireye çevrildi
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
       DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
-    restart: unless-stopped # 🚀 YENİ: Kapanırsa otomatik yeniden başlasın
+    restart: unless-stopped
     depends_on:
       opensearch:
-        condition: service_healthy # 🚀 YENİ: Sadece OpenSearch "Healthy" olunca başla
+        condition: service_healthy
 
   logstash:
     image: opensearchproject/logstash-oss-with-opensearch-output-plugin:8.9.0
-    container_name: finance_logstash
+    container_name: finance-logstash
     volumes:
       - ./logs:/usr/share/logstash/logs
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    restart: unless-stopped # 🚀 YENİ: Kapanırsa otomatik yeniden başlasın
+    restart: unless-stopped
     depends_on:
       opensearch:
-        condition: service_healthy # 🚀 YENİ: Sadece OpenSearch "Healthy" olunca başla
+        condition: service_healthy
 
 volumes:
   postgres_data:
   opensearch_data:
+  ldap_data:
+  ldap_config:
