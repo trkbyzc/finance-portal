@@ -50,19 +50,21 @@ const transformViopData = (rawData) => {
 
 export const useViopChartData = (symbol, fromDate, toDate, range = '1mo') => {
     return useQuery({
-        queryKey: ['viopChartData', symbol, fromDate, toDate, range],
+        queryKey: ['viopChartData', symbol, range],
         queryFn: async () => {
-            // 🚀 OBJE OLARAK YOLLUYORUZ
-            const response = await historicalApi.getCustomRange({
+            // range'i direkt gönder — backend ViopScraperClient'ın switch'i (1w/1mo/3mo/6mo/1y)
+            // bunu doğru şekilde işliyor. getCustomRange ile gönderince range='custom' olup
+            // default 1y'a düşüyordu (H/A/Y filtreleri aynı sonuç veriyordu).
+            const response = await historicalApi.getData({
                 symbol: symbol,
-                startDate: fromDate,
-                endDate: toDate
+                category: 'VIOP',
+                range: range,
+                interval: '1d'
             });
             const dataArray = Array.isArray(response) ? response : (response?.priceData || response || []);
             return transformViopData(dataArray);
         },
-        enabled: !!symbol && !!fromDate && !!toDate,
-        // 🚀 FAZ-4: MAGIC NUMBER GİTTİ, MERKEZİ SABİT GELDİ
+        enabled: !!symbol && !!range,
         staleTime: QUERY_CONFIG.STALE_TIME.DEFAULT,
         retry: 1
     });

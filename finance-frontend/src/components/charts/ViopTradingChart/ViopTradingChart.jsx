@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { init, dispose } from 'klinecharts';
 import { useViopChartData, getPastDate } from '../../../hooks/charts/useViopChartData';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { detectNativeCurrency } from '../../../utils/currencyConversion';
 import ViopHeader from './components/ViopHeader';
 import ViopControls from './components/ViopControls';
 import ViopChartArea from './components/ViopChartArea';
@@ -28,12 +30,28 @@ export default function ViopTradingChart({ asset }) {
     };
 
     // ✅ React Query ile veri çekme - range parametresi eklendi
-    const { data: chartData = [], isLoading: loading } = useViopChartData(
-        asset?.symbol, 
-        customFromDate, 
+    const { data: rawChartData = [], isLoading: loading } = useViopChartData(
+        asset?.symbol,
+        customFromDate,
         customToDate,
         range  // ✅ range parametresi gönderiliyor
     );
+
+    // 🆕 TRY/USD para birimi conversion — global currency context'i
+    const { currency, convertPrice } = useCurrency();
+    const nativeCurrency = useMemo(() => detectNativeCurrency({ ...asset, assetCategory: 'VIOP' }), [asset]);
+    const shouldConvert = currency !== nativeCurrency;
+
+    const chartData = useMemo(() => {
+        if (!shouldConvert || !rawChartData?.length) return rawChartData;
+        return rawChartData.map(d => ({
+            ...d,
+            open: convertPrice(d.open, nativeCurrency),
+            high: convertPrice(d.high, nativeCurrency),
+            low: convertPrice(d.low, nativeCurrency),
+            close: convertPrice(d.close, nativeCurrency)
+        }));
+    }, [rawChartData, shouldConvert, nativeCurrency, convertPrice]);
 
     // Chart instance kurulumu (DOM manipulation)
     useEffect(() => {
@@ -72,11 +90,15 @@ export default function ViopTradingChart({ asset }) {
         };
     }, []);
 
-    // Chart data güncelleme (side effect)
+    // Chart data güncelleme (side effect) + currency-aware precision
     useEffect(() => {
-        if (chartInstance.current && chartData.length > 0) {
+        if (!chartInstance.current) return;
+        if (chartData.length > 0) {
+            const maxPrice = chartData.reduce((m, d) => Math.max(m, d.close || 0, d.high || 0), 0);
+            const pricePrecision = maxPrice >= 100 ? 2 : maxPrice >= 1 ? 4 : maxPrice >= 0.01 ? 6 : 8;
+            chartInstance.current.setPriceVolumePrecision(pricePrecision, 0);
             chartInstance.current.applyNewData(chartData);
-        } else if (chartInstance.current) {
+        } else {
             chartInstance.current.applyNewData([]);
         }
     }, [chartData]);
