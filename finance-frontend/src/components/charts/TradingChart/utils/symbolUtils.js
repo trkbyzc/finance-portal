@@ -15,8 +15,8 @@ export const normalizeSymbol = (asset) => {
 
     let sym = asset?.symbol || asset?.currencyCode || 'XU100.IS';
 
-    // Kripto kontrolü
-    if (CRYPTO_LIST.includes(sym) || sym.length <= 5) {
+    // 🚀 HATA DÜZELTİLDİ: Sadece CRYPTO_LIST ve kategorisi CRYPTO olanları işle
+    if (CRYPTO_LIST.includes(sym) || asset?.assetCategory === 'CRYPTO') {
         if (!sym.includes('-USD') && !sym.includes('=X')) {
             return `${sym.replace('USDT', '')}-USD`;
         }
@@ -32,9 +32,9 @@ export const normalizeSymbol = (asset) => {
  * @returns {string} Görüntüleme adı
  */
 export const getDisplayName = (asset, backendSymbol) => {
-    return asset?.name || 
-           asset?.currencyName || 
-           backendSymbol.replace('.IS', '').replace('=X', '').replace('-USD', '');
+    return asset?.name ||
+        asset?.currencyName ||
+        backendSymbol.replace('.IS', '').replace('=X', '').replace('-USD', '');
 };
 
 /**
@@ -51,7 +51,7 @@ export const isTurkishBond = (symbol) => symbol.startsWith('TP.');
  */
 export const getChartType = (asset) => {
     if (asset?.chartType === 'LINE') return 'LINE';
-    if (['BOND', 'FUND'].includes(asset?.assetCategory)) return 'LINE';
+    if (['BOND', 'FUND', 'EUROBOND'].includes(asset?.assetCategory)) return 'LINE';
     if (asset?.chartType === 'NONE') return 'NONE';
     return 'CANDLE';
 };

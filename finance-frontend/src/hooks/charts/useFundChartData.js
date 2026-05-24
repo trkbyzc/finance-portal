@@ -52,9 +52,9 @@ export const useFundChartData = (symbol, range, isTefas) => {
     return useQuery({
         queryKey: ['fundChartData', symbol, range, isTefas],
         queryFn: async () => {
-            // 🚀 OBJE OLARAK YOLLUYORUZ
             const response = await historicalApi.getData({
                 symbol: symbol,
+                category: 'TR_FUND', // 🚀 KATEGORİ EKLENDİ
                 range: range,
                 interval: '1d'
             });

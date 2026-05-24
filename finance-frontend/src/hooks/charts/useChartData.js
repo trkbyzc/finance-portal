@@ -3,12 +3,24 @@ import { historicalApi } from '../../services/api';
 // 🚀 FAZ-4 EKLENTİSİ: Sabitlerimiz geldi
 import { QUERY_CONFIG } from '../../constants/config';
 
-// Helper: Range'e göre interval belirle
+// Helper: Range'e göre interval belirle (TÜRKÇE DESTEKLİ)
 const getIntervalForRange = (range) => {
-    if (range === '1d') return '15m';
-    if (range === '5d' || range === '1w') return '60m';
-    if (range === '5y') return '1wk';
-    return '1d';
+    const r = range.toLowerCase();
+    if (r === '1d' || r === '1g') return '15m'; // 1 Günlük grafikte 15 dakikalık mum
+    if (r === '5d' || r === '1w' || r === '1h') return '60m'; // 1 Haftalık grafikte saatlik mum
+    if (r === '5y') return '1wk'; // 5 Yıllık grafikte haftalık mum
+    return '1d'; // Geri kalan her şey (1A, 3A, 6A, 1Y) için günlük mum
+};
+
+// Backend'in ve Yahoo'nun kafası karışmasın diye Türkçe range'leri İngilizceye çevir
+const normalizeRange = (range) => {
+    const r = range.toLowerCase();
+    if (r === '1g') return '1d';
+    if (r === '1h') return '1mo'; // Yahoo'da 1 hafta genelde 1 ayın içi veya 5d olarak çekilir. '5d' de yapabilirsin.
+    if (r === '1a') return '1mo';
+    if (r === '3a') return '3mo';
+    if (r === '6a') return '6mo';
+    return r; // ytd, 1y, 5y gibi olanlar aynı kalır
 };
 
 // 🚀 KURŞUN GEÇİRMEZ TRANSFORMER (Az önce çözdüğümüz hayat kurtaran filtre)
@@ -45,24 +57,28 @@ const transformChartData = (rawData) => {
         .sort((a, b) => a.timestamp - b.timestamp);
 };
 
-export const useChartData = (backendSymbol, activeRange, customStartDate, customEndDate, isNone) => {
+export const useChartData = (backendSymbol, category, activeRange, customStartDate, customEndDate, isNone) => {
     return useQuery({
-        queryKey: ['chartData', backendSymbol, activeRange, customStartDate, customEndDate],
+        // 🚀 DÜZELTME 2: queryKey içine category eklendi!
+        // (Bu çok kritik: Farklı kategorilerde aynı sembol gelirse React Query'nin kafası karışmasın diye)
+        queryKey: ['chartData', backendSymbol, category, activeRange, customStartDate, customEndDate],
         queryFn: async () => {
             let data;
+            const normalizedRange = normalizeRange(activeRange);
+
             if (activeRange === 'custom') {
-                // 🚀 OBJE OLARAK YOLLUYORUZ
                 data = await historicalApi.getCustomRange({
                     symbol: backendSymbol,
+                    category: category || 'UNKNOWN', // 🚀 Backend'e kategoriyi yolluyoruz
                     startDate: customStartDate,
                     endDate: customEndDate
                 });
             } else {
                 const interval = getIntervalForRange(activeRange);
-                // 🚀 OBJE OLARAK YOLLUYORUZ
                 data = await historicalApi.getData({
                     symbol: backendSymbol,
-                    range: activeRange,
+                    category: category || 'UNKNOWN', // 🚀 Backend'e kategoriyi yolluyoruz
+                    range: normalizedRange,
                     interval: interval
                 });
             }
@@ -70,7 +86,6 @@ export const useChartData = (backendSymbol, activeRange, customStartDate, custom
             return transformChartData(dataArray);
         },
         enabled: !!backendSymbol && !isNone,
-        // 🚀 FAZ-4: MAGIC NUMBER GİTTİ, MERKEZİ SABİT GELDİ (1 Dakika)
         staleTime: QUERY_CONFIG.STALE_TIME.DEFAULT,
         retry: 1
     });
