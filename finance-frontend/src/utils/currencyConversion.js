@@ -1,0 +1,57 @@
+/**
+ * Bir varlığın doğal (native) para birimini tespit eder ve "yield bazlı" olup olmadığını ayırt eder.
+ * AssetHeader ve TradingChart bu helper'ları kullanarak TRY/USD toggle davranışını belirler.
+ */
+
+/**
+ * Asset objesinden native para birimini tespit eder.
+ * @param {Object} asset
+ * @returns {'TRY' | 'USD'}
+ */
+export const detectNativeCurrency = (asset) => {
+    if (!asset) return 'USD';
+    const sym = (asset.symbol || asset.yahooSymbol || '').toUpperCase();
+    const cat = (asset.assetCategory || '').toUpperCase();
+
+    // TR yerli varlıklar
+    if (sym.endsWith('.IS')) return 'TRY';
+    if (cat === 'TR_BOND') return 'TRY';
+    if (cat === 'TR_FUND') return 'TRY';
+
+    // VIOP — BIST'te işlem gören kontratlar TRY denominated (F_XU030, F_USDTRY, BİST 30 Vadeli, vb.)
+    if (cat === 'VIOP') return 'TRY';
+
+    // BIST endeksleri (XU100, XBANK vb.)
+    if (cat === 'INDEX' && (sym.startsWith('X') || sym.endsWith('.IS'))) return 'TRY';
+
+    // Currency pair'ler — pair'in quote currency'si dikkate alınır
+    // USDTRY=X, EURTRY=X → TRY denominated
+    // EURUSD=X, GBPUSD=X → USD denominated
+    if (sym.endsWith('TRY=X')) return 'TRY';
+    if (sym.endsWith('=X')) return 'USD';
+
+    // Tek-kod döviz (currencyCode varsa)
+    if (asset.currencyCode === 'TRY') return 'TRY';
+
+    // Kripto, emtia, ABD hisse, EMB, küresel fon, global bond → USD
+    return 'USD';
+};
+
+/**
+ * Varlık "yield bazlı" mı? (% getiri tahvili). Bu durumda TRY/USD conversion anlamsız.
+ * @param {Object} asset
+ * @returns {boolean}
+ */
+export const isYieldAsset = (asset) => {
+    if (!asset) return false;
+    const cat = (asset.assetCategory || '').toUpperCase();
+    const sym = (asset.symbol || asset.yahooSymbol || '').toUpperCase();
+
+    // TR Tahvil — TP. prefix'li EVDS yield serisi
+    if (cat === 'TR_BOND' || sym.startsWith('TP.')) return true;
+
+    // Küresel tahvil yield'leri (Yahoo ^IRX, ^FVX, ^TNX, ^TYX)
+    if (cat === 'BOND' && sym.startsWith('^')) return true;
+
+    return false;
+};
