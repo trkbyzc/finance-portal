@@ -2,13 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { aggregateApi } from '../services/api';
 import { useMemo } from 'react';
 
-/**
- * 🚀 FAZA 1: useEffect Temizliği
- * 🚀 FAZA 3: Service Layer Refactoring - aggregateApi kullanımı
- * MarketTicker component'i için veri sağlar
- * Eski: useEffect + axios + manuel state yönetimi
- * Yeni: React Query + otomatik cache + refetch
- */
 export const useTickerData = () => {
     const { data: allMarkets, isLoading } = useQuery({
         queryKey: ['tickerData'],
@@ -17,15 +10,28 @@ export const useTickerData = () => {
         refetchInterval: 30 * 1000 // 30 saniyede bir otomatik güncelle
     });
 
-    // Business Logic: Ticker için gerekli verileri filtrele ve birleştir
     const tickerData = useMemo(() => {
         if (!allMarkets) return [];
 
-        const indices = (allMarkets.indices || []).slice(0, 3);
-        const currencies = (allMarkets.currencies || []).slice(0, 3);
-        const crypto = (allMarkets.crypto || []).slice(0, 3);
+        // Tüm market verilerini tek bir havuza topla
+        const allItems = [
+            ...(allMarkets.indices || []),
+            ...(allMarkets.currencies || []),
+            ...(allMarkets.cryptos || []),
+            ...(allMarkets.commodities || []),
+            ...(allMarkets.turkish_gold || []),
+            ...(allMarkets.stocks || [])
+        ];
 
-        return [...indices, ...currencies, ...crypto];
+        // 🚀 İstenilen 5 majör varlığı özel olarak bul
+        const usd = allItems.find(i => i.currencyCode === 'USD' || i.symbol === 'USD');
+        const eur = allItems.find(i => i.currencyCode === 'EUR' || i.symbol === 'EUR');
+        const gramAltin = allItems.find(i => i.symbol === 'GAU' || (i.name && i.name.toUpperCase().includes('GRAM')));
+        const bist100 = allItems.find(i => i.symbol === 'XU100' || i.symbol === 'XU100.IS' || i.name === 'BIST 100');
+        const btc = allItems.find(i => i.currencyCode === 'BTC' || i.symbol === 'BTC');
+
+        // Bulunanları diziye ekle (null olanları filtrele ki hata vermesin)
+        return [usd, eur, gramAltin, bist100, btc].filter(Boolean);
     }, [allMarkets]);
 
     return { tickerData, isLoading };

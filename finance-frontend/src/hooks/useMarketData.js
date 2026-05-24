@@ -13,8 +13,9 @@ const CATEGORY_CONFIG = {
     'commodities': { title: 'Emtialar', icon: '🏗️', endpoint: '/commodities', type: 'commodity' },
     'bonds': { title: 'Global Tahviller', icon: '🌍', endpoint: '/bonds', type: 'bond' },
     'tr-bonds': { title: 'Türk Tahvil & Bono', icon: '🏦', endpoint: '/tr-bonds', type: 'bond' },
+    'eurobonds': { title: 'Türkiye Eurobond', icon: '🇹🇷', endpoint: '/eurobonds', type: 'eurobond' },
     'tr-funds': { title: 'Türkiye Yatırım Fonları', icon: '🇹🇷', endpoint: '/tr-funds', type: 'fund' },
-    'global-funds': { title: 'Global Fonlar (ETF)', icon: '🌍', endpoint: '/funds', type: 'fund' },
+    'global-funds': { title: 'Global Fonlar (ETF)', icon: '🌍', endpoint: '/global-funds', type: 'fund' }, // BURASI DÜZELTİLDİ
     'live': { title: 'Canlı Piyasa Görünümü', icon: '🌍', endpoint: '/all', type: 'mixed' }
 };
 
@@ -31,7 +32,7 @@ export const useMarketData = (category) => {
                     const all = await aggregateApi.getAllMarkets();
                     return [
                         ...(all.indices || []), ...(all.stocks || []),
-                        ...(all.crypto || []), ...(all.viop || []),
+                        ...(all.cryptos || []), ...(all.viop || []),
                         ...(all.tr_funds || []), ...(all.global_funds || [])
                     ];
                 }
@@ -54,11 +55,13 @@ export const useMarketData = (category) => {
             processedData = processedData.filter(item => !(item.yahooSymbol || item.symbol || '').endsWith('.IS'));
         }
 
-        if (['tr-bonds', 'bonds', 'tr-funds', 'global-funds'].includes(category)) {
+        if (['tr-bonds', 'bonds', 'tr-funds', 'global-funds', 'eurobonds'].includes(category)) {
             processedData = processedData.map(item => ({
                 ...item,
                 chartType: 'LINE',
-                assetCategory: category.includes('funds') ? 'FUND' : 'BOND'
+                assetCategory: category === 'eurobonds'
+                    ? 'EUROBOND'
+                    : (category.includes('funds') ? 'FUND' : 'BOND')
             }));
         }
 
