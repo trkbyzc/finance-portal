@@ -1,4 +1,4 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.portfolio;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -19,7 +19,7 @@ public class PortfolioItem {
     @Id
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // Performans için Lazy yapılması önerilir
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -27,11 +27,12 @@ public class PortfolioItem {
     private String symbol; // Örn: THYAO.IS, BTC, USD
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "asset_type", nullable = false)
     private AssetType assetType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 6)
     private BigDecimal quantity; // Adet veya Miktar
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal averagePrice; // Ortalama Alış Maliyeti
 }

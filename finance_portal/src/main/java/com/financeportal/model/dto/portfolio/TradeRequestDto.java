@@ -1,4 +1,4 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.portfolio;
 
 import com.financeportal.model.enums.AssetType;
 import lombok.AllArgsConstructor;

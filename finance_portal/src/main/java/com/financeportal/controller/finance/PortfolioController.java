@@ -1,50 +1,58 @@
-package com.financeportal.controller;
+package com.financeportal.controller.finance;
 
 import com.financeportal.model.dto.portfolio.PortfolioItemDto;
 import com.financeportal.model.dto.portfolio.TradeRequestDto;
 import com.financeportal.model.dto.portfolio.PortfolioSummaryDto;
-import com.financeportal.service.PortfolioService;
+import com.financeportal.service.portfolio.PortfolioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/portfolio")
 @RequiredArgsConstructor
-@Tag(name = "Portföy Yönetimi", description = "Varlık Alım/Satım ve Portföy Görüntüleme İşlemleri")
+@Tag(name = "Portföy Yönetimi", description = "Manuel portföy takibi: varlık ekleme, güncelleme, silme ve kâr/zarar analizi")
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
 
-    @PostMapping("/user/{userId}/buy")
-    @Operation(summary = "Varlık Satın Al", description = "Kullanıcının TRY bakiyesinden düşülerek portföye varlık ekler.")
-    public ResponseEntity<Map<String, String>> buyAsset(@PathVariable UUID userId, @RequestBody TradeRequestDto request) {
-        portfolioService.buyAsset(userId, request);
-        return ResponseEntity.ok(Map.of("message", request.getSymbol() + " başarıyla satın alındı ve portföye eklendi."));
+    @GetMapping("/me")
+    @Operation(summary = "Portföyümü Getir", description = "Giriş yapmış kullanıcıya ait tüm varlıkları ve kâr/zarar analizlerini listeler.")
+    public ResponseEntity<List<PortfolioItemDto>> getMyPortfolio() {
+        return ResponseEntity.ok(portfolioService.getMyPortfolio());
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Kullanıcının Portföyünü Getir", description = "Sahip olunan tüm varlıkları ve maliyetlerini listeler.")
-    public ResponseEntity<List<PortfolioItemDto>> getPortfolio(@PathVariable UUID userId) {
-        return ResponseEntity.ok(portfolioService.getPortfolioByUserId(userId));
+    @GetMapping("/summary")
+    @Operation(summary = "Portföy Özeti", description = "Kullanıcının varlık dağılımını ve toplam kâr/zarar durumunu döner.")
+    public ResponseEntity<PortfolioSummaryDto> getMyPortfolioSummary() {
+        return ResponseEntity.ok(portfolioService.getMyPortfolioSummary());
     }
 
-    @PostMapping("/user/{userId}/sell")
-    @Operation(summary = "Varlık Sat", description = "Portföydeki varlığı satar ve geliri TRY bakiyesine ekler.")
-    public ResponseEntity<Map<String, String>> sellAsset(@PathVariable UUID userId, @RequestBody TradeRequestDto request) {
-        portfolioService.sellAsset(userId, request);
-        return ResponseEntity.ok(Map.of("message", request.getQuantity() + " adet " + request.getSymbol() + " başarıyla satıldı. Elde edilen gelir hesabınıza eklendi."));
+    @PostMapping("/add")
+    @Operation(summary = "Portföye Varlık Ekle", description = "Daha önce alınmış varlıkları takip amaçlı portföye ekler.")
+    public ResponseEntity<Map<String, String>> addManualEntry(@RequestBody TradeRequestDto request) {
+        portfolioService.addManualEntry(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("message", request.getSymbol() + " başarıyla portföye eklendi."));
     }
 
-    @GetMapping("/user/{userId}/summary")
-    @Operation(summary = "Portföy Dağılım Özeti (Pasta Grafik)", description = "Kullanıcının nakit ve varlıklarının oransal dağılımını hesaplar.")
-    public ResponseEntity<PortfolioSummaryDto> getPortfolioSummary(@PathVariable UUID userId) {
-        return ResponseEntity.ok(portfolioService.getPortfolioSummary(userId));
+    @PutMapping("/update")
+    @Operation(summary = "Portföydeki Varlığı Güncelle", description = "Mevcut varlığın miktarını ve alış fiyatını günceller.")
+    public ResponseEntity<Map<String, String>> updateManualEntry(@RequestBody TradeRequestDto request) {
+        portfolioService.updateManualEntry(request);
+        return ResponseEntity.ok(Map.of("message", request.getSymbol() + " başarıyla güncellendi."));
+    }
+
+    @DeleteMapping("/remove")
+    @Operation(summary = "Portföyden Varlık Sil", description = "Belirtilen miktarda varlığı portföyden çıkarır. Miktar verilmezse tamamen siler.")
+    public ResponseEntity<Map<String, String>> removeFromPortfolio(@RequestBody TradeRequestDto request) {
+        portfolioService.removeFromPortfolio(request);
+        return ResponseEntity.ok(Map.of("message", request.getSymbol() + " portföyden çıkarıldı."));
     }
 }
