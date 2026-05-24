@@ -62,7 +62,7 @@ export default function BondDetailView({ asset, trBondsList, decodedSymbol, navi
                                 const isSelected = bond.symbol === decodedSymbol;
                                 const shortSymbol = bond.symbol.replace('TP.', '').replace('.ORAN', '');
                                 return (
-                                    <tr key={i} onClick={() => navigate(`/chart/${encodeURIComponent(bond.symbol)}`)} className={`border-b border-[#2a2e39]/50 cursor-pointer transition-colors group ${isSelected ? 'bg-[#2962ff]/20' : 'hover:bg-[#1e222d]'}`}>
+                                    <tr key={i} onClick={() => navigate(`/chart/${encodeURIComponent(bond.symbol)}?cat=TR_BOND`)} className={`border-b border-[#2a2e39]/50 cursor-pointer transition-colors group ${isSelected ? 'bg-[#2962ff]/20' : 'hover:bg-[#1e222d]'}`}>
                                         <td className="py-4"><span className={`font-bold text-[12px] ${isSelected ? 'text-[#2962ff]' : 'text-[#d1d4dc] group-hover:text-white'}`}>{shortSymbol}</span></td>
                                         <td className="py-4 text-[12px] text-[#868993] font-medium">{bond.label}</td>
                                         <td className="py-4 text-[12px] text-right text-[#868993] font-mono">{bond.maturityDate}</td>

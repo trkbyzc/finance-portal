@@ -54,7 +54,7 @@ export default function CommodityTable({ data, loading }) {
                             return (
                                 <tr
                                     key={`${code}-${index}`}
-                                    onClick={() => code && navigate(`/chart/${code}`)}
+                                    onClick={() => code && navigate(`/chart/${encodeURIComponent(code)}?cat=COMMODITY`)}
                                     className="hover:bg-[#1e222d] transition cursor-pointer group"
                                 >
                                     <td className="p-5 flex items-center gap-4">

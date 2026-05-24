@@ -1,6 +1,7 @@
 import React from 'react';
+import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';
 
-export default function MarketTable({ data, navigate }) {
+export default function MarketTable({ data, navigate, routeCategory }) {
     return (
         <div className="bg-[#131722] border border-[#2a2e39] rounded-2xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
@@ -19,10 +20,12 @@ export default function MarketTable({ data, navigate }) {
                         const cleanSymbol = symbol ? symbol.replace('.IS', '').replace('-USD', '') : 'BİLİNMİYOR';
                         const isPositive = (item.changePercent || 0) >= 0;
 
+                        const cat = item.assetCategory || routeCategory || detectCategoryFromSymbol(symbol);
+                        const target = `/chart/${encodeURIComponent(symbol)}${cat ? `?cat=${cat}` : ''}`;
                         return (
                             <tr
                                 key={idx}
-                                onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}`)}
+                                onClick={() => navigate(target)}
                                 className="hover:bg-[#1e222d] transition-colors cursor-pointer group"
                             >
                                 <td className="p-4">

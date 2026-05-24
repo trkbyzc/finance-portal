@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Loader2, Search } from 'lucide-react';
 import { aggregateApi } from '../../services/api';
@@ -7,8 +7,13 @@ import { aggregateApi } from '../../services/api';
 export default function MarketListPage() {
     const { category } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // 🚀 Önceki sayfadan (LiveMarket) gelen bir filtre varsa onu yakala (Örn: "BIST50")
+    const incomingFilter = location.state?.filter || 'ALL';
 
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState(incomingFilter); // 🚀 Aktif Sekme State'i
 
     const endpointMap = {
         'tr-stocks': '/stocks', 'us-stocks': '/stocks', 'crypto': '/crypto-currencies',
@@ -16,6 +21,16 @@ export default function MarketListPage() {
         'indices': '/indices', 'viop': '/viop', 'commodities': '/commodities',
         'tr-funds': '/tr-funds', 'global-funds': '/funds'
     };
+
+    // Route param -> backend category map
+    const categoryMap = {
+        'tr-stocks': 'STOCK', 'us-stocks': 'STOCK',
+        'crypto': 'CRYPTO', 'currencies': 'CURRENCY',
+        'indices': 'INDEX', 'tr-bonds': 'TR_BOND', 'bonds': 'BOND',
+        'viop': 'VIOP', 'commodities': 'COMMODITY',
+        'tr-funds': 'TR_FUND', 'global-funds': 'FUND'
+    };
+    const routeCategory = categoryMap[category] || null;
 
     const titleMap = {
         'tr-stocks': 'BIST Hisse Senetleri', 'us-stocks': 'ABD Hisse Senetleri',
@@ -26,7 +41,6 @@ export default function MarketListPage() {
         'global-funds': 'Global Fonlar (ETF)', 'live': 'Tüm Piyasalar'
     };
 
-    // 🚀 Bütün manuel useEffect ve Axios işlemleri React Query'e alındı!
     const { data = [], isLoading: loading } = useQuery({
         queryKey: ['marketList', category],
         queryFn: async () => {
@@ -34,7 +48,6 @@ export default function MarketListPage() {
             const endpoint = endpointMap[category];
 
             if (endpoint) {
-                // Merkezi yapımızı kullanarak veri çekiyoruz (Hardcoded http://localhost YOK!)
                 const res = await aggregateApi.getMarketsByEndpoint(endpoint);
                 rawData = res || [];
             } else if (category === 'live' || category === 'all') {
@@ -46,12 +59,10 @@ export default function MarketListPage() {
                 ];
             }
 
-            // Filtrelemeler (Özel İş Mantığı)
             if (category === 'tr-stocks') rawData = rawData.filter(item => (item.yahooSymbol || item.symbol || '').endsWith('.IS'));
             if (category === 'us-stocks') rawData = rawData.filter(item => !(item.yahooSymbol || item.symbol || '').endsWith('.IS'));
             if (category === 'currencies') rawData = rawData.filter(item => item.currencyCode && !item.currencyCode.includes('XAU'));
 
-            // Set kontrolüyle aynı elemandan birden fazla olmasını engelliyoruz
             const uniqueAssets = [];
             const seen = new Set();
             for (let item of rawData) {
@@ -66,8 +77,17 @@ export default function MarketListPage() {
         staleTime: 30 * 1000
     });
 
-    // 🚀 Frontend arama filtresi (Client-Side Search)
+    // 🚀 Frontend Filtrelemesi (Hem Arama Hem de BIST Tabları)
     const filteredData = data.filter(item => {
+        // 1. Endeks Filtresi Kontrolü (Artık backend'den gelen boolean değerlere bakıyoruz)
+        // 1. Endeks Filtresi Kontrolü (Artık backend'den gelen boolean değerlere bakıyoruz)
+        if (activeTab && activeTab !== 'ALL') {
+            if (activeTab === 'BIST30' && !item.inBist30) return false;
+            if (activeTab === 'BIST50' && !item.inBist50) return false;
+            if (activeTab === 'BIST100' && !item.inBist100) return false;
+        }
+
+        // 2. Arama Çubuğu Kontrolü
         if (!searchTerm) return true;
         const searchStr = `${item.symbol} ${item.name} ${item.currencyCode} ${item.currencyName}`.toLowerCase();
         return searchStr.includes(searchTerm.toLowerCase());
@@ -103,6 +123,25 @@ export default function MarketListPage() {
                     </div>
                 </div>
 
+                {/* 🚀 YENİ EKLENEN BIST TABLARI (Sadece tr-stocks kategorisinde görünür) */}
+                {category === 'tr-stocks' && (
+                    <div className="flex gap-2 overflow-x-auto mb-6 pb-2 hide-scrollbar">
+                        {['ALL', 'BIST100', 'BIST50', 'BIST30'].map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                                    activeTab === tab
+                                        ? 'bg-[#2962ff] text-white shadow-lg shadow-[#2962ff]/20'
+                                        : 'bg-[#1e222d] text-[#868993] hover:text-white border border-[#2a2e39] hover:border-[#868993]'
+                                }`}
+                            >
+                                {tab === 'ALL' ? 'TÜM HİSSELER' : tab.replace('BIST', 'BIST ')}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {/* TABLE */}
                 <div className="bg-[#131722] border border-[#2a2e39] rounded-2xl overflow-hidden shadow-2xl">
                     <div className="overflow-x-auto">
@@ -119,10 +158,12 @@ export default function MarketListPage() {
                             {filteredData.map((item, i) => {
                                 const symbol = item.symbol || item.currencyCode;
                                 const isFund = category.includes('fund');
+                                const itemCat = item.assetCategory || routeCategory;
+                                const target = `/chart/${encodeURIComponent(item.yahooSymbol || symbol)}${itemCat ? `?cat=${itemCat}` : ''}`;
                                 return (
                                     <tr
                                         key={i}
-                                        onClick={() => navigate(`/chart/${encodeURIComponent(item.yahooSymbol || symbol)}`)}
+                                        onClick={() => navigate(target)}
                                         className="hover:bg-[#1e222d] transition-colors cursor-pointer group"
                                     >
                                         <td className="p-4">

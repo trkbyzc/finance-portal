@@ -56,7 +56,7 @@ export default function StockListTable() {
                             return (
                                 <tr
                                     key={stock.symbol}
-                                    onClick={() => navigate(`/chart/${stock.symbol}`)}
+                                    onClick={() => navigate(`/chart/${encodeURIComponent(stock.symbol)}?cat=STOCK`)}
                                     className="hover:bg-[#1e222d] transition cursor-pointer group"
                                 >
                                     <td className="p-4">

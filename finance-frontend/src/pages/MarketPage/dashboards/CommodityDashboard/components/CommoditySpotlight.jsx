@@ -22,7 +22,7 @@ export default function CommoditySpotlight({ items, loading, show }) {
                 return (
                     <div
                         key={item.currencyCode}
-                        onClick={() => navigate(`/chart/${item.currencyCode}`)}
+                        onClick={() => navigate(`/chart/${encodeURIComponent(item.currencyCode)}?cat=COMMODITY`)}
                         className={`bg-gradient-to-br ${theme.bg} to-transparent border ${theme.border} rounded-2xl p-6 cursor-pointer hover:scale-[1.02] transition-all group`}
                     >
                         <div className="flex justify-between items-start mb-4">

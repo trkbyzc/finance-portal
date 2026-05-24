@@ -44,7 +44,16 @@ export default function CryptoTable({ data, loading }) {
                                 <tr
                                     // 🚀 KONSOL HATASI DÜZELTMESİ: Key değerini benzersiz yaptık.
                                     key={`${symbol}-${index}`}
-                                    onClick={() => symbol && navigate(`/chart/${symbol}`, { state: { type: 'crypto' } })}
+                                    onClick={() => {
+                                        if (!symbol) return;
+
+                                        // Eğer sembol zaten -USD veya =X içermiyorsa ekle
+                                        const chartSymbol = (symbol.includes('-USD') || symbol.includes('=X'))
+                                            ? symbol
+                                            : `${symbol}-USD`;
+
+                                        navigate(`/chart/${encodeURIComponent(chartSymbol)}?cat=CRYPTO`, { state: { type: 'crypto' } });
+                                    }}
                                     className="hover:bg-[#1e222d] transition cursor-pointer group"
                                 >
                                     <td className="p-5 flex items-center gap-4">

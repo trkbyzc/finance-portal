@@ -28,7 +28,7 @@ export default function CurrencyTable({ data, loading }) {
                     {data.map((currency) => {
                         const code = currency.currencyCode || currency.symbol;
                         return (
-                            <tr key={code} onClick={() => navigate(`/chart/${code}`)} className="hover:bg-[#1e222d] transition cursor-pointer group">
+                            <tr key={code} onClick={() => navigate(`/chart/${encodeURIComponent(code)}?cat=CURRENCY`)} className="hover:bg-[#1e222d] transition cursor-pointer group">
                                 <td className="p-5 flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-full overflow-hidden border border-[#2a2e39] shrink-0">
                                         <img src={getFlagUrl(code)} alt="flag" className="w-full h-full object-cover" />

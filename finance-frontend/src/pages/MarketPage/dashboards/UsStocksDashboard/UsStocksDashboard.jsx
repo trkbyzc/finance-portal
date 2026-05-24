@@ -66,7 +66,7 @@ export default function UsStocksDashboard() {
                             return (
                                 <div
                                     key={stock.symbol}
-                                    onClick={() => navigate(`/chart/${stock.symbol}`)}
+                                    onClick={() => navigate(`/chart/${encodeURIComponent(stock.symbol)}?cat=STOCK`)}
                                     className="bg-[#131722] border border-[#2a2e39] rounded-2xl p-6 hover:border-[#2962ff] hover:shadow-[0_0_20px_rgba(41,98,255,0.1)] transition-all cursor-pointer group relative overflow-hidden"
                                 >
                                     {/* Arkaplan Şovu */}

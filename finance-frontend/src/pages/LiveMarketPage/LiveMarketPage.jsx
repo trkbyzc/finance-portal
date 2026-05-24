@@ -34,7 +34,24 @@ export default function LiveMarketPage() {
 
     const [selectedSymbol, setSelectedSymbol] = useState(defaultSymbol);
 
-    const handleNavigateToDetail = (sym) => navigate(`/chart/${sym}`);
+    // 🚀 YENİ: Grafiğin altındaki butona tıklanınca Market sayfasına yönlendiren köprü
+    const handleViewIndexStocks = (symbol) => {
+        if (!symbol) return;
+
+        // Sembolü temizle (Örn: XU050.IS -> BIST50)
+        const cleanSymbol = symbol.replace('.IS', '').replace('XU', 'BIST');
+
+        // 🚀 ROTA DÜZELTİLDİ: Analizindeki doğru rotaya state ile yolluyoruz
+        navigate('/markets/tr-stocks/list', { state: { filter: cleanSymbol } });
+    };
+
+    const handleNavigateToDetail = (sym, cat) => {
+        // İçeri seçilen asset varsa kategoriyi de yollayalım (cat opsiyonel)
+        const url = cat
+            ? `/chart/${encodeURIComponent(sym)}?cat=${cat}`
+            : `/chart/${encodeURIComponent(sym)}`;
+        navigate(url);
+    };
 
     if (loading) return <div className="h-screen bg-[#0b0e14] flex items-center justify-center text-[#2962ff]"><Loader2 className="animate-spin" size={48} /></div>;
 
@@ -52,8 +69,11 @@ export default function LiveMarketPage() {
                     setSelectedSymbol={setSelectedSymbol}
                 />
 
-                {/* 2. GRAFİK ALANI */}
-                <ChartSection selectedSymbol={selectedSymbol || defaultSymbol} />
+                {/* 2. GRAFİK ALANI - 🚀 onNavigateToMarket özelliği eklendi */}
+                <ChartSection
+                    selectedSymbol={selectedSymbol || defaultSymbol}
+                    onNavigateToMarket={handleViewIndexStocks}
+                />
 
                 {/* 3. TÜRK HİSSELERİ */}
                 <TurkishStocksSection

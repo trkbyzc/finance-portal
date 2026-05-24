@@ -14,7 +14,7 @@ export default function MajorCurrencyCards({ currencies, loading, show }) {
                 const change = major.changePercent || major.regularMarketChangePercent || 0;
                 const isPositive = change > 0;
                 return (
-                    <div key={major.currencyCode} onClick={() => navigate(`/chart/${major.currencyCode}`)} className="bg-[#131722] border border-[#2a2e39] rounded-2xl p-6 hover:border-[#10b981] transition-all cursor-pointer group relative overflow-hidden">
+                    <div key={major.currencyCode} onClick={() => navigate(`/chart/${encodeURIComponent(major.currencyCode)}?cat=CURRENCY`)} className="bg-[#131722] border border-[#2a2e39] rounded-2xl p-6 hover:border-[#10b981] transition-all cursor-pointer group relative overflow-hidden">
                         <div className="flex justify-between items-center mb-6 relative z-10">
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#2a2e39] group-hover:border-[#10b981] transition shadow-lg shrink-0">

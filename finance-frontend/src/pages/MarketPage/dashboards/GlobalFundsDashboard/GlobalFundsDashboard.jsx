@@ -36,7 +36,7 @@ export default function GlobalFundsDashboard() {
                         const isPositive = (etf.changePercent || 0) >= 0;
 
                         return (
-                            <tr key={i} onClick={() => navigate(`/chart/${symbol}`)} className="hover:bg-[#1e222d] transition-colors cursor-pointer group">
+                            <tr key={i} onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}?cat=FUND`)} className="hover:bg-[#1e222d] transition-colors cursor-pointer group">
                                 <td className="p-5">
                                     <div className="font-bold text-[#d1d4dc] group-hover:text-white transition">{etf.currencyName || etf.name}</div>
                                     <div className="text-[10px] text-[#868993] font-mono">{symbol}</div>

@@ -51,7 +51,7 @@ function MiniList({ title, data, navigate }) {
                     const isFund = item.assetCategory === 'FUND';
 
                     return (
-                        <div key={i} onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}`)} className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1e222d] transition-colors cursor-pointer group">
+                        <div key={i} onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}?cat=${isFund ? 'FUND' : 'CURRENCY'}`)} className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#1e222d] transition-colors cursor-pointer group">
                             <div className="flex flex-col">
                                 <span className="text-xs font-bold uppercase text-[#d1d4dc] group-hover:text-white">
                                     {symbol.replace('-USD', '').replace('.IS', '')}

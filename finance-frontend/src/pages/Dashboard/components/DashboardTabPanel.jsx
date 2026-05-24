@@ -1,7 +1,25 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
+import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';
+
+// Dashboard tab id -> backend category map (yedek, asset metadata önceliklidir)
+const TAB_TO_CATEGORY = {
+    stocks: 'STOCK',
+    'us-stocks': 'STOCK',
+    'tr-stocks': 'STOCK',
+    crypto: 'CRYPTO',
+    currencies: 'CURRENCY',
+    commodities: 'COMMODITY',
+    bonds: 'BOND',
+    funds: 'FUND',
+    'tr-funds': 'TR_FUND',
+    'global-funds': 'FUND',
+    viop: 'VIOP',
+    indices: 'INDEX'
+};
 
 export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabData, tabLoading, navigate }) {
+    const tabCategory = TAB_TO_CATEGORY[activeTab] || null;
     return (
         <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-[#2962ff] to-[#00c853] rounded-2xl blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
@@ -31,8 +49,10 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
                             {tabData.map((asset, i) => {
                                 const symbol = asset.symbol || asset.currencyCode;
                                 const price = asset.price || asset.forexSelling;
+                                const cat = asset.assetCategory || tabCategory || detectCategoryFromSymbol(symbol) || '';
+                                const target = cat ? `/chart/${encodeURIComponent(symbol)}?cat=${cat}` : `/chart/${encodeURIComponent(symbol)}`;
                                 return (
-                                    <tr key={i} onClick={() => navigate(`/chart/${symbol}`)} className="hover:bg-[#1e222d] cursor-pointer transition-colors group">
+                                    <tr key={i} onClick={() => navigate(target)} className="hover:bg-[#1e222d] cursor-pointer transition-colors group">
                                         <td className="p-4">
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-bold text-white group-hover:text-[#2962ff] transition-colors">{symbol}</span>

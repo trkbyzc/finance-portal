@@ -40,7 +40,7 @@ export default function TopMoversSidebar({ type = 'gainers' }) {
                     return (
                         <div
                             key={stock.symbol}
-                            onClick={() => navigate(`/chart/${stock.symbol}`)}
+                            onClick={() => navigate(`/chart/${encodeURIComponent(stock.symbol)}?cat=STOCK`)}
                             className="flex items-center justify-between p-3 rounded-lg bg-[#1e222d] border border-[#2a2e39] hover:border-[#2962ff] cursor-pointer transition group"
                         >
                             <div className="flex flex-col">

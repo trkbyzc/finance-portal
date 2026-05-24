@@ -112,7 +112,7 @@ export default function ViopDashboard() {
                                     return (
                                         <tr
                                             key={contract.symbol}
-                                            onClick={() => navigate(`/chart/${contract.symbol}`)}
+                                            onClick={() => navigate(`/chart/${encodeURIComponent(contract.symbol)}?cat=VIOP`)}
                                             className="hover:bg-[#1e222d] transition cursor-pointer group"
                                         >
                                             <td className="p-5">
