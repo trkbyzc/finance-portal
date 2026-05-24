@@ -3,33 +3,26 @@ import TickerItem from './components/TickerItem';
 import TickerStyles from './components/TickerStyles';
 import { useTickerData } from '../../../hooks/useTickerData';
 
-// 🚀 FAZA 1: useEffect ve axios kaldırıldı, custom hook kullanılıyor
 export default function MarketTicker() {
     const { tickerData: rawData } = useTickerData();
 
-    // Business Logic: Ticker formatına dönüştür
+    // Business Logic: Ticker formatına dönüştür ve isimleri şıklaştır
     const tickerData = useMemo(() => {
         if (!rawData || rawData.length === 0) return [];
 
         return rawData.map(asset => {
-            // Farklı asset tiplerini normalize et
-            if (asset.currencyCode) {
-                return {
-                    name: asset.currencyCode === 'USD' ? 'USD/TRY' : asset.currencyCode,
-                    price: asset.forexSelling || asset.price,
-                    change: asset.changePercent
-                };
-            }
-            if (asset.symbol) {
-                return {
-                    name: asset.symbol.replace('.IS', ''),
-                    price: asset.price,
-                    change: asset.changePercent
-                };
-            }
+            let finalName = asset.name || asset.symbol || asset.currencyCode || 'N/A';
+
+            // 🚀 Ekranda havalı duracak özel isimlendirmeler
+            if (asset.currencyCode === 'USD' || asset.symbol === 'USD') finalName = 'USD/TRY';
+            if (asset.currencyCode === 'EUR' || asset.symbol === 'EUR') finalName = 'EUR/TRY';
+            if (asset.currencyCode === 'BTC' || asset.symbol === 'BTC') finalName = 'BTC/USD';
+            if (asset.symbol === 'XU100' || asset.symbol === 'XU100.IS') finalName = 'BIST 100';
+            if (asset.symbol === 'GAU' || (asset.name && asset.name.toUpperCase().includes('GRAM'))) finalName = 'Gram Altın';
+
             return {
-                name: asset.name || 'N/A',
-                price: asset.price,
+                name: finalName,
+                price: asset.forexSelling || asset.price,
                 change: asset.changePercent
             };
         });

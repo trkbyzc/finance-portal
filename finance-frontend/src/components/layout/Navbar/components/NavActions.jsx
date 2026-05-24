@@ -11,11 +11,6 @@ export default function NavActions() {
                 </span>
                 <span className="text-sm font-bold tracking-wider animate-pulse">CANLI PİYASA</span>
             </Link>
-
-            <button className="text-sm font-semibold text-[#d1d4dc] hover:text-white transition">Giriş</button>
-            <button className="bg-[#2962ff] hover:bg-[#1e4eb8] text-white text-sm font-bold py-2 px-5 rounded-lg transition">
-                Kayıt Ol
-            </button>
         </div>
     );
 }

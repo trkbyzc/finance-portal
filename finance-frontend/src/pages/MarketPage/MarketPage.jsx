@@ -9,6 +9,7 @@ import CurrenciesDashboard from './dashboards/CurrenciesDashboard/CurrenciesDash
 import CryptoDashboard from './dashboards/CryptoDashboard/CryptoDashboard'; // 🚀 KRİPTO EKLENDİ
 import CommoditiesDashboard from './dashboards/CommodityDashboard/CommoditiesDashboard';
 import GlobalBondsDashboard from './dashboards/GlobalBondsDashboard/GlobalBondsDashboard';
+import EurobondDashboard from './dashboards/EurobondDashboard/EurobondDashboard';
 import TurkishFundsDashboard from './dashboards/TurkishFundsDashboard/TurkishFundsDashboard';
 import GlobalFundsDashboard from './dashboards/GlobalFundsDashboard/GlobalFundsDashboard';
 
@@ -52,6 +53,11 @@ export default function MarketPage() {
     // Küresel Tahviller
     if (category === 'bonds') {
         return <GlobalBondsDashboard category={category} />;
+    }
+
+    // Türkiye Eurobond (FRED TR10Y + EVDS aggregate)
+    if (category === 'eurobonds') {
+        return <EurobondDashboard category={category} />;
     }
 
     // Türk Fonları (TEFAS)

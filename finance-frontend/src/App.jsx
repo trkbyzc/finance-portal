@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// 🚀 YENİ EKLENEN CONTEXT PROVIDER
 import { CurrencyProvider } from './context/CurrencyContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Component ve Sayfa Importları
 import Navbar from './components/layout/Navbar/Navbar.jsx';
@@ -17,29 +17,51 @@ import MarketListPage from "./pages/MarketListPage/MarketListPage.jsx";
 import BankCurrenciesPage from './pages/BankCurrenciesPage/BankCurrenciesPage.jsx';
 import TurkishGoldPage from './pages/TurkishGoldPage/TurkishGoldPage.jsx';
 
+// Auth Sayfaları (Sadece Callback)
+import AuthCallbackPage from "./pages/AuthPage/AuthCallbackPage.jsx";
+import CallbackPage from './pages/CallbackPage/CallbackPage';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
+import PortfolioPage from './pages/PortfolioPage/PortfolioPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminPage from './pages/AdminPage/AdminPage.jsx';
+
+
+
 function App() {
     return (
-        <CurrencyProvider>  {/* 🚀 TÜM UYGULAMAYI SARMALADIK */}
-            <Router>
-                <div className="min-h-screen bg-[#050505] text-[#d1d4dc] font-sans selection:bg-[#2962ff] selection:text-white">
-                    <Navbar />
-                    <main>
-                        <Routes>
-                            <Route path="/" element={<Dashboard />} />
-                            <Route path="/markets/:category" element={<MarketPage />} />
-                            <Route path="/markets/:category/list" element={<MarketListPage />} />
-                            <Route path="/chart/:symbol" element={<AssetDetailPage />} />
-                            <Route path="/markets/bank-currencies" element={<BankCurrenciesPage />} />
-                            <Route path="/markets/turkish-gold" element={<TurkishGoldPage />} />
-                            <Route path="/news" element={<NewsPage />} />
-                            <Route path="/news/detail" element={<NewsDetailPage />} />
-                            <Route path="/markets/live" element={<LiveMarketPage />} />
-                            <Route path="/interest" element={<InterestPage />} />
-                        </Routes>
-                    </main>
-                </div>
-            </Router>
-        </CurrencyProvider>
+        <AuthProvider>
+            <CurrencyProvider>
+                <Router>
+                    <div className="min-h-screen bg-[#050505] text-[#d1d4dc] font-sans selection:bg-[#2962ff] selection:text-white">
+                        <Navbar />
+                        <main>
+                            <Routes>
+                                {/* Public Routes */}
+                                <Route path="/" element={<Dashboard />} />
+                                <Route path="/markets/:category" element={<MarketPage />} />
+                                <Route path="/markets/:category/list" element={<MarketListPage />} />
+                                <Route path="/chart/:symbol" element={<AssetDetailPage />} />
+                                <Route path="/markets/bank-currencies" element={<BankCurrenciesPage />} />
+                                <Route path="/markets/turkish-gold" element={<TurkishGoldPage />} />
+                                <Route path="/news" element={<NewsPage />} />
+                                <Route path="/news/detail" element={<NewsDetailPage />} />
+                                <Route path="/markets/live" element={<LiveMarketPage />} />
+                                <Route path="/interest" element={<InterestPage />} />
+
+                                {/* Auth Callback (Keycloak'tan dönüş) */}
+                                <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                                <Route path="/callback" element={<CallbackPage />} />
+
+                                {/* Protected Routes */}
+                                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                                <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
+                                <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+                            </Routes>
+                        </main>
+                    </div>
+                </Router>
+            </CurrencyProvider>
+        </AuthProvider>
     );
 }
 
