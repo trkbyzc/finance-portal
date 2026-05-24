@@ -1,0 +1,74 @@
+# ======================================================
+# Repo-Wide Ignore — applies to all subdirectories
+# ======================================================
+
+# Secrets & local configs (KEEP OUT OF GIT)
+**/.env
+**/.env.local
+**/.env.*.local
+**/application-local.yml
+**/application-local.yaml
+**/application-local.properties
+
+# Personal local scripts (not part of project)
+make_commits.ps1
+run.local.ps1
+*.local.ps1
+
+# IDE / editor
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Build artifacts
+**/target/
+**/build/
+**/dist/
+**/dist-ssr/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Node / Vite
+**/node_modules/
+**/.vite/
+**/.cache/
+*.tsbuildinfo
+
+# Logs
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python (if any leftover)
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot leftover
+.springBeans
+.sts4-cache
+.factorypath
+.classpath
+.project
+.settings/
+.apt_generated
+
+# Java
+*.class
+hs_err_pid*
+
+# Keycloak generated themes (optional — uncomment if you don't want them tracked)
+# **/keycloak-themes/
