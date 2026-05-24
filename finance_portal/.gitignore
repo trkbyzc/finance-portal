@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local secrets — Spring Boot profile config ###
+# Bu dosya API key'leri içerir (EVDS, FRED). Geliştirici bilgisayarında bulunur,
+# GitHub'a gitmez. Spring otomatik yükler (default profile: dev,local).
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-local.properties
