@@ -1,6 +1,5 @@
-package com.financeportal.config;
+package com.financeportal.security;
 
-import com.financeportal.model.entity.User;
 import com.financeportal.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,7 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+
+import java.util.UUID;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -27,35 +29,32 @@ public class UserBanFilter extends OncePerRequestFilter {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Eğer kullanıcı giriş yapmışsa (Misafir değilse)
-        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+        if (auth instanceof JwtAuthenticationToken jwtToken) {
+            // 🚀 KRİTİK: getName() yerine token'daki 'sub' (UUID) değerini kullanıyoruz
+            String userIdStr = jwtToken.getToken().getClaimAsString("sub");
 
-            // Keycloak'tan gelen ID veya Email (auth.getName() ne dönüyorsa ona göre arama yapmalısın)
-            String emailOrId = auth.getName();
-
-            // Kullanıcıyı DB'den bul (Burada findByEmail veya findById metodunu kendi repouna göre ayarla)
-            userRepository.findByEmail(emailOrId).ifPresent(user -> {
-
-                // Ban tarihi doluysa VE şu anki tarih ban tarihinden GERİDEYSE (Yani hala banlıysa)
-                if (user.getBannedUntil() != null && LocalDateTime.now().isBefore(user.getBannedUntil())) {
-                    try {
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        response.setContentType("application/json;charset=UTF-8");
-                        response.getWriter().write("{\"error\": \"Hesabınız " + user.getBannedUntil() + " tarihine kadar askıya alınmıştır.\"}");
-                        response.getWriter().flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            if (userIdStr != null) {
+                userRepository.findById(UUID.fromString(userIdStr)).ifPresent(user -> {
+                    if (user.getBannedUntil() != null && LocalDateTime.now().isBefore(user.getBannedUntil())) {
+                        try {
+                            sendBanResponse(response, user.getBannedUntil());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
-
-            // Eğer yukarıda banlı olduğu için cevap döndüysek, filtre zincirini kır ve devam etme
-            if (response.getStatus() == HttpServletResponse.SC_FORBIDDEN) {
-                return;
+                });
             }
+
+            if (response.getStatus() == HttpServletResponse.SC_FORBIDDEN) return;
         }
 
-        // Temizse veya misafirse devam etmesine izin ver
         filterChain.doFilter(request, response);
+    }
+
+    private void sendBanResponse(HttpServletResponse response, LocalDateTime until) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json;charset=UTF-8");
+        String message = String.format("{\"error\": \"Hesabınız %s tarihine kadar askıya alınmıştır.\"}", until);
+        response.getWriter().write(message);
     }
 }

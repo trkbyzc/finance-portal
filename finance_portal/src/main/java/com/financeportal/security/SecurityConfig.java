@@ -1,4 +1,4 @@
-package com.financeportal.config;
+package com.financeportal.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,11 +24,12 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // @PreAuthorize("hasRole('ADMIN')") anotasyonunun çalışmasını sağlar
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserBanFilter userBanFilter; // KAPIDAKİ FEDAİYİ ÇAĞIRDIK
+    private final UserBanFilter userBanFilter;
+    private final UserSyncFilter userSyncFilter; // 🚀 EKLENDİ - Senkronizasyon filtremiz
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,24 +42,28 @@ public class SecurityConfig {
                         .requestMatchers("/api/market-data/**").permitAll()
                         .requestMatchers("/api/analysis/**").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
-                        .requestMatchers("/api/interest/**").permitAll() // 🚀 YENİ: FAİZ MODÜLÜNE HERKES GİREBİLİR!
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll() // HIZLI TOKEN ALMA ENDPOINTLERİ
+                        .requestMatchers("/api/interest/**").permitAll()
+                        // 🚀 DİKKAT: "/api/auth/**" ve "POST /api/users" silindi!
+                        // Artık Keycloak harici arka kapıdan kimse kayıt veya token isteği atamaz.
                         .anyRequest().authenticated()
                 )
-                // KEYCLOAK ROL DÖNÜŞTÜRÜCÜSÜ EKLENDİ
+                // 1. Token Geçerli mi? (Spring Security arka planda Keycloak ile kontrol eder)
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                // FEDAİYİ KAPININ ÖNÜNE (TOKEN KONTROLÜNDEN HEMEN SONRAYA) DİKTİK
-                .addFilterAfter(userBanFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class);
+                // 2. Token geçerliyse, bu kullanıcı DB'de var mı diye bizim filtreye sok:
+                .addFilterAfter(userSyncFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+                // 3. Kullanıcı var, peki banlı mı diye Ban kontrolüne sok:
+                .addFilterAfter(userBanFilter, UserSyncFilter.class);
 
         return http.build();
     }
 
-    // Keycloak'un karmaşık rol yapısını, Spring Boot'un anladığı "ROLE_ADMIN" formatına çeviren sihirli metod
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+
+        // Principal olarak "preferred_username" kullan (sub yerine)
+        jwtAuthenticationConverter.setPrincipalClaimName("preferred_username");
 
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Collection<GrantedAuthority> authorities = grantedAuthoritiesConverter.convert(jwt);
@@ -76,7 +81,6 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Bütün origin kalıplarına izin ver (localhost, 127.0.0.1, farklı portlar vs. hepsini kapsar)
         configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -85,5 +89,13 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    // Spring Security "PasswordEncoder" modülünü backendte sadece uyumluluk için tuttuk.
+    // Aslında şifreleri Keycloak yönetiyor ama projenin başka yerlerinde (örn. eski Admin eklemeleri)
+    // Dependency Injection gerektirdiği için bu bean burada durabilir.
+    @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
     }
 }
