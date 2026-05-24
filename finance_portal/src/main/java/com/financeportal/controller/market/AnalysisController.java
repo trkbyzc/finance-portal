@@ -1,7 +1,7 @@
-package com.financeportal.controller.user;
+package com.financeportal.controller.market;
 
 import com.financeportal.model.dto.market.HistoricalDataDto;
-import com.financeportal.service.market.MarketDataService;
+import com.financeportal.service.market.MarketChartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,19 +16,21 @@ import java.util.List;
 @Tag(name = "Analiz ve Tarihsel Veri", description = "Grafik çizimi ve trend analizleri için gerçek tarihsel veriler")
 public class AnalysisController {
 
-    private final MarketDataService marketDataService;
+    private final MarketChartService marketDataService;
 
     @GetMapping("/historical/{symbol}")
     @Operation(summary = "Tarihsel Veri ve Hareketli Ortalama (MA)")
     public ResponseEntity<List<HistoricalDataDto>> getHistoricalData(
             @PathVariable String symbol,
+            @RequestParam(required = false, defaultValue = "UNKNOWN") String category,
             @RequestParam(defaultValue = "1mo") String range,
-            @RequestParam(defaultValue = "1d") String interval, // 🚀 BURASI EKLENDİ
+            @RequestParam(defaultValue = "1d") String interval,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "5") int maPeriod) {
 
-        // 🚀 6 PARAMETRE İLE ÇAĞIRIYORUZ
-        return ResponseEntity.ok(marketDataService.getRealHistoricalData(symbol, range, interval, startDate, endDate, maPeriod));
+        // Service metodu 7 parametre bekliyor, hepsini doğru sırayla iletiyoruz
+        return ResponseEntity.ok(marketDataService.getHistoricalDataWithEvdsFallback(
+                symbol, category, range, interval, startDate, endDate, maPeriod));
     }
 }

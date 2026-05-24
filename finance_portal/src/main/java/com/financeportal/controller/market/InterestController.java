@@ -1,4 +1,4 @@
-package com.financeportal.controller;
+package com.financeportal.controller.market;
 
 import com.financeportal.model.dto.account.InterestYieldDto;
 import com.financeportal.service.market.InterestService;

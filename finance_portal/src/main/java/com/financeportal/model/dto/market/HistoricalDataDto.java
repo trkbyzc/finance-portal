@@ -1,4 +1,4 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.market;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // 🚀 BUNU EKLEDİK

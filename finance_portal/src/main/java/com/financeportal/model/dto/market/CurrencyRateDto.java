@@ -1,4 +1,4 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.market;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,18 +9,24 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrencyRateDto {
-    private String currencyCode; // Saf sembol: BTC
-    private String currencyName;
-    private BigDecimal forexBuying;
-    private BigDecimal forexSelling;
+    private String currencyCode; // Örn: USD, EUR
+    private String currencyName; // Örn: ABD Doları
+
+    // 🚀 HESAPKURDU'NDAKİ 'bid' VE 'ask' DEĞERLERİ BURAYA MAPLENİR
+    private BigDecimal forexBuying;  // Alış (bid)
+    private BigDecimal forexSelling; // Satış (ask)
     private BigDecimal changePercent;
 
-    // 🚀 META VERİ ALANLARI: Frontend'in ameleliğini bitiren kısım
-    private String yahooSymbol;  // Yahoo'nun anlayacağı format: BTC-USD, THYAO.IS
-    private String chartType;    // "CANDLE" (Mum) veya "LINE" (Çizgi)
-    private String assetCategory; // "CRYPTO", "STOCK", "INDEX", "BOND"
+    // 🚀 BANKA / DÖVİZ BÜROSU BİLGİLERİ
+    private String bankName;      // Örn: Garanti BBVA, Akbank, Harem Döviz
+    private String exchangeType;  // Örn: "Bank" veya "ExchOffice" (Serbest Piyasa ayrımı için)
 
-    // GERÇEK ZAMANLI VERİ ALANLARI
+    // 🚀 META VERİLER
+    private String yahooSymbol;   // Örn: TRY=X
+    private String chartType;     // "LINE" veya "CANDLE"
+    private String assetCategory; // "BANK_CURRENCY", "CURRENCY", "CRYPTO"
+
+    // TARİHSEL DEĞİŞİM VERİLERİ (EVDS'DEN GELENLER)
     private BigDecimal changeWeek;
     private BigDecimal changeMonth;
     private BigDecimal change6Month;

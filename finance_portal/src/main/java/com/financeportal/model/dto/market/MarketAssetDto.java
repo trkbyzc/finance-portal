@@ -1,4 +1,4 @@
-package com.financeportal.model.dto;
+package com.financeportal.model.dto.market;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +22,10 @@ public class MarketAssetDto {
     private String yahooSymbol;
     private String chartType;
     private String assetCategory;
+
+    private boolean inBist30;
+    private boolean inBist50;
+    private boolean inBist100;
 
     // 🚀 HAYAT KURTARAN CONSTRUCTOR
     // Sistemin başka yerlerinde hala eski usul (6 parametreli) obje oluşturan

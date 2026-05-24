@@ -1,4 +1,4 @@
-package com.financeportal.service.transformation;
+package com.financeportal.service.mapper;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,7 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class BondTransformationService {
+public class BondMapper {
 
     // 🚀 ÇÖZÜM: RedisTemplate yerine StringRedisTemplate kullanıyoruz!
     // Bu sayede Python'dan gelen saf JSON string'ini hiç bozulmadan alıyoruz.
