@@ -1,121 +1,585 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-:root {
-    --bg-main: #050b14;
-    --navy-blue: #0a1128;
-    --neon-blue: #2962ff;
-    --cyan: #00d2ff;
-    --emerald: #089981;
-    --glass-bg: rgba(10, 17, 40, 0.65);
-    --glass-border: rgba(41, 98, 255, 0.15);
-    --text-main: #ffffff;
-    --text-muted: #868993;
+/* ============================================================
+   FINANSPORTAL KEYCLOAK THEME
+   3 tema (Dark / Light / Hybrid) — frontend index.css ile uyumlu
+   Split layout: solda brand panel + animated chart, sağda form
+   ============================================================ */
+
+/* FOUC önlemi: data-theme set edilmeden body görünmesin */
+html:not([data-theme]) body { visibility: hidden; }
+
+:root, html[data-theme="dark"] {
+    --bg: #0f172a;
+    --bg-elevated: #131b2e;
+    --surface: #1e293b;
+    --surface-2: #131b2e;
+    --surface-hover: #222a3d;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-subtle: #64748b;
+    --border: #334155;
+    --border-strong: #475569;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-soft: rgba(37, 99, 235, 0.12);
+    --color-primary-fg: #ffffff;
+    --color-buy: #00a572;
+    --color-sell: #d22348;
+    --brand-panel-grad-start: #131b2e;
+    --brand-panel-grad-end: #1e293b;
+    color-scheme: dark;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+html[data-theme="light"] {
+    --bg: #f1f5f9;
+    --bg-elevated: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-hover: #f1f5f9;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-subtle: #64748b;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-soft: rgba(37, 99, 235, 0.12);
+    --color-primary-fg: #ffffff;
+    --color-buy: #00a572;
+    --color-sell: #d22348;
+    --brand-panel-grad-start: #f8fafc;
+    --brand-panel-grad-end: #e2e8f0;
+    color-scheme: light;
+}
 
-body.fintech-body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    font-family: 'Inter', sans-serif;
+html[data-theme="hybrid"] {
+    --bg: #e2e8f0;
+    --bg-elevated: #f8fafc;
+    --surface: #ffffff;
+    --surface-2: #f1f5f9;
+    --surface-hover: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-subtle: #64748b;
+    --border: #cbd5e1;
+    --border-strong: #94a3b8;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-soft: rgba(37, 99, 235, 0.12);
+    --color-primary-fg: #ffffff;
+    --color-buy: #00a572;
+    --color-sell: #d22348;
+    /* Hybrid: brand panel koyu navy (header karakteri) */
+    --brand-panel-grad-start: #0f172a;
+    --brand-panel-grad-end: #1e293b;
+    --brand-panel-text: #f1f5f9;
+    --brand-panel-text-muted: #94a3b8;
+    color-scheme: light;
+}
+
+/* Tüm temalarda brand panel'in default text rengi (hybrid override eder) */
+:root {
+    --brand-panel-text: var(--text);
+    --brand-panel-text-muted: var(--text-muted);
+}
+html[data-theme="hybrid"] .kc-brand-panel {
+    color: var(--brand-panel-text);
+}
+
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body.kc-page {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--bg);
+    color: var(--text);
     min-height: 100vh;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Parent theme'in default container/card stillerini etkisizleştir */
+body.kc-page .login-pf-page,
+body.kc-page #kc-container,
+body.kc-page #kc-container-wrapper,
+body.kc-page .card-pf {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* ============================================================
+   TOP TOOLBAR — tema toggle + dil toggle
+   ============================================================ */
+.kc-toolbar {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+    align-items: center;
+}
+.kc-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 0.75rem;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.kc-toolbar-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
+}
+.kc-toolbar-btn svg { width: 16px; height: 16px; }
+.kc-lang-group {
+    display: inline-flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+.kc-lang-link {
+    padding: 8px 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.kc-lang-link:hover { background: var(--surface-hover); color: var(--text); }
+.kc-lang-link.active { background: var(--color-primary); color: var(--color-primary-fg); }
+
+/* ============================================================
+   SPLIT LAYOUT — sol brand panel, sağ form
+   ============================================================ */
+.kc-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+}
+
+/* ----- Sol: Brand panel ----- */
+.kc-brand-panel {
+    background: linear-gradient(135deg, var(--brand-panel-grad-start), var(--brand-panel-grad-end));
+    border-right: 1px solid var(--border);
+    padding: 64px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+}
+/* Brand panel dekor: soft radial glow */
+.kc-brand-panel::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
+    top: -200px;
+    right: -200px;
+    pointer-events: none;
+}
+.kc-brand-panel > * { position: relative; z-index: 1; }
+
+.kc-brand-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    width: fit-content;
+}
+.kc-brand-header:hover { opacity: 0.85; transform: translateY(-1px); }
+.kc-brand-logo { width: 44px; height: 42px; flex-shrink: 0; }
+.kc-brand-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--brand-panel-text);
+}
+.kc-brand-name-accent { color: var(--color-primary); }
+
+.kc-brand-headline {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--brand-panel-text);
+    max-width: 460px;
+}
+.kc-brand-tagline {
+    font-size: 15px;
+    color: var(--brand-panel-text-muted);
+    line-height: 1.6;
+    max-width: 460px;
+}
+
+.kc-brand-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.kc-brand-bullets li {
     display: flex;
     align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--brand-panel-text);
 }
-
-/* Finans Terminali Grid Arka Planı */
-.bg-grid {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image:
-            linear-gradient(rgba(41, 98, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(41, 98, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: 0;
-}
-
-/* Glow Efektleri */
-.bg-glow {
-    position: absolute;
-    width: 600px; height: 600px;
+.kc-bullet-dot {
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    filter: blur(120px);
-    z-index: 0;
-    opacity: 0.15;
-    animation: pulse 8s ease-in-out infinite alternate;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
-.bg-glow-blue { background: var(--neon-blue); top: -20%; left: -10%; }
-.bg-glow-emerald { background: var(--emerald); bottom: -20%; right: -10%; animation-delay: 4s; }
+.kc-bullet-dot svg { width: 12px; height: 12px; }
 
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.1; }
-    100% { transform: scale(1.2); opacity: 0.2; }
-}
-
-.fintech-container {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    max-width: 440px;
+/* ----- Animated chart mockup ----- */
+.kc-chart-wrap {
+    margin-top: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
     padding: 20px;
+    max-width: 480px;
+}
+html[data-theme="hybrid"] .kc-chart-wrap {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.kc-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.kc-chart-symbol {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--brand-panel-text);
+    letter-spacing: 0.5px;
+}
+.kc-chart-change {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-buy);
+    padding: 3px 8px;
+    background: rgba(0, 165, 114, 0.12);
+    border-radius: 0.5rem;
+}
+.kc-chart {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.kc-chart-grid { stroke: var(--border); stroke-dasharray: 2 6; opacity: 0.5; }
+.kc-chart-area { fill: url(#kcAreaGrad); opacity: 0; animation: kcAreaFade 3.5s ease-out 0.6s forwards; }
+.kc-chart-line {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 700;
+    stroke-dashoffset: 700;
+    animation: kcDraw 3.5s ease-out forwards, kcShimmer 4s ease-in-out 3.5s infinite;
+}
+.kc-chart-dot {
+    fill: var(--color-primary);
+    opacity: 0;
+    animation: kcDotIn 0.4s ease-out 3s forwards, kcPulse 2.2s ease-in-out 3.4s infinite;
+    transform-origin: center;
+    transform-box: fill-box;
 }
 
-/* Glassmorphism Kart */
-.glass-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 20px;
-    padding: 40px 32px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+@keyframes kcDraw {
+    to { stroke-dashoffset: 0; }
 }
-.glass-card:hover { box-shadow: 0 0 30px rgba(41, 98, 255, 0.1); }
-
-/* Typography */
-.brand-header { text-align: center; margin-bottom: 30px; }
-.brand-logo { font-size: 28px; font-weight: 700; letter-spacing: 1px; color: #fff; margin-bottom: 8px; }
-.text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(41, 98, 255, 0.5); }
-.brand-slogan { color: var(--text-muted); font-size: 14px; font-weight: 500; }
-
-/* Inputlar */
-.fintech-form-wrapper form { display: flex; flex-direction: column; gap: 18px; }
-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; display: block; }
-
-input[type="text"], input[type="password"] {
-    width: 100%; padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-radius: 10px; font-size: 15px;
-    transition: all 0.3s ease;
+@keyframes kcAreaFade {
+    to { opacity: 1; }
 }
-input[type="text"]:focus, input[type="password"]:focus {
-    outline: none; background: rgba(41, 98, 255, 0.05);
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 15px rgba(41, 98, 255, 0.2);
+@keyframes kcDotIn {
+    to { opacity: 1; }
+}
+@keyframes kcPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+}
+@keyframes kcShimmer {
+    0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+    50% { filter: drop-shadow(0 0 8px var(--color-primary-soft)); }
 }
 
-/* Buton */
-.btn-primary {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, var(--neon-blue), #1e40af);
-    color: #fff; border: none; border-radius: 10px;
-    font-size: 15px; font-weight: 600; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(41, 98, 255, 0.3);
-    transition: all 0.3s; margin-top: 10px;
+/* ----- Sağ: Form panel ----- */
+.kc-form-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 48px;
+    background: var(--bg);
 }
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(41, 98, 255, 0.5);
-    background: linear-gradient(135deg, #3a70ff, var(--neon-blue));
+.kc-form-card {
+    width: 100%;
+    max-width: 420px;
+}
+.kc-form-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.3px;
+}
+.kc-form-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0 0 28px 0;
 }
 
-/* Metinler ve Linkler */
-.instruction-text { color: var(--text-muted); font-size: 14px; text-align: center; line-height: 1.5; margin-bottom: 20px;}
-.back-link { color: var(--text-muted); font-size: 13px; text-decoration: none; display: block; text-align: center; margin-top: 20px; transition: color 0.3s; }
-.back-link:hover { color: var(--neon-blue); }
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+body.kc-page .kc-form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+body.kc-page .kc-form-group + .kc-form-group { margin-top: 0; }
+
+body.kc-page .kc-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+body.kc-page .kc-input {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 0.75rem;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    outline: none;
+}
+body.kc-page .kc-input::placeholder { color: var(--text-subtle); }
+body.kc-page .kc-input:focus {
+    border-color: var(--color-primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+body.kc-page .kc-row {
+    display: flex;
+    gap: 12px;
+}
+body.kc-page .kc-row > .kc-form-group { flex: 1; }
+
+body.kc-page .kc-checkbox-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0 18px 0;
+    font-size: 13px;
+}
+body.kc-page .kc-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    margin: 0;
+    user-select: none;
+}
+body.kc-page .kc-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+body.kc-page .kc-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+body.kc-page .kc-link:hover { color: var(--color-primary-hover); text-decoration: underline; }
+
+body.kc-page .kc-btn-primary {
+    width: 100%;
+    padding: 12px 24px;
+    background: var(--color-primary);
+    color: var(--color-primary-fg);
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+body.kc-page .kc-btn-primary:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 4px 12px var(--color-primary-soft);
+}
+body.kc-page .kc-btn-primary:active { transform: translateY(1px); }
+body.kc-page .kc-btn-primary.kc-btn-danger {
+    background: var(--color-sell);
+}
+body.kc-page .kc-btn-primary.kc-btn-danger:hover {
+    background: #b81e3e;
+    box-shadow: 0 4px 12px rgba(210, 35, 72, 0.25);
+}
+
+body.kc-page .kc-register-prompt {
+    text-align: center;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+body.kc-page .kc-back-link {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+body.kc-page .kc-back-link:hover { color: var(--color-primary); }
+
+body.kc-page .kc-instruction {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 0 22px 0;
+}
+
+/* ============================================================
+   ALERT (Keycloak'ın hata/info mesajları)
+   ============================================================ */
+body.kc-page .kc-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 0.75rem;
+    font-size: 13px;
+    margin-bottom: 18px;
+    line-height: 1.5;
+}
+body.kc-page .kc-alert-error,
+body.kc-page .kc-alert.alert-error {
+    background: rgba(210, 35, 72, 0.1);
+    color: var(--color-sell);
+    border: 1px solid rgba(210, 35, 72, 0.25);
+}
+body.kc-page .kc-alert-success,
+body.kc-page .kc-alert.alert-success {
+    background: rgba(0, 165, 114, 0.1);
+    color: var(--color-buy);
+    border: 1px solid rgba(0, 165, 114, 0.25);
+}
+body.kc-page .kc-alert-warning,
+body.kc-page .kc-alert.alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+body.kc-page .kc-alert-info,
+body.kc-page .kc-alert.alert-info {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+/* ============================================================
+   OTP / TOTP — özel input stilleri
+   ============================================================ */
+body.kc-page .kc-otp-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    letter-spacing: 12px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+body.kc-page .kc-totp-qr-wrap {
+    text-align: center;
+    margin: 20px 0;
+}
+body.kc-page .kc-totp-qr {
+    display: inline-block;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px var(--color-primary-soft);
+}
+body.kc-page .kc-totp-qr img { display: block; width: 160px; height: 160px; }
+body.kc-page .kc-totp-key {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0 0 18px 0;
+}
+body.kc-page .kc-totp-key code {
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    padding: 4px 10px;
+    border-radius: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+}
+
+/* ============================================================
+   RESPONSIVE — < 900px: brand panel'i gizle, form full-width
+   ============================================================ */
+@media (max-width: 900px) {
+    .kc-split { grid-template-columns: 1fr; }
+    .kc-brand-panel { display: none; }
+    .kc-form-panel { padding: 32px 20px; }
+    .kc-toolbar { top: 12px; right: 12px; }
+}
+@media (max-width: 480px) {
+    .kc-form-card { max-width: 100%; }
+    .kc-form-title { font-size: 22px; }
+    body.kc-page .kc-row { flex-direction: column; gap: 0; }
+}

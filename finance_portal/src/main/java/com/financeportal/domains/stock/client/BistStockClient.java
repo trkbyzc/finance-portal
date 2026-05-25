@@ -1,9 +1,9 @@
 package com.financeportal.domains.stock.client;
 
 import com.financeportal.domains.stock.dto.StockDto;
+import com.financeportal.domains.stock.service.BistIndexService;
 import com.financeportal.model.dto.fintables.FintablesChartResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
-import com.financeportal.util.BistConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -27,6 +27,7 @@ import java.util.Set;
 public class BistStockClient {
 
     private final RestTemplate restTemplate;
+    private final BistIndexService bistIndexService;
 
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -38,9 +39,9 @@ public class BistStockClient {
     public List<StockDto> fetchTurkishStocks() {
         long startTime = System.currentTimeMillis();
         List<StockDto> stocks = new ArrayList<>();
-        Set<String> activeBist30 = BistConstants.BIST_30;
-        Set<String> activeBist50 = BistConstants.BIST_50_EK_HISSELER;
-        Set<String> activeBist100 = BistConstants.BIST_100_EK_HISSELER;
+        Set<String> bist30 = bistIndexService.getBist30();
+        Set<String> bist50 = bistIndexService.getBist50();
+        Set<String> bist100 = bistIndexService.getBist100();
 
         try {
             String url = "https://markets.fintables.com/barbar/server/query?fields=C,CP,V&type=equity";
@@ -63,9 +64,10 @@ public class BistStockClient {
                         dto.setAssetCategory("STOCK");
                         dto.setChartType("CANDLE");
 
-                        boolean is30 = activeBist30 != null && activeBist30.contains(symbol);
-                        boolean is50 = is30 || (activeBist50 != null && activeBist50.contains(symbol));
-                        boolean is100 = is50 || (activeBist100 != null && activeBist100.contains(symbol));
+                        // BIST30 ⊂ BIST50 ⊂ BIST100 üst-küme garantisi her endeks tam üyelik döndüğü için.
+                        boolean is30 = bist30.contains(symbol);
+                        boolean is50 = bist50.contains(symbol);
+                        boolean is100 = bist100.contains(symbol);
 
                         dto.setInBist30(is30); dto.setInBist50(is50); dto.setInBist100(is100);
 

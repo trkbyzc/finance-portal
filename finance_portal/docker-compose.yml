@@ -24,6 +24,11 @@ services:
       KC_DB_PASSWORD: finance_password
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      # DEV ONLY — tema değişiklikleri restart gerektirmesin diye cache'i kapat.
+      # Production'da kaldır.
+      KC_SPI_THEME_STATIC_MAX_AGE: -1
+      KC_SPI_THEME_CACHE_THEMES: "false"
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
     command: start-dev
     ports:
       - "8080:8080"

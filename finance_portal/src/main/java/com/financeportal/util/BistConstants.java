@@ -2,6 +2,15 @@ package com.financeportal.util;
 
 import java.util.Set;
 
+/**
+ * Fallback sembol listeleri — sadece İş Yatırım upstream'i ulaşılamadığında devreye girer.
+ * <p>
+ * Authoritative kaynak: {@link com.financeportal.domains.stock.service.BistIndexService}.
+ * <p>
+ * Endeks kompozisyonu çeyrek dönemlik değişir; bu listeler eskidiğinde upstream
+ * doğru veriyi getireceği için sistem etkilenmez, ama upstream çok uzun süre düşük kalırsa
+ * bu sabitleri quarterly olarak güncellemek faydalı olur.
+ */
 public class BistConstants {
 
     // BIST 30 Hisseleri

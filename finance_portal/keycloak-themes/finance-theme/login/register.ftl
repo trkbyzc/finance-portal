@@ -1,52 +1,61 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm'); section>
     <#if section = "header">
-        Finans Dünyasına Katıl
+        <h1 class="kc-form-title">${msg("doRegister")}</h1>
+        <p class="kc-form-subtitle">${msg("registerPageSubtitle")}</p>
     <#elseif section = "form">
-        <form id="kc-register-form" class="form" action="${url.registrationAction}" method="post">
+        <form id="kc-register-form" action="${url.registrationAction}" method="post">
 
-            <#-- İsim Soyisim (Yan Yana) -->
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 1;">
-                    <label for="firstName">Ad</label>
-                    <input type="text" id="firstName" name="firstName" value="${(register.formData.firstName!'')}" placeholder="John" />
+            <div class="kc-row">
+                <div class="kc-form-group">
+                    <label for="firstName" class="kc-label">${msg("firstName")}</label>
+                    <input type="text" id="firstName" name="firstName" class="kc-input"
+                           value="${(register.formData.firstName!'')}"
+                           placeholder="${msg('placeholderFirstName')}" />
                 </div>
-                <div class="form-group" style="flex: 1;">
-                    <label for="lastName">Soyad</label>
-                    <input type="text" id="lastName" name="lastName" value="${(register.formData.lastName!'')}" placeholder="Doe" />
+                <div class="kc-form-group">
+                    <label for="lastName" class="kc-label">${msg("lastName")}</label>
+                    <input type="text" id="lastName" name="lastName" class="kc-input"
+                           value="${(register.formData.lastName!'')}"
+                           placeholder="${msg('placeholderLastName')}" />
                 </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="email">E-posta Adresi</label>
-                <input type="text" id="email" name="email" value="${(register.formData.email!'')}" autocomplete="email" placeholder="john@example.com" />
+            <div class="kc-form-group">
+                <label for="email" class="kc-label">${msg("email")}</label>
+                <input type="text" id="email" name="email" class="kc-input"
+                       value="${(register.formData.email!'')}"
+                       autocomplete="email"
+                       placeholder="${msg('placeholderEmail')}" />
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="username">Kullanıcı Adı</label>
-                <input type="text" id="username" name="username" value="${(register.formData.username!'')}" autocomplete="username" placeholder="johndoe_99" />
+            <div class="kc-form-group">
+                <label for="username" class="kc-label">${msg("username")}</label>
+                <input type="text" id="username" name="username" class="kc-input"
+                       value="${(register.formData.username!'')}"
+                       autocomplete="username"
+                       placeholder="${msg('placeholderRegisterUsername')}" />
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="password">Şifre</label>
-                <input type="password" id="password" name="password" autocomplete="new-password" placeholder="Güçlü bir şifre belirleyin" />
+            <div class="kc-form-group">
+                <label for="password" class="kc-label">${msg("password")}</label>
+                <input type="password" id="password" name="password" class="kc-input"
+                       autocomplete="new-password"
+                       placeholder="${msg('placeholderStrongPassword')}" />
             </div>
 
-            <div class="form-group" style="margin-bottom: 25px;">
-                <label for="password-confirm">Şifreyi Onayla</label>
-                <input type="password" id="password-confirm" name="password-confirm" placeholder="Şifrenizi tekrar girin" />
+            <div class="kc-form-group">
+                <label for="password-confirm" class="kc-label">${msg("passwordConfirm")}</label>
+                <input type="password" id="password-confirm" name="password-confirm" class="kc-input"
+                       placeholder="${msg('placeholderRepeatPassword')}" />
             </div>
 
-            <div id="kc-form-buttons">
-                <button class="btn-primary" type="submit">
-                    Hesabımı Oluştur
-                </button>
-            </div>
+            <button class="kc-btn-primary" type="submit">${msg("doRegister")}</button>
         </form>
-    <#elseif section = "info">
-        <div style="text-align: center; margin-top: 20px; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-            <span style="color: #868993;">Zaten bir hesabınız var mı? </span>
-            <a href="${url.loginUrl}" style="color: #00d2ff; text-decoration: none; font-weight: 600;">Giriş Yap</a>
+
+        <div class="kc-register-prompt">
+            <span>${msg("haveAccount")} </span>
+            <a href="${url.loginUrl}" class="kc-link">${msg("doLogIn")}</a>
         </div>
     </#if>
 </@layout.registrationLayout>

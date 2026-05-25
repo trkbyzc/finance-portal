@@ -1,21 +1,29 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 
-export default function TurkishStocksSection({ highestVolume, mostVolatile, topGainers, topLosers, onSelect }) {
+export default function TurkishStocksSection({ highestVolume, mostVolatile, topGainers, topLosers, onSelect, isLoading }) {
     const { t } = useTranslation('markets');
+    const hasAnyData = (highestVolume?.length || mostVolatile?.length || topGainers?.length || topLosers?.length) > 0;
     return (
         <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 text-text flex items-center gap-2">
                 {t('live.turkishStocks')} <ChevronRight className="text-text-muted" size={24} />
             </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
-                <StockListBlock title={t('live.highestVolume')} data={highestVolume} onSelect={onSelect} />
-                <StockListBlock title={t('live.mostVolatile')} data={mostVolatile} onSelect={onSelect} />
-                <StockListBlock title={t('live.topGainers')} data={topGainers} onSelect={onSelect} usePill={true} />
-                <StockListBlock title={t('live.topLosers')} data={topLosers} onSelect={onSelect} usePill={true} />
-            </div>
+            {isLoading && !hasAnyData ? (
+                <div className="flex items-center justify-center py-16 text-text-muted">
+                    <Loader2 className="animate-spin mr-3" size={20} />
+                    <span className="text-sm">{t('live.turkishStocks')}…</span>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
+                    <StockListBlock title={t('live.highestVolume')} data={highestVolume} onSelect={onSelect} />
+                    <StockListBlock title={t('live.mostVolatile')} data={mostVolatile} onSelect={onSelect} />
+                    <StockListBlock title={t('live.topGainers')} data={topGainers} onSelect={onSelect} usePill={true} />
+                    <StockListBlock title={t('live.topLosers')} data={topLosers} onSelect={onSelect} usePill={true} />
+                </div>
+            )}
         </div>
     );
 }

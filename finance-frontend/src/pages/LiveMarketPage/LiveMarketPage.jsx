@@ -22,8 +22,10 @@ export default function LiveMarketPage() {
         loading, indices, ipos, trBonds,
         highestVolume, mostVolatile, topGainers, topLosers,
         commodityCards, sortedForexList,
-        economyMacro, // 🚀 EKLENDİ
-        economyMetric, setEconomyMetric, economyRange, setEconomyRange, economyData, economyLoading
+        economyMacro,
+        economyMetric, setEconomyMetric, economyRange, setEconomyRange, economyData, economyLoading,
+        // Per-section loading flags (progressive rendering)
+        stocksLoading, iposLoading, commoditiesLoading, currenciesLoading, trBondsLoading
     } = useLiveMarketData();
 
     // 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
@@ -84,6 +86,7 @@ export default function LiveMarketPage() {
                     topGainers={topGainers}
                     topLosers={topLosers}
                     onSelect={handleNavigateToDetail}
+                    isLoading={stocksLoading}
                 />
 
                 {/* 4. EMTİALAR */}
@@ -91,16 +94,18 @@ export default function LiveMarketPage() {
                     commodityCards={commodityCards}
                     onSelect={handleNavigateToDetail}
                     navigate={navigate}
+                    isLoading={commoditiesLoading}
                 />
 
                 {/* 5. PARA BİRİMLERİ */}
                 <ForexSection
                     sortedForexList={sortedForexList}
                     onSelect={handleNavigateToDetail}
+                    isLoading={currenciesLoading}
                 />
 
                 {/* 6. DEVLET TAHVİLLERİ */}
-                <BondsSection trBonds={trBonds} />
+                <BondsSection trBonds={trBonds} isLoading={trBondsLoading} />
 
                 {/* 7. TÜRKİYE EKONOMİSİ */}
                 <EconomySection
@@ -114,7 +119,7 @@ export default function LiveMarketPage() {
                 />
 
                 {/* 8. HALKA ARZ TAKVİMİ */}
-                <IpoSection ipos={ipos} />
+                <IpoSection ipos={ipos} isLoading={iposLoading} />
 
             </div>
         </div>

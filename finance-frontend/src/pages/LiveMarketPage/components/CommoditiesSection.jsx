@@ -1,10 +1,22 @@
 import React from 'react';
-import { ChevronRight, Coins } from 'lucide-react';
+import { ChevronRight, Coins, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 
-export default function CommoditiesSection({ commodityCards, onSelect }) {
+export default function CommoditiesSection({ commodityCards, onSelect, isLoading }) {
     const { t } = useTranslation('markets');
+    if (isLoading && (!commodityCards || commodityCards.length === 0)) {
+        return (
+            <div className="mb-16">
+                <h2 className="text-2xl font-bold mb-6 text-text flex items-center gap-2">
+                    {t('live.commodities')} <ChevronRight className="text-text-muted" size={24} />
+                </h2>
+                <div className="flex items-center justify-center py-12 text-text-muted">
+                    <Loader2 className="animate-spin mr-3" size={20} />
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 text-text flex items-center gap-2">

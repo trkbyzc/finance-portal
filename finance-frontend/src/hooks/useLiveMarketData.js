@@ -27,8 +27,6 @@ export const useLiveMarketData = () => {
         ]
     });
 
-    const loading = results.some(result => result.isLoading);
-
     const [
         indicesRes, stocksRes, iposRes, commoditiesRes, currenciesRes,
         trBondsRes, globalBondsRes, globalFundsRes, trFundsRes, economyMacroRes
@@ -44,6 +42,10 @@ export const useLiveMarketData = () => {
     const globalFunds = globalFundsRes.data || [];
     const trFunds = trFundsRes.data || [];
     const economyMacro = economyMacroRes.data || null;
+
+    // Sadece indices critical — defaultSymbol için lazım. Diğerleri sayfaya
+    // progressive olarak doluyor, kendi loader'larıyla.
+    const essentialsLoading = indicesRes.isLoading;
 
     const { data: economyData = [], isLoading: economyLoading } = useQuery({
         queryKey: ['economyHistorical', economyMetric, economyRange],
@@ -87,8 +89,19 @@ export const useLiveMarketData = () => {
     const sortedForexList = vipCodes.map(code => currencies.find(c => c.currencyCode === code)).filter(Boolean);
 
     return {
-        loading, indices, ipos, trBonds, globalBonds,
-        globalFunds, trFunds,
+        // Sadece critical (indices) için global gate.
+        loading: essentialsLoading,
+
+        // Per-section loading flags — section'lar kendi placeholder'larını gösterebilsin.
+        stocksLoading: stocksRes.isLoading,
+        iposLoading: iposRes.isLoading,
+        commoditiesLoading: commoditiesRes.isLoading,
+        currenciesLoading: currenciesRes.isLoading,
+        trBondsLoading: trBondsRes.isLoading,
+        economyMacroLoading: economyMacroRes.isLoading,
+
+        // Data
+        indices, ipos, trBonds, globalBonds, globalFunds, trFunds,
         highestVolume, mostVolatile, topGainers, topLosers,
         commodityCards, sortedForexList,
         economyMacro,
