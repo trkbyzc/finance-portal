@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -87,7 +88,9 @@ public class WatchlistService {
     private WatchlistItemDto enrich(WatchlistItem item) {
         BigDecimal currentPrice = safe(portfolioPriceService.getCurrentPrice(item.getSymbol(), item.getAssetType()));
 
-        List<HistoricalDataDto> history = safeFetchHistory(item.getSymbol(), item.getAssetType());
+        // MarketChartService cache hit'inde Redis'ten generic Object (LinkedHashMap) dönüyor;
+        // miss'te tip-doğru HistoricalDataDto döner. İkisine de toleranslı oku.
+        List<?> history = safeFetchHistory(item.getSymbol(), item.getAssetType());
         List<BigDecimal> sparkline = extractSparkline(history);
         BigDecimal dailyChange = computeDailyChangePct(history);
 
@@ -102,9 +105,10 @@ public class WatchlistService {
                 .build();
     }
 
-    private List<HistoricalDataDto> safeFetchHistory(String symbol, AssetType assetType) {
+    @SuppressWarnings("unchecked")
+    private List<?> safeFetchHistory(String symbol, AssetType assetType) {
         try {
-            return marketChartService.getHistoricalDataWithEvdsFallback(
+            return (List<?>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
                     symbol, assetType.name(), "1mo", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[WATCHLIST] {} için historical fetch başarısız: {}", symbol, e.getMessage());
@@ -112,27 +116,51 @@ public class WatchlistService {
         }
     }
 
-    private List<BigDecimal> extractSparkline(List<HistoricalDataDto> history) {
+    private List<BigDecimal> extractSparkline(List<?> history) {
         if (history == null || history.isEmpty()) return List.of();
         int size = history.size();
         int from = Math.max(0, size - SPARKLINE_MAX_POINTS);
         List<BigDecimal> spark = new ArrayList<>(size - from);
         for (int i = from; i < size; i++) {
-            BigDecimal close = history.get(i).getClose();
+            BigDecimal close = closeOf(history.get(i));
             spark.add(close != null ? close : BigDecimal.ZERO);
         }
         return spark;
     }
 
-    private BigDecimal computeDailyChangePct(List<HistoricalDataDto> history) {
+    private BigDecimal computeDailyChangePct(List<?> history) {
         if (history == null || history.size() < 2) return BigDecimal.ZERO;
-        BigDecimal latest = history.get(history.size() - 1).getClose();
-        BigDecimal previous = history.get(history.size() - 2).getClose();
+        BigDecimal latest = closeOf(history.get(history.size() - 1));
+        BigDecimal previous = closeOf(history.get(history.size() - 2));
         if (latest == null || previous == null || previous.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
         return latest.subtract(previous)
                 .divide(previous, 6, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Cache hit'te LinkedHashMap, miss'te HistoricalDataDto. İkisine de toleranslı close okuyucu.
+     */
+    private BigDecimal closeOf(Object point) {
+        if (point == null) return null;
+        if (point instanceof HistoricalDataDto dto) return dto.getClose();
+        if (point instanceof Map<?, ?> map) {
+            Object close = map.get("close");
+            if (close == null) close = map.get("price");
+            return toBigDecimal(close);
+        }
+        return null;
+    }
+
+    private BigDecimal toBigDecimal(Object val) {
+        if (val == null) return null;
+        if (val instanceof BigDecimal bd) return bd;
+        if (val instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        if (val instanceof String s) {
+            try { return new BigDecimal(s); } catch (NumberFormatException ignored) { return null; }
+        }
+        return null;
     }
 
     private BigDecimal safe(BigDecimal val) {
