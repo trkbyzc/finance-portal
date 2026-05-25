@@ -1,0 +1,32 @@
+{
+  "pageTitle": "İzleme Listesi",
+  "pageSubtitle": "Takip ettiğin sembollerin anlık fiyat, günlük değişim ve trend görünümü.",
+  "empty": {
+    "title": "Henüz takip ettiğin bir varlık yok",
+    "subtitle": "Hisse, kripto, döviz, emtia, fon veya tahvil ekleyerek canlı fiyat ve trend takibi yapmaya başla.",
+    "cta": "İlk Varlığını Ekle"
+  },
+  "cols": {
+    "asset": "Varlık",
+    "price": "Fiyat",
+    "dailyChange": "Günlük Değişim",
+    "trend": "Son 30 Gün",
+    "addedAt": "Eklenme",
+    "actions": "İşlem"
+  },
+  "actions": {
+    "add": "Listeye Ekle",
+    "remove": "Listeden Kaldır",
+    "removeConfirm": "{{symbol}} izleme listenden kaldırılsın mı?"
+  },
+  "modal": {
+    "addTitle": "İzleme Listesine Varlık Ekle",
+    "selectAsset": "Eklemek istediğin varlığı seç",
+    "alreadyExists": "Bu varlık zaten listende"
+  },
+  "toast": {
+    "added": "Listene eklendi",
+    "removed": "Listenden kaldırıldı",
+    "error": "İzleme listesi yüklenemedi. Lütfen tekrar dene."
+  }
+}

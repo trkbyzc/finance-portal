@@ -89,9 +89,10 @@ export default function UserDrawer({ open, onClose }) {
                     />
                     <DrawerItem
                         icon={Star}
-                        label={t('drawer.favorites')}
-                        sub={t('drawer.favoritesSub')}
-                        disabled
+                        label={t('drawer.watchlist')}
+                        sub={t('drawer.watchlistSub')}
+                        accent="primary"
+                        onClick={() => go('/watchlist')}
                     />
                     <DrawerItem
                         icon={Bell}

@@ -1,0 +1,32 @@
+{
+  "pageTitle": "Watchlist",
+  "pageSubtitle": "Live price, daily change and trend overview for the symbols you follow.",
+  "empty": {
+    "title": "You're not tracking any asset yet",
+    "subtitle": "Add stocks, crypto, currencies, commodities, funds or bonds to start tracking live prices and trends.",
+    "cta": "Add Your First Asset"
+  },
+  "cols": {
+    "asset": "Asset",
+    "price": "Price",
+    "dailyChange": "Daily Change",
+    "trend": "Last 30 Days",
+    "addedAt": "Added",
+    "actions": "Action"
+  },
+  "actions": {
+    "add": "Add to Watchlist",
+    "remove": "Remove",
+    "removeConfirm": "Remove {{symbol}} from your watchlist?"
+  },
+  "modal": {
+    "addTitle": "Add to Watchlist",
+    "selectAsset": "Choose the asset you want to track",
+    "alreadyExists": "This asset is already on your watchlist"
+  },
+  "toast": {
+    "added": "Added to your watchlist",
+    "removed": "Removed from your watchlist",
+    "error": "Could not load watchlist. Please try again."
+  }
+}
