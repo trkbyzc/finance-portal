@@ -33,20 +33,22 @@ public class CurrencySyncService {
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
-    // 🚀 Tüm 12 "VIP" Döviz için TCMB (EVDS) Haritalaması eklendi!
+    // EVDS döviz serileri. ".S.YTL" (Satış) tercih edilir — UI'daki anlık fiyat header'ı
+    // forexSelling kullanıyor; CurrencyChartStrategy zaten son nokta'yı bunla patch'liyor.
+    // .A.YTL (Alış) serileri TCMB'de görece yeni; .S.YTL daha eski tarihlere kadar gider.
     private final Map<String, String> EVDS_CURRENCIES = Map.ofEntries(
-            Map.entry("USD", "TP.DK.USD.A.YTL"),
-            Map.entry("EUR", "TP.DK.EUR.A.YTL"),
-            Map.entry("GBP", "TP.DK.GBP.A.YTL"),
-            Map.entry("CHF", "TP.DK.CHF.A.YTL"),
-            Map.entry("CAD", "TP.DK.CAD.A.YTL"),
-            Map.entry("AUD", "TP.DK.AUD.A.YTL"),
-            Map.entry("JPY", "TP.DK.JPY.A.YTL"),
-            Map.entry("DKK", "TP.DK.DKK.A.YTL"),
-            Map.entry("SEK", "TP.DK.SEK.A.YTL"),
-            Map.entry("NOK", "TP.DK.NOK.A.YTL"),
-            Map.entry("SAR", "TP.DK.SAR.A.YTL"),
-            Map.entry("RUB", "TP.DK.RUB.A.YTL")
+            Map.entry("USD", "TP.DK.USD.S.YTL"),
+            Map.entry("EUR", "TP.DK.EUR.S.YTL"),
+            Map.entry("GBP", "TP.DK.GBP.S.YTL"),
+            Map.entry("CHF", "TP.DK.CHF.S.YTL"),
+            Map.entry("CAD", "TP.DK.CAD.S.YTL"),
+            Map.entry("AUD", "TP.DK.AUD.S.YTL"),
+            Map.entry("JPY", "TP.DK.JPY.S.YTL"),
+            Map.entry("DKK", "TP.DK.DKK.S.YTL"),
+            Map.entry("SEK", "TP.DK.SEK.S.YTL"),
+            Map.entry("NOK", "TP.DK.NOK.S.YTL"),
+            Map.entry("SAR", "TP.DK.SAR.S.YTL"),
+            Map.entry("RUB", "TP.DK.RUB.S.YTL")
     );
 
     @EventListener(ApplicationReadyEvent.class) // PROJE AÇILIR AÇILMAZ ÇALIŞTIR!

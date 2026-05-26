@@ -45,7 +45,11 @@ public class TurkishGoldChartStrategy implements ChartDataStrategy {
     @Override
     public boolean supports(String category, String symbol) {
         if (!"COMMODITY".equalsIgnoreCase(category) || symbol == null) return false;
-        String upper = symbol.toUpperCase();
+        // Turkish-locale toUpperCase("gram-altin") → "GRAM_ALTİN" (dotted İ),
+        // ama bizim sabit string'lerimiz ASCII I ile. Normalize ile İ/ı → I.
+        String upper = symbol.toUpperCase(java.util.Locale.ROOT)
+                .replace('İ', 'I')
+                .replace('ı', 'I');
         return upper.endsWith("_ALTIN")
                 || "GRAM_HAS_ALTIN".equals(upper)
                 || "CUMHURIYET_ALTINI".equals(upper)

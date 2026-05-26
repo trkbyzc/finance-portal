@@ -49,8 +49,9 @@ public class TruncgilIntegrationClient {
 
                     if (goldData != null) {
                         CommodityDto dto = new CommodityDto();
-                        // Burada symbol 'GRAM_ALTIN', 'CEYREK_ALTIN' falan oluyor
-                        dto.setSymbol(targetGolds[i].toUpperCase().replace("-", "_"));
+                        // JVM Türkçe locale'de "gram-altin".toUpperCase() → "GRAM-ALTİN" (dotted İ)
+                        // üretir. Locale.ROOT ile ASCII garantisi — "GRAM_ALTIN" (ASCII I) tutarlı.
+                        dto.setSymbol(targetGolds[i].toUpperCase(java.util.Locale.ROOT).replace("-", "_"));
                         dto.setName(targetNames[i]);
                         dto.setAssetType("TÜRK ALTINI");
                         dto.setAssetCategory("COMMODITY"); // Emtia!
