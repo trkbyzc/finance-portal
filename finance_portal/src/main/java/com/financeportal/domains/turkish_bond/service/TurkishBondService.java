@@ -2,7 +2,6 @@ package com.financeportal.domains.turkish_bond.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.financeportal.client.evds.EvdsHistoryClient;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.service.mapper.BondMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -29,55 +27,32 @@ public class TurkishBondService {
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
     private final BondMapper bondMapper;
-    private final EvdsHistoryClient evdsHistoryClient;
-
-    /** EVDS'den bond verisi ne kadar geriye gidiyor — gösterge tahviller 10 yıl yeter. */
-    private static final int BOND_YEARS_BACK = 10;
-    private static final long REDIS_TTL_HOURS = 24;
 
     public List<Map<String, Object>> getTurkishBonds() {
         List<Map<String, Object>> yieldCurve = bondMapper.getBondYieldCurve();
         return yieldCurve.isEmpty() ? bondMapper.getFallbackYieldCurve() : yieldCurve;
     }
 
-    public List<HistoricalDataDto> fetchBondHistoryFromRedis(String symbol) {
-        List<Map<String, Object>> raw = ensureBondHistoryInRedis(symbol);
-        return mapToHistorical(raw, symbol);
-    }
-
     /**
-     * Redis cache kontrol → varsa onu döner. Yoksa EVDS'den çekip Redis'e yazar.
-     * Önceki mimaride data_pipeline/evds_worker.py'ın yaptığı işin Java karşılığı.
+     * TR tahvil tarihçesini Redis'ten okur. Redis'i {@code TurkishBondSyncService} doldurur
+     * (app boot + günlük cron'da EVDS'den 10 yıl). Bu metod sadece okur — fetch yapmaz.
      */
-    private List<Map<String, Object>> ensureBondHistoryInRedis(String symbol) {
+    public List<HistoricalDataDto> fetchBondHistoryFromRedis(String symbol) {
         String redisKey = getBondRedisKey(symbol);
         if (redisKey == null) return List.of();
 
         try {
-            String cached = stringRedisTemplate.opsForValue().get(redisKey);
-            if (cached != null && !cached.isEmpty()) {
-                return objectMapper.readValue(cached, new TypeReference<>() {});
+            String jsonStr = stringRedisTemplate.opsForValue().get(redisKey);
+            if (jsonStr == null || jsonStr.isEmpty()) {
+                log.debug("[TR-BOND] {} için Redis'te tarihçe yok (TurkishBondSyncService henüz çalışmadı olabilir).", symbol);
+                return List.of();
             }
+            List<Map<String, Object>> parsedData = objectMapper.readValue(jsonStr, new TypeReference<>() {});
+            return mapToHistorical(parsedData, symbol);
         } catch (Exception e) {
-            log.warn("[TR-BOND] Redis okuma hatası {}: {}", redisKey, e.getMessage());
+            log.error("[TR-BOND] {} Redis read error: {}", symbol, e.getMessage());
+            return List.of();
         }
-
-        // Cache miss → EVDS'den çek (symbol zaten EVDS seri kodu — TP.TRT* ile başlıyor).
-        List<Map<String, Object>> fresh = evdsHistoryClient.fetchSeriesYears(symbol, BOND_YEARS_BACK);
-        if (fresh.isEmpty()) return List.of();
-
-        try {
-            stringRedisTemplate.opsForValue().set(
-                    redisKey,
-                    objectMapper.writeValueAsString(fresh),
-                    Duration.ofHours(REDIS_TTL_HOURS)
-            );
-            log.info("[TR-BOND] {} → {} nokta Redis'e yazıldı (key={}, TTL={}h)",
-                    symbol, fresh.size(), redisKey, REDIS_TTL_HOURS);
-        } catch (Exception e) {
-            log.warn("[TR-BOND] Redis yazma hatası {}: {}", redisKey, e.getMessage());
-        }
-        return fresh;
     }
 
     private List<HistoricalDataDto> mapToHistorical(List<Map<String, Object>> parsedData, String symbol) {

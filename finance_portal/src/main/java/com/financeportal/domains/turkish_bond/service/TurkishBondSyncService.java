@@ -42,7 +42,8 @@ public class TurkishBondSyncService {
         );
 
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(365);
+        // 10 yıl gösterge tahvil tarihçesi — simulation için yeterli derinlik.
+        LocalDate startDate = endDate.minusDays(3650);
 
         List<String> allCodes = new ArrayList<>(bondsDict.keySet());
         List<JsonNode> nodes = evdsClient.fetchSeries(allCodes, startDate, endDate, null);

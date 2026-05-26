@@ -68,9 +68,10 @@ public class CurrencySyncService {
     }
 
     private void syncEvdsCurrencyHistories() {
-        log.info("[EVDS-CURRENCY] 5 yıllık (12 VIP Döviz) tarihçeler çekiliyor...");
+        log.info("[EVDS-CURRENCY] 22 yıllık (12 VIP Döviz) tarihçeler çekiliyor...");
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(1828);
+        // 22 yıl ≈ 8030 gün. TCMB döviz serileri 2003'e kadar dayanıyor — tüm tarihçeyi kapsar.
+        LocalDate startDate = endDate.minusDays(8030);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         EVDS_CURRENCIES.forEach((currencyCode, evdsCode) -> {

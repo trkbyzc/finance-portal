@@ -2,7 +2,6 @@ package com.financeportal.domains.currency.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.financeportal.client.evds.EvdsHistoryClient;
 import com.financeportal.domains.currency.dto.CurrencyDto;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +29,9 @@ public class TcmbIntegrationClient {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
-    private final EvdsHistoryClient evdsHistoryClient;
 
     @Value("${external-api.tcmb.xml-url}")
     private String tcmbXmlUrl;
-
-    /** EVDS'den ne kadar geriye gideceğimiz. TCMB döviz serileri 2003'e dayanıyor. */
-    private static final int CURRENCY_YEARS_BACK = 22;
-
-    /** Redis cache TTL — günde bir yenilensin yeterli. */
-    private static final long REDIS_TTL_HOURS = 24;
 
     private static final List<String> VIP_CURRENCIES = List.of("USD", "EUR", "GBP", "CHF", "CAD", "AUD", "JPY", "DKK", "SEK", "NOK", "SAR", "RUB");
 
@@ -90,112 +82,27 @@ public class TcmbIntegrationClient {
         return newRates;
     }
 
+    /**
+     * Döviz tarihçesini Redis'ten okur. Redis'i {@code CurrencySyncService} doldurur
+     * (app boot'ta + saatte bir EVDS'den 22 yıl geriye). Bu metod sadece okur — fetch yapmaz.
+     * Range param'ı filtreleme için kullanılır ("max" → tüm tarihçe).
+     */
     public List<HistoricalDataDto> fetchCurrencyHistoryFromRedis(String currencyCode, String range) {
         String baseCode = currencyCode.replace("TRY=X", "").replace("=X", "").toUpperCase();
-        List<Map<String, Object>> rawHistory = ensureCurrencyHistoryInRedis(baseCode);
-        return mapPointsToHistorical(rawHistory, range, baseCode);
-    }
-
-    /**
-     * Redis cache kontrol → varsa ve "yeterince eski" ise onu döner. Yoksa EVDS'den çekip
-     * Redis'e yazar. Önceki mimaride bu işi <code>data_pipeline/evds_worker.py</code>
-     * yapıyordu; artık Java tarafında native.
-     * <p>
-     * "Yeterince eski" tanımı: cache'in en eski noktası en az 10 yıl geride olmalı. Daha
-     * kısa cache'leri stale sayıp EVDS'den tam veriyi çekeriz (eski Python worker dönemi
-     * 5 yıllık verisi kalıntılarını otomatik yeniler).
-     */
-    private List<Map<String, Object>> ensureCurrencyHistoryInRedis(String baseCode) {
         String redisKey = "evds:currency:" + baseCode;
+
         try {
-            String cached = stringRedisTemplate.opsForValue().get(redisKey);
-            if (cached != null && !cached.isEmpty()) {
-                List<Map<String, Object>> parsed = objectMapper.readValue(cached, new TypeReference<>() {});
-                if (isCacheCoverageSufficient(parsed)) {
-                    return parsed;
-                }
-                log.info("[EVDS] {} cache'i kısa görünüyor (ilk nokta yeterince eski değil), EVDS'den yeniden çekiliyor.", baseCode);
+            String jsonStr = stringRedisTemplate.opsForValue().get(redisKey);
+            if (jsonStr == null || jsonStr.isEmpty()) {
+                log.debug("[EVDS] {} için Redis'te tarihçe yok (CurrencySyncService henüz çalışmadı olabilir).", baseCode);
+                return List.of();
             }
+            List<Map<String, Object>> parsedData = objectMapper.readValue(jsonStr, new TypeReference<>() {});
+            return mapPointsToHistorical(parsedData, range, baseCode);
         } catch (Exception e) {
-            log.warn("[EVDS] Redis okuma hatası {}: {}", redisKey, e.getMessage());
-        }
-
-        // Cache miss veya kısa kapsama → EVDS'den çek.
-        String seriesCode = mapCurrencyToEvdsSeries(baseCode);
-        if (seriesCode == null) return List.of();
-
-        List<Map<String, Object>> fresh = evdsHistoryClient.fetchSeriesYears(seriesCode, CURRENCY_YEARS_BACK);
-        if (fresh.isEmpty()) {
-            log.warn("[EVDS] {} için EVDS'den veri gelmedi. EVDS_API_KEY env var set mi? Mevcut: {}",
-                    baseCode, hasEvdsKey() ? "var" : "YOK");
+            log.error("[EVDS REDIS] {} tarihçe okuma hatası: {}", baseCode, e.getMessage());
             return List.of();
         }
-
-        // JPY 100-birim normalize (TCMB 100 JPY → 1 JPY'ye çevir)
-        if ("JPY".equals(baseCode)) {
-            fresh = fresh.stream().map(p -> {
-                Object v = p.get("close");
-                if (v instanceof Number n) {
-                    double scaled = n.doubleValue() / 100.0;
-                    p.put("close", scaled); p.put("value", scaled); p.put("rate", scaled);
-                }
-                return p;
-            }).collect(java.util.stream.Collectors.toList());
-        }
-
-        try {
-            stringRedisTemplate.opsForValue().set(
-                    redisKey,
-                    objectMapper.writeValueAsString(fresh),
-                    java.time.Duration.ofHours(REDIS_TTL_HOURS)
-            );
-            log.info("[EVDS] {} → {} nokta Redis'e yazıldı (key={}, TTL={}h)",
-                    baseCode, fresh.size(), redisKey, REDIS_TTL_HOURS);
-        } catch (Exception e) {
-            log.warn("[EVDS] Redis yazma hatası {}: {}", redisKey, e.getMessage());
-        }
-        return fresh;
-    }
-
-    /** Cache'in en eski noktası en az MIN_COVERAGE_YEARS geride mi? */
-    private boolean isCacheCoverageSufficient(List<Map<String, Object>> parsed) {
-        if (parsed == null || parsed.isEmpty()) return false;
-        try {
-            String firstDateStr = null;
-            for (Map<String, Object> p : parsed) {
-                Object d = p.get("date");
-                if (d instanceof String s) { firstDateStr = s; break; }
-            }
-            if (firstDateStr == null) return false;
-            LocalDate first = LocalDate.parse(firstDateStr);
-            LocalDate threshold = LocalDate.now().minusYears(10);
-            return !first.isAfter(threshold);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    private boolean hasEvdsKey() {
-        // EvdsHistoryClient zaten kendi içinde key kontrolü yapıp warn loglar; burası sadece info.
-        return true; // detay log'u client tarafında çıkar
-    }
-
-    private String mapCurrencyToEvdsSeries(String code) {
-        return switch (code) {
-            case "USD" -> "TP.DK.USD.S.YTL";
-            case "EUR" -> "TP.DK.EUR.S.YTL";
-            case "GBP" -> "TP.DK.GBP.S.YTL";
-            case "CHF" -> "TP.DK.CHF.S.YTL";
-            case "CAD" -> "TP.DK.CAD.S.YTL";
-            case "AUD" -> "TP.DK.AUD.S.YTL";
-            case "JPY" -> "TP.DK.JPY.S.YTL";
-            case "DKK" -> "TP.DK.DKK.S.YTL";
-            case "SEK" -> "TP.DK.SEK.S.YTL";
-            case "NOK" -> "TP.DK.NOK.S.YTL";
-            case "SAR" -> "TP.DK.SAR.S.YTL";
-            case "RUB" -> "TP.DK.RUB.S.YTL";
-            default -> null;
-        };
     }
 
     private List<HistoricalDataDto> mapPointsToHistorical(List<Map<String, Object>> parsedData, String range, String currencyCode) {
