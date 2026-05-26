@@ -5,6 +5,7 @@ import com.financeportal.model.dto.user.UserRegistrationDto;
 import com.financeportal.model.dto.user.UserResponseDto;
 import com.financeportal.model.entity.User;
 import com.financeportal.model.enums.RiskProfile;
+import com.financeportal.model.enums.Role;
 import com.financeportal.repository.UserRepository;
 import com.financeportal.service.mapper.user.UserMapper;
 import com.financeportal.service.messaging.KafkaProducerService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,26 @@ public class UserService {
 
         log.info("Kullanıcı başarıyla oluşturuldu. ID: {}", user.getId());
         return userMapper.toDto(user);
+    }
+
+    /**
+     * Keycloak realm rollerine göre DB role alanını günceller. Sadece gerçekten
+     * değişen kullanıcılar için DB'ye yazar (idempotent).
+     *
+     * @param userId         JWT 'sub' UUID
+     * @param isKeycloakAdmin JWT realm_access.roles içinde "ADMIN" var mı
+     */
+    @Transactional
+    public void syncRoleFromKeycloak(UUID userId, boolean isKeycloakAdmin) {
+        Optional<User> opt = userRepository.findById(userId);
+        if (opt.isEmpty()) return;
+        User user = opt.get();
+        Role desired = isKeycloakAdmin ? Role.ADMIN : Role.USER;
+        if (user.getRole() == desired) return;
+        log.info("[USER-SYNC] {} kullanıcısının rolü {} → {} olarak senkronize edildi (Keycloak source-of-truth).",
+                user.getUsername(), user.getRole(), desired);
+        user.setRole(desired);
+        userRepository.save(user);
     }
 
     @Transactional
