@@ -196,8 +196,8 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
                                             className="w-full p-3 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg text-left flex justify-between items-center transition"
                                         >
                                             <div>
-                                                <div className="font-semibold">{symbol}</div>
-                                                <div className="text-sm text-text-muted">{name}</div>
+                                                <div className="font-semibold">{name || symbol}</div>
+                                                <div className="text-xs text-text-muted font-mono">{symbol}</div>
                                             </div>
                                             <div className="text-right">
                                                 {price > 0 ? (
