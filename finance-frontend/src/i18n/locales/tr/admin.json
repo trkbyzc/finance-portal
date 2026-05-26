@@ -12,7 +12,7 @@
     "totalUsers": "Toplam Kullanıcı",
     "active": "Aktif",
     "banned": "Yasaklı",
-    "search": "Kullanıcı ara...",
+    "search": "Kullanıcı adı veya e-posta ara...",
     "cols": {
       "username": "Kullanıcı Adı",
       "email": "E-posta",
@@ -22,14 +22,51 @@
       "actions": "İşlemler"
     },
     "actions": {
-      "ban": "Yasakla",
-      "unban": "Yasağı Kaldır",
+      "ban": "Banla",
+      "unban": "Banı Kaldır",
+      "forceLogout": "Oturumları Kapat",
       "makeAdmin": "Admin Yap",
       "removeAdmin": "Admin Yetkisini Kaldır",
       "delete": "Sil"
     },
     "confirmBan": "Bu kullanıcıyı yasaklamak istediğinize emin misiniz?",
-    "confirmDelete": "Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?"
+    "confirmDelete": "Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?",
+    "confirmForceLogout": "{{username}} kullanıcısının tüm oturumlarını kapatmak istiyor musun?",
+    "forceLogoutNote": "Refresh token'lar invalide edilir. Mevcut access token ~5dk içinde süresi dolar."
+  },
+  "filters": {
+    "title": "Filtreler",
+    "role": "Rol",
+    "roleAll": "Tüm Roller",
+    "roleUser": "USER",
+    "roleAdmin": "ADMIN",
+    "banned": "Ban Durumu",
+    "bannedAll": "Hepsi",
+    "bannedYes": "Sadece Banlı",
+    "bannedNo": "Sadece Aktif",
+    "clear": "Filtreleri Temizle"
+  },
+  "badges": {
+    "permanent": "Kalıcı Ban",
+    "tempUntil": "Geçici · {{date}}'e kadar",
+    "noRoles": "Realm rolleri okunamadı (yetki yok)"
+  },
+  "banModal": {
+    "title": "Kullanıcıyı Banla",
+    "subtitle": "{{username}} için ban süresi seç",
+    "duration7": "7 gün",
+    "duration30": "30 gün",
+    "duration90": "90 gün",
+    "durationPermanent": "Süresiz (Kalıcı)",
+    "permanentWarning": "Kalıcı ban anında tüm oturumları sonlandırır ve unban edilene kadar kullanıcıyı tamamen engeller.",
+    "confirm": "Banla",
+    "cancel": "İptal"
+  },
+  "pagination": {
+    "prev": "Önceki",
+    "next": "Sonraki",
+    "pageOf": "{{page}} / {{total}}",
+    "showing": "{{from}}–{{to}} / {{total}} kullanıcı"
   },
   "stats": {
     "title": "Sistem İstatistikleri",
@@ -37,5 +74,12 @@
     "activeUsers": "Aktif Kullanıcı (30 gün)",
     "totalPortfolios": "Toplam Portföy",
     "apiCalls": "API Çağrıları (24s)"
+  },
+  "toast": {
+    "banned": "Kullanıcı banlandı",
+    "unbanned": "Banı kaldırıldı",
+    "loggedOut": "Oturumlar kapatıldı",
+    "logoutFailed": "Oturum kapatma başarısız (Keycloak yetkisi yok olabilir)",
+    "error": "İşlem başarısız"
   }
 }

@@ -7,6 +7,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -200,6 +201,47 @@ public class KeycloakAdminService {
         // Encode et ve padding karakterlerini kaldır
         String encoded = base32.encodeAsString(buffer);
         return encoded.replaceAll("=", "");
+    }
+
+    // ============================================================
+    // ADMIN PANEL UPGRADES (Phase 2)
+    // ============================================================
+
+    /**
+     * Kullanıcının tüm Keycloak oturumlarını sonlandırır. Refresh token'lar invalide olur;
+     * mevcut access token'lar süresi dolana kadar (~5dk) geçerli kalmaya devam eder.
+     * Hata olursa false döner — caller log'lar ve devam eder.
+     */
+    public boolean logoutAllSessions(String keycloakUserId) {
+        if (keycloak == null || keycloakUserId == null) return false;
+        try {
+            keycloak.realm(realm).users().get(keycloakUserId).logout();
+            log.info("[KC-ADMIN] {} için tüm oturumlar kapatıldı.", keycloakUserId);
+            return true;
+        } catch (Exception e) {
+            log.warn("[KC-ADMIN] {} için logout-all başarısız: {}", keycloakUserId, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Kullanıcının realm-level effective rollerini döner. Servis hesabında 'view-users' yetkisi
+     * yoksa (403) veya başka bir hata olursa boş liste döner — caller bunu "Roles unavailable"
+     * olarak gösterebilir.
+     */
+    public List<String> getRealmRoles(String keycloakUserId) {
+        if (keycloak == null || keycloakUserId == null) return Collections.emptyList();
+        try {
+            List<RoleRepresentation> roles = keycloak.realm(realm).users().get(keycloakUserId)
+                    .roles().realmLevel().listEffective();
+            List<String> names = new ArrayList<>(roles.size());
+            for (RoleRepresentation r : roles) names.add(r.getName());
+            return names;
+        } catch (Exception e) {
+            log.warn("[KC-ADMIN] {} için realm roller çekilemedi (yetki/403 olabilir): {}",
+                    keycloakUserId, e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
 }

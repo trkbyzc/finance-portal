@@ -1,5 +1,6 @@
 package com.financeportal.security;
 
+import com.financeportal.model.entity.User;
 import com.financeportal.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,14 +9,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-
-import java.util.UUID;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -30,14 +30,13 @@ public class UserBanFilter extends OncePerRequestFilter {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth instanceof JwtAuthenticationToken jwtToken) {
-            // 🚀 KRİTİK: getName() yerine token'daki 'sub' (UUID) değerini kullanıyoruz
             String userIdStr = jwtToken.getToken().getClaimAsString("sub");
 
             if (userIdStr != null) {
                 userRepository.findById(UUID.fromString(userIdStr)).ifPresent(user -> {
-                    if (user.getBannedUntil() != null && LocalDateTime.now().isBefore(user.getBannedUntil())) {
+                    if (isBanned(user)) {
                         try {
-                            sendBanResponse(response, user.getBannedUntil());
+                            sendBanResponse(response, user);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -51,10 +50,23 @@ public class UserBanFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void sendBanResponse(HttpServletResponse response, LocalDateTime until) throws IOException {
+    private boolean isBanned(User user) {
+        if (user.isBanPermanent()) return true;
+        return user.getBannedUntil() != null && LocalDateTime.now().isBefore(user.getBannedUntil());
+    }
+
+    private void sendBanResponse(HttpServletResponse response, User user) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
-        String message = String.format("{\"error\": \"Hesabınız %s tarihine kadar askıya alınmıştır.\"}", until);
+        String message;
+        if (user.isBanPermanent()) {
+            message = "{\"error\": \"Hesabınız kalıcı olarak askıya alınmıştır.\", \"banType\": \"PERMANENT\"}";
+        } else {
+            message = String.format(
+                    "{\"error\": \"Hesabınız %s tarihine kadar askıya alınmıştır.\", \"banType\": \"TEMPORARY\", \"until\": \"%s\"}",
+                    user.getBannedUntil(), user.getBannedUntil()
+            );
+        }
         response.getWriter().write(message);
     }
 }

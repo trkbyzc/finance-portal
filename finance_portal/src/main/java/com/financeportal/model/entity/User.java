@@ -41,6 +41,13 @@ public class User {
     @Column(name = "banned_until")
     private LocalDateTime bannedUntil;
 
+    /**
+     * Süresiz ban bayrağı. true ise bannedUntil değerinden bağımsız olarak kullanıcı yasaklıdır.
+     * false (default) ise sadece bannedUntil > now olduğu sürece yasaklıdır (geçici ban).
+     */
+    @Column(name = "ban_permanent", nullable = false)
+    private boolean banPermanent;
+
     // 🚀 2FA ALANLARI TAMAMEN SİLİNDİ! (Artık Keycloak ilgileniyor)
 
     // 🚀 RICH DOMAIN MODEL: Kendi kendini başlatan "Zengin" metod
@@ -52,6 +59,7 @@ public class User {
         user.setPassword("MANAGED_BY_KEYCLOAK"); // Şifreyi kendi DB'mizde tutmuyoruz
         user.setRole(Role.USER);
         user.setBannedUntil(null);
+        user.setBanPermanent(false);
         user.setCreatedAt(LocalDateTime.now());
         return user;
     }

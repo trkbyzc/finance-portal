@@ -12,7 +12,7 @@
     "totalUsers": "Total Users",
     "active": "Active",
     "banned": "Banned",
-    "search": "Search user...",
+    "search": "Search by username or email...",
     "cols": {
       "username": "Username",
       "email": "Email",
@@ -24,12 +24,49 @@
     "actions": {
       "ban": "Ban",
       "unban": "Unban",
+      "forceLogout": "Force Logout",
       "makeAdmin": "Make Admin",
       "removeAdmin": "Remove Admin",
       "delete": "Delete"
     },
     "confirmBan": "Are you sure you want to ban this user?",
-    "confirmDelete": "Are you sure you want to permanently delete this user?"
+    "confirmDelete": "Are you sure you want to permanently delete this user?",
+    "confirmForceLogout": "End all sessions for {{username}}?",
+    "forceLogoutNote": "Refresh tokens are invalidated. Existing access token expires in ~5 minutes."
+  },
+  "filters": {
+    "title": "Filters",
+    "role": "Role",
+    "roleAll": "All Roles",
+    "roleUser": "USER",
+    "roleAdmin": "ADMIN",
+    "banned": "Ban Status",
+    "bannedAll": "All",
+    "bannedYes": "Banned Only",
+    "bannedNo": "Active Only",
+    "clear": "Clear Filters"
+  },
+  "badges": {
+    "permanent": "Permanent Ban",
+    "tempUntil": "Temporary · until {{date}}",
+    "noRoles": "Realm roles unavailable (no permission)"
+  },
+  "banModal": {
+    "title": "Ban User",
+    "subtitle": "Pick a ban duration for {{username}}",
+    "duration7": "7 days",
+    "duration30": "30 days",
+    "duration90": "90 days",
+    "durationPermanent": "Permanent",
+    "permanentWarning": "A permanent ban ends all sessions immediately and locks the user out until manually unbanned.",
+    "confirm": "Ban",
+    "cancel": "Cancel"
+  },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "pageOf": "{{page}} / {{total}}",
+    "showing": "{{from}}–{{to}} of {{total}} users"
   },
   "stats": {
     "title": "System Statistics",
@@ -37,5 +74,12 @@
     "activeUsers": "Active Users (30 days)",
     "totalPortfolios": "Total Portfolios",
     "apiCalls": "API Calls (24h)"
+  },
+  "toast": {
+    "banned": "User banned",
+    "unbanned": "User unbanned",
+    "loggedOut": "Sessions ended",
+    "logoutFailed": "Could not end sessions (Keycloak permission missing)",
+    "error": "Operation failed"
   }
 }
