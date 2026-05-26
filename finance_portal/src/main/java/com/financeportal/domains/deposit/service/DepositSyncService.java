@@ -2,6 +2,8 @@ package com.financeportal.domains.deposit.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.financeportal.client.EvdsClient;
+import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,10 +25,17 @@ public class DepositSyncService {
 
     private final EvdsClient evdsClient;
     private final StringRedisTemplate redisTemplate;
+    private final BootstrapReadinessTracker bootstrapTracker;
+
+    private static final String TASK_NAME = "Deposit";
+
+    @PostConstruct
+    void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 0 17 * * ?") // 17:00'da çalışsın
     public void syncDeposits() {
+        try {
         log.info("[EVDS-DEPOSIT] Mevduat faizleri çekiliyor...");
         Map<String, String> depositsDict = Map.of(
                 "TP.TRY.MT01", "evds:deposit:32",
@@ -56,5 +65,8 @@ public class DepositSyncService {
                 log.info("[EVDS-DEPOSIT] {} -> %{} Redis'e yazıldı.", code, latestValue);
             }
         });
+        } finally {
+            bootstrapTracker.markComplete(TASK_NAME);
+        }
     }
 }

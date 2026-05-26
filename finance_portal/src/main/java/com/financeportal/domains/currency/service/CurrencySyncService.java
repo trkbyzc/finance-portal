@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.client.EvdsClient;
 import com.financeportal.domains.currency.client.TcmbIntegrationClient;
 import com.financeportal.domains.currency.dto.CurrencyDto;
+import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import com.financeportal.service.cache.CacheService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -31,6 +33,12 @@ public class CurrencySyncService {
     private final CacheService cacheService;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final BootstrapReadinessTracker bootstrapTracker;
+
+    private static final String TASK_NAME = "Currency";
+
+    @PostConstruct
+    void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     // EVDS döviz serileri. ".S.YTL" (Satış) tercih edilir — UI'daki anlık fiyat header'ı
     // forexSelling kullanıyor; CurrencyChartStrategy zaten son nokta'yı bunla patch'liyor.
@@ -54,17 +62,20 @@ public class CurrencySyncService {
     @Scheduled(fixedRate = 3600000)
     public void fetchAndCacheCurrencyRates() {
         long startTime = System.currentTimeMillis();
+        try {
+            // 1. Önce EVDS'den tarihçeleri (5 yıllık) çekip Redis'e basalım
+            syncEvdsCurrencyHistories();
 
-        // 1. Önce EVDS'den tarihçeleri (5 yıllık) çekip Redis'e basalım
-        syncEvdsCurrencyHistories();
-
-        // 2. Ardından bugünün canlı verisini çekelim (Redis hesaplayacak)
-        List<CurrencyDto> rates = tcmbIntegrationClient.fetchTcmbCurrencyRates();
-        if (rates != null && !rates.isEmpty()) {
-            cacheService.save("cache:currencies", rates, 60);
-            log.info("[CURRENCY_SYNC] Successfully updated {} currency rates in {} ms.", rates.size(), (System.currentTimeMillis() - startTime));
-        } else {
-            log.warn("[CURRENCY_SYNC] Failed to update currency rates.");
+            // 2. Ardından bugünün canlı verisini çekelim (Redis hesaplayacak)
+            List<CurrencyDto> rates = tcmbIntegrationClient.fetchTcmbCurrencyRates();
+            if (rates != null && !rates.isEmpty()) {
+                cacheService.save("cache:currencies", rates, 60);
+                log.info("[CURRENCY_SYNC] Successfully updated {} currency rates in {} ms.", rates.size(), (System.currentTimeMillis() - startTime));
+            } else {
+                log.warn("[CURRENCY_SYNC] Failed to update currency rates.");
+            }
+        } finally {
+            bootstrapTracker.markComplete(TASK_NAME);
         }
     }
 

@@ -3,6 +3,8 @@ package com.financeportal.domains.economy.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.client.EvdsClient;
+import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -28,10 +30,17 @@ public class EconomySyncService {
     private final EvdsClient evdsClient;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final BootstrapReadinessTracker bootstrapTracker;
+
+    private static final String TASK_NAME = "Economy";
+
+    @PostConstruct
+    void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class) // Sistem ayağa kalktığında ilk verileri çeker
     @Scheduled(cron = "0 45 16 * * ?") // 16:45'te çalışsın
     public void syncMacroEconomy() {
+        try {
         log.info("[EVDS-ECONOMY] Makro ekonomi verileri çekiliyor...");
         LocalDate today = LocalDate.now();
 
@@ -60,6 +69,9 @@ public class EconomySyncService {
         // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer
         // Frontend basePrice normalization yapıyor, raw endeks gerekiyor (örn. 100 -> 145 = +%45 toplam)
         saveHistory("TP.GENENDEKS.T1", "cumulativeInflationRate", tenYearsAgo, today, null);
+        } finally {
+            bootstrapTracker.markComplete(TASK_NAME);
+        }
     }
 
     private Double extractLatest(List<JsonNode> nodes, String code) {

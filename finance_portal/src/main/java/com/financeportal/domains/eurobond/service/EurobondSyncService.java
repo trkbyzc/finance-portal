@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.client.EvdsClient;
 import com.financeportal.domains.eurobond.dto.EurobondAggregateDto;
+import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -53,6 +55,12 @@ public class EurobondSyncService {
     private final EvdsClient evdsClient;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final BootstrapReadinessTracker bootstrapTracker;
+
+    private static final String TASK_NAME = "Eurobond";
+
+    @PostConstruct
+    void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 55 16 * * ?")
@@ -132,6 +140,8 @@ public class EurobondSyncService {
                     totalStockByYear.size(), currencyMix.size(), maturityMix.size());
         } catch (Exception e) {
             log.error("[EUROBOND] EVDS aggregate sync hatası: {}", e.getMessage(), e);
+        } finally {
+            bootstrapTracker.markComplete(TASK_NAME);
         }
     }
 

@@ -3,6 +3,8 @@ package com.financeportal.domains.economy_us.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.economy_us.client.FredClient;
 import com.financeportal.domains.economy_us.dto.EconomyUsDto;
+import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -37,31 +39,41 @@ public class EconomyUsSyncService {
     private final FredClient fredClient;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final BootstrapReadinessTracker bootstrapTracker;
+
+    private static final String TASK_NAME = "EconomyUS";
+
+    @PostConstruct
+    void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 50 16 * * ?")
     public void syncUsInflation() {
-        log.info("[FRED-USD] CPI sync başladı.");
-        LocalDate today = LocalDate.now();
-        LocalDate tenYearsAgo = today.minusDays(3650);
-
-        List<Map<String, Object>> history = fredClient.fetchObservations("CPIAUCSL", tenYearsAgo, today);
-        if (history.isEmpty()) {
-            log.warn("[FRED-USD] CPI verisi alınamadı, Redis güncellenmedi.");
-            return;
-        }
-
         try {
-            redisTemplate.opsForValue().set(HISTORY_KEY, objectMapper.writeValueAsString(history), TTL_SECONDS, TimeUnit.SECONDS);
-            log.info("[FRED-USD] {} aylık CPI noktası Redis'e yazıldı.", history.size());
+            log.info("[FRED-USD] CPI sync başladı.");
+            LocalDate today = LocalDate.now();
+            LocalDate tenYearsAgo = today.minusDays(3650);
 
-            // Anlık snapshot: son endeks + son 12 ayın YoY % değişimi
-            EconomyUsDto snapshot = buildSnapshot(history);
-            redisTemplate.opsForValue().set(SNAPSHOT_KEY, objectMapper.writeValueAsString(snapshot), TTL_SECONDS, TimeUnit.SECONDS);
-            log.info("[FRED-USD] Anlık snapshot Redis'e yazıldı: cpi={}, yoy={}%",
-                    snapshot.getCpiIndex(), snapshot.getYoyChangePct());
-        } catch (Exception e) {
-            log.error("[FRED-USD] Redis yazma hatası: {}", e.getMessage());
+            List<Map<String, Object>> history = fredClient.fetchObservations("CPIAUCSL", tenYearsAgo, today);
+            if (history.isEmpty()) {
+                log.warn("[FRED-USD] CPI verisi alınamadı, Redis güncellenmedi.");
+                return;
+            }
+
+            try {
+                redisTemplate.opsForValue().set(HISTORY_KEY, objectMapper.writeValueAsString(history), TTL_SECONDS, TimeUnit.SECONDS);
+                log.info("[FRED-USD] {} aylık CPI noktası Redis'e yazıldı.", history.size());
+
+                // Anlık snapshot: son endeks + son 12 ayın YoY % değişimi
+                EconomyUsDto snapshot = buildSnapshot(history);
+                redisTemplate.opsForValue().set(SNAPSHOT_KEY, objectMapper.writeValueAsString(snapshot), TTL_SECONDS, TimeUnit.SECONDS);
+                log.info("[FRED-USD] Anlık snapshot Redis'e yazıldı: cpi={}, yoy={}%",
+                        snapshot.getCpiIndex(), snapshot.getYoyChangePct());
+            } catch (Exception e) {
+                log.error("[FRED-USD] Redis yazma hatası: {}", e.getMessage());
+            }
+        } finally {
+            bootstrapTracker.markComplete(TASK_NAME);
         }
     }
 

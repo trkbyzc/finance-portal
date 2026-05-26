@@ -3,6 +3,8 @@ package com.financeportal.domains.turkish_bond.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.client.EvdsClient;
+import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -26,10 +28,17 @@ public class TurkishBondSyncService {
     private final EvdsClient evdsClient;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final BootstrapReadinessTracker bootstrapTracker;
+
+    private static final String TASK_NAME = "TurkishBonds";
+
+    @PostConstruct
+    void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class) // Sistem ayağa kalktığında ilk verileri çeker
     @Scheduled(cron = "0 30 16 * * ?") // Her gün 16:30'da
     public void syncTurkishBonds() {
+        try {
         log.info("[EVDS-TR-BOND] Türk Tahvil verileri çekiliyor...");
         Map<String, String> bondsDict = Map.of(
                 "TP.TRD080726K10", "evds:benchmark:1m",
@@ -79,5 +88,8 @@ public class TurkishBondSyncService {
                 }
             }
         });
+        } finally {
+            bootstrapTracker.markComplete(TASK_NAME);
+        }
     }
 }

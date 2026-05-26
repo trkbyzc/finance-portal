@@ -190,6 +190,9 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<!-- mvnw spring-boot:run forked JVM'ine UTF-8 zorla.
+					     Windows default cp1254 → "EMTİA" → "EMT─░A" mojibake'ini önler. -->
+					<jvmArguments>-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8</jvmArguments>
 				</configuration>
 			</plugin>
 

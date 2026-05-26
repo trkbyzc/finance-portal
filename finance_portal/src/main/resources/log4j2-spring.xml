@@ -2,7 +2,8 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{traceId:-}] [SpanId: %X{spanId:-}] %c{1}:%L - %m%n" />
+            <!-- charset="UTF-8" şart: Windows default cp1254/cp857 Türkçe karakteri mojibake ediyor ("EMTİA" → "EMT─░A") -->
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{traceId:-}] [SpanId: %X{spanId:-}] %c{1}:%L - %m%n" />
         </Console>
 
         <Kafka name="Kafka" topic="finance-app-logs" syncSend="false">
