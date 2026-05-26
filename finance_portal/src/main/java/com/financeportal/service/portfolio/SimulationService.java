@@ -188,95 +188,14 @@ public class SimulationService {
 
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {
         try {
-            // TR altın için özel hesap: Yahoo'da gram-altın-TRY sembolü yok (XAUTRY=X 404 dönüyor).
-            // GC=F (gold futures USD/oz) × USDTRY=X ÷ 31.1035 (oz→gram) ile synthesize ediyoruz.
-            if (isTurkishGoldSymbol(symbol, assetType)) {
-                return fetchGramGoldTryHistory();
-            }
-            // "max" → tüm available history.
+            // TR-altın, currency, crypto, vb. — özel strateji'ler ChartDataStrategy implementasyonlarında.
+            // TurkishGoldChartStrategy GRAM_ALTIN/CEYREK_ALTIN/TAM_ALTIN... için GC=F × USDTRY synthesizer'ı koşturur.
             return (List<?>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
                     symbol, assetType.name(), "max", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[SIM] {} için historical fetch başarısız: {}", symbol, e.getMessage());
             return Collections.emptyList();
         }
-    }
-
-    /**
-     * Truncgil'in döndürdüğü TR altın sembollerini tespit eder
-     * (GRAM_ALTIN, CEYREK_ALTIN, YARIM_ALTIN, TAM_ALTIN, CUMHURIYET_ALTINI vs.).
-     */
-    private boolean isTurkishGoldSymbol(String symbol, AssetType assetType) {
-        if (assetType != AssetType.COMMODITY || symbol == null) return false;
-        String upper = symbol.toUpperCase();
-        return upper.endsWith("_ALTIN") || "GRAM_HAS_ALTIN".equals(upper)
-                || "CUMHURIYET_ALTINI".equals(upper)
-                || upper.contains("ALTIN") || upper.contains("BILEZIK");
-    }
-
-    /**
-     * Gram altın TRY tarihçesini synthesize eder: GC=F (gold futures USD/oz)
-     * × USDTRY=X (USD/TRY) ÷ 31.1034768 (troy oz → gram).
-     * <p>
-     * GC=F Yahoo'da 2000-08-30'dan beri var. Her altın türü (gram, çeyrek, tam, yarım,
-     * cumhuriyet vs.) bu eğriye göre oransal hareket eder; simülasyon mantığı
-     * <code>units = amountTry / entryPrice</code> olduğundan getiri yüzdesi tüm
-     * altın türleri için doğrudur (sadece absolute price farklı, oransal değişim aynı).
-     */
-    private List<HistoricalDataDto> fetchGramGoldTryHistory() {
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        List<Object> gcfRaw = (List<Object>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
-                "GC=F", "COMMODITY", "max", "1d", null, null, 0);
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        List<Object> usdRaw = (List<Object>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
-                "USDTRY=X", "CURRENCY", "max", "1d", null, null, 0);
-
-        if (gcfRaw == null || gcfRaw.isEmpty()) {
-            log.warn("[SIM-GOLD] GC=F historical boş döndü.");
-            return List.of();
-        }
-        if (usdRaw == null || usdRaw.isEmpty()) {
-            log.warn("[SIM-GOLD] USDTRY=X historical boş döndü.");
-            return List.of();
-        }
-
-        // USDTRY'yi date'e göre indexle (hızlı lookup).
-        Map<LocalDate, BigDecimal> usdMap = new HashMap<>();
-        for (Object p : usdRaw) {
-            LocalDate d = dateOf(p);
-            BigDecimal c = closeOf(p);
-            if (d != null && c != null && c.signum() > 0) usdMap.put(d, c);
-        }
-        if (usdMap.isEmpty()) {
-            log.warn("[SIM-GOLD] USDTRY=X parse edilemedi (boş map).");
-            return List.of();
-        }
-
-        // GC=F üzerinden walk et, her gün için USDTRY ile çarp + 31.1035'e böl.
-        BigDecimal ozToGram = new BigDecimal("31.1034768");
-        List<HistoricalDataDto> result = new ArrayList<>(gcfRaw.size());
-        BigDecimal lastUsdTry = null; // hafta sonu/tatil GC=F günü USDTRY yoksa son bilineni kullan
-        for (Object p : gcfRaw) {
-            LocalDate d = dateOf(p);
-            BigDecimal ozUsd = closeOf(p);
-            if (d == null || ozUsd == null || ozUsd.signum() <= 0) continue;
-
-            BigDecimal usdTry = usdMap.get(d);
-            if (usdTry == null) usdTry = lastUsdTry;
-            if (usdTry == null) continue;
-            lastUsdTry = usdTry;
-
-            BigDecimal gramTry = ozUsd.multiply(usdTry).divide(ozToGram, 4, RoundingMode.HALF_UP);
-            HistoricalDataDto dto = new HistoricalDataDto();
-            dto.setDate(d);
-            dto.setTimestamp(d.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli());
-            dto.setOpen(gramTry); dto.setHigh(gramTry); dto.setLow(gramTry);
-            dto.setClose(gramTry); dto.setPrice(gramTry); dto.setVolume(0L);
-            result.add(dto);
-        }
-        result.sort(Comparator.comparingLong(HistoricalDataDto::getTimestamp));
-        log.info("[SIM-GOLD] Synthesized gram altın TRY: {} nokta (GC=F × USDTRY ÷ 31.1035).", result.size());
-        return result;
     }
 
     /**

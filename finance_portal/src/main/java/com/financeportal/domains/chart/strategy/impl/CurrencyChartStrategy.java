@@ -65,13 +65,10 @@ public class CurrencyChartStrategy implements ChartDataStrategy {
      */
     private void patchLastPointWithLiveRate(List<HistoricalDataDto> data, String currencyCode) {
         try {
-            CurrencyDto live = currencyService.getCurrencyRates().stream()
-                    .filter(c -> currencyCode.equalsIgnoreCase(c.getCurrencyCode()))
-                    .findFirst()
-                    .orElse(null);
-            if (live == null || live.getForexSelling() == null) return;
-
-            BigDecimal sellingRate = live.getForexSelling();
+            // Defansif okuma: cache hit'te getCurrencyRates() LinkedHashMap döner
+            // (Redis serialization type bilgisini düşürür); cache miss'te CurrencyDto döner.
+            BigDecimal sellingRate = extractForexSelling(currencyService.getCurrencyRates(), currencyCode);
+            if (sellingRate == null) return;
             LocalDate today = LocalDate.now();
             long todayMillis = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
@@ -91,5 +88,38 @@ public class CurrencyChartStrategy implements ChartDataStrategy {
         } catch (Exception e) {
             log.warn("[CHART STRATEGY] {} için son nokta patch edilemedi: {}", currencyCode, e.getMessage());
         }
+    }
+
+    /**
+     * {@code currencyService.getCurrencyRates()} cache-hit case'inde Redis'ten
+     * {@code List<LinkedHashMap>}, miss-case'inde {@code List<CurrencyDto>} döner.
+     * İkisinden de forexSelling'i defansif şekilde çıkarır.
+     */
+    private BigDecimal extractForexSelling(List<?> rates, String currencyCode) {
+        if (rates == null || rates.isEmpty()) return null;
+        for (Object obj : rates) {
+            if (obj instanceof CurrencyDto dto) {
+                if (currencyCode.equalsIgnoreCase(dto.getCurrencyCode())) {
+                    return dto.getForexSelling();
+                }
+            } else if (obj instanceof java.util.Map<?, ?> map) {
+                Object code = map.get("currencyCode");
+                if (code != null && currencyCode.equalsIgnoreCase(code.toString())) {
+                    Object fs = map.get("forexSelling");
+                    return toBigDecimal(fs);
+                }
+            }
+        }
+        return null;
+    }
+
+    private BigDecimal toBigDecimal(Object val) {
+        if (val == null) return null;
+        if (val instanceof BigDecimal bd) return bd;
+        if (val instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        if (val instanceof String s) {
+            try { return new BigDecimal(s); } catch (NumberFormatException ignored) { return null; }
+        }
+        return null;
     }
 }
