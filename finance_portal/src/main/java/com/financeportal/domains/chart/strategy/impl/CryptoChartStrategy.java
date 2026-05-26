@@ -40,10 +40,12 @@ public class CryptoChartStrategy implements ChartDataStrategy {
     public List<HistoricalDataDto> fetchHistoricalData(String symbol, String range, String interval,
                                                        String startDate, String endDate) {
         String clean = (symbol != null) ? symbol.trim().toUpperCase(Locale.ENGLISH) : "";
+        String yahooSymbol = toYahooSymbol(clean);
 
-        // 1) Yahoo dene
-        log.info("[CRYPTO-CHART] Yahoo denemesi: {}", clean);
-        List<HistoricalDataDto> data = yahooChartClient.fetchChartHistory(clean, range, interval, startDate, endDate);
+        // 1) Yahoo dene — sembol "-USD" suffix'i ile (BTC → BTC-USD).
+        // Yahoo Finance crypto sembolleri her zaman X-USD formatında; sadece "BTC" tanınmıyor.
+        log.info("[CRYPTO-CHART] Yahoo denemesi: {} (raw: {})", yahooSymbol, clean);
+        List<HistoricalDataDto> data = yahooChartClient.fetchChartHistory(yahooSymbol, range, interval, startDate, endDate);
 
         if (data != null && data.size() >= MIN_ACCEPTABLE_POINTS) {
             return data;
@@ -52,9 +54,18 @@ public class CryptoChartStrategy implements ChartDataStrategy {
         // 2) Binance fallback
         String binanceSymbol = toBinanceSymbol(clean);
         log.warn("[CRYPTO-CHART] Yahoo'da '{}' için veri yetersiz ({} nokta). Binance fallback: {}",
-                clean, data != null ? data.size() : 0, binanceSymbol);
+                yahooSymbol, data != null ? data.size() : 0, binanceSymbol);
 
         return binanceChartClient.fetchKlines(binanceSymbol, range);
+    }
+
+    private String toYahooSymbol(String symbol) {
+        if (symbol == null || symbol.isEmpty()) return symbol;
+        // Zaten "-USD" varsa olduğu gibi bırak.
+        if (symbol.contains("-USD")) return symbol;
+        // "BTCUSDT" / "BTCUSD" gibi gelirse base'i çıkarıp X-USD'ye çevir.
+        String base = symbol.replace("USDT", "").replace("USD", "").replace("/", "").trim();
+        return base + "-USD";
     }
 
     private String toBinanceSymbol(String symbol) {

@@ -3,6 +3,7 @@ package com.financeportal.controller.finance;
 import com.financeportal.model.dto.simulation.SimulationCreateRequestDto;
 import com.financeportal.model.dto.simulation.SimulationDto;
 import com.financeportal.model.dto.simulation.SimulationResultDto;
+import com.financeportal.model.enums.AssetType;
 import com.financeportal.service.portfolio.SimulationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,5 +53,20 @@ public class SimulationController {
     public ResponseEntity<Map<String, String>> delete(@PathVariable UUID id) {
         simulationService.delete(id);
         return ResponseEntity.ok(Map.of("message", "Simülasyon silindi."));
+    }
+
+    @GetMapping("/earliest-date")
+    @Operation(summary = "En erken seçilebilir tarih",
+            description = "Verilen varlık için historical veride mevcut olan en eski tarihi döner. Frontend date input'un min'i için kullanır.")
+    public ResponseEntity<Map<String, Object>> earliestDate(
+            @RequestParam String symbol,
+            @RequestParam AssetType assetType
+    ) {
+        LocalDate earliest = simulationService.getEarliestAvailableDate(symbol, assetType);
+        Map<String, Object> body = new HashMap<>();
+        body.put("symbol", symbol);
+        body.put("assetType", assetType);
+        body.put("earliestDate", earliest);
+        return ResponseEntity.ok(body);
     }
 }

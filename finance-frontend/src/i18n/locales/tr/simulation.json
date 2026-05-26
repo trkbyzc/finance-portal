@@ -23,6 +23,9 @@
     "stepBack": "Geri",
     "investmentDate": "Yatırım Tarihi",
     "investmentDateHint": "Geçmiş bir tarih seç. Hafta sonu/tatil ise sistem en yakın işlem gününü kullanır.",
+    "earliestAvailable": "Bu varlık için en erken tarih: {{date}}",
+    "earliestLoading": "Tarih aralığı kontrol ediliyor…",
+    "earliestUnavailable": "Bu varlık için historical veri yok",
     "amount": "Tutar (TRY)",
     "notes": "Notlar (opsiyonel)",
     "notesPlaceholder": "Örn: 'Erken emeklilik için biriktirme senaryosu'"

@@ -23,6 +23,9 @@
     "stepBack": "Back",
     "investmentDate": "Investment Date",
     "investmentDateHint": "Pick a past date. If it's a weekend/holiday, the closest trading day is used.",
+    "earliestAvailable": "Earliest available for this asset: {{date}}",
+    "earliestLoading": "Checking date range…",
+    "earliestUnavailable": "No historical data for this asset",
     "amount": "Amount (TRY)",
     "notes": "Notes (optional)",
     "notesPlaceholder": "e.g. 'Early-retirement savings scenario'"

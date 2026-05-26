@@ -59,6 +59,23 @@ public class SimulationService {
         return compute(req.getSymbol(), req.getAssetType(), req.getInvestmentDate(), req.getAmountTry());
     }
 
+    /**
+     * Verilen varlık için historical veride mevcut olan en erken tarihi döner.
+     * Frontend bunu date input'un <code>min</code> attribute'u olarak kullanır — kullanıcı
+     * varlığın yokken bir tarihi seçemez. Veri yoksa null döner.
+     */
+    public LocalDate getEarliestAvailableDate(String symbol, AssetType assetType) {
+        if (symbol == null || assetType == null) return null;
+        List<?> history = safeFetchHistory(symbol, assetType);
+        if (history == null || history.isEmpty()) return null;
+        LocalDate earliest = null;
+        for (Object point : history) {
+            LocalDate d = dateOf(point);
+            if (d != null && (earliest == null || d.isBefore(earliest))) earliest = d;
+        }
+        return earliest;
+    }
+
     @Transactional
     public SimulationDto save(SimulationCreateRequestDto req) {
         UUID userId = securityUtils.getCurrentUserId();
@@ -170,8 +187,11 @@ public class SimulationService {
 
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {
         try {
+            // "max" → Yahoo'da tüm available history (BTC-USD 2014'ten, hisseler IPO'dan,
+            // emtia/döviz uzun yıllar). Strategy-spesifik fallback'ler de bunu broadest
+            // olarak yorumlar; default case'te ham aralık param olarak forward edilir.
             return (List<?>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
-                    symbol, assetType.name(), "10y", "1d", null, null, 0);
+                    symbol, assetType.name(), "max", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[SIM] {} için historical fetch başarısız: {}", symbol, e.getMessage());
             return Collections.emptyList();

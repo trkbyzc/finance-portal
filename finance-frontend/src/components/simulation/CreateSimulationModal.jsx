@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { X, Search, ChevronLeft, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Search, ChevronLeft, Loader2, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
+import { simulationApi } from '../../services/api/simulationApi';
 
 const ASSET_TYPES = [
     { value: 'STOCK', labelKey: 'navbar:items.trStocks', endpoint: '/market-data/stocks' },
@@ -27,6 +28,21 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
     const [previewResult, setPreviewResult] = useState(null);
     const [previewing, setPreviewing] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [earliestDate, setEarliestDate] = useState(null);
+    const [earliestLoading, setEarliestLoading] = useState(false);
+
+    // Asset seçildiğinde (step 3'e geçildiğinde) bu varlığın "en erken historical date"ini sor.
+    useEffect(() => {
+        if (step !== 3 || !selectedAsset || !selectedType) return;
+        const sym = selectedAsset.symbol || selectedAsset.currencyCode;
+        if (!sym) return;
+        setEarliestLoading(true);
+        setEarliestDate(null);
+        simulationApi.getEarliestDate(sym, selectedType)
+            .then(res => setEarliestDate(res?.earliestDate || null))
+            .catch(err => { console.error('earliestDate fetch failed:', err); setEarliestDate(null); })
+            .finally(() => setEarliestLoading(false));
+    }, [step, selectedAsset, selectedType]);
 
     const { data: assets, isLoading } = useQuery({
         queryKey: ['assets', selectedType],
@@ -50,6 +66,7 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
         setStep(1); setSelectedType(''); setSelectedAsset(null);
         setSearchTerm(''); setInvestmentDate(''); setAmountTry('');
         setNotes(''); setPreviewResult(null);
+        setEarliestDate(null); setEarliestLoading(false);
     };
 
     const handleClose = () => { resetAll(); onClose(); };
@@ -204,10 +221,29 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
                                     type="date"
                                     value={investmentDate}
                                     onChange={(e) => { setInvestmentDate(e.target.value); setPreviewResult(null); }}
+                                    min={earliestDate || undefined}
                                     max={todayIso()}
                                     className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                                 />
                                 <p className="text-xs text-text-muted mt-1">{t('simulation:modal.investmentDateHint')}</p>
+                                <div className="text-xs mt-1 inline-flex items-center gap-1">
+                                    {earliestLoading ? (
+                                        <span className="text-text-muted inline-flex items-center gap-1">
+                                            <Loader2 className="animate-spin" size={12} />
+                                            {t('simulation:modal.earliestLoading')}
+                                        </span>
+                                    ) : earliestDate ? (
+                                        <span className="text-primary inline-flex items-center gap-1">
+                                            <Calendar size={12} />
+                                            {t('simulation:modal.earliestAvailable', { date: earliestDate })}
+                                        </span>
+                                    ) : (
+                                        <span className="text-warning inline-flex items-center gap-1">
+                                            <Calendar size={12} />
+                                            {t('simulation:modal.earliestUnavailable')}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <div>
