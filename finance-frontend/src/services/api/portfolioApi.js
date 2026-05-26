@@ -37,4 +37,10 @@ export const portfolioApi = {
             }
         });
     },
+
+    // Track C: pageable transaction history. params = {symbol, fromDate, toDate, page, size}.
+    // Backend Spring Page<TransactionDto> döner: { content, totalElements, totalPages, number, size, ... }.
+    getTransactions: async (params = {}) => {
+        return await apiClient.get('/portfolio/transactions', { params });
+    },
 };

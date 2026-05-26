@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { apiClient } from '../../config/apiClient';
@@ -8,12 +8,14 @@ import AddToPortfolioModal from '../../components/portfolio/AddToPortfolioModal'
 import EditPortfolioModal from '../../components/portfolio/EditPortfolioModal';
 import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
+import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 
 const PortfolioPage = () => {
     const { t } = useTranslation(['portfolio', 'common']);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingAsset, setEditingAsset] = useState(null);
+    const [historySymbol, setHistorySymbol] = useState(null);
     const queryClient = useQueryClient();
 
     const { data: portfolio, isLoading, error } = useQuery({
@@ -265,6 +267,13 @@ const PortfolioPage = () => {
                                         <td className="p-4 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
+                                                    onClick={() => setHistorySymbol(item.symbol)}
+                                                    className="text-text-muted hover:text-primary transition"
+                                                    title={t('portfolio:transactions.openHistory')}
+                                                >
+                                                    <Clock size={18} />
+                                                </button>
+                                                <button
                                                     onClick={() => handleEditAsset(item)}
                                                     className="text-blue-500 hover:text-blue-400 transition"
                                                     title={t('common:actions.edit')}
@@ -303,6 +312,12 @@ const PortfolioPage = () => {
                 }}
                 onSubmit={handleEditSubmit}
                 asset={editingAsset}
+            />
+
+            <TransactionHistoryModal
+                isOpen={!!historySymbol}
+                onClose={() => setHistorySymbol(null)}
+                symbol={historySymbol}
             />
         </div>
     );

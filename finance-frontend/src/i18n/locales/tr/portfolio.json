@@ -53,5 +53,21 @@
     "byValue": "Değere Göre",
     "byPnl": "K/Z'ye Göre",
     "byName": "İsme Göre"
+  },
+  "transactions": {
+    "openHistory": "İşlem Geçmişini Aç",
+    "subtitle": "Toplam {{count}} hareket",
+    "empty": "Bu varlık için henüz işlem kaydı yok.",
+    "sideBuy": "ALIŞ",
+    "sideSell": "SATIŞ",
+    "backfilledBadge": "Eski kayıt — gerçek tarih yok",
+    "pageOf": "Sayfa {{current}} / {{total}}",
+    "cols": {
+      "date": "Tarih",
+      "side": "İşlem",
+      "qty": "Miktar",
+      "price": "Fiyat",
+      "notes": "Not"
+    }
   }
 }

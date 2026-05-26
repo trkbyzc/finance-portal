@@ -53,5 +53,21 @@
     "byValue": "By Value",
     "byPnl": "By P/L",
     "byName": "By Name"
+  },
+  "transactions": {
+    "openHistory": "Open Transaction History",
+    "subtitle": "{{count}} transactions total",
+    "empty": "No transactions recorded for this asset yet.",
+    "sideBuy": "BUY",
+    "sideSell": "SELL",
+    "backfilledBadge": "Legacy record — real date unknown",
+    "pageOf": "Page {{current}} / {{total}}",
+    "cols": {
+      "date": "Date",
+      "side": "Side",
+      "qty": "Quantity",
+      "price": "Price",
+      "notes": "Notes"
+    }
   }
 }
