@@ -34,7 +34,11 @@ public class EvdsClient {
 
     private static final DateTimeFormatter EVDS_DATE_FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    // 🚀 Python'daki "fetch_with_retry" metodunun Java karşılığı
+    /**
+     * EVDS API'nin per-request hard limit'i 1000 nokta. Bu metod ham (paginated olmayan)
+     * çağrı yapar — sadece <=1000 nokta dönecek aralıklar için kullan. Daha uzun aralıklar
+     * için {@link #fetchSeriesPaginated} kullan.
+     */
     public List<JsonNode> fetchSeries(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, String formulas) {
         String start = startDate.format(EVDS_DATE_FMT);
         String end = endDate.format(EVDS_DATE_FMT);
@@ -73,6 +77,47 @@ public class EvdsClient {
             }
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * Uzun tarihçe için chunked fetch — EVDS'nin per-request 1000-nokta limitini aşmak için
+     * verilen aralığı parça parça çağırır ve sonuçları birleştirir.
+     * <p>
+     * Her chunk {@code chunkYears} yıl uzunluğunda; günlük seriler için 3 yıl güvenli
+     * (3y × 252 trade days ≈ 756 nokta < 1000 limit). API'yi yormamak için her chunk
+     * arasında 200ms bekler.
+     *
+     * @param chunkYears Chunk uzunluğu (yıl). Günlük seri için 3, haftalık için 12 vb.
+     */
+    public List<JsonNode> fetchSeriesPaginated(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, int chunkYears) {
+        if (chunkYears < 1) chunkYears = 3;
+        List<JsonNode> all = new ArrayList<>();
+        java.util.Set<String> seenDates = new java.util.HashSet<>();
+
+        LocalDate cursor = startDate;
+        int chunks = 0;
+        while (!cursor.isAfter(endDate)) {
+            LocalDate chunkEnd = cursor.plusYears(chunkYears).minusDays(1);
+            if (chunkEnd.isAfter(endDate)) chunkEnd = endDate;
+
+            List<JsonNode> chunk = fetchSeries(seriesCodes, cursor, chunkEnd, null);
+            int added = 0;
+            for (JsonNode node : chunk) {
+                String date = node.path("Tarih").asText(null);
+                if (date == null) continue;
+                if (seenDates.add(date)) { // dedup at chunk boundaries
+                    all.add(node);
+                    added++;
+                }
+            }
+            log.info("[EVDS-PAGINATE] {} chunk {} ({} → {}): {} nokta",
+                    String.join(",", seriesCodes), ++chunks, cursor, chunkEnd, added);
+
+            cursor = chunkEnd.plusDays(1);
+            try { Thread.sleep(200); } catch (InterruptedException ignored) {} // hafif rate-limit dostu pause
+        }
+        log.info("[EVDS-PAGINATE] {} toplam: {} nokta ({} chunk)", String.join(",", seriesCodes), all.size(), chunks);
+        return all;
     }
 
     // 🚀 AKILLI KOLON BULUCU: EVDS formül eklendiğinde kolon adını değiştirir, bu yüzden "contains" mantığı şart!

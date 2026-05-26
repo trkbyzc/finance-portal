@@ -46,7 +46,9 @@ public class TurkishBondSyncService {
         LocalDate startDate = endDate.minusDays(3650);
 
         List<String> allCodes = new ArrayList<>(bondsDict.keySet());
-        List<JsonNode> nodes = evdsClient.fetchSeries(allCodes, startDate, endDate, null);
+        // EVDS per-request 1000-nokta limiti var — 10 yıl × 7 seri = ~17,500 nokta tek istekte sığmaz.
+        // 3 yıllık chunk'larla paginate et.
+        List<JsonNode> nodes = evdsClient.fetchSeriesPaginated(allCodes, startDate, endDate, 3);
 
         bondsDict.forEach((code, redisKey) -> {
             List<Map<String, Object>> historyList = new ArrayList<>();

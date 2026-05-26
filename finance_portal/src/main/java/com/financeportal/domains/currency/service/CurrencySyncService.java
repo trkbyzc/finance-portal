@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +78,15 @@ public class CurrencySyncService {
         EVDS_CURRENCIES.forEach((currencyCode, evdsCode) -> {
             try {
                 String redisKey = "evds:currency:" + currencyCode;
-                List<JsonNode> nodes = evdsClient.fetchSeries(List.of(evdsCode), startDate, endDate, null);
+                // Cache-hit guard: Redis TTL 24h, hourly schedule'da her saat EVDS'i 84 kez (12 döviz × 7 chunk)
+                // bombardıman etmek anlamsız. Sadece TTL expire olduğunda re-sync.
+                if (Boolean.TRUE.equals(redisTemplate.hasKey(redisKey))) {
+                    log.debug("[EVDS-CURRENCY] {} cache hit, sync skip.", currencyCode);
+                    return;
+                }
+                // EVDS per-request 1000-nokta limiti var — 22 yıllık günlük seriyi tek istekte alamayız.
+                // 3 yıllık chunk'larla paginate et (3y × 252 trade days ≈ 756 nokta < 1000 limit).
+                List<JsonNode> nodes = evdsClient.fetchSeriesPaginated(List.of(evdsCode), startDate, endDate, 3);
                 List<Map<String, Object>> historyList = new ArrayList<>();
 
                 for (JsonNode node : nodes) {
