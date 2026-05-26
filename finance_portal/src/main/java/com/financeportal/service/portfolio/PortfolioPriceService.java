@@ -1,5 +1,6 @@
 package com.financeportal.service.portfolio;
 
+import com.financeportal.domains.bond.service.BondService;
 import com.financeportal.domains.commodity.dto.CommodityDto;
 import com.financeportal.domains.commodity.service.CommodityService;
 import com.financeportal.domains.crypto.dto.CryptoDto;
@@ -30,6 +31,7 @@ import java.util.List;
 public class PortfolioPriceService {
 
     private final TurkishBondService turkishBondService;
+    private final BondService bondService;
     private final FutureService futureService;
     private final CryptoService cryptoService;
     private final CurrencyService currencyService;
@@ -52,7 +54,9 @@ public class PortfolioPriceService {
                     if (commodityPrice.compareTo(BigDecimal.ZERO) > 0) return commodityPrice;
                     return extractPriceFromList(commodityService.getTurkishGold(), symbol);
                 case BOND:
-                    return extractPriceFromList(turkishBondService.getTurkishBonds(), symbol);
+                    BigDecimal trBondPrice = extractPriceFromList(turkishBondService.getTurkishBonds(), symbol);
+                    if (trBondPrice.compareTo(BigDecimal.ZERO) > 0) return trBondPrice;
+                    return extractPriceFromList(bondService.getGlobalBonds(), symbol);
                 case FUND:
                     BigDecimal trFundPrice = extractPriceFromList(fundService.getTrFunds(), symbol);
                     if (trFundPrice.compareTo(BigDecimal.ZERO) > 0) return trFundPrice;

@@ -1,4 +1,22 @@
 {
+  "types": {
+    "STOCK": "Stocks",
+    "STOCKSub": "BIST + US",
+    "CRYPTO": "Crypto",
+    "CRYPTOSub": "BTC, ETH, ...",
+    "CURRENCY": "Forex",
+    "CURRENCYSub": "USD, EUR, GBP",
+    "GOLD": "Gold",
+    "GOLDSub": "Gram, Quarter, Full, Pure",
+    "COMMODITY": "Commodities",
+    "COMMODITYSub": "Oil, Silver, Copper",
+    "BOND_TR": "Turkish Bonds",
+    "BOND_TRSub": "CBRT / Benchmark",
+    "BOND": "Global Bonds",
+    "BONDSub": "US Treasuries",
+    "FUND": "Funds",
+    "FUNDSub": "TEFAS"
+  },
   "pageTitle": "Simulation",
   "pageSubtitle": "What if you'd bought an asset for X TRY on a past date — what would it be worth today? Save and track your scenarios.",
   "actions": {

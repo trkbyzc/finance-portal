@@ -5,13 +5,18 @@ import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
 import { simulationApi } from '../../services/api/simulationApi';
 
+// `uiKey` → i18n display name (simulation:types.*)
+// `backendValue` → AssetType enum'a map'lenir (GOLD/BOND_TR sadece UI ayrımı;
+//   backend tarafında zaten COMMODITY/BOND case'lerinde fallback chain var).
 const ASSET_TYPES = [
-    { value: 'STOCK', labelKey: 'navbar:items.trStocks', endpoint: '/market-data/stocks' },
-    { value: 'CRYPTO', labelKey: 'navbar:items.cryptoMarket', endpoint: '/market-data/crypto-currencies' },
-    { value: 'CURRENCY', labelKey: 'navbar:categories.currencies', endpoint: '/market-data/currencies' },
-    { value: 'COMMODITY', labelKey: 'navbar:categories.commodities', endpoint: '/market-data/commodities' },
-    { value: 'BOND', labelKey: 'navbar:items.globalBonds', endpoint: '/market-data/bonds' },
-    { value: 'FUND', labelKey: 'navbar:categories.funds', endpoint: '/market-data/tr-funds' }
+    { uiKey: 'STOCK',    backendValue: 'STOCK',     endpoint: '/market-data/stocks' },
+    { uiKey: 'CRYPTO',   backendValue: 'CRYPTO',    endpoint: '/market-data/crypto-currencies' },
+    { uiKey: 'CURRENCY', backendValue: 'CURRENCY',  endpoint: '/market-data/currencies' },
+    { uiKey: 'GOLD',     backendValue: 'COMMODITY', endpoint: '/market-data/turkish-gold' },
+    { uiKey: 'COMMODITY',backendValue: 'COMMODITY', endpoint: '/market-data/commodities' },
+    { uiKey: 'BOND_TR',  backendValue: 'BOND',      endpoint: '/market-data/tr-bonds' },
+    { uiKey: 'BOND',     backendValue: 'BOND',      endpoint: '/market-data/bonds' },
+    { uiKey: 'FUND',     backendValue: 'FUND',      endpoint: '/market-data/tr-funds' }
 ];
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -31,6 +36,11 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
     const [earliestDate, setEarliestDate] = useState(null);
     const [earliestLoading, setEarliestLoading] = useState(false);
 
+    const currentBackendType = () => {
+        const cfg = ASSET_TYPES.find(at => at.uiKey === selectedType);
+        return cfg ? cfg.backendValue : selectedType;
+    };
+
     // Asset seçildiğinde (step 3'e geçildiğinde) bu varlığın "en erken historical date"ini sor.
     useEffect(() => {
         if (step !== 3 || !selectedAsset || !selectedType) return;
@@ -38,7 +48,7 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
         if (!sym) return;
         setEarliestLoading(true);
         setEarliestDate(null);
-        simulationApi.getEarliestDate(sym, selectedType)
+        simulationApi.getEarliestDate(sym, currentBackendType())
             .then(res => setEarliestDate(res?.earliestDate || null))
             .catch(err => { console.error('earliestDate fetch failed:', err); setEarliestDate(null); })
             .finally(() => setEarliestLoading(false));
@@ -48,7 +58,8 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
         queryKey: ['assets', selectedType],
         queryFn: async () => {
             if (!selectedType) return [];
-            const cfg = ASSET_TYPES.find(at => at.value === selectedType);
+            const cfg = ASSET_TYPES.find(at => at.uiKey === selectedType);
+            if (!cfg) return [];
             return await apiClient.get(cfg.endpoint);
         },
         enabled: !!selectedType
@@ -101,7 +112,7 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
 
     const buildBody = () => ({
         symbol: selectedAsset.symbol || selectedAsset.currencyCode,
-        assetType: selectedType,
+        assetType: currentBackendType(),
         investmentDate,
         amountTry: parseFloat(amountTry),
         notes: notes?.trim() || null
@@ -145,12 +156,12 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
                         <div className="grid grid-cols-2 gap-3">
                             {ASSET_TYPES.map(type => (
                                 <button
-                                    key={type.value}
-                                    onClick={() => { setSelectedType(type.value); setStep(2); setSearchTerm(''); }}
+                                    key={type.uiKey}
+                                    onClick={() => { setSelectedType(type.uiKey); setStep(2); setSearchTerm(''); }}
                                     className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg text-left transition"
                                 >
-                                    <div className="font-semibold">{t(type.labelKey)}</div>
-                                    <div className="text-sm text-text-muted mt-1">{type.value}</div>
+                                    <div className="font-semibold">{t(`simulation:types.${type.uiKey}`)}</div>
+                                    <div className="text-xs text-text-muted mt-1">{t(`simulation:types.${type.uiKey}Sub`)}</div>
                                 </button>
                             ))}
                         </div>

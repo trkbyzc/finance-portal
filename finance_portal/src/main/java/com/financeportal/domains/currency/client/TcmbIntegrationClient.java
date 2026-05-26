@@ -148,7 +148,7 @@ public class TcmbIntegrationClient {
         if ("1y".equalsIgnoreCase(range)) return now.minusDays(365);
         if ("5y".equalsIgnoreCase(range)) return now.minusDays(1825);
         if ("10y".equalsIgnoreCase(range)) return now.minusDays(3650);
-        if ("all".equalsIgnoreCase(range)) return now.minusYears(100);
+        if ("all".equalsIgnoreCase(range) || "max".equalsIgnoreCase(range)) return now.minusYears(100);
         return now.minusDays(30);
     }
 }

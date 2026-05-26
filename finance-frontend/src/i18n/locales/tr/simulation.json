@@ -1,4 +1,22 @@
 {
+  "types": {
+    "STOCK": "Hisse Senedi",
+    "STOCKSub": "BIST + ABD",
+    "CRYPTO": "Kripto",
+    "CRYPTOSub": "BTC, ETH, ...",
+    "CURRENCY": "Döviz",
+    "CURRENCYSub": "USD, EUR, GBP",
+    "GOLD": "Altın",
+    "GOLDSub": "Gram, Çeyrek, Tam, Has",
+    "COMMODITY": "Emtia",
+    "COMMODITYSub": "Petrol, Gümüş, Bakır",
+    "BOND_TR": "Türk Tahvil & Bono",
+    "BOND_TRSub": "EVDS / Gösterge",
+    "BOND": "Küresel Tahviller",
+    "BONDSub": "ABD Hazine Bonoları",
+    "FUND": "Yatırım Fonu",
+    "FUNDSub": "TEFAS"
+  },
   "pageTitle": "Simülasyon",
   "pageSubtitle": "Geçmiş bir tarihte bir varlığı X TL ile alsaydın bugün ne olurdu? Senaryolarını kaydet, takip et.",
   "actions": {

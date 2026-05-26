@@ -75,7 +75,7 @@ public class CurrencyService {
             case "1y" -> now.minusYears(1);
             case "5y" -> now.minusYears(5);
             case "10y" -> now.minusYears(10);
-            case "all", "tum", "tüm" -> now.minusYears(100);
+            case "all", "max", "tum", "tüm" -> now.minusYears(100);
             default -> now.minusYears(5);
         };
     }
