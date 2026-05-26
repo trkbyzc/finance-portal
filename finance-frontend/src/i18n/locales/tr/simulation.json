@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Simülasyon",
+  "pageSubtitle": "Geçmiş bir tarihte bir varlığı X TL ile alsaydın bugün ne olurdu? Senaryolarını kaydet, takip et.",
+  "actions": {
+    "new": "Yeni Simülasyon",
+    "preview": "Önizle",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "cancel": "Vazgeç",
+    "viewChart": "Grafiği Gör",
+    "removeConfirm": "{{symbol}} simülasyonunu silmek istiyor musun?"
+  },
+  "empty": {
+    "title": "Henüz bir simülasyon kurmadın",
+    "subtitle": "İlk senaryonu kur, geçmişten bugüne yatırımının değer eğrisini gör.",
+    "cta": "İlk Simülasyonunu Oluştur"
+  },
+  "modal": {
+    "createTitle": "Yeni Simülasyon",
+    "stepType": "Varlık türü seç",
+    "stepAsset": "Hangi varlık?",
+    "stepDetails": "Senaryo detayları",
+    "stepBack": "Geri",
+    "investmentDate": "Yatırım Tarihi",
+    "investmentDateHint": "Geçmiş bir tarih seç. Hafta sonu/tatil ise sistem en yakın işlem gününü kullanır.",
+    "amount": "Tutar (TRY)",
+    "notes": "Notlar (opsiyonel)",
+    "notesPlaceholder": "Örn: 'Erken emeklilik için biriktirme senaryosu'"
+  },
+  "result": {
+    "invested": "Yatırılan",
+    "currentValue": "Bugünkü Değer",
+    "pnl": "K/Z",
+    "pnlPct": "Getiri",
+    "units": "Birim",
+    "entryPrice": "Giriş Fiyatı",
+    "effectiveStartDate": "Hesap {{date}} tarihinden başlatıldı",
+    "noResult": "Bu senaryo için yeterli historical veri yok."
+  },
+  "card": {
+    "investedOn": "{{date}} alımı",
+    "viewDetail": "Detay"
+  },
+  "chart": {
+    "title": "Yatırımın Değer Eğrisi",
+    "axisDate": "Tarih",
+    "axisValue": "Değer (TRY)"
+  },
+  "toast": {
+    "saved": "Simülasyon kaydedildi",
+    "deleted": "Simülasyon silindi",
+    "previewError": "Önizleme başarısız",
+    "error": "İşlem başarısız"
+  }
+}

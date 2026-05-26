@@ -15,6 +15,7 @@ import trInterest from './locales/tr/interest.json';
 import trCharts from './locales/tr/charts.json';
 import trErrors from './locales/tr/errors.json';
 import trWatchlist from './locales/tr/watchlist.json';
+import trSimulation from './locales/tr/simulation.json';
 
 import enCommon from './locales/en/common.json';
 import enNavbar from './locales/en/navbar.json';
@@ -30,6 +31,7 @@ import enInterest from './locales/en/interest.json';
 import enCharts from './locales/en/charts.json';
 import enErrors from './locales/en/errors.json';
 import enWatchlist from './locales/en/watchlist.json';
+import enSimulation from './locales/en/simulation.json';
 
 const STORAGE_KEY = 'finansportal-language';
 
@@ -52,7 +54,7 @@ i18n
         ns: [
             'common', 'navbar', 'dashboard', 'markets', 'portfolio',
             'admin', 'auth', 'profile', 'asset', 'news', 'interest',
-            'charts', 'errors', 'watchlist'
+            'charts', 'errors', 'watchlist', 'simulation'
         ],
         resources: {
             tr: {
@@ -69,7 +71,8 @@ i18n
                 interest: trInterest,
                 charts: trCharts,
                 errors: trErrors,
-                watchlist: trWatchlist
+                watchlist: trWatchlist,
+                simulation: trSimulation
             },
             en: {
                 common: enCommon,
@@ -85,7 +88,8 @@ i18n
                 interest: enInterest,
                 charts: enCharts,
                 errors: enErrors,
-                watchlist: enWatchlist
+                watchlist: enWatchlist,
+                simulation: enSimulation
             }
         },
         interpolation: {

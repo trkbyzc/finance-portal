@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Simulation",
+  "pageSubtitle": "What if you'd bought an asset for X TRY on a past date — what would it be worth today? Save and track your scenarios.",
+  "actions": {
+    "new": "New Simulation",
+    "preview": "Preview",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "viewChart": "View Chart",
+    "removeConfirm": "Remove the {{symbol}} simulation?"
+  },
+  "empty": {
+    "title": "No simulations yet",
+    "subtitle": "Set up your first scenario and see how your investment would have evolved.",
+    "cta": "Create Your First Simulation"
+  },
+  "modal": {
+    "createTitle": "New Simulation",
+    "stepType": "Pick an asset type",
+    "stepAsset": "Which asset?",
+    "stepDetails": "Scenario details",
+    "stepBack": "Back",
+    "investmentDate": "Investment Date",
+    "investmentDateHint": "Pick a past date. If it's a weekend/holiday, the closest trading day is used.",
+    "amount": "Amount (TRY)",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "e.g. 'Early-retirement savings scenario'"
+  },
+  "result": {
+    "invested": "Invested",
+    "currentValue": "Current Value",
+    "pnl": "P/L",
+    "pnlPct": "Return",
+    "units": "Units",
+    "entryPrice": "Entry Price",
+    "effectiveStartDate": "Started from {{date}}",
+    "noResult": "Not enough historical data for this scenario."
+  },
+  "card": {
+    "investedOn": "bought on {{date}}",
+    "viewDetail": "Detail"
+  },
+  "chart": {
+    "title": "Investment Value Over Time",
+    "axisDate": "Date",
+    "axisValue": "Value (TRY)"
+  },
+  "toast": {
+    "saved": "Simulation saved",
+    "deleted": "Simulation deleted",
+    "previewError": "Preview failed",
+    "error": "Operation failed"
+  }
+}
