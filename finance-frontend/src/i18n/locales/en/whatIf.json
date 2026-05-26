@@ -1,0 +1,35 @@
+{
+  "pageTitle": "What If? — Comparison",
+  "pageSubtitle": "What if you had invested the same amount in different assets on the same date? Compare multiple assets on a single chart.",
+  "form": {
+    "investmentDate": "Investment Date",
+    "amount": "Amount",
+    "assets": "Assets to Compare",
+    "assetsHint": "Add at least 1 asset. If you add multiple, you'll see them side by side on the same chart.",
+    "addCompare": "Add Asset",
+    "compare": "Compare"
+  },
+  "modal": {
+    "title": "Add Asset to Comparison",
+    "stepType": "Select asset type",
+    "stepAsset": "Which asset?",
+    "alreadyAdded": "Added"
+  },
+  "chart": {
+    "title": "Comparison Curve",
+    "axisDate": "Date",
+    "axisValue": "Value (TRY)"
+  },
+  "result": {
+    "currentValue": "Current Value",
+    "pnlPct": "Return",
+    "pnlTry": "P&L (TRY)"
+  },
+  "empty": {
+    "title": "Ready to compare",
+    "subtitle": "Pick a date and amount, add at least two assets, then click \"Compare\". The result will appear in this box."
+  },
+  "toast": {
+    "error": "Comparison failed. Please try again."
+  }
+}

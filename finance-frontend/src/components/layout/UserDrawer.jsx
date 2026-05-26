@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon } from 'lucide-react';
+import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 
@@ -100,6 +100,13 @@ export default function UserDrawer({ open, onClose }) {
                         sub={t('drawer.simulationSub')}
                         accent="primary"
                         onClick={() => go('/simulation')}
+                    />
+                    <DrawerItem
+                        icon={GitCompare}
+                        label={t('drawer.whatIf')}
+                        sub={t('drawer.whatIfSub')}
+                        accent="primary"
+                        onClick={() => go('/what-if')}
                     />
                     <DrawerItem
                         icon={Bell}

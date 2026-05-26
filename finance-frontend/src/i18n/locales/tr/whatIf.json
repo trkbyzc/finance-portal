@@ -1,0 +1,35 @@
+{
+  "pageTitle": "Ne Olurdu? — Karşılaştırma",
+  "pageSubtitle": "Aynı tarihte aynı tutarı farklı varlıklara yatırsaydın ne olurdu? Birden fazla varlığı tek grafikte karşılaştır.",
+  "form": {
+    "investmentDate": "Yatırım Tarihi",
+    "amount": "Tutar",
+    "assets": "Karşılaştırılacak Varlıklar",
+    "assetsHint": "En az 1 varlık ekle. Birden fazla varlık eklersen aynı grafikte yan yana görürsün.",
+    "addCompare": "Varlık Ekle",
+    "compare": "Karşılaştır"
+  },
+  "modal": {
+    "title": "Karşılaştırmaya Varlık Ekle",
+    "stepType": "Varlık türü seç",
+    "stepAsset": "Hangi varlık?",
+    "alreadyAdded": "Ekli"
+  },
+  "chart": {
+    "title": "Karşılaştırma Eğrisi",
+    "axisDate": "Tarih",
+    "axisValue": "Değer (TRY)"
+  },
+  "result": {
+    "currentValue": "Bugünkü Değer",
+    "pnlPct": "Getiri",
+    "pnlTry": "K/Z (TRY)"
+  },
+  "empty": {
+    "title": "Karşılaştırma için hazır",
+    "subtitle": "Bir tarih ve tutar belirle, en az iki varlık ekle ve \"Karşılaştır\" düğmesine bas. Sonuç bu kutuda görünecek."
+  },
+  "toast": {
+    "error": "Karşılaştırma başarısız. Lütfen tekrar dene."
+  }
+}

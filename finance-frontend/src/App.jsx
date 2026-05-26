@@ -24,6 +24,7 @@ import ProfilePage from './pages/ProfilePage/ProfilePage';
 import PortfolioPage from './pages/PortfolioPage/PortfolioPage';
 import WatchlistPage from './pages/WatchlistPage/WatchlistPage';
 import SimulationPage from './pages/SimulationPage/SimulationPage';
+import WhatIfPage from './pages/WhatIfPage/WhatIfPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
 
@@ -59,6 +60,7 @@ function App() {
                                 <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
                                 <Route path="/watchlist" element={<ProtectedRoute><WatchlistPage /></ProtectedRoute>} />
                                 <Route path="/simulation" element={<ProtectedRoute><SimulationPage /></ProtectedRoute>} />
+                                <Route path="/what-if" element={<ProtectedRoute><WhatIfPage /></ProtectedRoute>} />
                                 <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                             </Routes>
                         </main>
