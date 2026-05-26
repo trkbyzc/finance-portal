@@ -187,15 +187,31 @@ public class SimulationService {
 
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {
         try {
+            String fetchSymbol = mapForHistorical(symbol, assetType);
             // "max" → Yahoo'da tüm available history (BTC-USD 2014'ten, hisseler IPO'dan,
             // emtia/döviz uzun yıllar). Strategy-spesifik fallback'ler de bunu broadest
             // olarak yorumlar; default case'te ham aralık param olarak forward edilir.
             return (List<?>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
-                    symbol, assetType.name(), "max", "1d", null, null, 0);
+                    fetchSymbol, assetType.name(), "max", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[SIM] {} için historical fetch başarısız: {}", symbol, e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Truncgil tarafından gelen TR-altın sembolleri (GRAM_ALTIN gibi) Yahoo'da yok;
+     * gram bazlı altın için Yahoo'nun XAUTRY=X (gram altın TRY) sembolünü kullanırız.
+     * Çeyrek/yarım/tam altın için doğrudan Yahoo eşi yok — şimdilik orijinal symbol
+     * dönüyor ve historical boş kalıyor (UI "yeterli historical yok" gösteriyor).
+     */
+    private String mapForHistorical(String symbol, AssetType assetType) {
+        if (assetType == AssetType.COMMODITY && symbol != null) {
+            if ("GRAM_ALTIN".equalsIgnoreCase(symbol) || "GRAM_HAS_ALTIN".equalsIgnoreCase(symbol)) {
+                return "XAUTRY=X";
+            }
+        }
+        return symbol;
     }
 
     /**

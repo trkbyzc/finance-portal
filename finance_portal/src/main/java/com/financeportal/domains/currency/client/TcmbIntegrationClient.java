@@ -2,6 +2,7 @@ package com.financeportal.domains.currency.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.client.evds.EvdsHistoryClient;
 import com.financeportal.domains.currency.dto.CurrencyDto;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,16 @@ public class TcmbIntegrationClient {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
+    private final EvdsHistoryClient evdsHistoryClient;
 
     @Value("${external-api.tcmb.xml-url}")
     private String tcmbXmlUrl;
+
+    /** EVDS'den ne kadar geriye gideceğimiz. TCMB döviz serileri 2003'e dayanıyor. */
+    private static final int CURRENCY_YEARS_BACK = 22;
+
+    /** Redis cache TTL — günde bir yenilensin yeterli. */
+    private static final long REDIS_TTL_HOURS = 24;
 
     private static final List<String> VIP_CURRENCIES = List.of("USD", "EUR", "GBP", "CHF", "CAD", "AUD", "JPY", "DKK", "SEK", "NOK", "SAR", "RUB");
 
@@ -83,35 +91,106 @@ public class TcmbIntegrationClient {
     }
 
     public List<HistoricalDataDto> fetchCurrencyHistoryFromRedis(String currencyCode, String range) {
-        List<HistoricalDataDto> historyList = new ArrayList<>();
-        try {
-            String baseCode = currencyCode.replace("TRY=X", "").replace("=X", "").toUpperCase();
-            String redisKey = "evds:currency:" + baseCode;
-            String jsonStr = stringRedisTemplate.opsForValue().get(redisKey);
-            if (jsonStr == null || jsonStr.isEmpty()) return historyList;
+        String baseCode = currencyCode.replace("TRY=X", "").replace("=X", "").toUpperCase();
+        List<Map<String, Object>> rawHistory = ensureCurrencyHistoryInRedis(baseCode);
+        return mapPointsToHistorical(rawHistory, range, baseCode);
+    }
 
-            List<Map<String, Object>> parsedData = objectMapper.readValue(jsonStr, new TypeReference<>() {});
+    /**
+     * Redis cache kontrol → varsa onu döner. Yoksa EVDS'den çekip Redis'e yazar.
+     * Önceki mimaride bu işi <code>data_pipeline/evds_worker.py</code> yapıyordu;
+     * artık Java tarafında native.
+     */
+    private List<Map<String, Object>> ensureCurrencyHistoryInRedis(String baseCode) {
+        String redisKey = "evds:currency:" + baseCode;
+        try {
+            String cached = stringRedisTemplate.opsForValue().get(redisKey);
+            if (cached != null && !cached.isEmpty()) {
+                return objectMapper.readValue(cached, new TypeReference<>() {});
+            }
+        } catch (Exception e) {
+            log.warn("[EVDS] Redis okuma hatası {}: {}", redisKey, e.getMessage());
+        }
+
+        // Cache miss → EVDS'den çek.
+        String seriesCode = mapCurrencyToEvdsSeries(baseCode);
+        if (seriesCode == null) return List.of();
+
+        List<Map<String, Object>> fresh = evdsHistoryClient.fetchSeriesYears(seriesCode, CURRENCY_YEARS_BACK);
+        if (fresh.isEmpty()) return List.of();
+
+        // JPY 100-birim normalize (TCMB 100 JPY → 1 JPY'ye çevir)
+        if ("JPY".equals(baseCode)) {
+            fresh = fresh.stream().map(p -> {
+                Object v = p.get("close");
+                if (v instanceof Number n) {
+                    double scaled = n.doubleValue() / 100.0;
+                    p.put("close", scaled); p.put("value", scaled); p.put("rate", scaled);
+                }
+                return p;
+            }).collect(java.util.stream.Collectors.toList());
+        }
+
+        try {
+            stringRedisTemplate.opsForValue().set(
+                    redisKey,
+                    objectMapper.writeValueAsString(fresh),
+                    java.time.Duration.ofHours(REDIS_TTL_HOURS)
+            );
+            log.info("[EVDS] {} → {} nokta Redis'e yazıldı (key={}, TTL={}h)",
+                    baseCode, fresh.size(), redisKey, REDIS_TTL_HOURS);
+        } catch (Exception e) {
+            log.warn("[EVDS] Redis yazma hatası {}: {}", redisKey, e.getMessage());
+        }
+        return fresh;
+    }
+
+    private String mapCurrencyToEvdsSeries(String code) {
+        return switch (code) {
+            case "USD" -> "TP.DK.USD.S.YTL";
+            case "EUR" -> "TP.DK.EUR.S.YTL";
+            case "GBP" -> "TP.DK.GBP.S.YTL";
+            case "CHF" -> "TP.DK.CHF.S.YTL";
+            case "CAD" -> "TP.DK.CAD.S.YTL";
+            case "AUD" -> "TP.DK.AUD.S.YTL";
+            case "JPY" -> "TP.DK.JPY.S.YTL";
+            case "DKK" -> "TP.DK.DKK.S.YTL";
+            case "SEK" -> "TP.DK.SEK.S.YTL";
+            case "NOK" -> "TP.DK.NOK.S.YTL";
+            case "SAR" -> "TP.DK.SAR.S.YTL";
+            case "RUB" -> "TP.DK.RUB.S.YTL";
+            default -> null;
+        };
+    }
+
+    private List<HistoricalDataDto> mapPointsToHistorical(List<Map<String, Object>> parsedData, String range, String currencyCode) {
+        List<HistoricalDataDto> historyList = new ArrayList<>();
+        if (parsedData == null || parsedData.isEmpty()) return historyList;
+        try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate cutoffDate = getCutoffDateByRange(range);
 
             for (Map<String, Object> dataPoint : parsedData) {
                 String dateStr = (String) dataPoint.get("date");
-                Double closeVal = (Double) dataPoint.get("close");
-                if (dateStr != null && closeVal != null) {
-                    LocalDate date = LocalDate.parse(dateStr, formatter);
-                    if (!date.isBefore(cutoffDate)) {
-                        HistoricalDataDto dto = new HistoricalDataDto();
-                        dto.setDate(date);
-                        dto.setTimestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
-                        BigDecimal rate = BigDecimal.valueOf(closeVal).setScale(4, RoundingMode.HALF_UP);
-                        dto.setOpen(rate); dto.setHigh(rate); dto.setLow(rate); dto.setClose(rate); dto.setPrice(rate); dto.setVolume(0L);
-                        historyList.add(dto);
-                    }
-                }
+                Object rawClose = dataPoint.get("close");
+                Double closeVal = (rawClose instanceof Number n) ? n.doubleValue() : null;
+                if (dateStr == null || closeVal == null) continue;
+
+                LocalDate date;
+                try { date = LocalDate.parse(dateStr, formatter); } catch (Exception ignored) { continue; }
+                if (date.isBefore(cutoffDate)) continue;
+
+                HistoricalDataDto dto = new HistoricalDataDto();
+                dto.setDate(date);
+                dto.setTimestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+                BigDecimal rate = BigDecimal.valueOf(closeVal).setScale(4, RoundingMode.HALF_UP);
+                dto.setOpen(rate); dto.setHigh(rate); dto.setLow(rate);
+                dto.setClose(rate); dto.setPrice(rate); dto.setVolume(0L);
+                historyList.add(dto);
             }
             historyList.sort(Comparator.comparingLong(HistoricalDataDto::getTimestamp));
         } catch (Exception e) {
-            log.error("[EVDS REDIS] Currency history error for {}: {}", currencyCode, e.getMessage());
+            log.error("[EVDS] {} historical map hatası: {}", currencyCode, e.getMessage());
         }
         return historyList;
     }

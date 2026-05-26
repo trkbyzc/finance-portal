@@ -1,3 +1,0 @@
-evds
-redis
-pandas
