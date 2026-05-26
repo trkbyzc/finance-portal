@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, X, Ban, ShieldOff, LogOut, ShieldCheck, Loader2, Filter } from 'lucide-react';
+import { Search, X, Ban, ShieldOff, LogOut, ShieldCheck, Loader2, Filter, Trash2 } from 'lucide-react';
 
 import { adminApi } from '../../services/api/adminApi';
 import { formatDate } from '../../utils/formatters/dateFormatter';
+import { useAuth } from '../../context/AuthContext';
 
 function useDebounced(value, delay = 350) {
     const [debounced, setDebounced] = useState(value);
@@ -20,6 +21,8 @@ const PAGE_SIZE = 20;
 export default function AdminPage() {
     const { t } = useTranslation(['admin', 'common']);
     const queryClient = useQueryClient();
+    const { user: currentUser } = useAuth();
+    const currentUserId = currentUser?.sub;
 
     // Filters
     const [searchInput, setSearchInput] = useState('');
@@ -68,6 +71,11 @@ export default function AdminPage() {
         mutationFn: (userId) => adminApi.logoutAll(userId)
     });
 
+    const deleteMutation = useMutation({
+        mutationFn: (userId) => adminApi.deleteUser(userId),
+        onSuccess: invalidate
+    });
+
     const handleBanConfirm = async () => {
         if (!banTarget) return;
         try {
@@ -99,6 +107,21 @@ export default function AdminPage() {
         } catch (e) {
             console.error(e);
             alert(t('admin:toast.error'));
+        }
+    };
+
+    const handleDelete = async (user) => {
+        if (currentUserId && user.id === currentUserId) {
+            alert(t('admin:toast.cannotDeleteSelf'));
+            return;
+        }
+        if (!window.confirm(t('admin:users.confirmDelete', { username: user.username }))) return;
+        try {
+            const res = await deleteMutation.mutateAsync(user.id);
+            alert(res?.keycloakDeleted ? t('admin:toast.deleted') : t('admin:toast.deletedKeycloakSkipped'));
+        } catch (e) {
+            console.error(e);
+            alert(e.response?.data?.message || t('admin:toast.error'));
         }
     };
 
@@ -200,9 +223,11 @@ export default function AdminPage() {
                                     <UserRow
                                         key={u.id}
                                         user={u}
+                                        isSelf={currentUserId && u.id === currentUserId}
                                         onBan={() => setBanTarget(u)}
                                         onUnban={() => handleUnban(u)}
                                         onForceLogout={() => handleForceLogout(u)}
+                                        onDelete={() => handleDelete(u)}
                                         t={t}
                                     />
                                 ))}
@@ -259,13 +284,14 @@ export default function AdminPage() {
     );
 }
 
-function UserRow({ user, onBan, onUnban, onForceLogout, t }) {
+function UserRow({ user, isSelf, onBan, onUnban, onForceLogout, onDelete, t }) {
     const isPermanent = user.banPermanent;
     const tempActive = !isPermanent && user.bannedUntil && new Date(user.bannedUntil) > new Date();
     const isBanned = isPermanent || tempActive;
 
     const realmRoles = user.realmRoles || [];
     const hasRealmRoles = realmRoles.length > 0;
+    const isOrphan = !hasRealmRoles;
 
     return (
         <tr className="border-b border-border/50 hover:bg-surface-hover transition">
@@ -327,10 +353,19 @@ function UserRow({ user, onBan, onUnban, onForceLogout, t }) {
                     )}
                     <button
                         onClick={onForceLogout}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg hover:bg-surface-hover text-text-muted hover:text-text border border-border text-xs font-semibold transition"
-                        title={t('admin:users.actions.forceLogout')}
+                        disabled={isOrphan}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg hover:bg-surface-hover text-text-muted hover:text-text border border-border text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"
+                        title={isOrphan ? 'Keycloak\'ta yok' : t('admin:users.actions.forceLogout')}
                     >
                         <LogOut size={14} /> {t('admin:users.actions.forceLogout')}
+                    </button>
+                    <button
+                        onClick={onDelete}
+                        disabled={isSelf}
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:text-sell hover:bg-sell/10 border border-border transition disabled:opacity-40 disabled:cursor-not-allowed"
+                        title={isSelf ? t('admin:toast.cannotDeleteSelf') : t('admin:users.actions.delete')}
+                    >
+                        <Trash2 size={14} />
                     </button>
                 </div>
             </td>

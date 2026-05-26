@@ -66,4 +66,17 @@ public class AdminController {
                         : "Keycloak oturumları kapatılamadı (servis hesabı yetkisi yok veya bağlantı hatası)."
         ));
     }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable UUID userId) {
+        AdminService.DeleteResult result = adminService.deleteUser(userId);
+        String message = result.keycloakDeleted()
+                ? result.username() + " hem Keycloak'tan hem DB'den silindi."
+                : result.username() + " sadece DB'den silindi (Keycloak'ta zaten yoktu).";
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "keycloakDeleted", result.keycloakDeleted(),
+                "message", message
+        ));
+    }
 }

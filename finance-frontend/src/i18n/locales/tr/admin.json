@@ -30,7 +30,7 @@
       "delete": "Sil"
     },
     "confirmBan": "Bu kullanıcıyı yasaklamak istediğinize emin misiniz?",
-    "confirmDelete": "Bu kullanıcıyı kalıcı olarak silmek istediğinize emin misiniz?",
+    "confirmDelete": "{{username}} hem Keycloak'tan hem DB'den silinecek. Bu işlem geri alınamaz. Devam edelim mi?",
     "confirmForceLogout": "{{username}} kullanıcısının tüm oturumlarını kapatmak istiyor musun?",
     "forceLogoutNote": "Refresh token'lar invalide edilir. Mevcut access token ~5dk içinde süresi dolar."
   },
@@ -80,6 +80,9 @@
     "unbanned": "Banı kaldırıldı",
     "loggedOut": "Oturumlar kapatıldı",
     "logoutFailed": "Oturum kapatma başarısız (Keycloak yetkisi yok olabilir)",
-    "error": "İşlem başarısız"
+    "deleted": "Kullanıcı silindi",
+    "deletedKeycloakSkipped": "Kullanıcı sadece DB'den silindi (Keycloak'ta zaten yoktu)",
+    "error": "İşlem başarısız",
+    "cannotDeleteSelf": "Kendi hesabını silemezsin."
   }
 }

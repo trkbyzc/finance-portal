@@ -30,7 +30,7 @@
       "delete": "Delete"
     },
     "confirmBan": "Are you sure you want to ban this user?",
-    "confirmDelete": "Are you sure you want to permanently delete this user?",
+    "confirmDelete": "{{username}} will be removed from both Keycloak and the database. This cannot be undone. Continue?",
     "confirmForceLogout": "End all sessions for {{username}}?",
     "forceLogoutNote": "Refresh tokens are invalidated. Existing access token expires in ~5 minutes."
   },
@@ -80,6 +80,9 @@
     "unbanned": "User unbanned",
     "loggedOut": "Sessions ended",
     "logoutFailed": "Could not end sessions (Keycloak permission missing)",
-    "error": "Operation failed"
+    "deleted": "User deleted",
+    "deletedKeycloakSkipped": "Deleted from DB only (user wasn't in Keycloak)",
+    "error": "Operation failed",
+    "cannotDeleteSelf": "You can't delete your own account."
   }
 }

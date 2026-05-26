@@ -18,5 +18,7 @@ export const adminApi = {
     unbanUser: async (userId) =>
         apiClient.post(`/admin/users/${userId}/unban`),
     logoutAll: async (userId) =>
-        apiClient.post(`/admin/users/${userId}/logout-all`)
+        apiClient.post(`/admin/users/${userId}/logout-all`),
+    deleteUser: async (userId) =>
+        apiClient.delete(`/admin/users/${userId}`)
 };

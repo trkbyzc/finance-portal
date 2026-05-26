@@ -5,6 +5,7 @@ import com.financeportal.model.dto.user.UserDto;
 import com.financeportal.model.entity.User;
 import com.financeportal.model.enums.Role;
 import com.financeportal.repository.UserRepository;
+import com.financeportal.security.SecurityUtils;
 import com.financeportal.service.auth.KeycloakAdminService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final KeycloakAdminService keycloakAdminService;
+    private final SecurityUtils securityUtils;
 
     // ---------- LISTING ----------
 
@@ -118,6 +120,38 @@ public class AdminService {
         log.info("[ADMIN] {} için force-logout sonucu: {}", user.getUsername(), ok ? "OK" : "BAŞARISIZ");
         return ok;
     }
+
+    // ---------- DELETE ----------
+
+    /**
+     * Kullanıcıyı hem Keycloak'tan hem DB'den siler. Keycloak'ta yoksa
+     * (orphan / Keycloak öncesi kayıt) sessizce atlanır ve sadece DB'den temizlenir.
+     * Kendini silmeye çalışan admin için 400 fırlatır.
+     */
+    @Transactional
+    public DeleteResult deleteUser(UUID userId) {
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        if (currentUserId != null && currentUserId.equals(userId)) {
+            throw new IllegalArgumentException("Kendi hesabını silemezsin.");
+        }
+
+        User user = findOrThrow(userId);
+        String username = user.getUsername();
+
+        boolean keycloakDeleted = false;
+        try {
+            keycloakAdminService.deleteUser(userId.toString());
+            keycloakDeleted = true;
+        } catch (Exception e) {
+            log.warn("[ADMIN] {} Keycloak'tan silinemedi (orphan olabilir): {}", username, e.getMessage());
+        }
+
+        userRepository.delete(user);
+        log.info("[ADMIN] {} silindi (Keycloak: {}, DB: OK)", username, keycloakDeleted ? "OK" : "atlandı");
+        return new DeleteResult(true, keycloakDeleted, username);
+    }
+
+    public record DeleteResult(boolean dbDeleted, boolean keycloakDeleted, String username) {}
 
     // ---------- HELPERS ----------
 
