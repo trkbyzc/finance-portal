@@ -67,13 +67,6 @@ export default function Navbar() {
                         <NavLogo />
 
                         <div className="hidden md:flex items-center gap-1">
-                            <Link
-                                to="/"
-                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors"
-                            >
-                                {t('navbar:marketOverview')}
-                            </Link>
-
                             {navConfig.map((nav, idx) => (
                                 <NavDropdown key={idx} title={nav.title} items={nav.items} />
                             ))}
