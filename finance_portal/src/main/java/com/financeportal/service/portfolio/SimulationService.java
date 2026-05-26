@@ -200,14 +200,18 @@ public class SimulationService {
     }
 
     /**
-     * Truncgil tarafından gelen TR-altın sembolleri (GRAM_ALTIN gibi) Yahoo'da yok;
-     * gram bazlı altın için Yahoo'nun XAUTRY=X (gram altın TRY) sembolünü kullanırız.
-     * Çeyrek/yarım/tam altın için doğrudan Yahoo eşi yok — şimdilik orijinal symbol
-     * dönüyor ve historical boş kalıyor (UI "yeterli historical yok" gösteriyor).
+     * Truncgil tarafından gelen TR-altın sembollerini Yahoo'nun gram altın TRY sembolüne
+     * (XAUTRY=X) çevirir. Tüm altın türleri (çeyrek/yarım/tam/cumhuriyet/ata vb.) gram
+     * altın fiyatına göre hareket eder — sadece absolute price farklı, oransal değişim
+     * birebir aynı. Simülasyon mantığı <code>units = amountTry / entryPrice</code> olduğu
+     * için çıkan K/Z yüzdesi tüm altın türleri için doğrudur.
      */
     private String mapForHistorical(String symbol, AssetType assetType) {
         if (assetType == AssetType.COMMODITY && symbol != null) {
-            if ("GRAM_ALTIN".equalsIgnoreCase(symbol) || "GRAM_HAS_ALTIN".equalsIgnoreCase(symbol)) {
+            String upper = symbol.toUpperCase();
+            if (upper.endsWith("_ALTIN") || "GRAM_HAS_ALTIN".equals(upper)
+                    || "CUMHURIYET_ALTINI".equals(upper)
+                    || upper.contains("ALTIN") || upper.contains("BILEZIK")) {
                 return "XAUTRY=X";
             }
         }

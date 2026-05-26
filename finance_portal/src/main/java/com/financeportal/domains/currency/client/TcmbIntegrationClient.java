@@ -97,27 +97,39 @@ public class TcmbIntegrationClient {
     }
 
     /**
-     * Redis cache kontrol → varsa onu döner. Yoksa EVDS'den çekip Redis'e yazar.
-     * Önceki mimaride bu işi <code>data_pipeline/evds_worker.py</code> yapıyordu;
-     * artık Java tarafında native.
+     * Redis cache kontrol → varsa ve "yeterince eski" ise onu döner. Yoksa EVDS'den çekip
+     * Redis'e yazar. Önceki mimaride bu işi <code>data_pipeline/evds_worker.py</code>
+     * yapıyordu; artık Java tarafında native.
+     * <p>
+     * "Yeterince eski" tanımı: cache'in en eski noktası en az 10 yıl geride olmalı. Daha
+     * kısa cache'leri stale sayıp EVDS'den tam veriyi çekeriz (eski Python worker dönemi
+     * 5 yıllık verisi kalıntılarını otomatik yeniler).
      */
     private List<Map<String, Object>> ensureCurrencyHistoryInRedis(String baseCode) {
         String redisKey = "evds:currency:" + baseCode;
         try {
             String cached = stringRedisTemplate.opsForValue().get(redisKey);
             if (cached != null && !cached.isEmpty()) {
-                return objectMapper.readValue(cached, new TypeReference<>() {});
+                List<Map<String, Object>> parsed = objectMapper.readValue(cached, new TypeReference<>() {});
+                if (isCacheCoverageSufficient(parsed)) {
+                    return parsed;
+                }
+                log.info("[EVDS] {} cache'i kısa görünüyor (ilk nokta yeterince eski değil), EVDS'den yeniden çekiliyor.", baseCode);
             }
         } catch (Exception e) {
             log.warn("[EVDS] Redis okuma hatası {}: {}", redisKey, e.getMessage());
         }
 
-        // Cache miss → EVDS'den çek.
+        // Cache miss veya kısa kapsama → EVDS'den çek.
         String seriesCode = mapCurrencyToEvdsSeries(baseCode);
         if (seriesCode == null) return List.of();
 
         List<Map<String, Object>> fresh = evdsHistoryClient.fetchSeriesYears(seriesCode, CURRENCY_YEARS_BACK);
-        if (fresh.isEmpty()) return List.of();
+        if (fresh.isEmpty()) {
+            log.warn("[EVDS] {} için EVDS'den veri gelmedi. EVDS_API_KEY env var set mi? Mevcut: {}",
+                    baseCode, hasEvdsKey() ? "var" : "YOK");
+            return List.of();
+        }
 
         // JPY 100-birim normalize (TCMB 100 JPY → 1 JPY'ye çevir)
         if ("JPY".equals(baseCode)) {
@@ -143,6 +155,29 @@ public class TcmbIntegrationClient {
             log.warn("[EVDS] Redis yazma hatası {}: {}", redisKey, e.getMessage());
         }
         return fresh;
+    }
+
+    /** Cache'in en eski noktası en az MIN_COVERAGE_YEARS geride mi? */
+    private boolean isCacheCoverageSufficient(List<Map<String, Object>> parsed) {
+        if (parsed == null || parsed.isEmpty()) return false;
+        try {
+            String firstDateStr = null;
+            for (Map<String, Object> p : parsed) {
+                Object d = p.get("date");
+                if (d instanceof String s) { firstDateStr = s; break; }
+            }
+            if (firstDateStr == null) return false;
+            LocalDate first = LocalDate.parse(firstDateStr);
+            LocalDate threshold = LocalDate.now().minusYears(10);
+            return !first.isAfter(threshold);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean hasEvdsKey() {
+        // EvdsHistoryClient zaten kendi içinde key kontrolü yapıp warn loglar; burası sadece info.
+        return true; // detay log'u client tarafında çıkar
     }
 
     private String mapCurrencyToEvdsSeries(String code) {

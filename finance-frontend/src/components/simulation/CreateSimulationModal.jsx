@@ -222,8 +222,8 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
                     {step === 3 && selectedAsset && (
                         <div className="space-y-4">
                             <div className="bg-bg border border-border rounded-lg p-3">
-                                <div className="font-semibold">{selectedAsset.symbol || selectedAsset.currencyCode}</div>
-                                <div className="text-sm text-text-muted">{selectedAsset.name || selectedAsset.currencyName}</div>
+                                <div className="font-semibold">{selectedAsset.name || selectedAsset.currencyName || selectedAsset.symbol || selectedAsset.currencyCode}</div>
+                                <div className="text-xs text-text-muted font-mono mt-0.5">{selectedAsset.symbol || selectedAsset.currencyCode}</div>
                             </div>
 
                             <div>
