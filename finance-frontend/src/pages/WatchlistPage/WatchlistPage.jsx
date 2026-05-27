@@ -145,7 +145,7 @@ export default function WatchlistPage() {
                                                     </div>
                                                     <div>
                                                         <div className="font-bold uppercase">{item.symbol}</div>
-                                                        <div className="text-xs text-text-muted">{item.assetType}</div>
+                                                        <div className="text-xs text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</div>
                                                     </div>
                                                 </div>
                                             </td>

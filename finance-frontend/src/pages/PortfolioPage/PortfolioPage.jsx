@@ -235,7 +235,7 @@ const PortfolioPage = () => {
                                 return (
                                     <tr key={idx} className="border-b border-border hover:bg-bg transition">
                                         <td className="p-4 font-semibold">{item.symbol}</td>
-                                        <td className="p-4 text-text-muted">{item.assetType}</td>
+                                        <td className="p-4 text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
                                         <td className="p-4 text-right">{item.quantity}</td>
                                         <td className="p-4 text-right">{item.averagePrice.toFixed(2)} ₺</td>
                                         <td className="p-4 text-right">{calc.currentPrice.toFixed(2)} ₺</td>

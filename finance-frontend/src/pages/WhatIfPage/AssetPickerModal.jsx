@@ -15,24 +15,30 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect, existingKe
     const [selectedType, setSelectedType] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // 8-type liste (simulation modal pattern'i ile uyumlu).
+    // uiKey UI ayrımı için (i18n label common:assetTypes.*), backendValue AssetType enum'a yazılır.
     const assetTypes = [
-        { value: 'STOCK', endpoint: '/market-data/stocks' },
-        { value: 'CRYPTO', endpoint: '/market-data/crypto-currencies' },
-        { value: 'CURRENCY', endpoint: '/market-data/currencies' },
-        { value: 'COMMODITY', endpoint: '/market-data/commodities' },
-        { value: 'BOND', endpoint: '/market-data/bonds' },
-        { value: 'FUND', endpoint: '/market-data/tr-funds' }
+        { uiKey: 'STOCK',     backendValue: 'STOCK',     endpoint: '/market-data/stocks' },
+        { uiKey: 'CRYPTO',    backendValue: 'CRYPTO',    endpoint: '/market-data/crypto-currencies' },
+        { uiKey: 'CURRENCY',  backendValue: 'CURRENCY',  endpoint: '/market-data/currencies' },
+        { uiKey: 'GOLD',      backendValue: 'COMMODITY', endpoint: '/market-data/turkish-gold' },
+        { uiKey: 'COMMODITY', backendValue: 'COMMODITY', endpoint: '/market-data/commodities' },
+        { uiKey: 'BOND_TR',   backendValue: 'BOND',      endpoint: '/market-data/tr-bonds' },
+        { uiKey: 'BOND',      backendValue: 'BOND',      endpoint: '/market-data/bonds' },
+        { uiKey: 'FUND',      backendValue: 'FUND',      endpoint: '/market-data/tr-funds' }
     ];
 
     const { data: assets, isLoading } = useQuery({
         queryKey: ['assets-picker', selectedType],
         queryFn: async () => {
-            const cfg = assetTypes.find(at => at.value === selectedType);
+            const cfg = assetTypes.find(at => at.uiKey === selectedType);
             if (!cfg) return [];
             return await apiClient.get(cfg.endpoint);
         },
         enabled: !!selectedType
     });
+
+    const selectedBackendValue = assetTypes.find(at => at.uiKey === selectedType)?.backendValue;
 
     const filtered = (assets || []).filter(a => {
         const q = searchTerm.toLowerCase();
@@ -49,12 +55,15 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect, existingKe
 
     const handleAssetSelect = (asset) => {
         const symbol = asset.symbol || asset.currencyCode;
-        const key = `${selectedType}:${symbol}`;
+        const backendType = selectedBackendValue || selectedType;
+        // Mevcut chip de-dup'ı backendValue üzerinden — aynı dayanak (örn. GOLD ile COMMODITY altın)
+        // iki kez eklenmesin diye. Ama bizim chip'lerde uiKey kullanıyoruz; karışıklık olmaması için
+        // de-dup'ı backendType:symbol bazında yap.
+        const key = `${backendType}:${symbol}`;
         if (existingKeys.includes(key)) {
-            // zaten ekli — UI'da sessiz "exists" göstergesi
             return;
         }
-        onSelect({ symbol, assetType: selectedType, label: asset.name || asset.currencyName || symbol });
+        onSelect({ symbol, assetType: backendType, label: asset.name || asset.currencyName || symbol });
         reset();
     };
 
@@ -96,12 +105,12 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect, existingKe
                             <div className="grid grid-cols-2 gap-3">
                                 {assetTypes.map(type => (
                                     <button
-                                        key={type.value}
-                                        onClick={() => handleTypeSelect(type.value)}
+                                        key={type.uiKey}
+                                        onClick={() => handleTypeSelect(type.uiKey)}
                                         className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left"
                                     >
-                                        <div className="font-semibold">{t(`simulation:types.${type.value}`, type.value)}</div>
-                                        <div className="text-xs text-text-muted mt-1">{t(`simulation:types.${type.value}Sub`, '')}</div>
+                                        <div className="font-semibold">{t('common:assetTypes.' + type.uiKey, type.uiKey)}</div>
+                                        <div className="text-xs text-text-muted mt-1">{t('simulation:types.' + type.uiKey + 'Sub', '')}</div>
                                     </button>
                                 ))}
                             </div>
@@ -133,7 +142,7 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect, existingKe
                                     filtered.map((asset, idx) => {
                                         const symbol = asset.symbol || asset.currencyCode;
                                         const name = asset.name || asset.currencyName;
-                                        const key = `${selectedType}:${symbol}`;
+                                        const key = `${selectedBackendValue || selectedType}:${symbol}`;
                                         const exists = existingKeys.includes(key);
                                         return (
                                             <button

@@ -130,7 +130,7 @@ function SimCard({ sim, onDetail, onDelete, t }) {
             <div className="flex items-start justify-between mb-3">
                 <div>
                     <div className="font-bold text-lg uppercase">{sim.symbol}</div>
-                    <div className="text-xs text-text-muted">{sim.assetType}</div>
+                    <div className="text-xs text-text-muted">{t('common:assetTypes.' + sim.assetType, sim.assetType)}</div>
                 </div>
                 <button
                     onClick={onDelete}
@@ -196,7 +196,7 @@ function DetailModal({ sim, onClose, t }) {
                 <div className="p-6">
                     <div className="flex items-center gap-3 mb-1">
                         <h2 className="text-2xl font-bold uppercase">{sim.symbol}</h2>
-                        <span className="text-xs px-2 py-0.5 rounded bg-surface-hover text-text-muted">{sim.assetType}</span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-surface-hover text-text-muted">{t('common:assetTypes.' + sim.assetType, sim.assetType)}</span>
                     </div>
                     <p className="text-text-muted text-sm mb-5">
                         {t('simulation:card.investedOn', { date: fmtDate(sim.investmentDate) })} · {fmtTry(sim.amountTry)} ₺

@@ -15,13 +15,16 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
     const [loading, setLoading] = useState(false);
     const [fetchingPrice, setFetchingPrice] = useState(false);
 
+    // 8-type liste (simulation modal pattern'i). uiKey UI ayrımı, backendValue AssetType enum'a yazılır.
     const assetTypes = [
-        { value: 'STOCK', labelKey: 'navbar:items.trStocks', endpoint: '/market-data/stocks' },
-        { value: 'CRYPTO', labelKey: 'navbar:items.cryptoMarket', endpoint: '/market-data/crypto-currencies' },
-        { value: 'CURRENCY', labelKey: 'navbar:categories.currencies', endpoint: '/market-data/currencies' },
-        { value: 'COMMODITY', labelKey: 'navbar:categories.commodities', endpoint: '/market-data/commodities' },
-        { value: 'BOND', labelKey: 'navbar:items.globalBonds', endpoint: '/market-data/bonds' },
-        { value: 'FUND', labelKey: 'navbar:categories.funds', endpoint: '/market-data/tr-funds' }
+        { uiKey: 'STOCK',     backendValue: 'STOCK',     endpoint: '/market-data/stocks' },
+        { uiKey: 'CRYPTO',    backendValue: 'CRYPTO',    endpoint: '/market-data/crypto-currencies' },
+        { uiKey: 'CURRENCY',  backendValue: 'CURRENCY',  endpoint: '/market-data/currencies' },
+        { uiKey: 'GOLD',      backendValue: 'COMMODITY', endpoint: '/market-data/turkish-gold' },
+        { uiKey: 'COMMODITY', backendValue: 'COMMODITY', endpoint: '/market-data/commodities' },
+        { uiKey: 'BOND_TR',   backendValue: 'BOND',      endpoint: '/market-data/tr-bonds' },
+        { uiKey: 'BOND',      backendValue: 'BOND',      endpoint: '/market-data/bonds' },
+        { uiKey: 'FUND',      backendValue: 'FUND',      endpoint: '/market-data/tr-funds' }
     ];
 
     const { data: assets, isLoading: assetsLoading } = useQuery({
@@ -29,7 +32,7 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
         queryFn: async () => {
             if (!selectedType) return [];
 
-            const typeConfig = assetTypes.find(at => at.value === selectedType);
+            const typeConfig = assetTypes.find(at => at.uiKey === selectedType);
             if (!typeConfig) return [];
 
             const response = await apiClient.get(typeConfig.endpoint);
@@ -37,6 +40,8 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
         },
         enabled: !!selectedType
     });
+
+    const selectedBackendValue = assetTypes.find(at => at.uiKey === selectedType)?.backendValue;
 
     const filteredAssets = assets?.filter(asset => {
         const searchLower = searchTerm.toLowerCase();
@@ -94,7 +99,7 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
         try {
             await onSubmit({
                 symbol: selectedAsset.symbol || selectedAsset.currencyCode,
-                assetType: selectedType,
+                assetType: selectedBackendValue || selectedType,
                 quantity: parseFloat(quantity),
                 averagePrice: parseFloat(averagePrice)
             });
@@ -154,12 +159,12 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                             <div className="grid grid-cols-2 gap-3">
                                 {assetTypes.map(type => (
                                     <button
-                                        key={type.value}
-                                        onClick={() => handleTypeSelect(type.value)}
+                                        key={type.uiKey}
+                                        onClick={() => handleTypeSelect(type.uiKey)}
                                         className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left"
                                     >
-                                        <div className="font-semibold">{t(type.labelKey)}</div>
-                                        <div className="text-sm text-text-muted mt-1">{type.value}</div>
+                                        <div className="font-semibold">{t('common:assetTypes.' + type.uiKey, type.uiKey)}</div>
+                                        <div className="text-sm text-text-muted mt-1">{type.uiKey}</div>
                                     </button>
                                 ))}
                             </div>

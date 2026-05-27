@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { useTranslation } from 'react-i18next';
 
 const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
-    const { t } = useTranslation(['portfolio', 'markets']);
+    const { t } = useTranslation(['portfolio', 'markets', 'common']);
 
     const assetTypeDistribution = portfolio?.reduce((acc, item) => {
         const calc = calculateProfitLoss(item);
@@ -34,13 +34,14 @@ const PortfolioCharts = ({ portfolio, calculateProfitLoss }) => {
 
     const COLORS = ['#2962ff', '#089981', '#f23645', '#ff9800', '#9c27b0', '#00bcd4'];
 
+    // common:assetTypes ile aynı isim seti — tek source of truth.
     const assetTypeNames = {
-        'STOCK': t('markets:categories.trStocks'),
-        'CRYPTO': t('markets:categories.crypto'),
-        'CURRENCY': t('markets:categories.currencies'),
-        'COMMODITY': t('markets:categories.commodities'),
-        'BOND': t('markets:categories.bonds'),
-        'FUND': t('markets:categories.trFunds'),
+        'STOCK': t('common:assetTypes.STOCK'),
+        'CRYPTO': t('common:assetTypes.CRYPTO'),
+        'CURRENCY': t('common:assetTypes.CURRENCY'),
+        'COMMODITY': t('common:assetTypes.COMMODITY'),
+        'BOND': t('common:assetTypes.BOND'),
+        'FUND': t('common:assetTypes.FUND'),
         'FUTURE': t('markets:categories.viop')
     };
 

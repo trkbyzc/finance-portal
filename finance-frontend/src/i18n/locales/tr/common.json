@@ -1,5 +1,15 @@
 {
   "appName": "FinansPortal",
+  "assetTypes": {
+    "STOCK": "Hisse Senedi",
+    "CRYPTO": "Kripto Para",
+    "CURRENCY": "Döviz",
+    "GOLD": "Türk Altını",
+    "COMMODITY": "Emtia",
+    "BOND_TR": "Türk Tahvili",
+    "BOND": "Küresel Tahvil",
+    "FUND": "Yatırım Fonu"
+  },
   "actions": {
     "save": "Kaydet",
     "cancel": "İptal",

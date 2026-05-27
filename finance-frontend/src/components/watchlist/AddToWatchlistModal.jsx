@@ -11,25 +11,32 @@ const AddToWatchlistModal = ({ isOpen, onClose, onSubmit }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [submitting, setSubmitting] = useState(null);
 
+    // Simulation modal pattern'i ile aynı 8-type liste.
+    // `uiKey` → i18n label (common:assetTypes.*); `backendValue` → AssetType enum'a yazılır;
+    // GOLD ve BOND_TR sadece UI ayrımı (backend tarafında COMMODITY/BOND case'inde fallback chain var).
     const assetTypes = [
-        { value: 'STOCK', labelKey: 'navbar:items.trStocks', endpoint: '/market-data/stocks' },
-        { value: 'CRYPTO', labelKey: 'navbar:items.cryptoMarket', endpoint: '/market-data/crypto-currencies' },
-        { value: 'CURRENCY', labelKey: 'navbar:categories.currencies', endpoint: '/market-data/currencies' },
-        { value: 'COMMODITY', labelKey: 'navbar:categories.commodities', endpoint: '/market-data/commodities' },
-        { value: 'BOND', labelKey: 'navbar:items.globalBonds', endpoint: '/market-data/bonds' },
-        { value: 'FUND', labelKey: 'navbar:categories.funds', endpoint: '/market-data/tr-funds' }
+        { uiKey: 'STOCK',     backendValue: 'STOCK',     endpoint: '/market-data/stocks' },
+        { uiKey: 'CRYPTO',    backendValue: 'CRYPTO',    endpoint: '/market-data/crypto-currencies' },
+        { uiKey: 'CURRENCY',  backendValue: 'CURRENCY',  endpoint: '/market-data/currencies' },
+        { uiKey: 'GOLD',      backendValue: 'COMMODITY', endpoint: '/market-data/turkish-gold' },
+        { uiKey: 'COMMODITY', backendValue: 'COMMODITY', endpoint: '/market-data/commodities' },
+        { uiKey: 'BOND_TR',   backendValue: 'BOND',      endpoint: '/market-data/tr-bonds' },
+        { uiKey: 'BOND',      backendValue: 'BOND',      endpoint: '/market-data/bonds' },
+        { uiKey: 'FUND',      backendValue: 'FUND',      endpoint: '/market-data/tr-funds' }
     ];
 
     const { data: assets, isLoading: assetsLoading } = useQuery({
         queryKey: ['assets', selectedType],
         queryFn: async () => {
             if (!selectedType) return [];
-            const typeConfig = assetTypes.find(at => at.value === selectedType);
+            const typeConfig = assetTypes.find(at => at.uiKey === selectedType);
             if (!typeConfig) return [];
             return await apiClient.get(typeConfig.endpoint);
         },
         enabled: !!selectedType
     });
+
+    const selectedBackendValue = assetTypes.find(at => at.uiKey === selectedType)?.backendValue;
 
     const filteredAssets = assets?.filter(asset => {
         const q = searchTerm.toLowerCase();
@@ -49,7 +56,8 @@ const AddToWatchlistModal = ({ isOpen, onClose, onSubmit }) => {
         const symbol = asset.symbol || asset.currencyCode;
         setSubmitting(symbol);
         try {
-            await onSubmit({ symbol, assetType: selectedType });
+            // Backend AssetType enum'a backendValue gönderiyoruz (GOLD/BOND_TR sadece UI ayrımı).
+            await onSubmit({ symbol, assetType: selectedBackendValue || selectedType });
             setStep(1);
             setSelectedType('');
             setSearchTerm('');
@@ -102,12 +110,12 @@ const AddToWatchlistModal = ({ isOpen, onClose, onSubmit }) => {
                             <div className="grid grid-cols-2 gap-3">
                                 {assetTypes.map(type => (
                                     <button
-                                        key={type.value}
-                                        onClick={() => handleTypeSelect(type.value)}
+                                        key={type.uiKey}
+                                        onClick={() => handleTypeSelect(type.uiKey)}
                                         className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left"
                                     >
-                                        <div className="font-semibold">{t(type.labelKey)}</div>
-                                        <div className="text-sm text-text-muted mt-1">{type.value}</div>
+                                        <div className="font-semibold">{t('common:assetTypes.' + type.uiKey, type.uiKey)}</div>
+                                        <div className="text-sm text-text-muted mt-1">{type.uiKey}</div>
                                     </button>
                                 ))}
                             </div>

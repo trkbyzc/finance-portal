@@ -1,5 +1,15 @@
 {
   "appName": "FinansPortal",
+  "assetTypes": {
+    "STOCK": "Stock",
+    "CRYPTO": "Crypto",
+    "CURRENCY": "Currency",
+    "GOLD": "Turkish Gold",
+    "COMMODITY": "Commodity",
+    "BOND_TR": "TR Bond",
+    "BOND": "Global Bond",
+    "FUND": "Fund"
+  },
   "actions": {
     "save": "Save",
     "cancel": "Cancel",

@@ -138,7 +138,7 @@ export default function WhatIfPage() {
                                 >
                                     <span className="w-2 h-2 rounded-full" style={{ background: PALETTE[idx % PALETTE.length] }}></span>
                                     <span className="font-bold">{a.symbol}</span>
-                                    <span className="text-xs text-text-muted">{a.assetType}</span>
+                                    <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
                                     <button onClick={() => handleRemoveAsset(idx)} className="text-text-muted hover:text-sell ml-1">
                                         <X size={14} />
                                     </button>
@@ -216,7 +216,7 @@ export default function WhatIfPage() {
                                         <div className="flex items-center gap-2 mb-3">
                                             <span className="w-3 h-3 rounded-full" style={{ background: PALETTE[idx % PALETTE.length] }}></span>
                                             <div className="font-bold uppercase">{a.symbol}</div>
-                                            <span className="text-xs text-text-muted">{a.assetType}</span>
+                                            <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
                                         </div>
                                         {a.warning ? (
                                             <div className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-warning text-xs flex items-start gap-2">
