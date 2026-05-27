@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Plus, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { apiClient } from '../../config/apiClient';
@@ -10,12 +9,10 @@ import SellModal from '../../components/portfolio/SellModal';
 import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
-import { useCurrency } from '../../context/CurrencyContext';
-import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import HoldingsTable from '../../components/portfolio/HoldingsTable';
 
 const PortfolioPage = () => {
     const { t } = useTranslation(['portfolio', 'common']);
-    const { formatPrice } = useCurrency();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [buyMoreAsset, setBuyMoreAsset] = useState(null);
     const [sellAsset, setSellAsset] = useState(null);
@@ -215,78 +212,13 @@ const PortfolioPage = () => {
                     />
                 )}
 
-                {!portfolio || portfolio.length === 0 ? (
-                    <div className="bg-surface-2 rounded-lg p-12 text-center">
-                        <p className="text-text-muted text-lg mb-4">{t('portfolio:holdings.noHoldings')}</p>
-                        <p className="text-text-muted text-sm">{t('portfolio:holdings.addFirst')}</p>
-                    </div>
-                ) : (
-                    <div className="bg-surface-2 rounded-lg overflow-hidden">
-                        <table className="w-full">
-                            <thead className="bg-bg border-b border-border">
-                            <tr>
-                                <th className="text-left p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.asset')}</th>
-                                <th className="text-left p-4 text-text-muted font-semibold">{t('common:labels.type')}</th>
-                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.quantity')}</th>
-                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.avgPrice')}</th>
-                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.currentPrice')}</th>
-                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.totalValue')}</th>
-                                <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.pnl')}</th>
-                                <th className="text-center p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.actions')}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {portfolio.map((item, idx) => {
-                                const calc = calculateProfitLoss(item);
-                                return (
-                                    <tr key={idx} className="border-b border-border hover:bg-bg transition">
-                                        <td className="p-4 font-semibold">{item.symbol}</td>
-                                        <td className="p-4 text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
-                                        <td className="p-4 text-right">{item.quantity}</td>
-                                        {(() => {
-                                            const native = nativeCurrencyForType(item.assetType, item.symbol);
-                                            return (<>
-                                                <td className="p-4 text-right">{formatPrice(item.averagePrice, native)}</td>
-                                                <td className="p-4 text-right">{formatPrice(calc.currentPrice, native)}</td>
-                                                <td className="p-4 text-right font-semibold">{formatPrice(calc.currentValue, native)}</td>
-                                                <td className={`p-4 text-right font-semibold ${calc.profitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
-                                                    {calc.profitLoss >= 0 ? '+' : '-'}{formatPrice(Math.abs(calc.profitLoss), native)}
-                                                    <span className="text-sm ml-1">({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)</span>
-                                                </td>
-                                            </>);
-                                        })()}
-                                        <td className="p-4 text-center">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => setHistorySymbol(item.symbol)}
-                                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-text-muted hover:text-primary hover:bg-primary/10 transition"
-                                                    title={t('portfolio:transactions.openHistory')}
-                                                >
-                                                    <Clock size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => setBuyMoreAsset(item)}
-                                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-buy hover:bg-buy/10 transition"
-                                                    title={t('portfolio:trade.buy')}
-                                                >
-                                                    <Plus size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => setSellAsset(item)}
-                                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-sell hover:bg-sell/10 transition"
-                                                    title={t('portfolio:trade.sell')}
-                                                >
-                                                    <Minus size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                <HoldingsTable
+                    portfolio={portfolio}
+                    calculateProfitLoss={calculateProfitLoss}
+                    onOpenHistory={setHistorySymbol}
+                    onOpenBuy={setBuyMoreAsset}
+                    onOpenSell={setSellAsset}
+                />
             </div>
 
             <AddToPortfolioModal
