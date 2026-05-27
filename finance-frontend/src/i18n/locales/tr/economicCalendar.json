@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Ekonomik Takvim",
+  "pageSubtitle": "Faiz kararları, enflasyon, GSYH ve diğer makro ekonomik açıklamalar — global + Türkiye.",
+  "filter": {
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "minImpact": "Min Önem",
+    "countries": "Ülkeler",
+    "clearCountries": "Temizle",
+    "allCountriesHint": "Hiç ülke seçili değil → tüm ülkeler gösterilir."
+  },
+  "impact": {
+    "low": "Düşük",
+    "medium": "Orta",
+    "high": "Yüksek"
+  },
+  "cols": {
+    "previous": "Önceki",
+    "estimate": "Beklenti",
+    "actual": "Açıklanan"
+  },
+  "eventsLabel": "olay",
+  "empty": {
+    "title": "Filtreye uyan olay yok",
+    "subtitle": "Tarih aralığını genişlet veya ülke filtresini gevşet."
+  },
+  "error": "Ekonomik takvim yüklenemedi. Lütfen sonra tekrar dene."
+}

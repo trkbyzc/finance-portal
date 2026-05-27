@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Economic Calendar",
+  "pageSubtitle": "Rate decisions, inflation, GDP and other macroeconomic releases — global + Turkey.",
+  "filter": {
+    "from": "From",
+    "to": "To",
+    "minImpact": "Min Impact",
+    "countries": "Countries",
+    "clearCountries": "Clear",
+    "allCountriesHint": "No country selected → all countries are shown."
+  },
+  "impact": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "cols": {
+    "previous": "Previous",
+    "estimate": "Estimate",
+    "actual": "Actual"
+  },
+  "eventsLabel": "events",
+  "empty": {
+    "title": "No events match the filter",
+    "subtitle": "Widen the date range or relax the country filter."
+  },
+  "error": "Couldn't load the economic calendar. Please try again later."
+}

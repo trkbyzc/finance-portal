@@ -78,6 +78,12 @@ export default function Navbar() {
                             >
                                 {t('navbar:news')}
                             </Link>
+                            <Link
+                                to="/economic-calendar"
+                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors"
+                            >
+                                {t('navbar:economicCalendar')}
+                            </Link>
                         </div>
                     </div>
 

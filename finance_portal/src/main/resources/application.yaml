@@ -112,3 +112,9 @@ external-api:
   fred:
     base-url: ${FRED_BASE_URL:https://api.stlouisfed.org}
     api-key: ${FRED_API_KEY:}
+  fmp:
+    base-url: ${FMP_BASE_URL:https://financialmodelingprep.com}
+    api-key: ${FMP_API_KEY:}
+  finnhub:
+    base-url: ${FINNHUB_BASE_URL:https://finnhub.io}
+    api-key: ${FINNHUB_API_KEY:}

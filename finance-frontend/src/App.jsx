@@ -25,6 +25,7 @@ import PortfolioPage from './pages/PortfolioPage/PortfolioPage';
 import WatchlistPage from './pages/WatchlistPage/WatchlistPage';
 import SimulationPage from './pages/SimulationPage/SimulationPage';
 import WhatIfPage from './pages/WhatIfPage/WhatIfPage';
+import EconomicCalendarPage from './pages/EconomicCalendarPage/EconomicCalendarPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
 
@@ -48,6 +49,7 @@ function App() {
                                 <Route path="/markets/turkish-gold" element={<TurkishGoldPage />} />
                                 <Route path="/news" element={<NewsPage />} />
                                 <Route path="/news/detail" element={<NewsDetailPage />} />
+                                <Route path="/economic-calendar" element={<EconomicCalendarPage />} />
                                 <Route path="/markets/live" element={<LiveMarketPage />} />
                                 <Route path="/interest" element={<InterestPage />} />
 
