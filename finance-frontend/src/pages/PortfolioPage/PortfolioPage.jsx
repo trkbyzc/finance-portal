@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash2, Edit2, Clock } from 'lucide-react';
+import { Clock, Plus, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { apiClient } from '../../config/apiClient';
 import AddToPortfolioModal from '../../components/portfolio/AddToPortfolioModal';
-import EditPortfolioModal from '../../components/portfolio/EditPortfolioModal';
+import BuyMoreModal from '../../components/portfolio/BuyMoreModal';
+import SellModal from '../../components/portfolio/SellModal';
 import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
@@ -13,8 +14,8 @@ import TransactionHistoryModal from '../../components/portfolio/TransactionHisto
 const PortfolioPage = () => {
     const { t } = useTranslation(['portfolio', 'common']);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingAsset, setEditingAsset] = useState(null);
+    const [buyMoreAsset, setBuyMoreAsset] = useState(null);
+    const [sellAsset, setSellAsset] = useState(null);
     const [historySymbol, setHistorySymbol] = useState(null);
     const queryClient = useQueryClient();
 
@@ -83,24 +84,16 @@ const PortfolioPage = () => {
     const addAssetMutation = useMutation({
         mutationFn: portfolioApi.addManualEntry,
         onSuccess: () => {
-            queryClient.invalidateQueries(['portfolio']);
-            alert(t('portfolio:modal.saveSuccess'));
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+            queryClient.invalidateQueries({ queryKey: ['transactions'] });
         }
     });
 
-    const deleteAssetMutation = useMutation({
+    const sellAssetMutation = useMutation({
         mutationFn: portfolioApi.removeFromPortfolio,
         onSuccess: () => {
-            queryClient.invalidateQueries(['portfolio']);
-            alert(t('portfolio:modal.deleteSuccess'));
-        }
-    });
-
-    const editAssetMutation = useMutation({
-        mutationFn: portfolioApi.updateManualEntry,
-        onSuccess: () => {
-            queryClient.invalidateQueries(['portfolio']);
-            alert(t('portfolio:modal.saveSuccess'));
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+            queryClient.invalidateQueries({ queryKey: ['transactions'] });
         }
     });
 
@@ -108,25 +101,12 @@ const PortfolioPage = () => {
         await addAssetMutation.mutateAsync(data);
     };
 
-    const handleDeleteAsset = async (item) => {
-        if (!confirm(t('portfolio:modal.deleteConfirm'))) {
-            return;
-        }
-
-        await deleteAssetMutation.mutateAsync({
-            symbol: item.symbol,
-            assetType: item.assetType,
-            quantity: item.quantity
-        });
+    const handleBuyMore = async (data) => {
+        await addAssetMutation.mutateAsync(data);
     };
 
-    const handleEditAsset = (item) => {
-        setEditingAsset(item);
-        setIsEditModalOpen(true);
-    };
-
-    const handleEditSubmit = async (data) => {
-        await editAssetMutation.mutateAsync(data);
+    const handleSell = async (data) => {
+        await sellAssetMutation.mutateAsync(data);
     };
 
     const getCurrentPrice = (symbol, assetType) => {
@@ -268,24 +248,24 @@ const PortfolioPage = () => {
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => setHistorySymbol(item.symbol)}
-                                                    className="text-text-muted hover:text-primary transition"
+                                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-text-muted hover:text-primary hover:bg-primary/10 transition"
                                                     title={t('portfolio:transactions.openHistory')}
                                                 >
                                                     <Clock size={18} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleEditAsset(item)}
-                                                    className="text-blue-500 hover:text-blue-400 transition"
-                                                    title={t('common:actions.edit')}
+                                                    onClick={() => setBuyMoreAsset(item)}
+                                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-buy hover:bg-buy/10 transition"
+                                                    title={t('portfolio:trade.buy')}
                                                 >
-                                                    <Edit2 size={18} />
+                                                    <Plus size={18} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDeleteAsset(item)}
-                                                    className="text-red-500 hover:text-red-400 transition"
-                                                    title={t('common:actions.delete')}
+                                                    onClick={() => setSellAsset(item)}
+                                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-sell hover:bg-sell/10 transition"
+                                                    title={t('portfolio:trade.sell')}
                                                 >
-                                                    <Trash2 size={18} />
+                                                    <Minus size={18} />
                                                 </button>
                                             </div>
                                         </td>
@@ -304,14 +284,20 @@ const PortfolioPage = () => {
                 onSubmit={handleAddAsset}
             />
 
-            <EditPortfolioModal
-                isOpen={isEditModalOpen}
-                onClose={() => {
-                    setIsEditModalOpen(false);
-                    setEditingAsset(null);
-                }}
-                onSubmit={handleEditSubmit}
-                asset={editingAsset}
+            <BuyMoreModal
+                isOpen={!!buyMoreAsset}
+                onClose={() => setBuyMoreAsset(null)}
+                onSubmit={handleBuyMore}
+                asset={buyMoreAsset}
+                currentPrice={buyMoreAsset ? getCurrentPrice(buyMoreAsset.symbol, buyMoreAsset.assetType) : null}
+            />
+
+            <SellModal
+                isOpen={!!sellAsset}
+                onClose={() => setSellAsset(null)}
+                onSubmit={handleSell}
+                asset={sellAsset}
+                currentPrice={sellAsset ? getCurrentPrice(sellAsset.symbol, sellAsset.assetType) : null}
             />
 
             <TransactionHistoryModal

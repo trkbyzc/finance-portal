@@ -33,7 +33,9 @@ export const portfolioApi = {
                 symbol: data.symbol,
                 assetType: data.assetType,
                 quantity: data.quantity,
-                price: 0
+                // SellModal market price gönderir → backend SELL audit'i gerçek işlem fiyatıyla yazar.
+                // 0 veya yoksa backend fallback olarak averagePrice (cost-basis) kullanır.
+                price: data.averagePrice ?? 0
             }
         });
     },

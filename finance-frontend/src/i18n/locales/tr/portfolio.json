@@ -54,6 +54,28 @@
     "byPnl": "K/Z'ye Göre",
     "byName": "İsme Göre"
   },
+  "trade": {
+    "buy": "Al",
+    "sell": "Sat",
+    "buyMoreTitle": "Üzerine alım yap",
+    "sellTitle": "Bu varlıktan sat",
+    "holdingNow": "Şu anki pozisyon: {{quantity}} adet · Ort. maliyet {{avgPrice}} ₺",
+    "quantity": "Alınacak Miktar",
+    "sellQuantity": "Satılacak Miktar",
+    "price": "Birim Fiyat",
+    "marketPrice": "Piyasa Fiyatı",
+    "useMarketPrice": "Piyasa: {{price}} ₺ (uygula)",
+    "sellAll": "Hepsini Sat",
+    "maxQty": "Maksimum: {{max}}",
+    "total": "Toplam",
+    "estimatedPnl": "Tahmini K/Z",
+    "sellAllWarning": "Tüm pozisyonu satıyorsun — bu varlık portföyünden tamamen çıkacak.",
+    "confirmBuy": "Alımı Onayla",
+    "confirmSell": "Satışı Onayla",
+    "invalidInputs": "Miktar ve fiyat 0'dan büyük olmalı.",
+    "invalidSellAmount": "Geçersiz miktar. 0 ile sahip olduğun miktar arasında bir değer gir.",
+    "error": "İşlem başarısız oldu."
+  },
   "transactions": {
     "openHistory": "İşlem Geçmişini Aç",
     "subtitle": "Toplam {{count}} hareket",

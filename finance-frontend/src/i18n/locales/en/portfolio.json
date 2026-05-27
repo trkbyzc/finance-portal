@@ -54,6 +54,28 @@
     "byPnl": "By P/L",
     "byName": "By Name"
   },
+  "trade": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "buyMoreTitle": "Add to position",
+    "sellTitle": "Sell from this position",
+    "holdingNow": "Current position: {{quantity}} units · Avg cost {{avgPrice}} ₺",
+    "quantity": "Quantity to Buy",
+    "sellQuantity": "Quantity to Sell",
+    "price": "Unit Price",
+    "marketPrice": "Market Price",
+    "useMarketPrice": "Market: {{price}} ₺ (use)",
+    "sellAll": "Sell All",
+    "maxQty": "Max: {{max}}",
+    "total": "Total",
+    "estimatedPnl": "Estimated P&L",
+    "sellAllWarning": "You are selling the entire position — this asset will be removed from your portfolio.",
+    "confirmBuy": "Confirm Buy",
+    "confirmSell": "Confirm Sell",
+    "invalidInputs": "Quantity and price must be greater than 0.",
+    "invalidSellAmount": "Invalid amount. Enter a value between 0 and the quantity you hold.",
+    "error": "Operation failed."
+  },
   "transactions": {
     "openHistory": "Open Transaction History",
     "subtitle": "{{count}} transactions total",

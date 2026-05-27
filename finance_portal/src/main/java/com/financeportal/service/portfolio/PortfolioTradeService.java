@@ -100,10 +100,13 @@ public class PortfolioTradeService {
             portfolioItemRepository.save(item);
         }
 
-        // Çıkarılan miktarı SELL olarak audit'e yaz. Fiyat olarak average-price kullanıyoruz —
-        // request'te price yok, ve audit için en iyi tahmin mevcut maliyet.
+        // SELL audit fiyatı: frontend SellModal current market price gönderir (gerçek işlem fiyatı).
+        // Eski caller'lar (price=0) için fallback olarak averagePrice (cost-basis) kullanırız.
+        BigDecimal sellPrice = (request.getPrice() != null && request.getPrice().signum() > 0)
+                ? request.getPrice()
+                : item.getAveragePrice();
         writeTx(item.getUser(), request.getSymbol(), item.getAssetType(), TradeSide.SELL,
-                removed, item.getAveragePrice(), null);
+                removed, sellPrice, null);
     }
 
     private void writeTx(User user, String symbol, com.financeportal.model.enums.AssetType assetType,
