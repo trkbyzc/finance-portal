@@ -20,6 +20,8 @@
     "viop": "Futures (VIOP)",
     "tcmbRates": "CBRT Rates",
     "tcmbDesc": "Official Indicative Rate",
+    "effectiveRates": "Effective Rates",
+    "effectiveDesc": "Cash / Banknote Rates",
     "bankRates": "Bank Rates",
     "bankRatesDesc": "Buy / Sell & Spread",
     "cryptoMarket": "Crypto Market",

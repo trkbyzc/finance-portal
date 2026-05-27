@@ -116,6 +116,17 @@
     "activeCoins": "Aktif Coin",
     "newsTitle": "Kripto Haberleri"
   },
+  "effectiveCurrencies": {
+    "headerTitle": "Efektif Döviz Kurları",
+    "headerSubtitle": "TCMB nakit/banknot alış-satış kurları (elden alım-satım için kullanılan kotasyon)",
+    "tableTitle": "Tüm Efektif Kurlar",
+    "emptyTitle": "Henüz veri yok",
+    "emptySub": "TCMB ve EVDS sync'i bittiğinde efektif kurlar burada görünecek.",
+    "cols": {
+      "banknoteBuying": "Efektif Alış",
+      "banknoteSelling": "Efektif Satış"
+    }
+  },
   "currencies": {
     "headerTitle": "Döviz Kurları",
     "headerSubtitle": "TCMB resmi gösterge kurları",

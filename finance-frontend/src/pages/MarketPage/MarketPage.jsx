@@ -7,6 +7,7 @@ import TurkishStocksDashboard from './dashboards/TurkishStocksDashboard/TurkishS
 import UsStocksDashboard from './dashboards/UsStocksDashboard/UsStocksDashboard';
 import ViopDashboard from './dashboards/ViopDashboard/ViopDashboard';
 import CurrenciesDashboard from './dashboards/CurrenciesDashboard/CurrenciesDashboard';
+import EffectiveCurrenciesDashboard from './dashboards/EffectiveCurrenciesDashboard/EffectiveCurrenciesDashboard';
 import CryptoDashboard from './dashboards/CryptoDashboard/CryptoDashboard'; // 🚀 KRİPTO EKLENDİ
 import CommoditiesDashboard from './dashboards/CommodityDashboard/CommoditiesDashboard';
 import GlobalBondsDashboard from './dashboards/GlobalBondsDashboard/GlobalBondsDashboard';
@@ -40,6 +41,11 @@ export default function MarketPage() {
     // 4. Döviz Piyasası
     if (category === 'currencies') {
         return <CurrenciesDashboard category={category} />;
+    }
+
+    // 4b. Efektif Döviz (nakit/banknot kurları — TCMB Banknote + EVDS *.EF.YTL)
+    if (category === 'effective-currencies') {
+        return <EffectiveCurrenciesDashboard category={category} />;
     }
 
     // 5.KRİPTO PİYASASI

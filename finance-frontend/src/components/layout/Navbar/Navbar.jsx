@@ -24,6 +24,7 @@ export default function Navbar() {
             ]},
         { title: t('navbar:categories.currencies'), items: [
                 { label: t('navbar:items.tcmbRates'), to: '/markets/currencies', desc: t('navbar:items.tcmbDesc') },
+                { label: t('navbar:items.effectiveRates'), to: '/markets/effective-currencies', desc: t('navbar:items.effectiveDesc'), accent: '#f59e0b' },
                 { type: 'divider' },
                 { label: t('navbar:items.bankRates'), to: '/markets/bank-currencies', desc: t('navbar:items.bankRatesDesc'), accent: '#00a572' }
             ]},

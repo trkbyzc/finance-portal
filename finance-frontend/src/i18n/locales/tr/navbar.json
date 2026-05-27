@@ -20,6 +20,8 @@
     "viop": "Vadeli İşlemler (VİOP)",
     "tcmbRates": "TCMB Kurları",
     "tcmbDesc": "Resmi Gösterge Kuru",
+    "effectiveRates": "Efektif Döviz",
+    "effectiveDesc": "Nakit / Banknot Kurları",
     "bankRates": "Banka Kurları",
     "bankRatesDesc": "Alış / Satış & Makas",
     "cryptoMarket": "Kripto Piyasası",
