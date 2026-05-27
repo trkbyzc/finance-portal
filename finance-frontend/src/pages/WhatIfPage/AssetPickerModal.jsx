@@ -110,7 +110,6 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect, existingKe
                                         className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left"
                                     >
                                         <div className="font-semibold">{t('common:assetTypes.' + type.uiKey, type.uiKey)}</div>
-                                        <div className="text-xs text-text-muted mt-1">{t('simulation:types.' + type.uiKey + 'Sub', '')}</div>
                                     </button>
                                 ))}
                             </div>

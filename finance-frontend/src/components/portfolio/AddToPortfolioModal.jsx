@@ -3,9 +3,33 @@ import { X, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
+import { useCurrency } from '../../context/CurrencyContext';
+
+/**
+ * Asset'in "doğal" para birimini belirler — formatPrice convert yapsın diye.
+ * Yabancı hisse + kripto + emtia + global tahvil → USD (Yahoo/CoinGecko USD bazlı).
+ * BIST hisse + TR fon + döviz forexSelling + TR altın + TR tahvil → TRY.
+ */
+function nativeCurrencyOf(selectedUiKey, asset) {
+    switch (selectedUiKey) {
+        case 'STOCK': {
+            const sym = (asset?.symbol || asset?.currencyCode || '').toUpperCase();
+            return sym.endsWith('.IS') ? 'TRY' : 'USD';
+        }
+        case 'CRYPTO':    return 'USD';
+        case 'COMMODITY': return 'USD';
+        case 'BOND':      return 'USD';
+        case 'CURRENCY':
+        case 'GOLD':
+        case 'BOND_TR':
+        case 'FUND':
+        default:          return 'TRY';
+    }
+}
 
 const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
     const { t } = useTranslation(['portfolio', 'common', 'navbar']);
+    const { currency: displayCurrency, toggleCurrency, formatPrice } = useCurrency();
     const [step, setStep] = useState(1);
     const [selectedType, setSelectedType] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -143,7 +167,20 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                 </button>
 
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold mb-6">{t('portfolio:modal.addTitle')}</h2>
+                    <div className="flex items-center justify-between mb-6 pr-8">
+                        <h2 className="text-2xl font-bold">{t('portfolio:modal.addTitle')}</h2>
+                        {/* USD/TL toggle — step-2 fiyat listesi seçilen currency'ye göre dönüşür */}
+                        <button
+                            type="button"
+                            onClick={toggleCurrency}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-bg hover:bg-surface-hover text-sm font-semibold transition"
+                            title={t('portfolio:modal.toggleCurrency', 'Para birimini değiştir')}
+                        >
+                            <span className={displayCurrency === 'TRY' ? 'text-primary' : 'text-text-muted'}>₺</span>
+                            <span className="text-text-muted">/</span>
+                            <span className={displayCurrency === 'USD' ? 'text-primary' : 'text-text-muted'}>$</span>
+                        </button>
+                    </div>
 
                     <div className="flex items-center justify-center mb-8">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-primary' : 'bg-surface-hover'}`}>1</div>
@@ -164,7 +201,6 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                                         className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left"
                                     >
                                         <div className="font-semibold">{t('common:assetTypes.' + type.uiKey, type.uiKey)}</div>
-                                        <div className="text-sm text-text-muted mt-1">{type.uiKey}</div>
                                     </button>
                                 ))}
                             </div>
@@ -206,6 +242,7 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                                         const price = asset.price || asset.forexSelling || asset.value || asset.lastPrice || asset.unitPrice || 0;
                                         const hasPriceData = price > 0;
                                         const isFund = selectedType === 'FUND';
+                                        const native = nativeCurrencyOf(selectedType, asset);
 
                                         return (
                                             <button
@@ -219,10 +256,11 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                                                     <div className="text-sm text-text-muted">{name}</div>
                                                 </div>
                                                 <div className="text-right">
-                                                    {isFund ? (
+                                                    {isFund && !hasPriceData ? (
+                                                        // TEFAS fonu için backend price = 0 dönerse step-3 detail fetch eder.
                                                         <div className="text-xs text-primary">{t('common:actions.select')} →</div>
                                                     ) : hasPriceData ? (
-                                                        <div className="font-semibold">{price.toFixed(2)} ₺</div>
+                                                        <div className="font-semibold">{formatPrice(price, native)}</div>
                                                     ) : (
                                                         <div className="text-xs text-text-muted">-</div>
                                                     )}
@@ -256,8 +294,9 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                                         <div className="text-sm text-text-muted">{t('common:labels.price')}</div>
                                         {(() => {
                                             const currentPrice = selectedAsset.currentPrice || selectedAsset.price || selectedAsset.forexSelling || selectedAsset.value || selectedAsset.lastPrice || selectedAsset.unitPrice || 0;
+                                            const native = nativeCurrencyOf(selectedType, selectedAsset);
                                             return currentPrice > 0 ? (
-                                                <div className="font-semibold">{currentPrice.toFixed(2)} ₺</div>
+                                                <div className="font-semibold">{formatPrice(currentPrice, native)}</div>
                                             ) : (
                                                 <div className="text-sm text-text-muted">-</div>
                                             );

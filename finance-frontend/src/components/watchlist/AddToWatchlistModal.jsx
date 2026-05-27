@@ -3,9 +3,30 @@ import { X, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
+import { useCurrency } from '../../context/CurrencyContext';
+
+/**
+ * Asset'in doğal para birimini belirler (AddToPortfolioModal ile aynı mantık).
+ * formatPrice convert yapsın diye picker step-2'de native currency'yi geçiriyoruz.
+ */
+function nativeCurrencyOf(selectedUiKey, asset) {
+    switch (selectedUiKey) {
+        case 'STOCK': {
+            const sym = (asset?.symbol || asset?.currencyCode || '').toUpperCase();
+            return sym.endsWith('.IS') ? 'TRY' : 'USD';
+        }
+        case 'CRYPTO':
+        case 'COMMODITY':
+        case 'BOND':
+            return 'USD';
+        default:
+            return 'TRY';
+    }
+}
 
 const AddToWatchlistModal = ({ isOpen, onClose, onSubmit }) => {
     const { t } = useTranslation(['watchlist', 'common', 'navbar']);
+    const { formatPrice } = useCurrency();
     const [step, setStep] = useState(1);
     const [selectedType, setSelectedType] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -115,7 +136,6 @@ const AddToWatchlistModal = ({ isOpen, onClose, onSubmit }) => {
                                         className="p-4 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left"
                                     >
                                         <div className="font-semibold">{t('common:assetTypes.' + type.uiKey, type.uiKey)}</div>
-                                        <div className="text-sm text-text-muted mt-1">{type.uiKey}</div>
                                     </button>
                                 ))}
                             </div>
@@ -166,7 +186,7 @@ const AddToWatchlistModal = ({ isOpen, onClose, onSubmit }) => {
                                                     {isSubmittingThis ? (
                                                         <div className="text-xs text-primary">{t('common:actions.loadingDots')}</div>
                                                     ) : price > 0 ? (
-                                                        <div className="font-semibold">{price.toFixed(2)} ₺</div>
+                                                        <div className="font-semibold">{formatPrice(price, nativeCurrencyOf(selectedType, asset))}</div>
                                                     ) : (
                                                         <div className="text-xs text-text-muted">-</div>
                                                     )}
