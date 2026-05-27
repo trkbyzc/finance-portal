@@ -10,9 +10,31 @@ import SellModal from '../../components/portfolio/SellModal';
 import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
+import { useCurrency } from '../../context/CurrencyContext';
+
+/**
+ * Holding'in doğal para birimi — formatPrice convert yapsın diye.
+ * Backend AssetType enum'unda GOLD/BOND_TR yok (UI ayrımı), bu yüzden mapping
+ * sadece backend enum'una göre yapılır:
+ *   STOCK .IS → TRY ; STOCK foreign → USD
+ *   CRYPTO / COMMODITY / BOND → USD
+ *   CURRENCY / FUND → TRY
+ */
+function nativeCurrencyOf(item) {
+    const type = item.assetType;
+    const sym = (item.symbol || '').toUpperCase();
+    switch (type) {
+        case 'STOCK':     return sym.endsWith('.IS') ? 'TRY' : 'USD';
+        case 'CRYPTO':    return 'USD';
+        case 'COMMODITY': return 'USD';
+        case 'BOND':      return 'USD';
+        default:          return 'TRY';
+    }
+}
 
 const PortfolioPage = () => {
     const { t } = useTranslation(['portfolio', 'common']);
+    const { formatPrice } = useCurrency();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [buyMoreAsset, setBuyMoreAsset] = useState(null);
     const [sellAsset, setSellAsset] = useState(null);
@@ -51,9 +73,12 @@ const PortfolioPage = () => {
 
             const pricePromises = funds.map(async (fund) => {
                 try {
+                    // FundChartStrategy sadece category=TR_FUND ile match eder; param'siz çağrı
+                    // strategy chain'in tepesinden Yahoo'ya düşüp 404 alır → fiyat boş gelir.
                     const chartData = await apiClient.get('/market-data/historical', {
                         params: {
                             symbol: fund.symbol,
+                            category: 'TR_FUND',
                             range: '1d',
                             interval: '1d'
                         }
@@ -237,13 +262,18 @@ const PortfolioPage = () => {
                                         <td className="p-4 font-semibold">{item.symbol}</td>
                                         <td className="p-4 text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
                                         <td className="p-4 text-right">{item.quantity}</td>
-                                        <td className="p-4 text-right">{item.averagePrice.toFixed(2)} ₺</td>
-                                        <td className="p-4 text-right">{calc.currentPrice.toFixed(2)} ₺</td>
-                                        <td className="p-4 text-right font-semibold">{calc.currentValue.toFixed(2)} ₺</td>
-                                        <td className={`p-4 text-right font-semibold ${calc.profitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
-                                            {calc.profitLoss >= 0 ? '+' : ''}{calc.profitLoss.toFixed(2)} ₺
-                                            <span className="text-sm ml-1">({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)</span>
-                                        </td>
+                                        {(() => {
+                                            const native = nativeCurrencyOf(item);
+                                            return (<>
+                                                <td className="p-4 text-right">{formatPrice(item.averagePrice, native)}</td>
+                                                <td className="p-4 text-right">{formatPrice(calc.currentPrice, native)}</td>
+                                                <td className="p-4 text-right font-semibold">{formatPrice(calc.currentValue, native)}</td>
+                                                <td className={`p-4 text-right font-semibold ${calc.profitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
+                                                    {calc.profitLoss >= 0 ? '+' : '-'}{formatPrice(Math.abs(calc.profitLoss), native)}
+                                                    <span className="text-sm ml-1">({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)</span>
+                                                </td>
+                                            </>);
+                                        })()}
                                         <td className="p-4 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button

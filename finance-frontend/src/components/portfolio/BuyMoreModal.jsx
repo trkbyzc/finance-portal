@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../context/CurrencyContext';
 
-const fmtTry = (v) => Number(v ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** Backend AssetType enum'una göre native para birimi. PortfolioPage tablo helper'ının aynısı. */
+function nativeCurrencyOf(item) {
+    const sym = (item?.symbol || '').toUpperCase();
+    switch (item?.assetType) {
+        case 'STOCK':     return sym.endsWith('.IS') ? 'TRY' : 'USD';
+        case 'CRYPTO':
+        case 'COMMODITY':
+        case 'BOND':      return 'USD';
+        default:          return 'TRY';
+    }
+}
 
 /**
  * Mevcut bir holding'in üzerine ek alış yapma modal'ı.
- * Sembol/asset_type sabit (portfolio satırından geliyor); kullanıcı sadece miktar + fiyat girer.
- * Fiyat default olarak güncel piyasa fiyatına setleniyor — gerçek alımda farklı bir fiyat
- * girmek istiyorsa override edebilir.
+ * Input'lar asset'in NATIVE para biriminde (USD veya TRY) kalır — DB tutarlılığı için.
+ * Sadece gösterilen current price / ortalama maliyet global currency'ye dönüşür.
  */
 export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, currentPrice }) {
     const { t } = useTranslation(['portfolio', 'common']);
+    const { formatPrice } = useCurrency();
+    const native = nativeCurrencyOf(asset);
     const [quantity, setQuantity] = useState('');
     const [price, setPrice] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -77,7 +89,7 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                     <div className="text-xs text-text-muted mb-5 mt-2">
                         {t('portfolio:trade.holdingNow', {
                             quantity: Number(asset.quantity ?? 0).toFixed(6),
-                            avgPrice: fmtTry(asset.averagePrice)
+                            avgPrice: formatPrice(asset.averagePrice, native)
                         })}
                     </div>
 
@@ -99,15 +111,15 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold text-text-muted mb-1 uppercase flex items-center justify-between">
-                                <span>{t('portfolio:trade.price')} (TRY)</span>
+                            <label className="text-xs font-semibold text-text-muted mb-1 uppercase flex items-center justify-between">
+                                <span>{t('portfolio:trade.price')} ({native})</span>
                                 {currentPrice > 0 && (
                                     <button
                                         type="button"
                                         onClick={() => setPrice(String(currentPrice.toFixed(4)))}
                                         className="text-[10px] text-primary hover:underline normal-case"
                                     >
-                                        {t('portfolio:trade.useMarketPrice', { price: fmtTry(currentPrice) })}
+                                        {t('portfolio:trade.useMarketPrice', { price: formatPrice(currentPrice, native) })}
                                     </button>
                                 )}
                             </label>
@@ -125,7 +137,7 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                         {isValid && (
                             <div className="bg-bg border border-border rounded-lg p-3 flex justify-between items-center text-sm">
                                 <span className="text-text-muted">{t('portfolio:trade.total')}</span>
-                                <span className="font-mono font-bold text-buy">+ {fmtTry(total)} ₺</span>
+                                <span className="font-mono font-bold text-buy">+ {formatPrice(total, native)}</span>
                             </div>
                         )}
 

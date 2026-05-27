@@ -91,17 +91,20 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
 
             try {
                 const symbol = asset.symbol || asset.currencyCode;
+                // FundChartStrategy sadece category=TR_FUND ile eşleşiyor; param yoksa
+                // strategy chain Yahoo'ya düşer ve fund sembolü Yahoo'da olmadığı için 404 alır.
                 const chartData = await apiClient.get('/market-data/historical', {
                     params: {
                         symbol: symbol,
+                        category: 'TR_FUND',
                         range: '1d',
                         interval: '1d'
                     }
                 });
 
                 if (chartData && chartData.length > 0) {
-                    const lastPrice = chartData[chartData.length - 1].price;
-                    asset.currentPrice = lastPrice;
+                    const last = chartData[chartData.length - 1];
+                    asset.currentPrice = last.price || last.close || 0;
                 }
             } catch (error) {
                 console.error('Fund price fetch failed:', error);
