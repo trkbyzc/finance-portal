@@ -42,6 +42,8 @@
   },
   "labels": {
     "name": "Name",
+    "selectAsset": "Select Asset",
+    "alreadyAdded": "Added",
     "symbol": "Symbol",
     "price": "Price",
     "change": "Change",

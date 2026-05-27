@@ -38,6 +38,34 @@ export const detectNativeCurrency = (asset) => {
 };
 
 /**
+ * Type key + sembolden native currency çıkarır. Asset detail'inden değil, picker / portfolio satırı gibi
+ * sadece type-key (backend enum veya UI 8-type) ve sembolün elimizde olduğu yerlerde kullanılır.
+ *
+ *   STOCK            → sembol .IS ile bitiyorsa TRY, aksi USD (yabancı hisse)
+ *   CRYPTO/COMMODITY → USD (CoinGecko + Yahoo futures USD bazlı)
+ *   BOND             → USD (Yahoo Treasury yields)
+ *   CURRENCY/GOLD/BOND_TR/FUND/TR_BOND/TR_FUND → TRY
+ *
+ * @param {string} typeKey  AssetType enum veya UI uiKey ('STOCK', 'CRYPTO', 'GOLD', 'BOND_TR', ...)
+ * @param {string} [symbol] sembol; sadece STOCK için anlamlı
+ * @returns {'TRY' | 'USD'}
+ */
+export const nativeCurrencyForType = (typeKey, symbol) => {
+    const sym = (symbol || '').toUpperCase();
+    switch ((typeKey || '').toUpperCase()) {
+        case 'STOCK':
+            return sym.endsWith('.IS') ? 'TRY' : 'USD';
+        case 'CRYPTO':
+        case 'COMMODITY':
+        case 'BOND':
+            return 'USD';
+        default:
+            // CURRENCY, GOLD, BOND_TR, FUND, TR_BOND, TR_FUND → TRY (TR bazlı veya forexSelling = TRY karşılığı)
+            return 'TRY';
+    }
+};
+
+/**
  * Varlık "yield bazlı" mı? (% getiri tahvili). Bu durumda TRY/USD conversion anlamsız.
  * @param {Object} asset
  * @returns {boolean}

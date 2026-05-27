@@ -4,28 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
 import { useCurrency } from '../../context/CurrencyContext';
-
-/**
- * Asset'in "doğal" para birimini belirler — formatPrice convert yapsın diye.
- * Yabancı hisse + kripto + emtia + global tahvil → USD (Yahoo/CoinGecko USD bazlı).
- * BIST hisse + TR fon + döviz forexSelling + TR altın + TR tahvil → TRY.
- */
-function nativeCurrencyOf(selectedUiKey, asset) {
-    switch (selectedUiKey) {
-        case 'STOCK': {
-            const sym = (asset?.symbol || asset?.currencyCode || '').toUpperCase();
-            return sym.endsWith('.IS') ? 'TRY' : 'USD';
-        }
-        case 'CRYPTO':    return 'USD';
-        case 'COMMODITY': return 'USD';
-        case 'BOND':      return 'USD';
-        case 'CURRENCY':
-        case 'GOLD':
-        case 'BOND_TR':
-        case 'FUND':
-        default:          return 'TRY';
-    }
-}
+import { nativeCurrencyForType } from '../../utils/currencyConversion';
 
 const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
     const { t } = useTranslation(['portfolio', 'common', 'navbar']);
@@ -245,7 +224,7 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                                         const price = asset.price || asset.forexSelling || asset.value || asset.lastPrice || asset.unitPrice || 0;
                                         const hasPriceData = price > 0;
                                         const isFund = selectedType === 'FUND';
-                                        const native = nativeCurrencyOf(selectedType, asset);
+                                        const native = nativeCurrencyForType(selectedType, asset?.symbol || asset?.currencyCode);
 
                                         return (
                                             <button
@@ -297,7 +276,7 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                                         <div className="text-sm text-text-muted">{t('common:labels.price')}</div>
                                         {(() => {
                                             const currentPrice = selectedAsset.currentPrice || selectedAsset.price || selectedAsset.forexSelling || selectedAsset.value || selectedAsset.lastPrice || selectedAsset.unitPrice || 0;
-                                            const native = nativeCurrencyOf(selectedType, selectedAsset);
+                                            const native = nativeCurrencyForType(selectedType, selectedAsset?.symbol || selectedAsset?.currencyCode);
                                             return currentPrice > 0 ? (
                                                 <div className="font-semibold">{formatPrice(currentPrice, native)}</div>
                                             ) : (

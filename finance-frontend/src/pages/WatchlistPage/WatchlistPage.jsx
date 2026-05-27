@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Star, Plus, Trash2, Loader2 } from 'lucide-react';
 
 import { watchlistApi } from '../../services/api/watchlistApi';
-import AddToWatchlistModal from '../../components/watchlist/AddToWatchlistModal';
+import BaseAssetPickerModal from '../../components/common/BaseAssetPickerModal';
 
 function Sparkline({ data, positive }) {
     if (!data || data.length < 2) {
@@ -180,10 +180,20 @@ export default function WatchlistPage() {
                     </div>
                 )}
 
-                <AddToWatchlistModal
+                <BaseAssetPickerModal
                     isOpen={modalOpen}
                     onClose={() => setModalOpen(false)}
-                    onSubmit={handleAdd}
+                    titleKey="watchlist:modal.addTitle"
+                    excludeKeys={items.map(it => `${it.assetType}:${it.symbol}`)}
+                    onSelect={async ({ symbol, assetType }) => {
+                        try {
+                            await handleAdd({ symbol, assetType });
+                            setModalOpen(false);
+                        } catch (e) {
+                            // eslint-disable-next-line no-console
+                            console.error('Watchlist add error', e);
+                        }
+                    }}
                 />
             </div>
         </div>

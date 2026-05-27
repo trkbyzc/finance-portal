@@ -2,18 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Minus, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
-
-/** PortfolioPage tablo helper'ı ile aynı mantık — backend AssetType enum'una göre. */
-function nativeCurrencyOf(item) {
-    const sym = (item?.symbol || '').toUpperCase();
-    switch (item?.assetType) {
-        case 'STOCK':     return sym.endsWith('.IS') ? 'TRY' : 'USD';
-        case 'CRYPTO':
-        case 'COMMODITY':
-        case 'BOND':      return 'USD';
-        default:          return 'TRY';
-    }
-}
+import { nativeCurrencyForType } from '../../utils/currencyConversion';
 
 /**
  * Mevcut holding'den satış yapma modal'ı.
@@ -25,7 +14,7 @@ function nativeCurrencyOf(item) {
 export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPrice }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
-    const native = nativeCurrencyOf(asset);
+    const native = nativeCurrencyForType(asset?.assetType, asset?.symbol);
     const [quantity, setQuantity] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');

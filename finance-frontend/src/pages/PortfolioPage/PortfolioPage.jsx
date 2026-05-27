@@ -11,26 +11,7 @@ import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 import { useCurrency } from '../../context/CurrencyContext';
-
-/**
- * Holding'in doğal para birimi — formatPrice convert yapsın diye.
- * Backend AssetType enum'unda GOLD/BOND_TR yok (UI ayrımı), bu yüzden mapping
- * sadece backend enum'una göre yapılır:
- *   STOCK .IS → TRY ; STOCK foreign → USD
- *   CRYPTO / COMMODITY / BOND → USD
- *   CURRENCY / FUND → TRY
- */
-function nativeCurrencyOf(item) {
-    const type = item.assetType;
-    const sym = (item.symbol || '').toUpperCase();
-    switch (type) {
-        case 'STOCK':     return sym.endsWith('.IS') ? 'TRY' : 'USD';
-        case 'CRYPTO':    return 'USD';
-        case 'COMMODITY': return 'USD';
-        case 'BOND':      return 'USD';
-        default:          return 'TRY';
-    }
-}
+import { nativeCurrencyForType } from '../../utils/currencyConversion';
 
 const PortfolioPage = () => {
     const { t } = useTranslation(['portfolio', 'common']);
@@ -263,7 +244,7 @@ const PortfolioPage = () => {
                                         <td className="p-4 text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
                                         <td className="p-4 text-right">{item.quantity}</td>
                                         {(() => {
-                                            const native = nativeCurrencyOf(item);
+                                            const native = nativeCurrencyForType(item.assetType, item.symbol);
                                             return (<>
                                                 <td className="p-4 text-right">{formatPrice(item.averagePrice, native)}</td>
                                                 <td className="p-4 text-right">{formatPrice(calc.currentPrice, native)}</td>

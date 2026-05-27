@@ -5,7 +5,7 @@ import { GitCompare, Plus, X, Loader2, TrendingUp, TrendingDown, Info } from 'lu
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 
 import { whatIfApi } from '../../services/api/whatIfApi';
-import AssetPickerModal from './AssetPickerModal';
+import BaseAssetPickerModal from '../../components/common/BaseAssetPickerModal';
 
 // Recharts multi-line için sabit palet — 8 farklı renk, asset chip ve line aynı renkte.
 const PALETTE = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'];
@@ -250,11 +250,15 @@ export default function WhatIfPage() {
                     </>
                 )}
 
-                <AssetPickerModal
+                <BaseAssetPickerModal
                     isOpen={pickerOpen}
                     onClose={() => setPickerOpen(false)}
-                    onSelect={handleAddAsset}
-                    existingKeys={assets.map(a => `${a.assetType}:${a.symbol}`)}
+                    titleKey="whatIf:modal.title"
+                    excludeKeys={assets.map(a => `${a.assetType}:${a.symbol}`)}
+                    onSelect={({ symbol, assetType, label }) => {
+                        handleAddAsset({ symbol, assetType, label });
+                        setPickerOpen(false);
+                    }}
                 />
             </div>
         </div>

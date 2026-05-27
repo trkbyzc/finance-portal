@@ -42,6 +42,8 @@
   },
   "labels": {
     "name": "İsim",
+    "selectAsset": "Varlık Seç",
+    "alreadyAdded": "Ekli",
     "symbol": "Sembol",
     "price": "Fiyat",
     "change": "Değişim",
