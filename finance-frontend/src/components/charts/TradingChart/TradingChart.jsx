@@ -23,8 +23,9 @@ const BIST_OPTIONS = [
 // Kripto benchmark — Bitwise 10 Crypto Index Fund (BITW). Top 10 kripto market-cap ağırlıklı.
 // Yahoo'daki gerçek kripto endeksleri (^CMC200/100/500) delisted (son veri 2024-08); BITW
 // endeks fonu olarak canlı ve kavramsal olarak aynı işi görüyor — BIST 30'un kripto karşılığı.
+// Renk: mor (#9c27b0). Asset turuncusu (#ff9800) ile yeterince kontrast, ayrıca BIST 3 rengiyle de çakışmaz.
 const CRYPTO_OPTIONS = [
-    { key: 'BITW', symbol: 'BITW', label: 'BITW (Top 10)', color: '#f7931a', category: 'INDEX' }
+    { key: 'BITW', symbol: 'BITW', label: 'BITW (Top 10)', color: '#9c27b0', category: 'INDEX' }
 ];
 const ASSET_COLOR = '#ff9800';
 

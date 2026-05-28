@@ -37,7 +37,10 @@ public class FutureService {
             "6E=F", "6B=F", "6J=F"
     };
 
-    private static final String CACHE_KEY = "cache:futures";
+    // v2 — symbol listesi 4 emtia ağırlıklı setten 10 endeks/tahvil/döviz setine yeniden düzenlendi.
+    // Versiyonlama, eski "cache:futures" payload'ı Redis'te kalsa bile yeni kodun taze key'den
+    // okumasını garantiler — Redis flush gerekmez, code-driven invalidation.
+    private static final String CACHE_KEY = "cache:futures:v2";
     private static final int CACHE_TTL_MIN = 5;
 
     public List<FutureDto> getFutures() {
