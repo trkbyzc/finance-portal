@@ -47,9 +47,10 @@ public class EconomySyncService {
         // 1. CANLI KART VERİLERİ (Son 180 güne bakıp en güncelini al)
         Map<String, Object> macroData = new HashMap<>();
 
-        // TP.AOFOD: TCMB 1 hafta vadeli repo faiz oranı (politika faizi). 2010'lara kadar history var.
-        // Eski TP.APIFON4 (BIST repo ortalaması) sadece 2022-08+ veri veriyordu, 10Y grafiği için yetersizdi.
-        Double interest = extractLatest(evdsClient.fetchSeries(List.of("TP.AOFOD"), today.minusDays(180), today, null), "TP.AOFOD");
+        // TP.APIFON4: BIST Repo-Reverse Repo Pazarı Ortalama Faiz Oranı.
+        // History TCMB tarafından ~2022-08'de yeniden yapılandırıldı, ondan eskisi yok.
+        // Daha uzun politika faizi tarihçesi için doğru EVDS kodu tespit edilmeli.
+        Double interest = extractLatest(evdsClient.fetchSeries(List.of("TP.APIFON4"), today.minusDays(180), today, null), "TP.APIFON4");
         Double unemployment = extractLatest(evdsClient.fetchSeries(List.of("TP.TIG08"), today.minusDays(180), today, null), "TP.TIG08");
         Double inflation = extractLatest(evdsClient.fetchSeries(List.of("TP.GENENDEKS.T1"), today.minusDays(180), today, "3"), "TP.GENENDEKS.T1");
 
@@ -65,7 +66,7 @@ public class EconomySyncService {
 
         // 2. 10 YILLIK GRAFİK GEÇMİŞİ
         LocalDate tenYearsAgo = today.minusDays(3650);
-        saveHistory("TP.AOFOD", "interestRate", tenYearsAgo, today, null);
+        saveHistory("TP.APIFON4", "interestRate", tenYearsAgo, today, null);
         saveHistory("TP.TIG08", "unemploymentRate", tenYearsAgo, today, null);
         saveHistory("TP.GENENDEKS.T1", "inflationRate", tenYearsAgo, today, "3");
         // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer
@@ -108,8 +109,13 @@ public class EconomySyncService {
         if (!historyList.isEmpty()) {
             try {
                 redisTemplate.opsForValue().set("evds:history:macro:" + metricName, objectMapper.writeValueAsString(historyList), 86400, TimeUnit.SECONDS);
-                log.info("[EVDS-ECONOMY] {} -> {} aylık veri Redis'e basıldı.", metricName, historyList.size());
+                log.info("[EVDS-ECONOMY] {} ({}): {} kayıt Redis'e basıldı (ilk: {}, son: {}).",
+                        metricName, code, historyList.size(),
+                        historyList.get(0).get("date"), historyList.get(historyList.size() - 1).get("date"));
             } catch (Exception e) { log.error("Macro History Error", e); }
+        } else {
+            log.warn("[EVDS-ECONOMY] {} ({}): EVDS boş döndü — seri kodu yanlış veya tarih aralığında veri yok. " +
+                     "Eski cache'i KORUYORUZ (overwrite etmiyoruz).", metricName, code);
         }
     }
 
