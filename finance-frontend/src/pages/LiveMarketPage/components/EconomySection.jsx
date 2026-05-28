@@ -65,7 +65,18 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
                                 <XAxis dataKey="label" stroke="#868993" tick={{fill: '#868993', fontSize: 10, fontWeight: 600}} axisLine={false} tickLine={false} dy={20} minTickGap={30} padding={{ left: 35, right: 35 }} />
                                 <YAxis orientation="right" stroke="#868993" tick={{fill: '#868993', fontSize: 11}} axisLine={false} tickLine={false} tickFormatter={(val) => economyMetric === 'population' ? `${val.toFixed(0)}M` : `%${val.toFixed(0)}`} />
                                 <RechartsTooltip content={<CustomEconomyTooltip economyMetric={economyMetric} />} cursor={{ stroke: '#2a2e39', strokeWidth: 2 }} />
-                                <Line type="monotone" dataKey="value" stroke={economyMetric === 'unemploymentRate' ? '#f23645' : '#089981'} strokeWidth={3} dot={{ r: 4, fill: economyMetric === 'unemploymentRate' ? '#f23645' : '#089981', strokeWidth: 0 }} activeDot={{ r: 7, fill: '#fff', stroke: '#089981', strokeWidth: 3 }} animationDuration={800} />
+                                {/* dot=false + isAnimationActive=false: 10Y günlük veride ~2600 nokta
+                                    olabiliyor; her birinde dot render + 800ms animasyon switch'i
+                                    metric değişiminde UI'ı dondurur. activeDot hover'da hâlâ görünür. */}
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke={economyMetric === 'unemploymentRate' ? '#f23645' : '#089981'}
+                                    strokeWidth={3}
+                                    dot={false}
+                                    activeDot={{ r: 6, fill: '#fff', stroke: '#089981', strokeWidth: 3 }}
+                                    isAnimationActive={false}
+                                />
                             </LineChart>
                         </ResponsiveContainer>
                     )}
