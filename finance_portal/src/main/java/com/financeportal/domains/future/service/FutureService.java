@@ -33,16 +33,29 @@ public class FutureService {
             "6E=F", "6B=F", "6J=F"
     };
 
+    private static final String CACHE_KEY = "cache:futures";
+    private static final int CACHE_TTL_MIN = 5;
+
     public List<FutureDto> getFutures() {
-        return cacheService.getOrFetch("cache:futures", () -> {
-            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(FUTURE_SYMBOLS, "GLOBAL VADELİ İŞLEM");
-            return raw.stream().map(this::mapToDto).toList();
-        }, 5);
+        return cacheService.getOrFetch(CACHE_KEY, this::fetchFromYahoo, CACHE_TTL_MIN);
     }
 
-    @Scheduled(fixedRate = 300000) // 5 dakikada bir cache yenile
+    /**
+     * 5 dakikada bir cache'i ZORLA tazeler — getFutures'ı çağırmak yerine doğrudan
+     * fetch + save kullanılır, böylece scheduled job cache hit'te eski listeyi
+     * tutmaz. Symbol listesi değiştiğinde de bir sonraki sync cycle'da yansır.
+     */
+    @Scheduled(fixedRate = 300_000) // 5 dakika
     public void syncFutures() {
-        getFutures();
+        List<FutureDto> fresh = fetchFromYahoo();
+        if (fresh != null && !fresh.isEmpty()) {
+            cacheService.save(CACHE_KEY, fresh, CACHE_TTL_MIN);
+        }
+    }
+
+    private List<FutureDto> fetchFromYahoo() {
+        List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(FUTURE_SYMBOLS, "GLOBAL VADELİ İŞLEM");
+        return raw.stream().map(this::mapToDto).toList();
     }
 
     private FutureDto mapToDto(MarketAssetDto m) {
