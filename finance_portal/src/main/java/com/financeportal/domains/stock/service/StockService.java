@@ -23,15 +23,41 @@ public class StockService {
     private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
     private final CacheService cacheService;
 
-    private final String[] GLOBAL_STOCK_SYMBOLS = { "AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL", "META", "NFLX", "AMD", "INTC", "BABA", "JPM", "V", "WMT", "JNJ", "PG", "MA", "HD" };
+    private final String[] GLOBAL_STOCK_SYMBOLS = {
+            // Mevcut çekirdek (mega-cap + bilinen marka)
+            "AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL", "META", "NFLX", "AMD", "INTC",
+            "BABA", "JPM", "V", "WMT", "JNJ", "PG", "MA", "HD",
+            // Yeni: Nasdaq tech ağırlıklı — yarı iletken + yazılım/cloud
+            // Yarı iletken: TSM, ASML, AVGO, QCOM, TXN, AMAT, MU, LRCX, KLAC
+            // Yazılım/Cloud:  ADBE, CRM, ORCL
+            "TSM", "ASML", "AVGO", "QCOM", "TXN", "AMAT", "MU", "LRCX", "KLAC",
+            "ADBE", "CRM", "ORCL"
+    };
 
     public List<StockDto> getStocks() {
         return cacheService.getOrFetch("cache:stocks", this::fetchAndCombineStocks, 5);
     }
 
+    /**
+     * Endeks listesi: BIST (5) + US (4) + Crypto (1) = 10 endeks.
+     * Frontend ComparisonSection asset picker'ı bu listeden besleniyor — yeni endeks ekleyince
+     * UI'da otomatik benchmark olarak seçilebilir hale gelir.
+     *   BIST  : XU100, XU030, XU050, XBANK, XUSIN
+     *   US    : ^GSPC (S&P 500), ^IXIC (Nasdaq Composite), ^NDX (Nasdaq 100), ^DJI (Dow Jones)
+     *   Kripto: ^CMC200 (CoinMarketCap 200 — kripto piyasası endeksi)
+     * Yahoo Finance'ten doğrudan çekiliyor; `^` ile başlayan semboller chart endpoint'inde
+     * {@link com.financeportal.domains.chart.strategy.impl.YahooDefaultChartStrategy}
+     * tarafından yakalanır.
+     */
+    private static final String[] INDEX_SYMBOLS = {
+            "XU100.IS", "XU030.IS", "XU050.IS", "XBANK.IS", "XUSIN.IS",
+            "^GSPC", "^IXIC", "^NDX", "^DJI",
+            "^CMC200"
+    };
+
     public List<StockDto> getIndices() {
         return cacheService.getOrFetch("cache:indices", () -> {
-            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(new String[]{"XU100.IS", "XU030.IS", "XU050.IS", "XBANK.IS", "XUSIN.IS"}, "ENDEKS");
+            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(INDEX_SYMBOLS, "ENDEKS");
             return raw.stream().map(this::mapToStockDto).toList();
         }, 5);
     }
