@@ -17,7 +17,8 @@ export default function WhatIfPage() {
 
     const [investmentDate, setInvestmentDate] = useState('');
     const [amountTry, setAmountTry] = useState('');
-    const [assets, setAssets] = useState([]); // [{symbol, assetType, label}]
+    const [inputMode, setInputMode] = useState('amount'); // 'amount' | 'quantity'
+    const [assets, setAssets] = useState([]); // [{symbol, assetType, label, quantity?}]
     const [pickerOpen, setPickerOpen] = useState(false);
     const [result, setResult] = useState(null);
 
@@ -30,7 +31,8 @@ export default function WhatIfPage() {
     const handleAddAsset = (asset) => {
         const key = `${asset.assetType}:${asset.symbol}`;
         if (assets.find(a => `${a.assetType}:${a.symbol}` === key)) return;
-        setAssets([...assets, asset]);
+        // Miktar mode'da varsayılan 1 birim atayalım — user değiştirebilir
+        setAssets([...assets, { ...asset, quantity: 1 }]);
         setPickerOpen(false);
         setResult(null); // form değişti, eski result invalidate
     };
@@ -40,12 +42,30 @@ export default function WhatIfPage() {
         setResult(null);
     };
 
+    const handleQuantityChange = (idx, value) => {
+        const num = parseFloat(value);
+        setAssets(assets.map((a, i) => i === idx ? { ...a, quantity: isNaN(num) ? '' : num } : a));
+        setResult(null);
+    };
+
     const handleCompare = () => {
-        if (!investmentDate || !amountTry || assets.length === 0) return;
+        if (!investmentDate || assets.length === 0) return;
+        // Tutar mode: global amountTry + assets sadece sembol+tip
+        // Miktar mode: amountTry yok, her asset için quantity ekli
+        const isQuantityMode = inputMode === 'quantity';
+        if (isQuantityMode) {
+            // Her asset'in quantity'si > 0 olmalı
+            if (!assets.every(a => Number(a.quantity) > 0)) return;
+        } else {
+            if (!amountTry || parseFloat(amountTry) <= 0) return;
+        }
         const payload = {
             investmentDate,
-            amountTry: parseFloat(amountTry),
-            assets: assets.map(a => ({ symbol: a.symbol, assetType: a.assetType }))
+            amountTry: isQuantityMode ? null : parseFloat(amountTry),
+            assets: assets.map(a => isQuantityMode
+                ? { symbol: a.symbol, assetType: a.assetType, quantity: Number(a.quantity) }
+                : { symbol: a.symbol, assetType: a.assetType }
+            )
         };
         compareMutation.mutate(payload);
     };
@@ -67,7 +87,11 @@ export default function WhatIfPage() {
         return Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
     }, [result]);
 
-    const canCompare = investmentDate && amountTry && parseFloat(amountTry) > 0 && assets.length >= 1 && !compareMutation.isPending;
+    const canCompare = (() => {
+        if (!investmentDate || assets.length === 0 || compareMutation.isPending) return false;
+        if (inputMode === 'amount') return amountTry && parseFloat(amountTry) > 0;
+        return assets.every(a => Number(a.quantity) > 0);
+    })();
 
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -85,7 +109,29 @@ export default function WhatIfPage() {
 
                 {/* Form */}
                 <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    {/* Mode toggle — Tutar (global) veya Miktar (per-asset) */}
+                    <div className="mb-4 flex items-center gap-1 p-1 bg-bg border border-border rounded-lg w-fit">
+                        <button
+                            type="button"
+                            onClick={() => { setInputMode('amount'); setResult(null); }}
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition ${
+                                inputMode === 'amount' ? 'bg-primary text-primary-fg' : 'text-text-muted hover:text-text'
+                            }`}
+                        >
+                            {t('whatIf:form.modeAmount', 'Tutar')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setInputMode('quantity'); setResult(null); }}
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition ${
+                                inputMode === 'quantity' ? 'bg-primary text-primary-fg' : 'text-text-muted hover:text-text'
+                            }`}
+                        >
+                            {t('whatIf:form.modeQuantity', 'Miktar')}
+                        </button>
+                    </div>
+
+                    <div className={`grid grid-cols-1 ${inputMode === 'amount' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4 mb-4`}>
                         <div>
                             <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
                                 {t('whatIf:form.investmentDate')}
@@ -98,20 +144,22 @@ export default function WhatIfPage() {
                                 className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                             />
                         </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                {t('whatIf:form.amount')} (TRY)
-                            </label>
-                            <input
-                                type="number"
-                                value={amountTry}
-                                onChange={(e) => { setAmountTry(e.target.value); setResult(null); }}
-                                placeholder="10000"
-                                min="0"
-                                step="100"
-                                className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                            />
-                        </div>
+                        {inputMode === 'amount' && (
+                            <div>
+                                <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                    {t('whatIf:form.amount')} (TRY)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={amountTry}
+                                    onChange={(e) => { setAmountTry(e.target.value); setResult(null); }}
+                                    placeholder="10000"
+                                    min="0"
+                                    step="100"
+                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                                />
+                            </div>
+                        )}
                         <div className="flex items-end">
                             <button
                                 onClick={handleCompare}
@@ -124,29 +172,52 @@ export default function WhatIfPage() {
                         </div>
                     </div>
 
-                    {/* Asset chips */}
+                    {/* Asset chips — miktar mode'da her chip'in altında quantity input */}
                     <div>
                         <label className="block text-xs font-semibold text-text-muted mb-2 uppercase">
                             {t('whatIf:form.assets')} ({assets.length})
+                            {inputMode === 'quantity' && (
+                                <span className="ml-2 text-[10px] normal-case font-normal text-text-muted/70">
+                                    — {t('whatIf:form.quantityHint', 'her varlık için miktar gir')}
+                                </span>
+                            )}
                         </label>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className={`flex flex-wrap ${inputMode === 'quantity' ? 'items-start' : 'items-center'} gap-2`}>
                             {assets.map((a, idx) => (
                                 <div
                                     key={`${a.assetType}:${a.symbol}`}
-                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-bg border rounded-lg text-sm"
+                                    className={`bg-bg border rounded-lg text-sm ${
+                                        inputMode === 'quantity' ? 'px-3 py-2 flex flex-col gap-1.5' : 'px-3 py-1.5 inline-flex items-center gap-2'
+                                    }`}
                                     style={{ borderColor: PALETTE[idx % PALETTE.length] + '60' }}
                                 >
-                                    <span className="w-2 h-2 rounded-full" style={{ background: PALETTE[idx % PALETTE.length] }}></span>
-                                    <span className="font-bold">{a.symbol}</span>
-                                    <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
-                                    <button onClick={() => handleRemoveAsset(idx)} className="text-text-muted hover:text-sell ml-1">
-                                        <X size={14} />
-                                    </button>
+                                    <div className="inline-flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full" style={{ background: PALETTE[idx % PALETTE.length] }}></span>
+                                        <span className="font-bold">{a.symbol}</span>
+                                        <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
+                                        <button onClick={() => handleRemoveAsset(idx)} className="text-text-muted hover:text-sell ml-1">
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                    {inputMode === 'quantity' && (
+                                        <div className="inline-flex items-center gap-1.5 text-xs">
+                                            <span className="text-text-muted">{t('whatIf:form.qty', 'Miktar')}:</span>
+                                            <input
+                                                type="number"
+                                                value={a.quantity ?? ''}
+                                                onChange={(e) => handleQuantityChange(idx, e.target.value)}
+                                                placeholder="1"
+                                                min="0"
+                                                step="any"
+                                                className="w-24 bg-surface-2 border border-border rounded px-2 py-0.5 text-xs focus:outline-none focus:border-primary"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                             <button
                                 onClick={() => setPickerOpen(true)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg text-sm font-semibold transition"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg text-sm font-semibold transition self-start"
                             >
                                 <Plus size={14} /> {t('whatIf:form.addCompare')}
                             </button>

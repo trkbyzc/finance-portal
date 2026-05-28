@@ -7,7 +7,13 @@
     "assets": "Karşılaştırılacak Varlıklar",
     "assetsHint": "En az 1 varlık ekle. Birden fazla varlık eklersen aynı grafikte yan yana görürsün.",
     "addCompare": "Varlık Ekle",
-    "compare": "Karşılaştır"
+    "compare": "Karşılaştır",
+    "modeAmount": "Tutar",
+    "modeQuantity": "Miktar",
+    "modeAmountHint": "tek bir tutarı tüm varlıklara uygula",
+    "modeQuantityHint": "her varlık için ayrı miktar gir",
+    "qty": "Miktar",
+    "quantityHint": "her varlık için miktar gir"
   },
   "modal": {
     "title": "Karşılaştırmaya Varlık Ekle",

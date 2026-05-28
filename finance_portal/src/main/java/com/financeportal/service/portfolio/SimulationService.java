@@ -184,6 +184,45 @@ public class SimulationService {
                 .build();
     }
 
+    /**
+     * Miktar-bazlı varyant. Kullanıcı "şu tarihte X birim aldıydım" der; biz o tarihteki entry price ile
+     * çarpıp amountTry'a çevirir, sonra normal {@link #compute} akışını kullanırız (tek tane series formülü).
+     * <p>
+     * WhatIfService'in miktar mode'unda her asset için ayrı amountTry hesaplanmasını sağlar — global
+     * tek amountTry yetersiz çünkü her varlığın birim fiyatı farklı.
+     */
+    public SimulationResultDto computeFromQuantity(String symbol, AssetType assetType, LocalDate investmentDate, BigDecimal quantity) {
+        if (quantity == null || quantity.signum() <= 0) {
+            return warningResult(BigDecimal.ZERO, "Geçersiz miktar.");
+        }
+
+        List<?> history = safeFetchHistory(symbol, assetType);
+        if (history == null || history.isEmpty()) {
+            return warningResult(BigDecimal.ZERO, "Bu varlık için historical veri yok.");
+        }
+
+        // Entry tarihindeki fiyatı bul — compute() ile aynı tarihçe lookup mantığı, sonra amountTry türet
+        List<Object> sorted = new ArrayList<>(history);
+        sorted.sort(Comparator.comparing(p -> {
+            LocalDate d = dateOf(p);
+            return d == null ? LocalDate.MIN : d;
+        }));
+        BigDecimal entryPrice = null;
+        for (Object p : sorted) {
+            LocalDate d = dateOf(p);
+            if (d != null && !d.isBefore(investmentDate)) {
+                entryPrice = closeOf(p);
+                break;
+            }
+        }
+        if (entryPrice == null || entryPrice.signum() <= 0) {
+            return warningResult(BigDecimal.ZERO, "Entry tarihindeki fiyat geçersiz.");
+        }
+
+        BigDecimal amountTry = quantity.multiply(entryPrice).setScale(4, RoundingMode.HALF_UP);
+        return compute(symbol, assetType, investmentDate, amountTry);
+    }
+
     // ---------- helpers ----------
 
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {

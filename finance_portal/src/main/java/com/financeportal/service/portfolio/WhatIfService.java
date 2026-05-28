@@ -44,13 +44,20 @@ public class WhatIfService {
     );
 
     public WhatIfResultDto compare(WhatIfRequestDto req) {
-        if (req == null || req.getAmountTry() == null || req.getInvestmentDate() == null
+        if (req == null || req.getInvestmentDate() == null
                 || req.getAssets() == null || req.getAssets().isEmpty()) {
             return new WhatIfResultDto(
                     req != null ? req.getInvestmentDate() : null,
                     req != null ? req.getAmountTry() : null,
                     Collections.emptyList()
             );
+        }
+        // Tutar VEYA miktar mode kabul edilir. İkisi de yoksa boş sonuç.
+        boolean hasGlobalAmount = req.getAmountTry() != null && req.getAmountTry().signum() > 0;
+        boolean allAssetsHaveQty = req.getAssets().stream()
+                .allMatch(a -> a.getQuantity() != null && a.getQuantity().signum() > 0);
+        if (!hasGlobalAmount && !allAssetsHaveQty) {
+            return new WhatIfResultDto(req.getInvestmentDate(), req.getAmountTry(), Collections.emptyList());
         }
 
         List<CompletableFuture<WhatIfAssetSeries>> futures = new ArrayList<>(req.getAssets().size());
@@ -79,7 +86,11 @@ public class WhatIfService {
     }
 
     private WhatIfAssetSeries computeOne(WhatIfAssetRef ref, LocalDate date, BigDecimal amount) {
-        SimulationResultDto sim = simulationService.compute(ref.getSymbol(), ref.getAssetType(), date, amount);
+        // Asset bazlı quantity verildiyse miktar mode (her asset için ayrı amountTry hesaplanır);
+        // yoksa global amountTry (tutar mode, varsayılan davranış).
+        SimulationResultDto sim = (ref.getQuantity() != null && ref.getQuantity().signum() > 0)
+                ? simulationService.computeFromQuantity(ref.getSymbol(), ref.getAssetType(), date, ref.getQuantity())
+                : simulationService.compute(ref.getSymbol(), ref.getAssetType(), date, amount);
         WhatIfAssetSeries out = new WhatIfAssetSeries();
         out.setKey(keyOf(ref));
         out.setSymbol(ref.getSymbol());
