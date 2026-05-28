@@ -1,0 +1,48 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+
+/**
+ * Generic benchmark karşılaştırma toggle bar — BIST endeksleri için ve kripto için de
+ * aynı görsel dilde. Aktif buton kendi rengiyle dolgulu, pasif outline.
+ *
+ * @param {string} labelKey i18n key (örn. 'charts:bistCompare', 'charts:cryptoCompare')
+ * @param {string} activeLabelKey aktif olduğunda gösterilen italik mesaj key'i
+ * @param {Array} options [{ key, label, color }]
+ * @param {Object} activeMap { key: bool }
+ * @param {Function} onToggle (key) => void
+ */
+export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle }) {
+    const { t } = useTranslation('charts');
+    const hasActive = Object.values(activeMap).some(Boolean);
+
+    return (
+        <div className="h-11 bg-surface border-b border-border flex items-center px-4 gap-2 shrink-0">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted mr-2">
+                {t(labelKey)}
+            </span>
+            {options.map(b => {
+                const active = activeMap[b.key];
+                return (
+                    <button
+                        key={b.key}
+                        onClick={() => onToggle(b.key)}
+                        className={`px-3 py-1 text-xs font-bold rounded-md border transition-all ${
+                            active ? 'text-text shadow-lg' : 'bg-surface-2 hover:bg-surface-hover'
+                        }`}
+                        style={active
+                            ? { backgroundColor: b.color, borderColor: b.color, boxShadow: `0 0 12px ${b.color}55` }
+                            : { color: b.color, borderColor: `${b.color}66` }
+                        }
+                    >
+                        {b.label}
+                    </button>
+                );
+            })}
+            {hasActive && (
+                <span className="ml-auto text-[10px] text-text-muted italic">
+                    {t(activeLabelKey)}
+                </span>
+            )}
+        </div>
+    );
+}
