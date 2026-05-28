@@ -21,7 +21,7 @@
     "viop": "Futures (VIOP)",
     "viopDesc": "BIST Futures Contracts",
     "globalFutures": "Global Futures",
-    "globalFuturesDesc": "S&P, Nasdaq, Gold, Oil Futures",
+    "globalFuturesDesc": "Index, Treasury & Currency Futures",
     "tcmbRates": "CBRT Rates",
     "tcmbDesc": "Official Indicative Rate",
     "effectiveRates": "Effective Rates",

@@ -6,11 +6,12 @@ import { useMarketData } from '../../../../hooks/useMarketData';
 import { useCurrency } from '../../../../context/CurrencyContext';
 
 /**
- * Küresel vadeli işlem sözleşmeleri (ES=F, NQ=F, GC=F, CL=F vs).
- * Yahoo Futures kotasyonları → USD denominated; CurrencyContext otomatik USD/TRY toggle yapar.
- * Liste sırası: endeks vadelileri → enerji → metal → tahvil (kategori bazlı).
+ * Küresel vadeli işlem sözleşmeleri — endeks + tahvil + döviz vadelileri.
+ * Emtia futures (GC=F, CL=F vb.) bilinçli olarak burada yok; onlar Commodities sayfasında.
+ * Yahoo kotasyonları USD denominated; CurrencyContext otomatik USD/TRY toggle yapar.
+ * Liste sırası: endeks vadelileri → tahvil vadelileri → döviz vadelileri.
  */
-const CATEGORY_ORDER = ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'CL=F', 'BZ=F', 'NG=F', 'GC=F', 'SI=F', 'HG=F', 'ZN=F'];
+const CATEGORY_ORDER = ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'ZN=F', 'ZB=F', 'ZF=F', '6E=F', '6B=F', '6J=F'];
 
 export default function GlobalFuturesDashboard() {
     const { data: futures, loading } = useMarketData('futures');

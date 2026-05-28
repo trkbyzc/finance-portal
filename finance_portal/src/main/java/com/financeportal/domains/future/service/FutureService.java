@@ -19,18 +19,18 @@ public class FutureService {
     private final CacheService cacheService;
 
     /**
-     * Yahoo'dan canlı küresel vadeli işlem kotasyonları. 4 ana grup:
+     * Yahoo'dan canlı küresel vadeli işlem kotasyonları. Emtia (GC/SI/CL/BZ/NG/HG) ile
+     * <b>kasıtlı olarak overlap yok</b> — onları CommodityService taşıyor. Bu domain
+     * sadece türev araç olarak endeks + tahvil + döviz vadelilerine odaklanıyor:
      *   - US Endeks Vadelileri: ES (S&P 500), NQ (Nasdaq 100), YM (Dow Jones), RTY (Russell 2000)
-     *   - Enerji Vadelileri:    CL (WTI Petrol), BZ (Brent Petrol), NG (Doğalgaz)
-     *   - Metal Vadelileri:     GC (Altın), SI (Gümüş), HG (Bakır)
-     *   - Tahvil Vadelileri:    ZN (10Y T-Note)
+     *   - US Tahvil Vadelileri: ZN (10Y T-Note), ZB (30Y T-Bond), ZF (5Y T-Note)
+     *   - Döviz Vadelileri:     6E (EUR/USD), 6B (GBP/USD), 6J (JPY/USD)
      * 5 dakika cache; PortfolioPriceService fallback chain'inden de çağrılıyor.
      */
     private static final String[] FUTURE_SYMBOLS = {
             "ES=F", "NQ=F", "YM=F", "RTY=F",
-            "CL=F", "BZ=F", "NG=F",
-            "GC=F", "SI=F", "HG=F",
-            "ZN=F"
+            "ZN=F", "ZB=F", "ZF=F",
+            "6E=F", "6B=F", "6J=F"
     };
 
     public List<FutureDto> getFutures() {

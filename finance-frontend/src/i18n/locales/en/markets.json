@@ -198,7 +198,7 @@
   },
   "globalFutures": {
     "headerTitle": "Global Futures",
-    "headerSubtitle": "S&P 500, Nasdaq, Dow, Russell index futures + Gold, Silver, Oil, Natural Gas, Copper + US 10Y T-Note",
+    "headerSubtitle": "Index futures (S&P 500, Nasdaq, Dow, Russell) + US Treasury futures (5Y, 10Y, 30Y) + Currency futures (EUR, GBP, JPY). See the Commodities page for commodity futures.",
     "tableTitle": "All Futures Contracts",
     "emptyTitle": "No data yet",
     "emptySub": "Futures quotes from Yahoo Finance will appear here once loaded.",

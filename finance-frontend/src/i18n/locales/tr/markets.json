@@ -198,7 +198,7 @@
   },
   "globalFutures": {
     "headerTitle": "Küresel Vadeli İşlemler",
-    "headerSubtitle": "S&P 500, Nasdaq, Dow, Russell endeks vadelileri + Altın, Gümüş, Petrol, Doğalgaz, Bakır + ABD 10Y T-Note",
+    "headerSubtitle": "Endeks vadelileri (S&P 500, Nasdaq, Dow, Russell) + ABD Tahvil vadelileri (5Y, 10Y, 30Y) + Döviz vadelileri (EUR, GBP, JPY). Emtia vadelileri için Emtia sayfasına bak.",
     "tableTitle": "Tüm Vadeli Sözleşmeler",
     "emptyTitle": "Henüz veri yok",
     "emptySub": "Yahoo Finance vadeli kotasyonları geldiğinde liste burada görünecek.",
