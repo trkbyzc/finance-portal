@@ -93,28 +93,28 @@ function HoldingRow({ item, calc, formatPrice, t, onOpenHistory, onOpenBuy, onOp
                     </span>
                 </span>
             </td>
-            <td className="p-2 md:p-4 text-center whitespace-nowrap">
-                <div className="flex items-center justify-center gap-1 md:gap-2">
+            <td className="p-1 sm:p-2 md:p-4 text-center whitespace-nowrap">
+                <div className="flex items-center justify-center gap-0.5 sm:gap-1 md:gap-2">
                     <button
                         onClick={() => onOpenHistory(item.symbol)}
-                        className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-lg text-text-muted hover:text-primary hover:bg-primary/10 transition"
+                        className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex items-center justify-center rounded-md md:rounded-lg text-text-muted hover:text-primary hover:bg-primary/10 transition"
                         title={t('portfolio:transactions.openHistory')}
                     >
-                        <Clock size={16} />
+                        <Clock size={14} className="md:size-4" />
                     </button>
                     <button
                         onClick={() => onOpenBuy(item)}
-                        className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-lg text-buy hover:bg-buy/10 transition"
+                        className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex items-center justify-center rounded-md md:rounded-lg text-buy hover:bg-buy/10 transition"
                         title={t('portfolio:trade.buy')}
                     >
-                        <Plus size={16} />
+                        <Plus size={14} className="md:size-4" />
                     </button>
                     <button
                         onClick={() => onOpenSell(item)}
-                        className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-lg text-sell hover:bg-sell/10 transition"
+                        className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex items-center justify-center rounded-md md:rounded-lg text-sell hover:bg-sell/10 transition"
                         title={t('portfolio:trade.sell')}
                     >
-                        <Minus size={16} />
+                        <Minus size={14} className="md:size-4" />
                     </button>
                 </div>
             </td>
