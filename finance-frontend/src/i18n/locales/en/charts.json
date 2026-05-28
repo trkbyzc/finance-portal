@@ -43,6 +43,9 @@
     "trendLine": "Trend Line",
     "horizontalLine": "Horizontal Line",
     "rectangle": "Rectangle",
+    "arrow": "Arrow",
+    "text": "Text",
+    "ruler": "Ruler",
     "fibonacci": "Fibonacci",
     "removeAll": "Clear All Drawings"
   },

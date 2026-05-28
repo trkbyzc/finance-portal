@@ -43,6 +43,9 @@
     "trendLine": "Trend Çizgisi",
     "horizontalLine": "Yatay Çizgi",
     "rectangle": "Dikdörtgen",
+    "arrow": "Ok",
+    "text": "Metin",
+    "ruler": "Cetvel",
     "fibonacci": "Fibonacci",
     "removeAll": "Tüm Çizimleri Sil"
   },

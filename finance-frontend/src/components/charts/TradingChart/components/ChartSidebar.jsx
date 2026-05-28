@@ -9,9 +9,9 @@ export default function ChartSidebar({ onDraw, onRemoveAll }) {
         { id: 'segment', icon: Edit3, label: t('tools.trendLine') },
         { id: 'horizontalStraightLine', icon: Minus, label: t('tools.horizontalLine'), strokeWidth: 3 },
         { id: 'customRect', icon: Square, label: t('tools.rectangle') },
-        { id: 'customArrow', icon: ArrowUpRight, label: t('tools.trendLine') },
-        { id: 'customText', icon: Type, label: t('header.settings') },
-        { id: 'measureRuler', icon: Ruler, label: t('tools.fibonacci') }
+        { id: 'customArrow', icon: ArrowUpRight, label: t('tools.arrow') },
+        { id: 'customText', icon: Type, label: t('tools.text') },
+        { id: 'measureRuler', icon: Ruler, label: t('tools.ruler') }
     ];
 
     return (
