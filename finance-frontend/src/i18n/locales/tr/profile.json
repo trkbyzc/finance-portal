@@ -21,8 +21,16 @@
     "edit": "Düzenle",
     "changePassword": "Şifre Değiştir",
     "enable2fa": "2FA'yı Etkinleştir",
-    "manageInKeycloak": "Keycloak'ta Yönet",
     "deleteAccount": "Hesabı Sil"
+  },
+  "avatar": {
+    "change": "Avatarı değiştir",
+    "modalTitle": "Avatar Seç",
+    "modalSubtitle": "Profilini temsil eden bir avatar seç. İstediğin zaman değiştirebilirsin.",
+    "useInitials": "İlk harf kullan"
+  },
+  "security": {
+    "passwordHint": "Şifreni güvenli bir şekilde değiştirmek için yeni sekmede Keycloak hesap konsolu açılır."
   },
   "roles": {
     "admin": "Yönetici",

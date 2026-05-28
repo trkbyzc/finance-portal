@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
+import Avatar from '../profile/Avatar';
+import useProfileAvatar from '../../hooks/useProfileAvatar';
 
 export default function UserDrawer({ open, onClose }) {
     const { user, logout, isAdmin } = useAuth();
@@ -27,7 +29,8 @@ export default function UserDrawer({ open, onClose }) {
         onClose();
     };
 
-    const initials = (user?.preferred_username || user?.given_name || '?').charAt(0).toUpperCase();
+    const initials = (user?.preferred_username || user?.username || user?.given_name || user?.name || '?');
+    const avatarId = useProfileAvatar();
 
     return (
         <>
@@ -48,9 +51,7 @@ export default function UserDrawer({ open, onClose }) {
                 <div className="p-5 border-b border-border bg-linear-to-br from-primary/5 to-transparent">
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center font-black text-primary text-lg uppercase shadow-md">
-                                {initials}
-                            </div>
+                            <Avatar id={avatarId} fallbackInitials={initials} size={48} className="shadow-md" />
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-text truncate">
                                     {user?.preferred_username || user?.given_name || t('drawer.defaultName')}

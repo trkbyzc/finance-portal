@@ -8,12 +8,15 @@ import NavActions from './components/NavActions';
 import ThemeToggle from '../ThemeToggle';
 import LanguageToggle from '../LanguageToggle';
 import UserDrawer from '../UserDrawer';
+import Avatar from '../../profile/Avatar';
+import useProfileAvatar from '../../../hooks/useProfileAvatar';
 import { useAuth } from '../../../context/AuthContext';
 
 export default function Navbar() {
     const { isAuthenticated, user } = useAuth();
     const { t } = useTranslation(['navbar', 'common']);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const avatarId = useProfileAvatar();
 
     const navConfig = [
         { title: t('navbar:categories.stocks'), items: [
@@ -51,7 +54,7 @@ export default function Navbar() {
             ]}
     ];
 
-    const initials = (user?.preferred_username || user?.given_name || '?').charAt(0).toUpperCase();
+    const initials = (user?.preferred_username || user?.username || user?.given_name || user?.name || '?');
 
     return (
         <>
@@ -103,9 +106,7 @@ export default function Navbar() {
                                 title={t('navbar:userPanel')}
                                 aria-label={t('navbar:userPanelAria')}
                             >
-                                <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-primary text-xs font-black uppercase">
-                                    {initials}
-                                </div>
+                                <Avatar id={avatarId} fallbackInitials={initials} size={32} />
                                 <span className="hidden md:inline text-sm font-semibold text-nav-text max-w-30 truncate">
                                     {user?.preferred_username || t('navbar:accountMenu')}
                                 </span>

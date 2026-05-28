@@ -21,8 +21,16 @@
     "edit": "Edit",
     "changePassword": "Change Password",
     "enable2fa": "Enable 2FA",
-    "manageInKeycloak": "Manage in Keycloak",
     "deleteAccount": "Delete Account"
+  },
+  "avatar": {
+    "change": "Change avatar",
+    "modalTitle": "Choose Avatar",
+    "modalSubtitle": "Pick an avatar that represents you. You can change it any time.",
+    "useInitials": "Use initial letter"
+  },
+  "security": {
+    "passwordHint": "Opens the Keycloak account console in a new tab so you can change your password securely."
   },
   "roles": {
     "admin": "Admin",
