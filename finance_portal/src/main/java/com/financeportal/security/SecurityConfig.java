@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/analysis/**").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
                         .requestMatchers("/api/interest/**").permitAll()
+                        .requestMatchers("/api/economic-calendar/**").permitAll()
                         // 🚀 DİKKAT: "/api/auth/**" ve "POST /api/users" silindi!
                         // Artık Keycloak harici arka kapıdan kimse kayıt veya token isteği atamaz.
                         .anyRequest().authenticated()
