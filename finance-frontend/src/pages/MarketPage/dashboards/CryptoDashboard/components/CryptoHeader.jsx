@@ -7,7 +7,7 @@ export default function CryptoHeader({ searchQuery, setSearchQuery }) {
     return (
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
-                <h1 className="text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
                     <span className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"></span>
                     {t('crypto.headerTitle')}
                 </h1>

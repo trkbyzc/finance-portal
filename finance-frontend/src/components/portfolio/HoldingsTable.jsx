@@ -31,17 +31,18 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
 
     return (
         <div className="bg-surface-2 rounded-lg overflow-hidden">
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-215">
                 <thead className="bg-bg border-b border-border">
                     <tr>
-                        <th className="text-left p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.asset')}</th>
-                        <th className="text-left p-4 text-text-muted font-semibold">{t('common:labels.type')}</th>
-                        <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.quantity')}</th>
-                        <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.avgPrice')}</th>
-                        <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.currentPrice')}</th>
-                        <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.totalValue')}</th>
-                        <th className="text-right p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.pnl')}</th>
-                        <th className="text-center p-4 text-text-muted font-semibold">{t('portfolio:holdings.cols.actions')}</th>
+                        <th className="text-left p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.asset')}</th>
+                        <th className="text-left p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('common:labels.type')}</th>
+                        <th className="text-right p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.quantity')}</th>
+                        <th className="text-right p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.avgPrice')}</th>
+                        <th className="text-right p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.currentPrice')}</th>
+                        <th className="text-right p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.totalValue')}</th>
+                        <th className="text-right p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.pnl')}</th>
+                        <th className="text-center p-3 md:p-4 text-text-muted font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,6 +60,7 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
                     ))}
                 </tbody>
             </table>
+            </div>
         </div>
     );
 }
@@ -68,19 +70,19 @@ function HoldingRow({ item, calc, formatPrice, t, onOpenHistory, onOpenBuy, onOp
     const positive = calc.profitLoss >= 0;
     return (
         <tr className="border-b border-border hover:bg-bg transition">
-            <td className="p-4 font-semibold">{item.symbol}</td>
-            <td className="p-4 text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
-            <td className="p-4 text-right">{item.quantity}</td>
-            <td className="p-4 text-right">{formatPrice(item.averagePrice, native)}</td>
-            <td className="p-4 text-right">{formatPrice(calc.currentPrice, native)}</td>
-            <td className="p-4 text-right font-semibold">{formatPrice(calc.currentValue, native)}</td>
-            <td className={`p-4 text-right font-semibold ${positive ? 'text-buy' : 'text-sell'}`}>
+            <td className="p-3 md:p-4 font-semibold whitespace-nowrap">{item.symbol}</td>
+            <td className="p-3 md:p-4 text-text-muted whitespace-nowrap">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
+            <td className="p-3 md:p-4 text-right whitespace-nowrap">{item.quantity}</td>
+            <td className="p-3 md:p-4 text-right whitespace-nowrap">{formatPrice(item.averagePrice, native)}</td>
+            <td className="p-3 md:p-4 text-right whitespace-nowrap">{formatPrice(calc.currentPrice, native)}</td>
+            <td className="p-3 md:p-4 text-right font-semibold whitespace-nowrap">{formatPrice(calc.currentValue, native)}</td>
+            <td className={`p-3 md:p-4 text-right font-semibold whitespace-nowrap ${positive ? 'text-buy' : 'text-sell'}`}>
                 {positive ? '+' : '-'}{formatPrice(Math.abs(calc.profitLoss), native)}
                 <span className="text-sm ml-1">
                     ({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)
                 </span>
             </td>
-            <td className="p-4 text-center">
+            <td className="p-3 md:p-4 text-center whitespace-nowrap">
                 <div className="flex items-center justify-center gap-2">
                     <button
                         onClick={() => onOpenHistory(item.symbol)}

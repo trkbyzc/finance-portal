@@ -48,8 +48,8 @@ const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
                     <X size={24} />
                 </button>
 
-                <div className="p-6">
-                    <h2 className="text-2xl font-bold mb-6">{t('portfolio:modal.editTitle')}</h2>
+                <div className="p-4 md:p-6">
+                    <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">{t('portfolio:modal.editTitle')}</h2>
 
                     <div className="bg-bg border border-border rounded-lg p-4 mb-6">
                         <div className="font-semibold text-lg">{asset.symbol}</div>

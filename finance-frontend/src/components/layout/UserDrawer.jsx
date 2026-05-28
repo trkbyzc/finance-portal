@@ -42,7 +42,7 @@ export default function UserDrawer({ open, onClose }) {
             />
 
             <aside
-                className={`fixed top-0 left-0 h-full w-80 bg-surface border-r border-border z-100 shadow-2xl transition-transform duration-250 ease-out flex flex-col ${
+                className={`fixed top-0 left-0 h-full w-[85vw] max-w-sm bg-surface border-r border-border z-100 shadow-2xl transition-transform duration-250 ease-out flex flex-col ${
                     open ? 'translate-x-0' : '-translate-x-full'
                 }`}
                 role="dialog"

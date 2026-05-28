@@ -78,7 +78,7 @@ export default function AssetDetailPage() {
     };
 
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10 relative">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10 relative">
             <div className="max-w-container mx-auto">
                 <AssetHeader asset={asset} navigate={navigate} onAddPortfolioClick={handleOpenModal} />
                 <AssetChartArea asset={asset} isViop={isViop} />

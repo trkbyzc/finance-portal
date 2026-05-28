@@ -13,7 +13,7 @@ export default function MarketHeader({ title, searchTerm, setSearchTerm, navigat
                 >
                     <ArrowLeft size={16} /> {t('asset:back')}
                 </button>
-                <h1 className="text-3xl font-black uppercase text-text tracking-tight">{title}</h1>
+                <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight">{title}</h1>
             </div>
             <div className="relative w-full md:w-72">
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />

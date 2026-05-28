@@ -94,7 +94,7 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                     <X size={20} />
                 </button>
 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-9 h-9 rounded-lg bg-sell/10 border border-sell/30 flex items-center justify-center text-sell">
                             <Minus size={18} />

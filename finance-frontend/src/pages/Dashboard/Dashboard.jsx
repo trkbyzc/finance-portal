@@ -52,7 +52,7 @@ export default function Dashboard() {
 
             <MarketTicker />
 
-            <section className="max-w-container mx-auto px-6 pt-12 pb-20 grid lg:grid-cols-2 gap-10 items-center w-full">
+            <section className="max-w-container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 md:pb-20 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 items-center w-full">
                 <DashboardHero navigate={navigate} />
                 <DashboardTabPanel
                     tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}
@@ -62,12 +62,12 @@ export default function Dashboard() {
 
             <DashboardFeatures />
 
-            <section className="max-w-container mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center w-full">
+            <section className="max-w-container mx-auto px-4 md:px-6 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center w-full">
                 <div className="space-y-6">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
                         <Star size={12} className="fill-primary" /> {t('cta.tagline')}
                     </div>
-                    <h2 className="text-4xl font-black tracking-tight text-text">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-text">
                         {t('cta.titleLine1')}<br />
                         <span className="text-primary">{t('cta.titleLine2')}</span>
                     </h2>

@@ -86,8 +86,8 @@ export default function MarketPage() {
 
     // DEFAULT (JENERİK) VİTRİN
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
-            <h1 className="text-3xl font-black uppercase text-text mb-6">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+            <h1 className="text-2xl sm:text-3xl font-black uppercase text-text mb-6">
                 {category.replace('-', ' ')} {t('common.headerLive')}
             </h1>
             <ShowcaseSlider category={category} />

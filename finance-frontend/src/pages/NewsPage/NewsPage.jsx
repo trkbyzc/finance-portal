@@ -77,7 +77,7 @@ export default function NewsPage() {
             <MarketTicker />
             <div className="p-6 md:p-8 max-w-[1100px] mx-auto text-text w-full">
                 <header className="mb-8 mt-4">
-                    <h1 className="text-3xl font-bold flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
                         <Newspaper className="text-primary" size={36} /> {t('news:pageTitle')}
                     </h1>
                 </header>

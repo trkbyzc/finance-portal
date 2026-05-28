@@ -133,7 +133,7 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
                     <X size={20} />
                 </button>
 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                     <h2 className="text-xl font-bold mb-1">{t('simulation:modal.createTitle')}</h2>
                     <p className="text-text-muted text-sm mb-5">
                         {step === 1 && t('simulation:modal.stepType')}

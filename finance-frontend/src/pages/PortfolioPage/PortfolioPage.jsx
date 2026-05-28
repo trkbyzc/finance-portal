@@ -214,16 +214,16 @@ const PortfolioPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-bg p-6">
+        <div className="min-h-screen bg-bg p-4 md:p-6">
             <div className="max-w-container mx-auto">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                     <div>
-                        <h1 className="text-3xl font-bold">{t('portfolio:pageTitle')}</h1>
-                        <p className="text-text-muted mt-1">{t('portfolio:pageSubtitle')}</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold">{t('portfolio:pageTitle')}</h1>
+                        <p className="text-text-muted mt-1 text-sm sm:text-base">{t('portfolio:pageSubtitle')}</p>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="px-6 py-3 bg-primary hover:bg-primary-hover rounded font-semibold transition"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-primary-hover rounded font-semibold transition self-start sm:self-auto"
                     >
                         + {t('common:actions.add')}
                     </button>

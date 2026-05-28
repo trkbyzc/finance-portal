@@ -109,7 +109,7 @@ export default function MarketListPage() {
                         <button onClick={() => navigate(-1)} className="p-2 bg-surface-2 border border-border rounded-lg hover:text-text text-text-muted transition">
                             <ArrowLeft size={20} />
                         </button>
-                        <h1 className="text-3xl font-bold">{titleMap[category] || 'Piyasalar'}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold">{titleMap[category] || 'Piyasalar'}</h1>
                     </div>
                     <div className="relative w-full md:w-auto">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />

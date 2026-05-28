@@ -48,9 +48,9 @@ export default function TransactionHistoryModal({ isOpen, onClose, symbol }) {
                     <X size={20} />
                 </button>
 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                     <div className="mb-5">
-                        <h2 className="text-2xl font-bold uppercase">{symbol}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold uppercase">{symbol}</h2>
                         <p className="text-text-muted text-sm mt-1">
                             {t('portfolio:transactions.subtitle', { count: totalElements })}
                         </p>
@@ -68,7 +68,8 @@ export default function TransactionHistoryModal({ isOpen, onClose, symbol }) {
                     ) : (
                         <>
                             <div className="bg-bg border border-border rounded-xl overflow-hidden">
-                                <table className="w-full text-sm">
+                              <div className="overflow-x-auto">
+                                <table className="w-full min-w-150 text-sm">
                                     <thead className="bg-surface-2">
                                         <tr>
                                             <th className="p-3 text-left text-xs font-bold text-text-muted uppercase tracking-wider">
@@ -121,6 +122,7 @@ export default function TransactionHistoryModal({ isOpen, onClose, symbol }) {
                                         })}
                                     </tbody>
                                 </table>
+                              </div>
                             </div>
 
                             {totalPages > 1 && (

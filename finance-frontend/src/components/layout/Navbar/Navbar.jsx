@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import NavLogo from './components/NavLogo';
 import NavDropdown from './components/NavDropdown';
 import NavActions from './components/NavActions';
+import MobileMenu from './components/MobileMenu';
 import ThemeToggle from '../ThemeToggle';
 import LanguageToggle from '../LanguageToggle';
 import UserDrawer from '../UserDrawer';
@@ -16,6 +17,7 @@ export default function Navbar() {
     const { isAuthenticated, user } = useAuth();
     const { t } = useTranslation(['navbar', 'common']);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const avatarId = useProfileAvatar();
 
     const navConfig = [
@@ -65,10 +67,20 @@ export default function Navbar() {
                     borderColor: 'var(--nav-border)'
                 }}
             >
-                <div className="h-full max-w-container mx-auto px-6 flex items-center justify-between gap-6">
+                <div className="h-full max-w-container mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between gap-2 md:gap-6">
 
                     {/* SOL: Logo + nav links */}
-                    <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-3 md:gap-8 min-w-0">
+                        {/* Hamburger — sadece mobile/tablet */}
+                        <button
+                            type="button"
+                            onClick={() => setMobileMenuOpen(true)}
+                            className="md:hidden p-2 -ml-2 rounded-lg text-nav-text/80 hover:text-nav-text hover:bg-nav-text/10 transition"
+                            aria-label={t('navbar:openMenu', 'Menüyü aç')}
+                        >
+                            <Menu size={22} />
+                        </button>
+
                         <NavLogo />
 
                         <div className="hidden md:flex items-center gap-1">
@@ -92,12 +104,14 @@ export default function Navbar() {
                     </div>
 
                     {/* SAĞ: Live + Theme + Lang + User */}
-                    <div className="flex items-center gap-3">
-                        <NavActions />
+                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                        <div className="hidden sm:block">
+                            <NavActions />
+                        </div>
                         <LanguageToggle compact />
                         <ThemeToggle compact />
 
-                        <div className="h-6 w-px bg-nav-border" />
+                        <div className="hidden sm:block h-6 w-px bg-nav-border" />
 
                         {isAuthenticated ? (
                             <button
@@ -107,10 +121,10 @@ export default function Navbar() {
                                 aria-label={t('navbar:userPanelAria')}
                             >
                                 <Avatar id={avatarId} fallbackInitials={initials} size={32} />
-                                <span className="hidden md:inline text-sm font-semibold text-nav-text max-w-30 truncate">
+                                <span className="hidden lg:inline text-sm font-semibold text-nav-text max-w-30 truncate">
                                     {user?.preferred_username || t('navbar:accountMenu')}
                                 </span>
-                                <Menu size={16} className="text-nav-text/60 group-hover:text-nav-text transition-colors" />
+                                <Menu size={16} className="hidden sm:block text-nav-text/60 group-hover:text-nav-text transition-colors" />
                             </button>
                         ) : (
                             <div className="flex items-center gap-2">
@@ -122,7 +136,7 @@ export default function Navbar() {
                                             'response_type=code&' +
                                             'scope=openid';
                                     }}
-                                    className="px-3.5 py-1.5 text-xs font-bold rounded-lg border border-nav-border text-nav-text hover:bg-nav-text/10 transition-all"
+                                    className="hidden sm:inline-flex px-3.5 py-1.5 text-xs font-bold rounded-lg border border-nav-border text-nav-text hover:bg-nav-text/10 transition-all"
                                 >
                                     {t('navbar:register')}
                                 </button>
@@ -147,6 +161,16 @@ export default function Navbar() {
             {isAuthenticated && (
                 <UserDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
             )}
+
+            <MobileMenu
+                open={mobileMenuOpen}
+                onClose={() => setMobileMenuOpen(false)}
+                navConfig={navConfig}
+                extraLinks={[
+                    { to: '/news', label: t('navbar:news') },
+                    { to: '/economic-calendar', label: t('navbar:economicCalendar') }
+                ]}
+            />
         </>
     );
 }

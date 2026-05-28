@@ -148,8 +148,8 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                     <X size={24} />
                 </button>
 
-                <div className="p-6">
-                    <div className="flex items-center justify-between mb-6 pr-8">
+                <div className="p-4 md:p-6">
+                    <div className="flex items-center justify-between mb-4 md:mb-6 pr-8">
                         <h2 className="text-2xl font-bold">{t('portfolio:modal.addTitle')}</h2>
                         {/* USD/TL toggle — step-2 fiyat listesi seçilen currency'ye göre dönüşür */}
                         <button

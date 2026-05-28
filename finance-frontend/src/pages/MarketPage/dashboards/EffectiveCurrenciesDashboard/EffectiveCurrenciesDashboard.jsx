@@ -31,7 +31,7 @@ export default function EffectiveCurrenciesDashboard() {
     }, [searchQuery, effectives]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
             {/* Header */}
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -39,7 +39,7 @@ export default function EffectiveCurrenciesDashboard() {
                         <Banknote size={20} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black uppercase text-text tracking-tight">
+                        <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight">
                             {t('markets:effectiveCurrencies.headerTitle')}
                         </h1>
                         <p className="text-text-muted text-sm mt-1">

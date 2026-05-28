@@ -6,7 +6,7 @@ export default function GoldHeader() {
     const { t } = useTranslation('markets');
     return (
         <div className="mb-8">
-            <h1 className="text-4xl font-black tracking-tight flex items-center gap-4 uppercase text-warning">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight flex items-center gap-4 uppercase text-warning">
                 <Coins className="text-warning" size={36} />
                 {t('gold.headerTitle')}
             </h1>

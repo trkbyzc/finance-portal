@@ -45,7 +45,7 @@ export default function CurrenciesDashboard() {
     }, [currencies]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
 
             <CurrencyHeader
                 searchQuery={searchQuery}

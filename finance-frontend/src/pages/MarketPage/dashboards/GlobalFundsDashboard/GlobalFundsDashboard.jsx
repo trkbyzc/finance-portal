@@ -11,9 +11,9 @@ export default function GlobalFundsDashboard() {
     const { t } = useTranslation(['markets', 'common']);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
             <div className="mb-10">
-                <h1 className="text-3xl font-black uppercase flex items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl font-black uppercase flex items-center gap-3">
                     <span className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"></span>
                     {t('markets:funds.globalHeaderTitle')}
                 </h1>

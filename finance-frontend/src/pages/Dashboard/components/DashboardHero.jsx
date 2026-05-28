@@ -10,7 +10,7 @@ export default function DashboardHero({ navigate }) {
                 <Activity size={14} className="animate-pulse" /> {t('hero.tagline')}
             </div>
 
-            <h1 className="text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight text-text">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight text-text">
                 {t('hero.titleLine1')}
                 <br />
                 <span className="bg-linear-to-r from-primary via-primary to-buy bg-clip-text text-transparent">

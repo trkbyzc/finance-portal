@@ -38,7 +38,7 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
                         {getInitials()}
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black uppercase text-text tracking-tight">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase text-text tracking-tight">
                             {asset?.name || asset?.symbol?.replace('-USD','').replace('.IS','')}
                         </h1>
                         <p className="text-text-muted text-sm flex items-center gap-2 mt-1">
@@ -55,7 +55,7 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
                                 <span className="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">
                                     {asset.isYieldBased ? t('asset:bond.yield') : t('asset:currentPrice')}
                                 </span>
-                                <span className="text-3xl font-mono font-black text-text leading-none">
+                                <span className="text-2xl md:text-3xl font-mono font-black text-text leading-none">
                                     {asset.isYieldBased
                                         ? `%${Number(asset.displayPrice).toFixed(3)}`
                                         : isCurrency

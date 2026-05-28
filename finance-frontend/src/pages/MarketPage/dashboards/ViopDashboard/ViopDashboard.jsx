@@ -28,11 +28,11 @@ export default function ViopDashboard() {
     }, [contracts]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
-                    <h1 className="text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
                         <span className="w-2 h-8 bg-warning rounded-full"></span>
                         {t('markets:viop.headerTitle')}
                     </h1>

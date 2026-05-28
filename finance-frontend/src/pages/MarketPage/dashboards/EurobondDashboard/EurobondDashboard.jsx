@@ -95,7 +95,7 @@ export default function EurobondDashboard() {
          (aggregate.maturityMix?.length || 0)) > 0;
 
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-text-muted hover:text-text mb-6 transition bg-surface-2 px-4 py-2 rounded-lg border border-border"
@@ -108,7 +108,7 @@ export default function EurobondDashboard() {
                     <Landmark size={32} />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black text-text tracking-tight">{t('markets:eurobonds.headerTitle')}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-black text-text tracking-tight">{t('markets:eurobonds.headerTitle')}</h1>
                     <p className="text-text-muted text-sm mt-1">{t('markets:eurobonds.headerSubtitle')}</p>
                 </div>
             </div>

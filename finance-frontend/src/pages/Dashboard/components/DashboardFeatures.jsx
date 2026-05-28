@@ -36,7 +36,7 @@ export default function DashboardFeatures() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface text-text-muted text-[11px] font-bold uppercase tracking-wider mb-3">
                         {t('features.title')}
                     </div>
-                    <h2 className="text-3xl font-black tracking-tight text-text">
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-text">
                         {t('features.subtitle')}
                     </h2>
                 </div>

@@ -8,10 +8,10 @@ import NewsSection from '../../../../components/news/NewsSection.jsx';
 export default function TurkishStocksDashboard({ category }) {
     const { t } = useTranslation('markets');
     return (
-        <div className="min-h-screen bg-bg text-text p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
 
             <div className="mb-8">
-                <h1 className="text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
                     <span className="w-2 h-8 bg-primary rounded-full"></span>
                     {t('stocks.headerTitle')}
                 </h1>

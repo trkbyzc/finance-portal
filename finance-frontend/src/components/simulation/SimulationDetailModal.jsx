@@ -33,9 +33,9 @@ export default function SimulationDetailModal({ sim, onClose, t }) {
                     <X size={20} />
                 </button>
 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-1">
-                        <h2 className="text-2xl font-bold uppercase">{sim.symbol}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold uppercase">{sim.symbol}</h2>
                         <span className="text-xs px-2 py-0.5 rounded bg-surface-hover text-text-muted">
                             {t('common:assetTypes.' + sim.assetType, sim.assetType)}
                         </span>

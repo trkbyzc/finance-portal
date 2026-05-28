@@ -8,7 +8,7 @@ export default function MarketTable({ data, navigate, routeCategory }) {
     return (
         <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full min-w-150 text-left border-collapse">
                     <thead>
                     <tr className="bg-surface-2 text-text-muted text-xs uppercase tracking-wider">
                         <th className="p-4 font-bold border-b border-border">{t('markets:stocks.tableCols.symbol')} / {t('markets:stocks.tableCols.name')}</th>
