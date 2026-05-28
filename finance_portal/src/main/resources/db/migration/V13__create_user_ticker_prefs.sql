@@ -12,6 +12,4 @@ CREATE TABLE user_ticker_prefs (
 CREATE INDEX idx_ticker_user ON user_ticker_prefs(user_id);
 
 -- Scope users tablosuna eklendi (her kullanıcının tek bir scope tercihi var).
--- Default HOME_ONLY — ticker bar sadece dashboard'da görünür. Kullanıcı /preferences'tan
--- ALL_PAGES'e çekebilir (her sayfada görünür).
-ALTER TABLE users ADD COLUMN ticker_scope VARCHAR(20) NOT NULL DEFAULT 'HOME_ONLY';
+ALTER TABLE users ADD COLUMN ticker_scope VARCHAR(20) NOT NULL DEFAULT 'ALL_PAGES';
