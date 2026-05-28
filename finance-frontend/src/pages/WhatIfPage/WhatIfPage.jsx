@@ -1,19 +1,24 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { GitCompare, Plus, X, Loader2, TrendingUp, TrendingDown, Info } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+import { GitCompare, Loader2 } from 'lucide-react';
 
 import { whatIfApi } from '../../services/api/whatIfApi';
 import BaseAssetPickerModal from '../../components/common/BaseAssetPickerModal';
+import WhatIfForm from './components/WhatIfForm';
+import WhatIfResultChart from './components/WhatIfResultChart';
+import WhatIfResultCards from './components/WhatIfResultCards';
 
-// Recharts multi-line için sabit palet — 8 farklı renk, asset chip ve line aynı renkte.
-const PALETTE = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'];
-
-const fmtTry = (v) => Number(v ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+/**
+ * "Ne olurdu?" karşılaştırma sayfası — orchestrator.
+ *
+ * State + handler'lar burada; UI parçaları (form / chart / result cards) ayrı componentlere
+ * bölünmüş, callback'lerle yönetiliyor. İki giriş modu:
+ *   - Tutar (amount): tek bir TRY tutarı tüm assetlere uygulanır
+ *   - Miktar (quantity): her asset için ayrı quantity, backend entry-date fiyatından amountTry hesaplar
+ */
 export default function WhatIfPage() {
-    const { t } = useTranslation(['whatIf', 'common', 'simulation']);
+    const { t } = useTranslation(['whatIf', 'common']);
 
     const [investmentDate, setInvestmentDate] = useState('');
     const [amountTry, setAmountTry] = useState('');
@@ -28,33 +33,31 @@ export default function WhatIfPage() {
         onError: () => setResult(null)
     });
 
+    const invalidateResult = () => setResult(null);
+
     const handleAddAsset = (asset) => {
         const key = `${asset.assetType}:${asset.symbol}`;
         if (assets.find(a => `${a.assetType}:${a.symbol}` === key)) return;
-        // Miktar mode'da varsayılan 1 birim atayalım — user değiştirebilir
         setAssets([...assets, { ...asset, quantity: 1 }]);
         setPickerOpen(false);
-        setResult(null); // form değişti, eski result invalidate
+        invalidateResult();
     };
 
     const handleRemoveAsset = (idx) => {
         setAssets(assets.filter((_, i) => i !== idx));
-        setResult(null);
+        invalidateResult();
     };
 
     const handleQuantityChange = (idx, value) => {
         const num = parseFloat(value);
         setAssets(assets.map((a, i) => i === idx ? { ...a, quantity: isNaN(num) ? '' : num } : a));
-        setResult(null);
+        invalidateResult();
     };
 
     const handleCompare = () => {
         if (!investmentDate || assets.length === 0) return;
-        // Tutar mode: global amountTry + assets sadece sembol+tip
-        // Miktar mode: amountTry yok, her asset için quantity ekli
         const isQuantityMode = inputMode === 'quantity';
         if (isQuantityMode) {
-            // Her asset'in quantity'si > 0 olmalı
             if (!assets.every(a => Number(a.quantity) > 0)) return;
         } else {
             if (!amountTry || parseFloat(amountTry) <= 0) return;
@@ -69,23 +72,6 @@ export default function WhatIfPage() {
         };
         compareMutation.mutate(payload);
     };
-
-    /**
-     * Chart için merge: tüm asset series'leri tek tablo'da topla.
-     * Backend her asset için kendi tarih listesini dönebilir (downsample sonrası tarih setleri ayrışır);
-     * burada Map ile birleştirip null'lar için connectNulls=true.
-     */
-    const chartData = useMemo(() => {
-        if (!result || !result.assets || result.assets.length === 0) return [];
-        const dateMap = new Map();
-        result.assets.forEach((a) => {
-            (a.series || []).forEach(p => {
-                if (!dateMap.has(p.date)) dateMap.set(p.date, { date: p.date });
-                dateMap.get(p.date)[a.key] = Number(p.value);
-            });
-        });
-        return Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
-    }, [result]);
 
     const canCompare = (() => {
         if (!investmentDate || assets.length === 0 || compareMutation.isPending) return false;
@@ -107,126 +93,22 @@ export default function WhatIfPage() {
                 </div>
                 <p className="text-text-muted mb-8">{t('whatIf:pageSubtitle')}</p>
 
-                {/* Form */}
-                <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
-                    {/* Mode toggle — Tutar (global) veya Miktar (per-asset) */}
-                    <div className="mb-4 flex items-center gap-1 p-1 bg-bg border border-border rounded-lg w-fit">
-                        <button
-                            type="button"
-                            onClick={() => { setInputMode('amount'); setResult(null); }}
-                            className={`px-3 py-1 text-xs font-semibold rounded-md transition ${
-                                inputMode === 'amount' ? 'bg-primary text-primary-fg' : 'text-text-muted hover:text-text'
-                            }`}
-                        >
-                            {t('whatIf:form.modeAmount', 'Tutar')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => { setInputMode('quantity'); setResult(null); }}
-                            className={`px-3 py-1 text-xs font-semibold rounded-md transition ${
-                                inputMode === 'quantity' ? 'bg-primary text-primary-fg' : 'text-text-muted hover:text-text'
-                            }`}
-                        >
-                            {t('whatIf:form.modeQuantity', 'Miktar')}
-                        </button>
-                    </div>
-
-                    <div className={`grid grid-cols-1 ${inputMode === 'amount' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4 mb-4`}>
-                        <div>
-                            <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                {t('whatIf:form.investmentDate')}
-                            </label>
-                            <input
-                                type="date"
-                                value={investmentDate}
-                                onChange={(e) => { setInvestmentDate(e.target.value); setResult(null); }}
-                                max={todayStr}
-                                className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                            />
-                        </div>
-                        {inputMode === 'amount' && (
-                            <div>
-                                <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                    {t('whatIf:form.amount')} (TRY)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={amountTry}
-                                    onChange={(e) => { setAmountTry(e.target.value); setResult(null); }}
-                                    placeholder="10000"
-                                    min="0"
-                                    step="100"
-                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                                />
-                            </div>
-                        )}
-                        <div className="flex items-end">
-                            <button
-                                onClick={handleCompare}
-                                disabled={!canCompare}
-                                className="w-full px-4 py-2 bg-primary hover:bg-primary-hover text-primary-fg rounded-lg font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
-                            >
-                                {compareMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <GitCompare size={16} />}
-                                {t('whatIf:form.compare')}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Asset chips — miktar mode'da her chip'in altında quantity input */}
-                    <div>
-                        <label className="block text-xs font-semibold text-text-muted mb-2 uppercase">
-                            {t('whatIf:form.assets')} ({assets.length})
-                            {inputMode === 'quantity' && (
-                                <span className="ml-2 text-[10px] normal-case font-normal text-text-muted/70">
-                                    — {t('whatIf:form.quantityHint', 'her varlık için miktar gir')}
-                                </span>
-                            )}
-                        </label>
-                        <div className={`flex flex-wrap ${inputMode === 'quantity' ? 'items-start' : 'items-center'} gap-2`}>
-                            {assets.map((a, idx) => (
-                                <div
-                                    key={`${a.assetType}:${a.symbol}`}
-                                    className={`bg-bg border rounded-lg text-sm ${
-                                        inputMode === 'quantity' ? 'px-3 py-2 flex flex-col gap-1.5' : 'px-3 py-1.5 inline-flex items-center gap-2'
-                                    }`}
-                                    style={{ borderColor: PALETTE[idx % PALETTE.length] + '60' }}
-                                >
-                                    <div className="inline-flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full" style={{ background: PALETTE[idx % PALETTE.length] }}></span>
-                                        <span className="font-bold">{a.symbol}</span>
-                                        <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
-                                        <button onClick={() => handleRemoveAsset(idx)} className="text-text-muted hover:text-sell ml-1">
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                    {inputMode === 'quantity' && (
-                                        <div className="inline-flex items-center gap-1.5 text-xs">
-                                            <span className="text-text-muted">{t('whatIf:form.qty', 'Miktar')}:</span>
-                                            <input
-                                                type="number"
-                                                value={a.quantity ?? ''}
-                                                onChange={(e) => handleQuantityChange(idx, e.target.value)}
-                                                placeholder="1"
-                                                min="0"
-                                                step="any"
-                                                className="w-24 bg-surface-2 border border-border rounded px-2 py-0.5 text-xs focus:outline-none focus:border-primary"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                            <button
-                                onClick={() => setPickerOpen(true)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg text-sm font-semibold transition self-start"
-                            >
-                                <Plus size={14} /> {t('whatIf:form.addCompare')}
-                            </button>
-                        </div>
-                        {assets.length === 0 && (
-                            <p className="text-xs text-text-muted mt-2">{t('whatIf:form.assetsHint')}</p>
-                        )}
-                    </div>
-                </div>
+                <WhatIfForm
+                    investmentDate={investmentDate}
+                    setInvestmentDate={(v) => { setInvestmentDate(v); invalidateResult(); }}
+                    amountTry={amountTry}
+                    setAmountTry={(v) => { setAmountTry(v); invalidateResult(); }}
+                    inputMode={inputMode}
+                    setInputMode={(v) => { setInputMode(v); invalidateResult(); }}
+                    assets={assets}
+                    onRemoveAsset={handleRemoveAsset}
+                    onQuantityChange={handleQuantityChange}
+                    onOpenPicker={() => setPickerOpen(true)}
+                    onCompare={handleCompare}
+                    canCompare={canCompare}
+                    isPending={compareMutation.isPending}
+                    todayStr={todayStr}
+                />
 
                 {/* Results */}
                 {compareMutation.isPending ? (
@@ -248,76 +130,8 @@ export default function WhatIfPage() {
                     </div>
                 ) : (
                     <>
-                        <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
-                            <h3 className="font-semibold mb-3">{t('whatIf:chart.title')}</h3>
-                            <div style={{ width: '100%', height: 400 }}>
-                                <ResponsiveContainer>
-                                    <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                                        <XAxis dataKey="date" stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} />
-                                        <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} />
-                                        <Tooltip
-                                            contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8 }}
-                                            labelStyle={{ color: 'var(--color-text-muted)' }}
-                                            formatter={(v) => `${fmtTry(v)} ₺`}
-                                        />
-                                        <Legend />
-                                        {result.assets.map((a, idx) => (
-                                            <Line
-                                                key={a.key}
-                                                type="monotone"
-                                                dataKey={a.key}
-                                                name={a.label || a.symbol}
-                                                stroke={PALETTE[idx % PALETTE.length]}
-                                                strokeWidth={2}
-                                                dot={false}
-                                                connectNulls
-                                            />
-                                        ))}
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {result.assets.map((a, idx) => {
-                                const positive = Number(a.pnlTry ?? 0) >= 0;
-                                return (
-                                    <div key={a.key} className="bg-surface border border-border rounded-xl p-4">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <span className="w-3 h-3 rounded-full" style={{ background: PALETTE[idx % PALETTE.length] }}></span>
-                                            <div className="font-bold uppercase">{a.symbol}</div>
-                                            <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
-                                        </div>
-                                        {a.warning ? (
-                                            <div className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-warning text-xs flex items-start gap-2">
-                                                <Info size={12} className="mt-0.5 shrink-0" />
-                                                <span>{a.warning}</span>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-xs text-text-muted">{t('whatIf:result.currentValue')}</span>
-                                                    <span className="font-mono font-bold">{fmtTry(a.currentValue)} ₺</span>
-                                                </div>
-                                                <div className={`flex items-center justify-between mt-2 pt-2 border-t border-border ${positive ? 'text-buy' : 'text-sell'}`}>
-                                                    <span className="text-xs font-semibold inline-flex items-center gap-1">
-                                                        {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                                                        {t('whatIf:result.pnlPct')}
-                                                    </span>
-                                                    <span className="font-mono font-bold">
-                                                        {positive ? '+' : ''}{Number(a.pnlPct ?? 0).toFixed(2)}%
-                                                    </span>
-                                                </div>
-                                                <div className="text-[10px] text-text-muted text-right mt-1">
-                                                    {positive ? '+' : ''}{fmtTry(a.pnlTry)} ₺
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
+                        <WhatIfResultChart result={result} />
+                        <WhatIfResultCards result={result} />
                     </>
                 )}
 
