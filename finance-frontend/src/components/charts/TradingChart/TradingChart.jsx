@@ -20,9 +20,11 @@ const BIST_OPTIONS = [
     { key: 'XU050', symbol: 'XU050', label: 'BIST 50',  color: '#089981', category: 'TR_INDEX' },
     { key: 'XU030', symbol: 'XU030', label: 'BIST 30',  color: '#f23645', category: 'TR_INDEX' }
 ];
-// Kripto benchmark — CoinMarketCap 200 (Yahoo ^CMC200 sembolüyle YahooDefaultChartStrategy'ye düşer)
+// Kripto benchmark — Bitwise 10 Crypto Index Fund (BITW). Top 10 kripto market-cap ağırlıklı.
+// Yahoo'daki gerçek kripto endeksleri (^CMC200/100/500) delisted (son veri 2024-08); BITW
+// endeks fonu olarak canlı ve kavramsal olarak aynı işi görüyor — BIST 30'un kripto karşılığı.
 const CRYPTO_OPTIONS = [
-    { key: 'CMC200', symbol: '^CMC200', label: 'CMC 200', color: '#f7931a', category: 'INDEX' }
+    { key: 'BITW', symbol: 'BITW', label: 'BITW (Top 10)', color: '#f7931a', category: 'INDEX' }
 ];
 const ASSET_COLOR = '#ff9800';
 
@@ -67,7 +69,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
 
     // 🆕 Kripto benchmark overlay state (sadece kriptolar için — ^CMC200 ile karşılaştırma)
     const isCrypto = useMemo(() => asset?.assetCategory === 'CRYPTO', [asset]);
-    const [activeCryptoBench, setActiveCryptoBench] = useState({ CMC200: false });
+    const [activeCryptoBench, setActiveCryptoBench] = useState({ BITW: false });
     const hasCryptoOverlay = useMemo(() => Object.values(activeCryptoBench).some(Boolean), [activeCryptoBench]);
     const toggleCryptoBench = (key) => setActiveCryptoBench(prev => ({ ...prev, [key]: !prev[key] }));
 
