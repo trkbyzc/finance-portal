@@ -11,9 +11,11 @@
   },
   "charts": {
     "distribution": "Asset Distribution",
+    "distributionSub": "Total value share by asset type",
     "performance": "Performance History",
     "byCategory": "By Category",
-    "byAsset": "By Asset"
+    "byAsset": "By Asset",
+    "pnlSub": "Per-asset profit / loss"
   },
   "holdings": {
     "title": "Holdings",
