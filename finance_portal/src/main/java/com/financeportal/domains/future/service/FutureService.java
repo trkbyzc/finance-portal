@@ -5,6 +5,9 @@ import com.financeportal.model.dto.market.MarketAssetDto;
 import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FutureService {
 
     // ŞUNA DÖNÜŞTÜRÜN:
@@ -41,15 +45,22 @@ public class FutureService {
     }
 
     /**
-     * 5 dakikada bir cache'i ZORLA tazeler — getFutures'ı çağırmak yerine doğrudan
-     * fetch + save kullanılır, böylece scheduled job cache hit'te eski listeyi
-     * tutmaz. Symbol listesi değiştiğinde de bir sonraki sync cycle'da yansır.
+     * Boot'ta hemen + 5 dakikada bir cache'i ZORLA tazeler. getFutures'ı çağırmak yerine
+     * doğrudan fetch + save kullanılır, böylece cache hit'te eski liste tutulmaz.
+     * <p>
+     * {@code @EventListener(ApplicationReadyEvent.class)} sayesinde semboller değiştirildiğinde
+     * deploy/restart anında Redis'teki eski payload üzerine yazılır — kullanıcının manuel
+     * cache temizlemesi gerekmez.
      */
+    @EventListener(ApplicationReadyEvent.class)
     @Scheduled(fixedRate = 300_000) // 5 dakika
     public void syncFutures() {
         List<FutureDto> fresh = fetchFromYahoo();
         if (fresh != null && !fresh.isEmpty()) {
             cacheService.save(CACHE_KEY, fresh, CACHE_TTL_MIN);
+            log.info("[FUTURE_SYNC] {} sembol cache'lendi.", fresh.size());
+        } else {
+            log.warn("[FUTURE_SYNC] Yahoo'dan veri gelmedi, cache dokunulmuyor.");
         }
     }
 
