@@ -2,6 +2,7 @@ package com.financeportal.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -63,6 +65,20 @@ public class GlobalExceptionHandler {
                 validationErrors
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Client tab kapattı / sayfayı değiştirdi / AbortController.abort() çağırdı diye
+     * Tomcat response'u kapalı socket'e yazamadı. Bug değil — sadece gürültü.
+     * DEBUG seviyesinde tek satır iz, stack trace yok. Body return etmenin anlamı yok,
+     * karşı taraf zaten dinlemiyor; null dönülünce Spring sessizce kapatır.
+     */
+    @ExceptionHandler({AsyncRequestNotUsableException.class, ClientAbortException.class})
+    public ResponseEntity<Void> handleClientAbort(Exception ex, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.debug("[CLIENT_ABORT] {} {} — {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+        }
+        return null;
     }
 
     // 6. Beklenmedik Sistem Hataları (500) - Son Savunma Hattı
