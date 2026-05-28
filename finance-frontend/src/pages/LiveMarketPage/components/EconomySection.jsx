@@ -29,8 +29,7 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
     const ranges = [
         { key: '1y', value: '1y' },
         { key: '5y', value: '5y' },
-        { key: '10y', value: '10y' },
-        { key: 'all', value: 'all' }
+        { key: '10y', value: '10y' }
     ];
 
     return (
@@ -46,7 +45,7 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
                         onClick={() => setEconomyMetric(m.id)}
                         className={`p-6 rounded-2xl border transition-all duration-300 text-left group ${economyMetric === m.id ? 'bg-surface-2 border-primary ring-1 ring-[#2962ff]' : 'bg-surface border-border hover:border-border-strong'}`}
                     >
-                        <div className="text-[10px] font-black text-text-muted mb-1 uppercase tracking-[0.1em]">{m.label}</div>
+                        <div className="text-[10px] font-black text-text-muted mb-1 uppercase tracking-widest">{m.label}</div>
                         <div className="text-2xl font-mono font-bold flex items-center justify-between text-text">
                             {m.value}
                             <div className={`p-2 rounded-lg transition-colors ${economyMetric === m.id ? 'bg-primary/20 text-primary' : 'bg-surface-hover text-text-muted group-hover:text-text'}`}>{m.icon}</div>
@@ -56,7 +55,7 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
             </div>
 
             <div className="bg-surface border border-border rounded-3xl p-8 shadow-2xl relative flex flex-col">
-                <div className="h-[400px] w-full mt-4">
+                <div className="h-100 w-full mt-4">
                     {economyLoading ? (
                         <div className="h-full flex items-center justify-center text-primary"><Loader2 className="animate-spin" size={40} /></div>
                     ) : (

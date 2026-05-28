@@ -32,7 +32,13 @@ export const useLiveMarketData = () => {
         trBondsRes, globalBondsRes, globalFundsRes, trFundsRes, economyMacroRes
     ] = results;
 
-    const indices = indicesRes.data || [];
+    // Canlı piyasa endeks kartları sadece BIST içindir. Backend listesinde
+    // ^GSPC/^IXIC/^NDX/^DJI (ABD) ve ^CMC200 (kripto) da var — filtreleyip dışarda bırakıyoruz.
+    // BIST endeksleri "X" ile başlayıp .IS ile biter.
+    const indices = (indicesRes.data || []).filter(idx => {
+        const sym = (idx.symbol || '').toUpperCase();
+        return sym.startsWith('X') && sym.endsWith('.IS');
+    });
     const stocks = stocksRes.data || [];
     const ipos = iposRes.data || [];
     const commodities = commoditiesRes.data || [];

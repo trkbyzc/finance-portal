@@ -20,36 +20,52 @@ export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const avatarId = useProfileAvatar();
 
+    // Navbar dropdown'larındaki gruplama mantığı:
+    // Aynı alt-tür yan yana, tür/pazar değişimi sırasında `divider`. Renkler/accent yok —
+    // hepsi düz primary text, kullanıcı görsel hiyerarşi için divider'a güveniyor.
     const navConfig = [
         { title: t('navbar:categories.stocks'), items: [
+                // Hisse senedi grubu
                 { label: t('navbar:items.trStocks'), to: '/markets/tr-stocks' },
                 { label: t('navbar:items.usStocks'), to: '/markets/us-stocks' },
                 { type: 'divider' },
+                // Vadeli işlem grubu — BIST vadeli (VİOP) vs global vadeli ayrı pazarlar
                 { label: t('navbar:items.viop'), to: '/markets/viop', desc: t('navbar:items.viopDesc') },
-                { label: t('navbar:items.globalFutures'), to: '/markets/futures', desc: t('navbar:items.globalFuturesDesc'), accent: '#3b82f6' }
+                { type: 'divider' },
+                { label: t('navbar:items.globalFutures'), to: '/markets/futures', desc: t('navbar:items.globalFuturesDesc') }
             ]},
         { title: t('navbar:categories.currencies'), items: [
+                // Resmi kurlar (TCMB) — alış/satış vs efektif
                 { label: t('navbar:items.tcmbRates'), to: '/markets/currencies', desc: t('navbar:items.tcmbDesc') },
-                { label: t('navbar:items.effectiveRates'), to: '/markets/effective-currencies', desc: t('navbar:items.effectiveDesc'), accent: '#f59e0b' },
+                { label: t('navbar:items.effectiveRates'), to: '/markets/effective-currencies', desc: t('navbar:items.effectiveDesc') },
                 { type: 'divider' },
-                { label: t('navbar:items.bankRates'), to: '/markets/bank-currencies', desc: t('navbar:items.bankRatesDesc'), accent: '#00a572' }
+                // Perakende banka kurları (TCMB'den farklı pazar)
+                { label: t('navbar:items.bankRates'), to: '/markets/bank-currencies', desc: t('navbar:items.bankRatesDesc') }
             ]},
         { title: t('navbar:categories.crypto'), items: [
-                { label: t('navbar:items.cryptoMarket'), to: '/markets/crypto', desc: t('navbar:items.cryptoMarketDesc'), accent: '#f7931a' }
+                { label: t('navbar:items.cryptoMarket'), to: '/markets/crypto', desc: t('navbar:items.cryptoMarketDesc') }
             ]},
         { title: t('navbar:categories.commodities'), items: [
-                { label: t('navbar:items.turkishGold'), to: '/markets/turkish-gold', desc: t('navbar:items.turkishGoldDesc'), accent: '#f59e0b' },
+                // Türk altın (TL) vs uluslararası kıymetli metaller (USD)
+                { label: t('navbar:items.turkishGold'), to: '/markets/turkish-gold', desc: t('navbar:items.turkishGoldDesc') },
                 { type: 'divider' },
                 { label: t('navbar:items.preciousMetals'), to: '/markets/commodities', desc: t('navbar:items.preciousMetalsDesc') }
             ]},
         { title: t('navbar:categories.fixedIncome'), items: [
-                { label: t('navbar:items.depositSim'), to: '/interest', accent: '#00a572' },
+                // Araç (mevduat hesaplayıcı) — tahvillerden ayrı
+                { label: t('navbar:items.depositSim'), to: '/interest' },
                 { type: 'divider' },
+                // TR tahvil pazarı
                 { label: t('navbar:items.trBonds'), to: '/chart/TP.TRT070335K16?cat=TR_BOND', desc: t('navbar:items.trBondsDesc') },
+                { type: 'divider' },
+                // Global tahvil pazarı
                 { label: t('navbar:items.globalBonds'), to: '/markets/bonds', desc: t('navbar:items.globalBondsDesc') },
-                { label: t('navbar:items.eurobonds'), to: '/markets/eurobonds', desc: t('navbar:items.eurobondsDesc'), accent: '#f59e0b' }
+                { type: 'divider' },
+                // Eurobond — TR ihraçlı dövizli tahvil, ayrı pazar
+                { label: t('navbar:items.eurobonds'), to: '/markets/eurobonds', desc: t('navbar:items.eurobondsDesc') }
             ]},
         { title: t('navbar:categories.funds'), items: [
+                // TR fon pazarı (TEFAS) vs global fonlar (ETF/mutual)
                 { label: t('navbar:items.trFunds'), to: '/markets/tr-funds', desc: t('navbar:items.trFundsDesc') },
                 { type: 'divider' },
                 { label: t('navbar:items.globalFunds'), to: '/markets/global-funds', desc: t('navbar:items.globalFundsDesc') }
