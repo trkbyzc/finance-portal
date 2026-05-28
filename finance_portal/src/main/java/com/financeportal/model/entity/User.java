@@ -69,7 +69,7 @@ public class User {
         user.setRole(Role.USER);
         user.setBannedUntil(null);
         user.setBanPermanent(false);
-        user.setTickerScope(TickerScope.ALL_PAGES);
+        user.setTickerScope(TickerScope.HOME_ONLY);
         user.setCreatedAt(LocalDateTime.now());
         return user;
     }

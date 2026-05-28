@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { newsApi } from '../../services/api';
 
-import MarketTicker from '../../components/layout/MarketTicker/MarketTicker.jsx';
 import NewsArticle from './components/NewsArticle';
 import NewsSidebar from './components/NewsSidebar';
 
@@ -53,7 +52,6 @@ export default function NewsDetailPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-bg">
-            <MarketTicker />
             <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-text flex flex-col lg:flex-row gap-10 w-full mt-4">
                 <NewsArticle
                     newsItem={newsItem}

@@ -45,7 +45,7 @@ public class UserPreferencesService {
                 .map(p -> new TickerSymbolDto(p.getSymbol(), p.getAssetType()))
                 .toList();
 
-        TickerScope scope = user.getTickerScope() != null ? user.getTickerScope() : TickerScope.ALL_PAGES;
+        TickerScope scope = user.getTickerScope() != null ? user.getTickerScope() : TickerScope.HOME_ONLY;
         return new UserPreferencesDto(tickers, scope);
     }
 
@@ -66,7 +66,7 @@ public class UserPreferencesService {
         }
 
         // Scope (null kalmasın — default ALL_PAGES)
-        user.setTickerScope(request.getTickerScope() != null ? request.getTickerScope() : TickerScope.ALL_PAGES);
+        user.setTickerScope(request.getTickerScope() != null ? request.getTickerScope() : TickerScope.HOME_ONLY);
         userRepository.save(user);
 
         // Replace strategy — eski listeyi sil, yenisini yaz (display_order = index)

@@ -7,18 +7,18 @@ import useUserPreferences from '../../../hooks/useUserPreferences';
  * Ticker bar'ı sayfa-bazlı koşullu render eder. Karar matrisi:
  *
  *   Guest (auth değil):           sadece Dashboard'da (/)
- *   Auth + scope=HOME_ONLY:       sadece Dashboard'da (/)
- *   Auth + scope=ALL_PAGES (def): her sayfada
+ *   Auth + scope=HOME_ONLY (def): sadece Dashboard'da (/)
+ *   Auth + scope=ALL_PAGES:       her sayfada
  *
- * Loading state'de (prefs henüz gelmedi): ALL_PAGES default'una göre davranır,
- * böylece auth user'a 1-2 saniyelik flicker yerine direkt ticker görünür.
+ * Default HOME_ONLY — kullanıcı /preferences'tan açıkça ALL_PAGES seçmeden ticker
+ * sadece ana sayfada görünür (eski global davranıştan daha sessiz, daha az gürültü).
  */
 export default function GlobalTicker() {
     const { pathname } = useLocation();
     const { preferences } = useUserPreferences();
 
     const isHome = pathname === '/';
-    const scope = preferences?.tickerScope || 'ALL_PAGES';
+    const scope = preferences?.tickerScope || 'HOME_ONLY';
 
     // Authenticated değilse preferences null gelir — sadece home'da göster
     if (!preferences) {

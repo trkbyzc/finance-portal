@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { economyApi } from '../../services/api';
-import MarketTicker from '../../components/layout/MarketTicker/MarketTicker.jsx';
 import InterestHeader from './components/InterestHeader';
 import InterestCalculatorForm from './components/InterestCalculatorForm';
 import InterestResultList from './components/InterestResultList';
@@ -31,7 +30,6 @@ export default function InterestPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <MarketTicker />
             <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-text w-full mt-4">
                 <InterestHeader />
                 <div className="grid lg:grid-cols-12 gap-8">

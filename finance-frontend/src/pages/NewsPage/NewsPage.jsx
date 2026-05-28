@@ -5,7 +5,6 @@ import { Newspaper, Loader2, PlusCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { newsApi } from '../../services/api';
-import MarketTicker from '../../components/layout/MarketTicker/MarketTicker.jsx';
 import NewsCategoryTabs from './components/NewsCategoryTabs';
 import NewsCard from './components/NewsCard';
 
@@ -74,8 +73,7 @@ export default function NewsPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-bg">
-            <MarketTicker />
-            <div className="p-6 md:p-8 max-w-[1100px] mx-auto text-text w-full">
+            <div className="p-4 md:p-8 max-w-[1100px] mx-auto text-text w-full">
                 <header className="mb-8 mt-4">
                     <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
                         <Newspaper className="text-primary" size={36} /> {t('news:pageTitle')}
