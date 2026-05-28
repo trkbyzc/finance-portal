@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { portfolioApi } from '../../services/api/portfolioApi';
@@ -8,8 +8,12 @@ import BuyMoreModal from '../../components/portfolio/BuyMoreModal';
 import SellModal from '../../components/portfolio/SellModal';
 import PortfolioStats from '../../components/portfolio/PortfolioStats';
 import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
+import PortfolioTabs from '../../components/portfolio/PortfolioTabs';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 import HoldingsTable from '../../components/portfolio/HoldingsTable';
+
+/** Tab sırası — sadece kullanıcının elinde bulunan tipler görünür, "Tümü" her zaman ilk. */
+const ASSET_TYPE_ORDER = ['STOCK', 'CRYPTO', 'CURRENCY', 'COMMODITY', 'BOND', 'FUND', 'FUTURE'];
 
 const PortfolioPage = () => {
     const { t } = useTranslation(['portfolio', 'common']);
@@ -17,6 +21,7 @@ const PortfolioPage = () => {
     const [buyMoreAsset, setBuyMoreAsset] = useState(null);
     const [sellAsset, setSellAsset] = useState(null);
     const [historySymbol, setHistorySymbol] = useState(null);
+    const [activeTab, setActiveTab] = useState('ALL');
     const queryClient = useQueryClient();
 
     const { data: portfolio, isLoading, error } = useQuery({
@@ -162,6 +167,30 @@ const PortfolioPage = () => {
         };
     };
 
+    // Mevcut asset tipleri + her tipin sayısı — boş tab göstermeyiz.
+    const tabsState = useMemo(() => {
+        const counts = { ALL: portfolio?.length || 0 };
+        ASSET_TYPE_ORDER.forEach(t => { counts[t] = 0; });
+        (portfolio || []).forEach(item => {
+            if (counts[item.assetType] !== undefined) counts[item.assetType]++;
+        });
+        const presentTypes = ASSET_TYPE_ORDER.filter(t => counts[t] > 0);
+        const tabs = ['ALL', ...presentTypes];
+        return { tabs, counts };
+    }, [portfolio]);
+
+    // Aktif tab boşalırsa otomatik Tümü'ne dön (örn. son STOCK satıldı, kullanıcı STOCK tab'ında kaldı)
+    useEffect(() => {
+        if (activeTab !== 'ALL' && tabsState.counts[activeTab] === 0) {
+            setActiveTab('ALL');
+        }
+    }, [tabsState.counts, activeTab]);
+
+    const filteredPortfolio = useMemo(() => {
+        if (activeTab === 'ALL') return portfolio || [];
+        return (portfolio || []).filter(item => item.assetType === activeTab);
+    }, [portfolio, activeTab]);
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-bg flex items-center justify-center">
@@ -200,20 +229,31 @@ const PortfolioPage = () => {
                     </button>
                 </div>
 
+                {portfolio && portfolio.length > 0 && tabsState.tabs.length > 1 && (
+                    <PortfolioTabs
+                        tabs={tabsState.tabs}
+                        counts={tabsState.counts}
+                        activeTab={activeTab}
+                        onChange={setActiveTab}
+                    />
+                )}
+
                 <PortfolioStats
-                    portfolio={portfolio}
+                    portfolio={filteredPortfolio}
                     calculateProfitLoss={calculateProfitLoss}
                 />
 
-                {portfolio && portfolio.length > 0 && (
+                {filteredPortfolio && filteredPortfolio.length > 0 && (
                     <PortfolioCharts
-                        portfolio={portfolio}
+                        portfolio={filteredPortfolio}
                         calculateProfitLoss={calculateProfitLoss}
+                        groupBy={activeTab === 'ALL' ? 'assetType' : 'symbol'}
+                        parentAssetType={activeTab === 'ALL' ? null : activeTab}
                     />
                 )}
 
                 <HoldingsTable
-                    portfolio={portfolio}
+                    portfolio={filteredPortfolio}
                     calculateProfitLoss={calculateProfitLoss}
                     onOpenHistory={setHistorySymbol}
                     onOpenBuy={setBuyMoreAsset}

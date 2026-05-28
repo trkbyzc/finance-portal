@@ -12,10 +12,15 @@
   "charts": {
     "distribution": "Varlık Dağılımı",
     "distributionSub": "Varlık türüne göre toplam değer dağılımı",
+    "distributionBySymbol": "Sembol Dağılımı",
+    "distributionBySymbolSub": "Bu kategorideki varlıkların değer dağılımı",
     "performance": "Performans Geçmişi",
     "byCategory": "Kategoriye Göre",
     "byAsset": "Varlığa Göre",
     "pnlSub": "Varlık bazlı kâr / zarar"
+  },
+  "tabs": {
+    "all": "Tümü"
   },
   "holdings": {
     "title": "Holdings",

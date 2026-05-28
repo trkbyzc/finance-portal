@@ -12,10 +12,15 @@
   "charts": {
     "distribution": "Asset Distribution",
     "distributionSub": "Total value share by asset type",
+    "distributionBySymbol": "Symbol Distribution",
+    "distributionBySymbolSub": "Value share among holdings in this category",
     "performance": "Performance History",
     "byCategory": "By Category",
     "byAsset": "By Asset",
     "pnlSub": "Per-asset profit / loss"
+  },
+  "tabs": {
+    "all": "All"
   },
   "holdings": {
     "title": "Holdings",
