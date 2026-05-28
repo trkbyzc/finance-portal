@@ -64,6 +64,8 @@
   },
   "bistCompare": "Compare with BIST:",
   "bistCompareActive": "Comparison active · chart normalized to % · other buttons disabled",
+  "cryptoCompare": "Compare with Crypto Index:",
+  "cryptoCompareActive": "Comparison active · chart normalized to % · other buttons disabled",
   "price": "Price",
   "yield": "Yield",
   "trInflation": "TR Inflation",

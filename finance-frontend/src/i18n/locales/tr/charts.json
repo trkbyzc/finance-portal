@@ -64,6 +64,8 @@
   },
   "bistCompare": "BIST Karşılaştır:",
   "bistCompareActive": "Karşılaştırma aktif · grafik % normalize edildi · diğer butonlar pasif",
+  "cryptoCompare": "Kripto Endeksi Karşılaştır:",
+  "cryptoCompareActive": "Karşılaştırma aktif · grafik % normalize edildi · diğer butonlar pasif",
   "price": "Fiyat",
   "yield": "Getiri",
   "trInflation": "TR Enflasyon",

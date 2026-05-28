@@ -16,9 +16,13 @@ import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConve
 // Yahoo XU050'yi vermediği için Fintables'tan çekiyoruz → category='TR_INDEX', symbol .IS'siz.
 // Backend BistIndexChartStrategy bu category'i yakalayıp BistStockClient.fetchIndexHistory ile fintables'a gidiyor.
 const BIST_OPTIONS = [
-    { key: 'XU100', symbol: 'XU100', label: 'BIST 100', color: '#2962ff' },
-    { key: 'XU050', symbol: 'XU050', label: 'BIST 50',  color: '#089981' },
-    { key: 'XU030', symbol: 'XU030', label: 'BIST 30',  color: '#f23645' }
+    { key: 'XU100', symbol: 'XU100', label: 'BIST 100', color: '#2962ff', category: 'TR_INDEX' },
+    { key: 'XU050', symbol: 'XU050', label: 'BIST 50',  color: '#089981', category: 'TR_INDEX' },
+    { key: 'XU030', symbol: 'XU030', label: 'BIST 30',  color: '#f23645', category: 'TR_INDEX' }
+];
+// Kripto benchmark — CoinMarketCap 200 (Yahoo ^CMC200 sembolüyle YahooDefaultChartStrategy'ye düşer)
+const CRYPTO_OPTIONS = [
+    { key: 'CMC200', symbol: '^CMC200', label: 'CMC 200', color: '#f7931a', category: 'INDEX' }
 ];
 const ASSET_COLOR = '#ff9800';
 
@@ -60,6 +64,12 @@ function TradingChart({ asset, initialRange = '1y' }) {
     const [activeBists, setActiveBists] = useState({ XU100: false, XU050: false, XU030: false });
     const hasBistOverlay = useMemo(() => Object.values(activeBists).some(Boolean), [activeBists]);
     const toggleBist = (key) => setActiveBists(prev => ({ ...prev, [key]: !prev[key] }));
+
+    // 🆕 Kripto benchmark overlay state (sadece kriptolar için — ^CMC200 ile karşılaştırma)
+    const isCrypto = useMemo(() => asset?.assetCategory === 'CRYPTO', [asset]);
+    const [activeCryptoBench, setActiveCryptoBench] = useState({ CMC200: false });
+    const hasCryptoOverlay = useMemo(() => Object.values(activeCryptoBench).some(Boolean), [activeCryptoBench]);
+    const toggleCryptoBench = (key) => setActiveCryptoBench(prev => ({ ...prev, [key]: !prev[key] }));
 
     // Veri çekme
     const { data: rawChartData = [], isLoading, error } = useChartData(
@@ -174,9 +184,90 @@ function TradingChart({ asset, initialRange = '1y' }) {
         return Array.from(allDates).sort().map(date => ({ date, ...dataMap[date] }));
     }, [hasBistOverlay, rawChartData, bistDataMap, activeBists]);
 
-    // BIST overlay aktifken zorla Recharts (multi-area) moduna geç — klinecharts'ı dispose et
-    const useRechartsFinal = useRecharts || (hasBistOverlay && isTrStock);
+    // 🆕 Kripto benchmark fetch — sadece overlay aktifken + kripto ise
+    const activeCryptoBenchKeys = useMemo(() =>
+        CRYPTO_OPTIONS.filter(b => activeCryptoBench[b.key]).map(b => b.symbol),
+        [activeCryptoBench]);
+
+    const { data: cryptoBenchDataMap = {} } = useQuery({
+        queryKey: ['cryptoBenchOverlay', activeCryptoBenchKeys.join(','), activeRange, customStartDate, customEndDate],
+        queryFn: async () => {
+            const results = {};
+            await Promise.all(activeCryptoBenchKeys.map(async (sym) => {
+                try {
+                    // category=INDEX → strategy chain'de match yok, YahooDefaultChartStrategy yakalıyor
+                    const params = activeRange === 'custom'
+                        ? { symbol: sym, category: 'INDEX', range: 'custom', interval: '1d', startDate: customStartDate, endDate: customEndDate }
+                        : { symbol: sym, category: 'INDEX', range: activeRange, interval: '1d' };
+                    const res = await historicalApi.getData(params);
+                    const arr = Array.isArray(res) ? res : (res?.priceData || res || []);
+                    results[sym] = arr;
+                } catch (e) {
+                    console.warn(`[CRYPTO BENCH] ${sym} fetch hatası:`, e.message);
+                    results[sym] = [];
+                }
+            }));
+            return results;
+        },
+        enabled: hasCryptoOverlay && isCrypto,
+        staleTime: 5 * 60 * 1000
+    });
+
+    // Kripto için overlay chart data — asset + ^CMC200 % normalize (BIST'in paraleli)
+    const cryptoOverlayChartData = useMemo(() => {
+        if (!hasCryptoOverlay || !rawChartData?.length) return [];
+
+        const dataMap = {};
+        const allDates = new Set();
+
+        const assetBase = rawChartData[0]?.close || 0;
+        if (assetBase > 0) {
+            rawChartData.forEach(p => {
+                const date = p.dateStr || p.date;
+                if (!date) return;
+                allDates.add(date);
+                if (!dataMap[date]) dataMap[date] = {};
+                dataMap[date].asset = Number((((p.close - assetBase) / assetBase) * 100).toFixed(2));
+            });
+        }
+
+        CRYPTO_OPTIONS.forEach(({ key, symbol }) => {
+            if (!activeCryptoBench[key]) return;
+            const points = cryptoBenchDataMap[symbol] || [];
+            if (points.length === 0) return;
+            const base = points[0]?.close ?? points[0]?.price ?? 0;
+            if (base <= 0) return;
+            points.forEach(p => {
+                let date = p.date || p.timestamp;
+                if (Array.isArray(p.date)) {
+                    date = `${p.date[0]}-${String(p.date[1]).padStart(2, '0')}-${String(p.date[2]).padStart(2, '0')}`;
+                } else if (typeof date === 'string') {
+                    date = date.split('T')[0];
+                }
+                const close = p.close ?? p.price ?? 0;
+                if (!date || close <= 0) return;
+                allDates.add(date);
+                if (!dataMap[date]) dataMap[date] = {};
+                dataMap[date][key] = Number((((close - base) / base) * 100).toFixed(2));
+            });
+        });
+
+        return Array.from(allDates).sort().map(date => ({ date, ...dataMap[date] }));
+    }, [hasCryptoOverlay, rawChartData, cryptoBenchDataMap, activeCryptoBench]);
+
+    // BIST veya kripto overlay aktifken zorla Recharts (multi-area) moduna geç
+    const useRechartsFinal = useRecharts || (hasBistOverlay && isTrStock) || (hasCryptoOverlay && isCrypto);
     const showBistChart = hasBistOverlay && isTrStock;
+    const showCryptoChart = hasCryptoOverlay && isCrypto;
+
+    // Generic overlay path — BIST veya kripto için tek render bloğu kullanılır
+    const showOverlayChart = showBistChart || showCryptoChart;
+    const overlayChartData = showBistChart ? bistOverlayChartData : showCryptoChart ? cryptoOverlayChartData : [];
+    const overlayBenchmarks = showBistChart
+        ? BIST_OPTIONS.filter(b => activeBists[b.key])
+        : showCryptoChart
+            ? CRYPTO_OPTIONS.filter(b => activeCryptoBench[b.key])
+            : [];
 
     // Hooks — useRechartsFinal'ı geç ki BIST overlay aktifken klinecharts dispose olsun
     const chartInstance = useChartInstance(klineContainer, candleType, useRechartsFinal, isNone);
@@ -208,7 +299,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 customStartDate={customStartDate} setCustomStartDate={setCustomStartDate}
                 customEndDate={customEndDate} setCustomEndDate={setCustomEndDate}
                 handleCustomDateSubmit={() => setActiveRange('custom')}
-                disableInteraction={showBistChart}
+                disableInteraction={showOverlayChart}
             />
 
             {/* 🆕 BIST karşılaştırma toggle bar — sadece TR hisseleri için görünür */}
@@ -247,6 +338,42 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 </div>
             )}
 
+            {/* 🆕 Kripto endeks karşılaştırma toggle bar — sadece kriptolar için görünür */}
+            {isCrypto && (
+                <div className="h-11 bg-surface border-b border-border flex items-center px-4 gap-2 shrink-0">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted mr-2">{t('cryptoCompare')}</span>
+                    {CRYPTO_OPTIONS.map(b => {
+                        const active = activeCryptoBench[b.key];
+                        return (
+                            <button
+                                key={b.key}
+                                onClick={() => toggleCryptoBench(b.key)}
+                                className={`px-3 py-1 text-xs font-bold rounded-md border transition-all ${
+                                    active
+                                        ? 'text-text shadow-lg'
+                                        : 'bg-surface-2 hover:bg-surface-hover'
+                                }`}
+                                style={active ? {
+                                    backgroundColor: b.color,
+                                    borderColor: b.color,
+                                    boxShadow: `0 0 12px ${b.color}55`
+                                } : {
+                                    color: b.color,
+                                    borderColor: `${b.color}66`
+                                }}
+                            >
+                                {b.label}
+                            </button>
+                        );
+                    })}
+                    {hasCryptoOverlay && (
+                        <span className="ml-auto text-[10px] text-text-muted italic">
+                            {t('cryptoCompareActive')}
+                        </span>
+                    )}
+                </div>
+            )}
+
             <div className="flex flex-1 overflow-hidden relative">
                 {!useRechartsFinal && (
                     <ChartSidebar onDraw={createOverlay} onRemoveAll={removeAllOverlays} />
@@ -255,18 +382,19 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 <div className="flex-1 w-full bg-surface relative p-2">
                     <ChartStatusOverlay isLoading={isLoading} error={error} />
 
-                    {showBistChart ? (
-                        // 🆕 BIST overlay modu: asset + active BIST'ler aynı eksende, % normalize, area chart
-                        <div key="bist-overlay" className="absolute top-2 left-2 right-2 bottom-2 p-4 bg-surface">
+                    {showOverlayChart ? (
+                        // 🆕 Generic benchmark overlay modu: asset + active benchmark'ler aynı eksende, % normalize.
+                        // BIST hisseleri için BIST_OPTIONS, kriptolar için CRYPTO_OPTIONS — pattern aynı, sadece data source farklı.
+                        <div key="benchmark-overlay" className="absolute top-2 left-2 right-2 bottom-2 p-4 bg-surface">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={bistOverlayChartData}>
+                                <AreaChart data={overlayChartData}>
                                     <defs>
-                                        <linearGradient id="bistAssetFill" x1="0" y1="0" x2="0" y2="1">
+                                        <linearGradient id="overlayAssetFill" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor={ASSET_COLOR} stopOpacity={0.35} />
                                             <stop offset="95%" stopColor={ASSET_COLOR} stopOpacity={0} />
                                         </linearGradient>
-                                        {BIST_OPTIONS.map(b => (
-                                            <linearGradient key={b.key} id={`bist-${b.key}-fill`} x1="0" y1="0" x2="0" y2="1">
+                                        {overlayBenchmarks.map(b => (
+                                            <linearGradient key={b.key} id={`bench-${b.key}-fill`} x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor={b.color} stopOpacity={0.25} />
                                                 <stop offset="95%" stopColor={b.color} stopOpacity={0} />
                                             </linearGradient>
@@ -283,12 +411,12 @@ function TradingChart({ asset, initialRange = '1y' }) {
                                     <ReferenceLine y={0} stroke="#868993" strokeDasharray="3 3" />
                                     <Area
                                         type="monotone" dataKey="asset" name={displayName}
-                                        stroke={ASSET_COLOR} strokeWidth={2.5} fillOpacity={1} fill="url(#bistAssetFill)" connectNulls
+                                        stroke={ASSET_COLOR} strokeWidth={2.5} fillOpacity={1} fill="url(#overlayAssetFill)" connectNulls
                                     />
-                                    {BIST_OPTIONS.filter(b => activeBists[b.key]).map(b => (
+                                    {overlayBenchmarks.map(b => (
                                         <Area
                                             key={b.key} type="monotone" dataKey={b.key} name={b.label}
-                                            stroke={b.color} strokeWidth={2} fillOpacity={1} fill={`url(#bist-${b.key}-fill)`} connectNulls
+                                            stroke={b.color} strokeWidth={2} fillOpacity={1} fill={`url(#bench-${b.key}-fill)`} connectNulls
                                         />
                                     ))}
                                 </AreaChart>
