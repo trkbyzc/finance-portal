@@ -3,20 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Search, BarChart3, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { useMarketData } from '../../../../hooks/useMarketData';
-import { useCurrency } from '../../../../context/CurrencyContext';
+import { formatCurrency } from '../../../../utils/formatters/currencyFormatter';
 
 /**
  * Küresel vadeli işlem sözleşmeleri — endeks + tahvil + döviz vadelileri.
  * Emtia futures (GC=F, CL=F vb.) bilinçli olarak burada yok; onlar Commodities sayfasında.
- * Yahoo kotasyonları USD denominated; CurrencyContext otomatik USD/TRY toggle yapar.
- * Liste sırası: endeks vadelileri → tahvil vadelileri → döviz vadelileri.
+ *
+ * Fiyat görüntüsü: <b>USD-only</b>. Tüm Yahoo futures kotasyonları doğal olarak USD bazlı
+ * (ZN=F gibi tahvil futures'ları price/100, 6E=F gibi FX futures'lar ise birim USD karşılığı);
+ * USDTRY çarpımıyla TRY'ye çevirmek anlamsız olduğu için global currency toggle bu sayfada
+ * bypass edilir. Kullanıcı TRY karşılığını görmek isterse `/chart/SYMBOL?cat=FUTURE` detayında
+ * ayrı bir conversion görür.
  */
 const CATEGORY_ORDER = ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'ZN=F', 'ZB=F', 'ZF=F', '6E=F', '6B=F', '6J=F'];
 
 export default function GlobalFuturesDashboard() {
     const { data: futures, loading } = useMarketData('futures');
     const { t } = useTranslation(['markets', 'common']);
-    const { formatPrice } = useCurrency();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -84,10 +87,15 @@ export default function GlobalFuturesDashboard() {
             ) : (
                 <div className="bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
                     <div className="p-5 border-b border-border bg-surface-2/50">
-                        <h2 className="text-lg font-bold text-text flex items-center gap-2">
-                            <BarChart3 className="text-primary" size={20} />
-                            {t('markets:globalFutures.tableTitle')}
-                        </h2>
+                        <div className="flex items-center justify-between gap-3">
+                            <h2 className="text-lg font-bold text-text flex items-center gap-2">
+                                <BarChart3 className="text-primary" size={20} />
+                                {t('markets:globalFutures.tableTitle')}
+                            </h2>
+                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-primary/10 text-primary border border-primary/30">
+                                USD
+                            </span>
+                        </div>
                     </div>
                     <div className="overflow-x-auto max-h-[700px] custom-scrollbar">
                         <table className="w-full text-left border-collapse">
@@ -116,8 +124,8 @@ export default function GlobalFuturesDashboard() {
                                             </td>
                                             <td className="p-5 text-text-muted text-sm">{f.name || '—'}</td>
                                             <td className="p-5 text-right font-mono font-medium text-text">
-                                                {/* Tüm futures USD bazlı; formatPrice global currency toggle'a göre çevirir */}
-                                                {formatPrice(price, 'USD')}
+                                                {/* USD-only — global toggle bypass (yukarıdaki dosya yorumuna bak) */}
+                                                {formatCurrency(price, 'USD')}
                                             </td>
                                             <td className="p-5 text-right">
                                                 <div className={`inline-flex items-center gap-1 px-2 py-1 rounded font-bold text-sm ${
