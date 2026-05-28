@@ -26,8 +26,10 @@ import WatchlistPage from './pages/WatchlistPage/WatchlistPage';
 import SimulationPage from './pages/SimulationPage/SimulationPage';
 import WhatIfPage from './pages/WhatIfPage/WhatIfPage';
 import EconomicCalendarPage from './pages/EconomicCalendarPage/EconomicCalendarPage';
+import PreferencesPage from './pages/PreferencesPage/PreferencesPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
+import GlobalTicker from './components/layout/MarketTicker/GlobalTicker';
 
 
 
@@ -38,6 +40,7 @@ function App() {
                 <Router>
                     <div className="min-h-screen bg-bg text-text font-sans selection:bg-primary selection:text-primary-fg">
                         <Navbar />
+                        <GlobalTicker />
                         <main>
                             <Routes>
                                 {/* Public Routes */}
@@ -64,6 +67,7 @@ function App() {
                                 <Route path="/simulation" element={<ProtectedRoute><SimulationPage /></ProtectedRoute>} />
                                 <Route path="/what-if" element={<ProtectedRoute><WhatIfPage /></ProtectedRoute>} />
                                 <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+                                <Route path="/preferences" element={<ProtectedRoute><PreferencesPage /></ProtectedRoute>} />
                             </Routes>
                         </main>
                     </div>

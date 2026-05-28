@@ -119,7 +119,7 @@ export default function UserDrawer({ open, onClose }) {
                         icon={Settings}
                         label={t('drawer.preferences')}
                         sub={t('drawer.preferencesSub')}
-                        disabled
+                        onClick={() => go('/preferences')}
                     />
 
                     {isAdmin && (

@@ -1,0 +1,23 @@
+{
+  "pageTitle": "Tercihler",
+  "pageSubtitle": "Uygulama deneyimini kişiselleştir.",
+  "ticker": {
+    "title": "Market Ticker Listesi",
+    "subtitle": "Üst banttaki kayan ticker barında hangi varlıkların görüneceğini seç.",
+    "selected": "Seçili Tickerlar",
+    "limitReached": "Maksimum sayıya ulaşıldı",
+    "emptyHint": "Aşağıdaki kategorilerden varlık seçerek listene ekle.",
+    "search": "Bu kategoride ara...",
+    "noMatch": "Eşleşen varlık yok"
+  },
+  "scope": {
+    "title": "Ticker Bar Görünürlüğü",
+    "subtitle": "Ticker bar hangi sayfalarda görünsün?",
+    "allPages": "Tüm Sayfalarda Göster",
+    "allPagesDesc": "Hangi sayfada olursan ol, ticker bar üstte sticky görünür.",
+    "homeOnly": "Yalnızca Ana Sayfada",
+    "homeOnlyDesc": "Ticker bar sadece dashboard (ana sayfa) açıkken görünür."
+  },
+  "saved": "Kaydedildi",
+  "saveError": "Kaydedilemedi"
+}

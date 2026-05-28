@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Globe, Landmark, Ship, Coins, UserPlus, Star, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import MarketTicker from '../../components/layout/MarketTicker/MarketTicker.jsx';
 import { useDashboardData } from '../../hooks/useDashboardData.js';
 import Modal from '../../components/layout/Modal.jsx';
 
@@ -49,8 +48,6 @@ export default function Dashboard() {
                 type="error"
                 onClose={() => setBanModal({ isOpen: false, msg: '' })}
             />
-
-            <MarketTicker />
 
             <section className="max-w-container mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 md:pb-20 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 items-center w-full">
                 <DashboardHero navigate={navigate} />

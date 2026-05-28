@@ -2,6 +2,7 @@ package com.financeportal.model.entity;
 
 import com.financeportal.model.enums.RiskProfile;
 import com.financeportal.model.enums.Role;
+import com.financeportal.model.enums.TickerScope;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,6 +49,14 @@ public class User {
     @Column(name = "ban_permanent", nullable = false)
     private boolean banPermanent;
 
+    /**
+     * Market ticker bar'ının görünürlük kapsamı. Default ALL_PAGES — her sayfada görünür.
+     * Kullanıcı /preferences sayfasından HOME_ONLY'ye çekebilir (sadece dashboard).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ticker_scope", nullable = false)
+    private TickerScope tickerScope;
+
     // 🚀 2FA ALANLARI TAMAMEN SİLİNDİ! (Artık Keycloak ilgileniyor)
 
     // 🚀 RICH DOMAIN MODEL: Kendi kendini başlatan "Zengin" metod
@@ -60,6 +69,7 @@ public class User {
         user.setRole(Role.USER);
         user.setBannedUntil(null);
         user.setBanPermanent(false);
+        user.setTickerScope(TickerScope.ALL_PAGES);
         user.setCreatedAt(LocalDateTime.now());
         return user;
     }

@@ -1,0 +1,23 @@
+{
+  "pageTitle": "Preferences",
+  "pageSubtitle": "Personalize your app experience.",
+  "ticker": {
+    "title": "Market Ticker List",
+    "subtitle": "Pick which assets appear in the scrolling ticker bar at the top.",
+    "selected": "Selected Tickers",
+    "limitReached": "Maximum reached",
+    "emptyHint": "Pick assets from the categories below to add them to your list.",
+    "search": "Search in this category...",
+    "noMatch": "No matching asset"
+  },
+  "scope": {
+    "title": "Ticker Bar Visibility",
+    "subtitle": "On which pages should the ticker bar appear?",
+    "allPages": "Show on All Pages",
+    "allPagesDesc": "Wherever you go, the ticker bar stays sticky on top.",
+    "homeOnly": "Home Only",
+    "homeOnlyDesc": "The ticker bar appears only when the dashboard (home) is open."
+  },
+  "saved": "Saved",
+  "saveError": "Save failed"
+}
