@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import TurkishStocksDashboard from './dashboards/TurkishStocksDashboard/TurkishStocksDashboard';
 import UsStocksDashboard from './dashboards/UsStocksDashboard/UsStocksDashboard';
 import ViopDashboard from './dashboards/ViopDashboard/ViopDashboard';
+import GlobalFuturesDashboard from './dashboards/GlobalFuturesDashboard/GlobalFuturesDashboard';
 import CurrenciesDashboard from './dashboards/CurrenciesDashboard/CurrenciesDashboard';
 import EffectiveCurrenciesDashboard from './dashboards/EffectiveCurrenciesDashboard/EffectiveCurrenciesDashboard';
 import CryptoDashboard from './dashboards/CryptoDashboard/CryptoDashboard'; // 🚀 KRİPTO EKLENDİ
@@ -36,6 +37,11 @@ export default function MarketPage() {
     // 3. VİOP
     if (category === 'viop') {
         return <ViopDashboard category={category} />;
+    }
+
+    // 3b. Küresel Vadeliler (Global Futures — ES/NQ/GC/CL vs Yahoo Futures)
+    if (category === 'futures') {
+        return <GlobalFuturesDashboard category={category} />;
     }
 
     // 4. Döviz Piyasası

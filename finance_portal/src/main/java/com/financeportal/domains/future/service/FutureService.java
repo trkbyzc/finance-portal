@@ -18,9 +18,24 @@ public class FutureService {
     private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
     private final CacheService cacheService;
 
+    /**
+     * Yahoo'dan canlı küresel vadeli işlem kotasyonları. 4 ana grup:
+     *   - US Endeks Vadelileri: ES (S&P 500), NQ (Nasdaq 100), YM (Dow Jones), RTY (Russell 2000)
+     *   - Enerji Vadelileri:    CL (WTI Petrol), BZ (Brent Petrol), NG (Doğalgaz)
+     *   - Metal Vadelileri:     GC (Altın), SI (Gümüş), HG (Bakır)
+     *   - Tahvil Vadelileri:    ZN (10Y T-Note)
+     * 5 dakika cache; PortfolioPriceService fallback chain'inden de çağrılıyor.
+     */
+    private static final String[] FUTURE_SYMBOLS = {
+            "ES=F", "NQ=F", "YM=F", "RTY=F",
+            "CL=F", "BZ=F", "NG=F",
+            "GC=F", "SI=F", "HG=F",
+            "ZN=F"
+    };
+
     public List<FutureDto> getFutures() {
         return cacheService.getOrFetch("cache:futures", () -> {
-            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(new String[]{"ES=F", "NQ=F", "GC=F", "CL=F"}, "GLOBAL VADELİ İŞLEM");
+            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(FUTURE_SYMBOLS, "GLOBAL VADELİ İŞLEM");
             return raw.stream().map(this::mapToDto).toList();
         }, 5);
     }

@@ -196,6 +196,19 @@
     "fundCode": "Fon Kodu",
     "nav": "Birim Pay Değeri"
   },
+  "globalFutures": {
+    "headerTitle": "Küresel Vadeli İşlemler",
+    "headerSubtitle": "S&P 500, Nasdaq, Dow, Russell endeks vadelileri + Altın, Gümüş, Petrol, Doğalgaz, Bakır + ABD 10Y T-Note",
+    "tableTitle": "Tüm Vadeli Sözleşmeler",
+    "emptyTitle": "Henüz veri yok",
+    "emptySub": "Yahoo Finance vadeli kotasyonları geldiğinde liste burada görünecek.",
+    "cols": {
+      "symbol": "Sembol",
+      "name": "İsim",
+      "price": "Fiyat",
+      "changePercent": "Değişim %"
+    }
+  },
   "viop": {
     "headerTitle": "Vadeli İşlemler (VİOP)",
     "headerSubtitle": "Endeks, döviz, emtia ve hisse vadeli sözleşmeler",

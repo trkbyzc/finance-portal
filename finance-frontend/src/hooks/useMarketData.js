@@ -6,6 +6,7 @@ const CATEGORY_CONFIG = {
     'tr-stocks': { title: 'Türk Hisse Senetleri', icon: '🇹🇷', endpoint: '/stocks', type: 'stock', filter: 'tr' },
     'us-stocks': { title: 'Amerikan Hisse Senetleri', icon: '🇺🇸', endpoint: '/stocks', type: 'stock', filter: 'us' },
     'viop': { title: 'VİOP (Vadeli İşlem ve Opsiyon Piyasası)', icon: '⚡', endpoint: '/viop', type: 'viop' },
+    'futures': { title: 'Küresel Vadeliler', icon: '📈', endpoint: '/futures', type: 'future' },
     'currencies': { title: 'Döviz Piyasası', icon: '💵', endpoint: '/currencies', type: 'currency' },
     'effective-currencies': { title: 'Efektif Döviz', icon: '💴', endpoint: '/effective-currencies', type: 'currency' },
     'bank-currencies': { title: 'Banka Kurları', icon: '🏦', endpoint: '/bank-currencies', type: 'bank' },

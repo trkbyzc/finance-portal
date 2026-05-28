@@ -196,6 +196,19 @@
     "fundCode": "Fund Code",
     "nav": "NAV"
   },
+  "globalFutures": {
+    "headerTitle": "Global Futures",
+    "headerSubtitle": "S&P 500, Nasdaq, Dow, Russell index futures + Gold, Silver, Oil, Natural Gas, Copper + US 10Y T-Note",
+    "tableTitle": "All Futures Contracts",
+    "emptyTitle": "No data yet",
+    "emptySub": "Futures quotes from Yahoo Finance will appear here once loaded.",
+    "cols": {
+      "symbol": "Symbol",
+      "name": "Name",
+      "price": "Price",
+      "changePercent": "Change %"
+    }
+  },
   "viop": {
     "headerTitle": "Futures (VIOP)",
     "headerSubtitle": "Index, FX, commodity and equity futures",

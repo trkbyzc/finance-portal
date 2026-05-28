@@ -20,7 +20,8 @@ export default function Navbar() {
                 { label: t('navbar:items.trStocks'), to: '/markets/tr-stocks' },
                 { label: t('navbar:items.usStocks'), to: '/markets/us-stocks' },
                 { type: 'divider' },
-                { label: t('navbar:items.viop'), to: '/markets/viop' }
+                { label: t('navbar:items.viop'), to: '/markets/viop', desc: t('navbar:items.viopDesc') },
+                { label: t('navbar:items.globalFutures'), to: '/markets/futures', desc: t('navbar:items.globalFuturesDesc'), accent: '#3b82f6' }
             ]},
         { title: t('navbar:categories.currencies'), items: [
                 { label: t('navbar:items.tcmbRates'), to: '/markets/currencies', desc: t('navbar:items.tcmbDesc') },
