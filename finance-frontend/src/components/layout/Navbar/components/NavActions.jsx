@@ -11,7 +11,7 @@ export default function NavActions() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sell opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sell"></span>
                 </span>
-                <span className="text-sm font-bold tracking-wider animate-pulse">{t('ticker.live')} {t('ticker.marketStatus')}</span>
+                <span className="text-sm font-bold tracking-wider animate-pulse whitespace-nowrap">{t('ticker.live')} {t('ticker.marketStatus')}</span>
             </Link>
         </div>
     );

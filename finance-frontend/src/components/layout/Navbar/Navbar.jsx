@@ -107,13 +107,13 @@ export default function Navbar() {
 
                             <Link
                                 to="/news"
-                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors"
+                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
                             >
                                 {t('navbar:news')}
                             </Link>
                             <Link
                                 to="/economic-calendar"
-                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors"
+                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
                             >
                                 {t('navbar:economicCalendar')}
                             </Link>

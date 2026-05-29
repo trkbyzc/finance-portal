@@ -11,7 +11,7 @@ export default function NavDropdown({ title, items }) {
         <div className="relative group">
             <button
                 type="button"
-                className="flex items-center gap-1 px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors cursor-pointer whitespace-nowrap"
             >
                 {title}
                 <ChevronDown size={14} className="opacity-60 group-hover:rotate-180 transition-transform duration-200" />
