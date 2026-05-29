@@ -14,11 +14,11 @@ export default function NavLogo() {
             <img
                 src="/finanslogo.png"
                 alt="FinansPortal"
-                className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 shrink-0 object-contain group-hover:opacity-90 transition-opacity"
+                className="w-11 h-11 sm:w-13 sm:h-13 md:w-15 md:h-15 shrink-0 object-contain group-hover:opacity-90 transition-opacity"
             />
-            {/* tracking-widest çıkarıldı: FINANSPORTAL md+ ekranlarda dropdown'larla
-                çakışıyordu. tracking-wider yeterli, text-base yeterince okunaklı. */}
-            <span className="font-black tracking-tight sm:tracking-normal md:tracking-wider text-sm sm:text-base text-nav-text uppercase whitespace-nowrap">
+            {/* -ml-2: logo PNG'nin transparan padding'i text'le visual gap yaratıyor;
+                negative margin ile F harfi wordmark'a tam yapışsın. */}
+            <span className="font-black tracking-tight sm:tracking-normal md:tracking-wider text-sm sm:text-base text-nav-text uppercase whitespace-nowrap -ml-2">
                 FINANS<span className="text-primary group-hover:opacity-80 transition-opacity">PORTAL</span>
             </span>
         </Link>
