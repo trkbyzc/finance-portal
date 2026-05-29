@@ -3,13 +3,17 @@ import { BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../../hooks/useMarketData.js';
 import { useNavigate } from 'react-router-dom';
+import MiniSparkline from './MiniSparkline';
 import { formatCompactVolume } from './volumeFormat';
 
+const SPARK_BLUE = '#3b82f6';
+
 /**
- * Hacim sidebar'ı — top 5 BIST hissesi (volume × price = işlem hacmi TL).
+ * En yüksek hacim sidebar'ı — top 4 BIST hissesi (volume × price = işlem hacmi TL).
  *
- * Yatırımcı sinyali: hacimli alım pozitif teyit, hacimsiz fiyat artışı şüpheli.
- * Progress bar genişliği max volume'a göre normalize edilir.
+ * Tasarımda sparkline + progress bar birlikte yok ama biz hem trend (sparkline)
+ * hem büyüklük karşılaştırması (progress bar) gösterelim — yatırımcı için ekstra info.
+ * Yatırımcı sinyali: hacimli alım sahte fiyat hareketlerinden ayırır.
  */
 export default function HighestVolumeSidebar() {
     const { data: stocks, loading: isLoading } = useMarketData('tr-stocks');
@@ -18,7 +22,6 @@ export default function HighestVolumeSidebar() {
 
     const topVolume = useMemo(() => {
         if (!stocks.length) return [];
-        // Volume × price = TL cinsinden işlem hacmi (lot sayısı değil parasal değer)
         const enriched = stocks.map(s => {
             const price = s.price ?? s.regularMarketPrice ?? 0;
             const vol = Number(s.volume ?? 0);
@@ -26,7 +29,7 @@ export default function HighestVolumeSidebar() {
         });
         return [...enriched]
             .sort((a, b) => b._tlVolume - a._tlVolume)
-            .slice(0, 5);
+            .slice(0, 4);
     }, [stocks]);
 
     const maxVol = topVolume[0]?._tlVolume || 1;
@@ -40,7 +43,7 @@ export default function HighestVolumeSidebar() {
                 {t('stocks.highestVolume', 'En Yüksek Hacim')}
             </h3>
 
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-3">
                 {topVolume.map((stock) => {
                     const price = stock.price ?? stock.regularMarketPrice ?? 0;
                     const widthPct = Math.max(8, (stock._tlVolume / maxVol) * 100);
@@ -50,18 +53,26 @@ export default function HighestVolumeSidebar() {
                             onClick={() => navigate(`/chart/${encodeURIComponent(stock.symbol)}?cat=STOCK`)}
                             className="cursor-pointer group"
                         >
-                            <div className="flex items-baseline justify-between mb-1 text-xs">
-                                <div className="flex items-baseline gap-2 min-w-0">
-                                    <span className="font-bold text-text group-hover:text-primary transition">
+                            <div className="flex items-center justify-between gap-3 mb-1.5">
+                                <div className="flex flex-col min-w-0">
+                                    <span className="font-bold text-text text-sm group-hover:text-primary transition">
                                         {stock.symbol.replace('.IS', '')}
                                     </span>
-                                    <span className="text-text-muted truncate max-w-[80px]">
-                                        ₺{price.toFixed(2)}
+                                    <span className="text-[10px] text-text-muted truncate max-w-25">
+                                        {stock.name || ''}
                                     </span>
                                 </div>
-                                <span className="font-mono font-bold text-primary shrink-0">
-                                    {formatCompactVolume(stock._tlVolume)} ₺
-                                </span>
+
+                                <div className="shrink-0">
+                                    <MiniSparkline symbol={stock.symbol} color={SPARK_BLUE} width={70} height={24} />
+                                </div>
+
+                                <div className="flex flex-col items-end shrink-0 text-xs">
+                                    <span className="font-mono font-bold text-text">₺{price.toFixed(2)}</span>
+                                    <span className="font-mono font-bold text-primary">
+                                        {formatCompactVolume(stock._tlVolume)} ₺
+                                    </span>
+                                </div>
                             </div>
                             <div className="h-1.5 bg-bg rounded-full overflow-hidden">
                                 <div

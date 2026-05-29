@@ -19,8 +19,10 @@ const ACCENT_CLASSES = {
  * @param {string} titleKey - i18n key (örn. 'news:categories.stock').
  * @param {string} accent - 'primary' | 'buy' | 'warning' | 'sell'
  * @param {number} limit - Gösterilecek haber sayısı (default: 6).
+ * @param {string} className - Ek class'lar; varsayılan `mt-8`'i override etmek için
+ *                              (örn. flex-col gap parent'ı kullanan sayfalarda mt çakışmasın).
  */
-export default function NewsSection({ category, titleKey, accent = 'primary', limit = 6 }) {
+export default function NewsSection({ category, titleKey, accent = 'primary', limit = 6, className = 'mt-8' }) {
     const navigate = useNavigate();
     const { t } = useTranslation(['news', 'common']);
     const { news, loading } = useNewsData(category);
@@ -29,7 +31,7 @@ export default function NewsSection({ category, titleKey, accent = 'primary', li
     const items = (news || []).slice(0, limit);
 
     return (
-        <div className="bg-surface border border-border rounded-2xl shadow-2xl p-6 mt-8">
+        <div className={`bg-surface border border-border rounded-2xl shadow-2xl p-6 ${className}`}>
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
                 <h2 className="text-xl font-bold text-text flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl ${styles.bg} flex items-center justify-center ${styles.icon}`}>

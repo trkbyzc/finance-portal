@@ -23,6 +23,8 @@ export default function TurkishStocksDashboard({ category }) {
 
             <BistInfoCards />
 
+            {/* Stitch tasarımı: sol kolon = 3 mover sidebar üst üste,
+                sağ kolon = tablo + ALTINDA haber grid (aynı sağ sütun içinde) */}
             <div className="flex flex-col lg:flex-row gap-6">
 
                 <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col gap-6">
@@ -31,13 +33,22 @@ export default function TurkishStocksDashboard({ category }) {
                     <HighestVolumeSidebar />
                 </div>
 
-                <div className="w-full lg:w-2/3 xl:w-3/4 bg-surface border border-border rounded-xl shadow-2xl p-6">
-                    <StockListTable />
+                <div className="w-full lg:w-2/3 xl:w-3/4 flex flex-col gap-6">
+                    <div className="bg-surface border border-border rounded-xl shadow-2xl p-6">
+                        <StockListTable />
+                    </div>
+                    {/* className="" — sağ kolon flex gap kullandığı için NewsSection'ın
+                        varsayılan mt-8'ini boşalt; çift boşluk olmasın. */}
+                    <NewsSection
+                        category="Borsa"
+                        titleKey="news:categories.stock"
+                        accent="primary"
+                        limit={4}
+                        className=""
+                    />
                 </div>
 
             </div>
-
-            <NewsSection category="Borsa" titleKey="news:categories.stock" accent="primary" />
         </div>
     );
 }
