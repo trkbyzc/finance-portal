@@ -1,32 +1,25 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import TopMoversSidebar from './components/TopMoversSidebar.jsx';
 import HighestVolumeSidebar from './components/HighestVolumeSidebar.jsx';
 import StockListTable from './components/StockListTable.jsx';
 import BistInfoCards from './components/BistInfoCards.jsx';
 import NewsSection from '../../../../components/news/NewsSection.jsx';
 
-export default function TurkishStocksDashboard({ category }) {
-    const { t } = useTranslation('markets');
+/**
+ * Türk Hisse Senetleri sayfası — Stitch tasarımına göre düzenleme:
+ *   - Üst: 3 KPI kart (BistInfoCards)
+ *   - Sol kolon: Top Gainers / Top Losers / Highest Volume (3 sidebar üst üste)
+ *   - Sağ kolon: Tüm Hisseler tablosu + altında haber grid (aynı sütun içinde)
+ *
+ * Sayfa header'ı kaldırıldı (tasarımda yok). News mt='' olarak override edilir
+ * çünkü parent flex-col gap-6 kullanıyor.
+ */
+export default function TurkishStocksDashboard() {
     return (
         <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
-
-            <div className="mb-8">
-                <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
-                    <span className="w-2 h-8 bg-primary rounded-full"></span>
-                    {t('stocks.headerTitle')}
-                </h1>
-                <p className="text-text-muted text-sm mt-2 ml-5">
-                    {t('stocks.headerSubtitle')}
-                </p>
-            </div>
-
             <BistInfoCards />
 
-            {/* Stitch tasarımı: sol kolon = 3 mover sidebar üst üste,
-                sağ kolon = tablo + ALTINDA haber grid (aynı sağ sütun içinde) */}
             <div className="flex flex-col lg:flex-row gap-6">
-
                 <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col gap-6">
                     <TopMoversSidebar type="gainers" />
                     <TopMoversSidebar type="losers" />
@@ -37,17 +30,15 @@ export default function TurkishStocksDashboard({ category }) {
                     <div className="bg-surface border border-border rounded-xl shadow-2xl p-6">
                         <StockListTable />
                     </div>
-                    {/* className="" — sağ kolon flex gap kullandığı için NewsSection'ın
-                        varsayılan mt-8'ini boşalt; çift boşluk olmasın. */}
                     <NewsSection
                         category="Borsa"
                         titleKey="news:categories.stock"
                         accent="primary"
                         limit={4}
                         className=""
+                        gridClassName="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
                     />
                 </div>
-
             </div>
         </div>
     );

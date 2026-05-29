@@ -21,8 +21,17 @@ const ACCENT_CLASSES = {
  * @param {number} limit - Gösterilecek haber sayısı (default: 6).
  * @param {string} className - Ek class'lar; varsayılan `mt-8`'i override etmek için
  *                              (örn. flex-col gap parent'ı kullanan sayfalarda mt çakışmasın).
+ * @param {string} gridClassName - Grid layout class'ı; default 3 sütun. Sayfa özelinde
+ *                                  4 sütun isteyenler 'grid-cols-1 md:grid-cols-2 xl:grid-cols-4' verir.
  */
-export default function NewsSection({ category, titleKey, accent = 'primary', limit = 6, className = 'mt-8' }) {
+export default function NewsSection({
+    category,
+    titleKey,
+    accent = 'primary',
+    limit = 6,
+    className = 'mt-8',
+    gridClassName = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+}) {
     const navigate = useNavigate();
     const { t } = useTranslation(['news', 'common']);
     const { news, loading } = useNewsData(category);
@@ -48,7 +57,7 @@ export default function NewsSection({ category, titleKey, accent = 'primary', li
             </div>
 
             {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className={gridClassName}>
                     {Array.from({ length: limit }).map((_, i) => (
                         <div key={i} className="h-32 animate-pulse bg-surface-2 rounded-xl border border-border" />
                     ))}
@@ -59,7 +68,7 @@ export default function NewsSection({ category, titleKey, accent = 'primary', li
                     <p className="text-sm">{t('common:status.noData')}</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className={gridClassName}>
                     {items.map((item, idx) => (
                         <div
                             key={`${item.link || idx}-${idx}`}
