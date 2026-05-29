@@ -216,6 +216,7 @@
     "headerSubtitle": "Endeks, döviz, emtia ve hisse vadeli sözleşmeler",
     "contract": "Sözleşme",
     "expiry": "Vade",
-    "settlement": "Uzlaşma"
+    "settlement": "Uzlaşma",
+    "chart": "Grafik"
   }
 }

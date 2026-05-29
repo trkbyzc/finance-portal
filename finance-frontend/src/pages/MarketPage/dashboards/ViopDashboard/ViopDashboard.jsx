@@ -1,15 +1,30 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Zap, ChevronRight, Activity, Clock } from 'lucide-react';
+import { Search, Zap, Clock, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNavigate } from 'react-router-dom';
 import { formatNumber } from '../../../../utils/formatters/numberFormatter';
+import MiniSparkline from '../../../../components/common/MiniSparkline';
 
+const SPARK_GREEN = '#22c55e';
+const SPARK_RED = '#ef4444';
+const SPARK_NEUTRAL = '#facc15';
+
+/**
+ * VİOP (Vadeli İşlem ve Opsiyon Piyasası) sayfası — Stitch tasarımına uyarlama.
+ *
+ *   Üst: başlık + alt-başlık + sağda search
+ *   3 KPI: Sözleşme sayısı | En Çok Yükselenler | En Çok Düşenler
+ *   Tablo: Sözleşme (tek satır: sembol + vade) | Uzlaşma | Değişim % | Grafik (sparkline)
+ *
+ * VIOP sparkline'ı için category='VIOP' geçilir — backend chart strategy chain
+ * VIOP sembollerini doğru source'a route eder.
+ */
 export default function ViopDashboard() {
     const { data: contracts, loading: isLoading } = useMarketData('viop');
     const navigate = useNavigate();
     const { t } = useTranslation(['markets', 'common']);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
 
     const filteredContracts = useMemo(() => {
         const query = searchQuery.toLowerCase().trim();
@@ -30,10 +45,11 @@ export default function ViopDashboard() {
     return (
         <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
 
+            {/* Header — büyük başlık + alt başlık + sağda search */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
-                        <span className="w-2 h-8 bg-warning rounded-full"></span>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                        <span className="w-2 h-8 bg-warning rounded-full" />
                         {t('markets:viop.headerTitle')}
                     </h1>
                     <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
@@ -53,50 +69,54 @@ export default function ViopDashboard() {
                 </div>
             </div>
 
+            {/* 3 KPI cards */}
             {!isLoading && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
-                        <div>
-                            <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{t('markets:viop.contract')}</p>
-                            <h3 className="text-2xl font-black text-text">{stats.total}</h3>
-                        </div>
-                        <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center text-warning">
-                            <Clock size={24} />
-                        </div>
-                    </div>
-                    <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
-                        <div>
-                            <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{t('markets:common.topGainers')}</p>
-                            <h3 className="text-2xl font-black text-buy">{stats.gainers}</h3>
-                        </div>
-                        <div className="w-12 h-12 bg-buy/10 rounded-full flex items-center justify-center text-buy">
-                            <Activity size={24} />
-                        </div>
-                    </div>
-                    <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
-                        <div>
-                            <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{t('markets:common.topLosers')}</p>
-                            <h3 className="text-2xl font-black text-sell">{stats.losers}</h3>
-                        </div>
-                        <div className="w-12 h-12 bg-sell/10 rounded-full flex items-center justify-center text-sell">
-                            <Activity size={24} />
-                        </div>
-                    </div>
+                    <KpiCard
+                        label={t('markets:viop.contract')}
+                        value={stats.total}
+                        icon={<Clock size={24} />}
+                        iconBg="bg-warning/10 text-warning"
+                        valueClass="text-text"
+                    />
+                    <KpiCard
+                        label={t('markets:common.topGainers')}
+                        value={stats.gainers}
+                        icon={<TrendingUp size={24} />}
+                        iconBg="bg-buy/10 text-buy"
+                        valueClass="text-buy"
+                    />
+                    <KpiCard
+                        label={t('markets:common.topLosers')}
+                        value={stats.losers}
+                        icon={<TrendingDown size={24} />}
+                        iconBg="bg-sell/10 text-sell"
+                        valueClass="text-sell"
+                    />
                 </div>
             )}
 
+            {/* Table */}
             {isLoading ? (
-                <div className="h-96 animate-pulse bg-surface border border-border rounded-2xl"></div>
+                <div className="h-96 animate-pulse bg-surface border border-border rounded-2xl" />
             ) : (
                 <div className="bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
-                    <div className="overflow-x-auto max-h-[600px] custom-scrollbar">
-                        <table className="w-full text-left border-collapse">
+                    <div className="overflow-x-auto max-h-150 custom-scrollbar">
+                        <table className="w-full text-left border-collapse min-w-150">
                             <thead className="bg-surface-2 sticky top-0 z-10 shadow-md">
                             <tr>
-                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider">{t('markets:viop.contract')}</th>
-                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:viop.settlement')}</th>
-                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:stocks.tableCols.changePercent')}</th>
-                                <th className="p-5"></th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider">
+                                    {t('markets:viop.contract')}
+                                </th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">
+                                    {t('markets:viop.settlement')}
+                                </th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">
+                                    {t('markets:stocks.tableCols.changePercent')}
+                                </th>
+                                <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">
+                                    {t('markets:viop.chart', 'Grafik')}
+                                </th>
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-[#2a2e39]">
@@ -106,31 +126,43 @@ export default function ViopDashboard() {
                                     const change = contract.changePercent || contract.regularMarketChangePercent || 0;
                                     const isPositive = change > 0;
                                     const isNegative = change < 0;
+                                    const sparkColor = isPositive ? SPARK_GREEN : isNegative ? SPARK_RED : SPARK_NEUTRAL;
 
                                     return (
                                         <tr
                                             key={contract.symbol}
                                             onClick={() => navigate(`/chart/${encodeURIComponent(contract.symbol)}?cat=VIOP`)}
-                                            className="hover:bg-surface-2 transition cursor-pointer group"
+                                            className="hover:bg-surface-2 transition cursor-pointer"
                                         >
-                                            <td className="p-5">
-                                                <div className="font-bold text-text group-hover:text-text transition flex items-center gap-2">
-                                                    {contract.symbol}
-                                                </div>
-                                                <div className="text-[10px] text-text-muted mt-1 max-w-[250px] truncate uppercase">
-                                                    {contract.name || ''}
-                                                </div>
+                                            {/* Sözleşme — sembol + isim inline, tek satır (tasarımdaki gibi "PETKM Temmuz 2026 Vadeli") */}
+                                            <td className="p-5 whitespace-nowrap">
+                                                <span className="font-bold text-text">{contract.symbol}</span>
+                                                {contract.name && (
+                                                    <span className="text-text-muted text-sm ml-2">
+                                                        {contract.name}
+                                                    </span>
+                                                )}
                                             </td>
-                                            <td className="p-5 text-right font-mono font-medium text-text">
+                                            <td className="p-5 text-right font-mono font-medium text-text whitespace-nowrap">
                                                 {formatNumber(price, 2, 4)}
                                             </td>
-                                            <td className="p-5 text-right">
-                                                <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-bold text-sm ${isPositive ? 'bg-buy/10 text-buy' : isNegative ? 'bg-sell/10 text-sell' : 'bg-surface-hover text-text-muted'}`}>
+                                            <td className="p-5 text-right whitespace-nowrap">
+                                                <span className={`font-bold text-sm ${
+                                                    isPositive ? 'text-buy' : isNegative ? 'text-sell' : 'text-text-muted'
+                                                }`}>
                                                     {isPositive ? '+' : ''}{change.toFixed(2)}%
-                                                </div>
+                                                </span>
                                             </td>
                                             <td className="p-5 text-right">
-                                                <ChevronRight size={18} className="text-text-muted group-hover:text-warning transition" />
+                                                <div className="inline-block">
+                                                    <MiniSparkline
+                                                        symbol={contract.symbol}
+                                                        color={sparkColor}
+                                                        category="VIOP"
+                                                        width={100}
+                                                        height={32}
+                                                    />
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -147,6 +179,20 @@ export default function ViopDashboard() {
                     </div>
                 </div>
             )}
+        </div>
+    );
+}
+
+function KpiCard({ label, value, icon, iconBg, valueClass }) {
+    return (
+        <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
+            <div>
+                <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">{label}</p>
+                <h3 className={`text-2xl sm:text-3xl font-black ${valueClass}`}>{value}</h3>
+            </div>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${iconBg}`}>
+                {icon}
+            </div>
         </div>
     );
 }

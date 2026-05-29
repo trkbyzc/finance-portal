@@ -216,6 +216,7 @@
     "headerSubtitle": "Index, FX, commodity and equity futures",
     "contract": "Contract",
     "expiry": "Expiry",
-    "settlement": "Settlement"
+    "settlement": "Settlement",
+    "chart": "Chart"
   }
 }
