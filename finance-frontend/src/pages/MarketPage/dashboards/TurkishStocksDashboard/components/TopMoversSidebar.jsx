@@ -8,6 +8,13 @@ import MiniSparkline from './MiniSparkline';
 const SPARK_GREEN = '#22c55e';
 const SPARK_RED = '#ef4444';
 
+/**
+ * Top Gainers / Top Losers sidebar — 5 hisse, Stitch tasarımına göre tek satır:
+ *   {SYMBOL (Name)} | sparkline | ₺price (+%change)
+ *
+ * Şirket adı sembol yanında parantezli + küçük; sparkline ortada (yeşil/kırmızı);
+ * fiyat ve % aynı satırda parantezli compact.
+ */
 export default function TopMoversSidebar({ type = 'gainers' }) {
     const { data: stocks, loading: isLoading } = useMarketData('tr-stocks');
     const navigate = useNavigate();
@@ -22,7 +29,7 @@ export default function TopMoversSidebar({ type = 'gainers' }) {
             const changeB = b.changePercent || b.regularMarketChangePercent || 0;
             return isGainers ? changeB - changeA : changeA - changeB;
         });
-        return sorted.slice(0, 4);
+        return sorted.slice(0, 5);
     }, [stocks, isGainers]);
 
     if (isLoading) return <div className="h-64 animate-pulse bg-surface rounded-xl border border-border" />;
@@ -36,37 +43,39 @@ export default function TopMoversSidebar({ type = 'gainers' }) {
                 {isGainers ? t('stocks.topGainers') : t('stocks.topLosers')}
             </h3>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
                 {topMovers.map((stock) => {
                     const price = stock.price || stock.regularMarketPrice || 0;
                     const changeVal = stock.changePercent || stock.regularMarketChangePercent || 0;
                     const isPositive = changeVal > 0;
+                    const sym = stock.symbol.replace('.IS', '');
+                    const changeColor = isPositive ? 'text-buy' : changeVal < 0 ? 'text-sell' : 'text-text-muted';
 
                     return (
                         <div
                             key={stock.symbol}
                             onClick={() => navigate(`/chart/${encodeURIComponent(stock.symbol)}?cat=STOCK`)}
-                            className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-surface-2 border border-border hover:border-primary cursor-pointer transition group"
+                            className="flex items-center justify-between gap-2 cursor-pointer group"
                         >
-                            <div className="flex flex-col min-w-0">
-                                <span className="font-bold text-text text-sm group-hover:text-primary transition">
-                                    {stock.symbol.replace('.IS', '')}
+                            <div className="flex items-baseline gap-1 min-w-0">
+                                <span className="font-bold text-text text-sm group-hover:text-primary transition shrink-0">
+                                    {sym}
                                 </span>
-                                <span className="text-[10px] text-text-muted truncate max-w-25">
-                                    {stock.name || ''}
-                                </span>
+                                {stock.name && (
+                                    <span className="text-[10px] text-text-muted truncate">
+                                        ({stock.name})
+                                    </span>
+                                )}
                             </div>
 
                             <div className="shrink-0">
-                                <MiniSparkline symbol={stock.symbol} color={sparkColor} width={70} height={28} />
+                                <MiniSparkline symbol={stock.symbol} color={sparkColor} width={60} height={22} />
                             </div>
 
-                            <div className="flex flex-col items-end shrink-0">
-                                <span className="text-xs font-mono font-bold text-text">
-                                    ₺{price.toFixed(2)}
-                                </span>
-                                <span className={`text-[11px] font-bold ${isPositive ? 'text-buy' : changeVal < 0 ? 'text-sell' : 'text-text-muted'}`}>
-                                    {isPositive ? '+' : ''}{changeVal.toFixed(2)}%
+                            <div className="text-xs font-mono whitespace-nowrap shrink-0">
+                                <span className="font-bold text-text">₺{price.toFixed(2)}</span>
+                                <span className={`ml-1 ${changeColor}`}>
+                                    ({isPositive ? '+' : ''}{changeVal.toFixed(1)}%)
                                 </span>
                             </div>
                         </div>
