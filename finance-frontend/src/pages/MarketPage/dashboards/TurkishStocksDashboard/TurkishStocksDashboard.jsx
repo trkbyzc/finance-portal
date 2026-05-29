@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import TopMoversSidebar from './components/TopMoversSidebar.jsx';
+import HighestVolumeSidebar from './components/HighestVolumeSidebar.jsx';
 import StockListTable from './components/StockListTable.jsx';
 import BistInfoCards from './components/BistInfoCards.jsx';
 import NewsSection from '../../../../components/news/NewsSection.jsx';
@@ -27,6 +28,7 @@ export default function TurkishStocksDashboard({ category }) {
                 <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col gap-6">
                     <TopMoversSidebar type="gainers" />
                     <TopMoversSidebar type="losers" />
+                    <HighestVolumeSidebar />
                 </div>
 
                 <div className="w-full lg:w-2/3 xl:w-3/4 bg-surface border border-border rounded-xl shadow-2xl p-6">

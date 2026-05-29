@@ -98,13 +98,15 @@
     "allStocks": "All Stocks",
     "topGainers": "Top Gainers",
     "topLosers": "Top Losers",
+    "highestVolume": "Highest Volume",
+    "gainersLosersRatio": "Gainers / Losers",
     "tableCols": {
       "symbol": "Symbol",
       "name": "Company",
       "price": "Price",
       "change": "Change",
       "changePercent": "Change %",
-      "volume": "Volume"
+      "volume": "Volume (₺)"
     }
   },
   "crypto": {

@@ -98,13 +98,15 @@
     "allStocks": "Tüm Hisse Senetleri",
     "topGainers": "En Çok Artanlar",
     "topLosers": "En Çok Düşenler",
+    "highestVolume": "En Yüksek Hacim",
+    "gainersLosersRatio": "Yükselen / Düşen",
     "tableCols": {
       "symbol": "Sembol",
       "name": "Şirket",
       "price": "Fiyat",
       "change": "Değişim",
       "changePercent": "Değişim %",
-      "volume": "Hacim"
+      "volume": "Hacim (₺)"
     }
   },
   "crypto": {
