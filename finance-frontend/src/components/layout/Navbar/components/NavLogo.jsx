@@ -10,13 +10,15 @@ import { Link } from 'react-router-dom';
  */
 export default function NavLogo() {
     return (
-        <Link to="/" className="flex items-center gap-2 min-w-0 shrink group">
+        <Link to="/" className="flex items-center gap-2.5 min-w-0 shrink-0 group">
             <img
                 src="/finanslogo.png"
                 alt="FinansPortal"
-                className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 shrink-0 object-contain group-hover:opacity-90 transition-opacity"
+                className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 shrink-0 object-contain group-hover:opacity-90 transition-opacity"
             />
-            <span className="font-black tracking-normal sm:tracking-wider md:tracking-widest text-[13px] sm:text-base md:text-lg text-nav-text uppercase whitespace-nowrap">
+            {/* tracking-widest çıkarıldı: FINANSPORTAL md+ ekranlarda dropdown'larla
+                çakışıyordu. tracking-wider yeterli, text-base yeterince okunaklı. */}
+            <span className="font-black tracking-tight sm:tracking-normal md:tracking-wider text-sm sm:text-base text-nav-text uppercase whitespace-nowrap">
                 FINANS<span className="text-primary group-hover:opacity-80 transition-opacity">PORTAL</span>
             </span>
         </Link>

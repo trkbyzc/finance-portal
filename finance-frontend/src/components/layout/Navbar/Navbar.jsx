@@ -85,8 +85,9 @@ export default function Navbar() {
             >
                 <div className="h-full max-w-container mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between gap-2 md:gap-6">
 
-                    {/* SOL: Logo + nav links */}
-                    <div className="flex items-center gap-3 md:gap-8 min-w-0">
+                    {/* SOL: Logo + nav links. md+ gap-6 (gap-8'di) — logo büyüdüğü
+                        için FINANSPORTAL wordmark BORSA dropdown'ıyla çakışmasın. */}
+                    <div className="flex items-center gap-3 md:gap-5 lg:gap-6 min-w-0">
                         {/* Hamburger — sadece mobile/tablet */}
                         <button
                             type="button"
