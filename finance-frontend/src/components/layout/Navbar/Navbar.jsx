@@ -77,13 +77,13 @@ export default function Navbar() {
     return (
         <>
             <nav
-                className="h-16 sticky top-0 z-50 backdrop-blur-xl border-b"
+                className="min-h-16 sticky top-0 z-50 backdrop-blur-xl border-b"
                 style={{
                     backgroundColor: 'var(--nav-bg)',
                     borderColor: 'var(--nav-border)'
                 }}
             >
-                <div className="h-full max-w-container mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between gap-2 md:gap-6">
+                <div className="min-h-16 max-w-container mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between gap-2 md:gap-6">
 
                     {/* SOL: Logo + nav links. md+ gap-6 (gap-8'di) — logo büyüdüğü
                         için FINANSPORTAL wordmark BORSA dropdown'ıyla çakışmasın. */}
@@ -107,13 +107,13 @@ export default function Navbar() {
 
                             <Link
                                 to="/news"
-                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
+                                className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
                             >
                                 {t('navbar:news')}
                             </Link>
                             <Link
                                 to="/economic-calendar"
-                                className="px-3 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
+                                className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors text-center leading-tight max-w-27.5"
                             >
                                 {t('navbar:economicCalendar')}
                             </Link>

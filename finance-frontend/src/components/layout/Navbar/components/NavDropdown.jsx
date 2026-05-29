@@ -11,10 +11,10 @@ export default function NavDropdown({ title, items }) {
         <div className="relative group">
             <button
                 type="button"
-                className="flex items-center gap-1 px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1 px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors cursor-pointer"
             >
-                {title}
-                <ChevronDown size={14} className="opacity-60 group-hover:rotate-180 transition-transform duration-200" />
+                <span className="text-center leading-tight max-w-20">{title}</span>
+                <ChevronDown size={14} className="opacity-60 group-hover:rotate-180 transition-transform duration-200 shrink-0" />
             </button>
 
             <div className="absolute top-full left-0 w-64 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-150 z-50 pt-1">
