@@ -100,7 +100,7 @@ export default function Navbar() {
 
                         <NavLogo />
 
-                        <div className="hidden md:flex items-center gap-1">
+                        <div className="hidden md:flex items-center gap-0 mr-3">
                             {navConfig.map((nav, idx) => (
                                 <NavDropdown key={idx} title={nav.title} items={nav.items} />
                             ))}
