@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
  */
 export default function NavLogo() {
     return (
-        <Link to="/" className="flex items-center gap-1 min-w-0 shrink-0 group">
+        <Link to="/" className="flex items-center gap-0 min-w-0 shrink-0 group">
             <img
                 src="/finanslogo.png"
                 alt="FinansPortal"
