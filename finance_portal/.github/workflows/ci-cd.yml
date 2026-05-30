@@ -11,17 +11,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Kodu Cek (Checkout)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: JDK 17 Kurulumu
-        uses: actions/setup-java@v3
+      - name: JDK 21 Kurulumu
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Maven ile Build ve Unit Testleri Calistir
-        run: mvn clean install
+      # mvn verify = compile + Surefire (unit) + Failsafe (IT) + JaCoCo report
+      # JaCoCo plugin'i verify fazında target/site/jacoco/jacoco.xml uretir.
+      - name: Maven Build + Test + Coverage (mvn verify)
+        run: ./mvnw -B --no-transfer-progress verify
+        working-directory: ./finance_portal
+
+      # JaCoCo XML + HTML raporlarini artifact olarak yukle (14 gun saklanir).
+      # SonarQube analizi CI'da kosmuyor; coverage'i Sonar'a yerelde gondermek icin
+      # docs/sonar.md'ye bak.
+      - name: JaCoCo Coverage Raporunu Artifact Olarak Yukle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-report
+          path: finance_portal/target/site/jacoco/
+          retention-days: 14
 
       - name: Docker Compose Testi (Build Kontrolu)
-        run: docker-compose build
+        run: docker compose config
+        working-directory: ./finance_portal

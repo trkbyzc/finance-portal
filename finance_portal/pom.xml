@@ -15,6 +15,33 @@
 	<description>Finance Portal Backend</description>
 	<properties>
 		<java.version>21</java.version>
+		<jacoco.version>0.8.11</jacoco.version>
+
+		<!-- JaCoCo .exec dosya yolları — ${user.home}/.jacoco/ (ASCII path).
+		     project.build.directory (Türkçe karakterli proje yolu) kullanırsak Windows'ta
+		     Türkçe 'İ' karakteri surefire fork JVM'inde mangle olup .exec dosyası
+		     yanlış klasöre yazılıyor ve report execution dosyayı bulamıyor. -->
+		<jacoco.unit.exec>${user.home}/.jacoco/finance-portal-unit.exec</jacoco.unit.exec>
+		<jacoco.it.exec>${user.home}/.jacoco/finance-portal-it.exec</jacoco.it.exec>
+
+		<!-- SonarQube — sonar:sonar hedefi için varsayılan ayarlar.
+		     URL ve token CLI'dan geçilir (docs/sonar.md). -->
+		<sonar.projectKey>finance-portal-backend</sonar.projectKey>
+		<sonar.projectName>Finance Portal Backend</sonar.projectName>
+		<sonar.java.source>21</sonar.java.source>
+		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.junit.reportPaths>${project.basedir}/target/surefire-reports,${project.basedir}/target/failsafe-reports</sonar.junit.reportPaths>
+		<!-- Coverage'a dahil EDİLMEYECEK paketler: DTO/entity/enum POJO,
+		     konfigürasyon class'ları, main app entry. -->
+		<sonar.coverage.exclusions>
+			**/model/dto/**,
+			**/model/entity/**,
+			**/model/enums/**,
+			**/dto/**,
+			**/config/**,
+			**/*Application.java
+		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -233,6 +260,98 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+
+			<!-- Surefire = unit testler. *Test.java / *Tests.java; *IT.java HARİÇ.
+			     mvn test ile çalışır.
+			     argLine: JaCoCo prepare-agent'ın set ettiği surefireArgLine property'sini
+			     fork edilen test JVM'ine geçir (yoksa coverage .exec dosyası üretilmez). -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>${surefireArgLine}</argLine>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Tests.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*IT.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- Failsafe = integration testler. *IT.java pattern'i.
+			     mvn verify ile çalışır (integration-test + verify goal'leri).
+			     Testcontainers / WireMock gibi ağır bağımlılıklarla çalışan testler buraya.
+			     argLine: JaCoCo IT agent'ı (failsafeArgLine) forke geçir. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<argLine>${failsafeArgLine}</argLine>
+					<includes>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- JaCoCo = test coverage. Üç execution:
+			     1) prepare-agent  → surefireArgLine property'sine -javaagent satırını yazar
+			        (Surefire bu satırı argLine olarak unit test JVM'ine geçirir)
+			     2) prepare-agent-integration → failsafeArgLine property'sine IT agent satırı
+			     3) report (verify) → target/site/jacoco/ altında HTML + XML rapor üretir.
+			        XML'i SonarQube okur (sonar.coverage.jacoco.xmlReportPaths).
+			     Not: Property isimlerini ayrı tutmazsak ikinci execution birincisini ezer
+			     ve unit coverage kaybolur. -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<propertyName>surefireArgLine</propertyName>
+							<!-- destFile: project.build.directory yerine ASCII path.
+							     Sebep: proje klasöründe Türkçe 'İ' var, surefire fork JVM'i
+							     argLine'daki path'i cp1254 → Latin-1 mangle ediyor
+							     (örn. "BİT" → "BÝT") ve .exec yanlış yere yazılıyor. -->
+							<destFile>${jacoco.unit.exec}</destFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>prepare-agent-integration</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+						<configuration>
+							<propertyName>failsafeArgLine</propertyName>
+							<destFile>${jacoco.it.exec}</destFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${jacoco.unit.exec}</dataFile>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
