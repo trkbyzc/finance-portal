@@ -64,10 +64,24 @@ public class StockService {
         }, 5);
     }
 
+    // Hafta sonu / piyasa kapalıyken Fintables tick endpoint v=null döner ve liste boşalır.
+    // Son başarılı snapshot 48 saat ayrı bir Redis key'inde tutulur; canlı boşsa oradan beslenir.
+    private static final String BIST_LAST_GOOD_KEY = "cache:bist:last-good";
+    private static final long BIST_LAST_GOOD_TTL_MINUTES = 60 * 48;
+
     private List<StockDto> fetchAndCombineStocks() {
         List<StockDto> allStocks = new ArrayList<>();
         List<StockDto> trStocks = bistStockClient.fetchTurkishStocks();
-        if (trStocks != null) allStocks.addAll(trStocks);
+        if (trStocks != null && !trStocks.isEmpty()) {
+            allStocks.addAll(trStocks);
+            cacheService.save(BIST_LAST_GOOD_KEY, trStocks, BIST_LAST_GOOD_TTL_MINUTES);
+        } else {
+            List<StockDto> fallback = cacheService.get(BIST_LAST_GOOD_KEY);
+            if (!fallback.isEmpty()) {
+                log.info("[BIST_STOCK] Canlı fetch boş, last-good snapshot kullanılıyor: {} sembol", fallback.size());
+                allStocks.addAll(fallback);
+            }
+        }
 
         List<MarketAssetDto> globalRaw = yahooFinanceClient.fetchQuotes(GLOBAL_STOCK_SYMBOLS, "HİSSE SENEDİ (YABANCI)");
         if (globalRaw != null) {

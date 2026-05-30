@@ -56,6 +56,12 @@ public class BistStockClient {
                     List<Map<String, Object>> values = entry.getValue();
 
                     if (values != null && values.size() >= 3) {
+                        Object priceObj = values.get(0).get("v");
+                        // close null ise (kapalı seans / Fintables veri yok) atla — StockService last-good cache'e düşer.
+                        if (!(priceObj instanceof Number)) continue;
+                        BigDecimal price = new BigDecimal(priceObj.toString());
+                        if (price.compareTo(BigDecimal.ZERO) <= 0) continue;
+
                         StockDto dto = new StockDto();
                         dto.setSymbol(symbol + ".IS");
                         dto.setYahooSymbol(symbol + ".IS");
@@ -65,20 +71,17 @@ public class BistStockClient {
                         dto.setChartType("CANDLE");
 
                         // BIST30 ⊂ BIST50 ⊂ BIST100 üst-küme garantisi her endeks tam üyelik döndüğü için.
-                        boolean is30 = bist30.contains(symbol);
-                        boolean is50 = bist50.contains(symbol);
-                        boolean is100 = bist100.contains(symbol);
+                        dto.setInBist30(bist30.contains(symbol));
+                        dto.setInBist50(bist50.contains(symbol));
+                        dto.setInBist100(bist100.contains(symbol));
 
-                        dto.setInBist30(is30); dto.setInBist50(is50); dto.setInBist100(is100);
-
-                        Object priceObj = values.get(0).get("v");
-                        dto.setPrice(priceObj instanceof Number ? new BigDecimal(priceObj.toString()) : BigDecimal.ZERO);
+                        dto.setPrice(price);
                         Object changeObj = values.get(1).get("v");
                         dto.setChangePercent(changeObj instanceof Number ? new BigDecimal(changeObj.toString()) : BigDecimal.ZERO);
                         Object volObj = values.get(2).get("v");
                         dto.setVolume(volObj instanceof Number ? ((Number) volObj).longValue() : 0L);
 
-                        if (dto.getPrice().compareTo(BigDecimal.ZERO) > 0) stocks.add(dto);
+                        stocks.add(dto);
                     }
                 }
                 log.info("[BIST_STOCK] Fetched {} Turkish stocks in {} ms.", stocks.size(), (System.currentTimeMillis() - startTime));
