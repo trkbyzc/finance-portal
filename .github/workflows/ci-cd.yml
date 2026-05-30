@@ -20,6 +20,12 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      # mvnw Windows'tan commit edildigi icin Linux'ta execute biti yok
+      # (Git on Windows core.fileMode=false default). chmod +x ile fix.
+      - name: mvnw'ye Execute Yetkisi Ver
+        run: chmod +x ./mvnw
+        working-directory: ./finance_portal
+
       # mvn verify = compile + Surefire (unit) + Failsafe (IT) + JaCoCo report
       # JaCoCo plugin'i verify fazında target/site/jacoco/jacoco.xml uretir.
       - name: Maven Build + Test + Coverage (mvn verify)
