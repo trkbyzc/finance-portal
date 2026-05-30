@@ -57,8 +57,11 @@ class CacheServiceTest {
         org.mockito.Mockito.doThrow(new RuntimeException("Redis down"))
                 .when(valueOps).set(anyString(), any(), any(Duration.class));
 
-        // Should not throw
-        cacheService.save("k", List.of("v"), 10);
+        // Exception fırlatılmaması SÖZLEŞME — assertDoesNotThrow ile explicit kontrat
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(
+                () -> cacheService.save("k", List.of("v"), 10),
+                "Redis hatasında save() exception fırlatmamalı, sessizce log atmalı"
+        );
     }
 
     @Test

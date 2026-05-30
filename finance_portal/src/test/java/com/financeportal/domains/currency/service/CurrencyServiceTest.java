@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -79,8 +80,12 @@ class CurrencyServiceTest {
         when(valueOps.get("evds:currency:EUR")).thenReturn("[]");
 
         // Lowercase verilse de upper-case key ile aranmalı
-        service.getCurrencyHistorical("eur", "5y");
-        // ValueOps EUR ile çağrıldığı için when() match etti, exception yok
+        List<Map<String, Object>> result = service.getCurrencyHistorical("eur", "5y");
+
+        // EUR (upper) key'i ile sorgulanıp boş [] dönmeli
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        org.mockito.Mockito.verify(valueOps).get("evds:currency:EUR");
     }
 
     @Test
