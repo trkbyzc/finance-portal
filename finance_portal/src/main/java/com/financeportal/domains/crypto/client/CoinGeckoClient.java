@@ -48,6 +48,10 @@ public class CoinGeckoClient {
 
                 Thread.sleep(500);
 
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.warn("[COINGECKO] Interrupted on page {}", page);
+                break;
             } catch (Exception e) {
                 log.warn("[COINGECKO] Failed to fetch page {}: {}", page, e.getMessage());
             }

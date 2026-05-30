@@ -69,6 +69,12 @@ public class WhatIfService {
         for (CompletableFuture<WhatIfAssetSeries> f : futures) {
             try {
                 result.add(f.get(PER_ASSET_TIMEOUT_SEC + 2, TimeUnit.SECONDS));
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.warn("[WHAT-IF] Interrupted, kalan future'lar iptal ediliyor.");
+                futures.forEach(fut -> fut.cancel(true));
+                result.add(errorSeries(null, "İşlem iptal edildi."));
+                break;
             } catch (Exception e) {
                 // computeOneAsync zaten completeOnTimeout ile error series döner — buraya düşmesi beklenmez,
                 // ama olursa generic warning ekle.

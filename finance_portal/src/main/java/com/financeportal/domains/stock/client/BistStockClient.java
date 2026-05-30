@@ -109,8 +109,8 @@ public class BistStockClient {
                     resolution = "D";
                     break;
                 case "1y": from = Instant.now().minus(365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
-                case "5y": from = Instant.now().minus(5 * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
-                default: from = Instant.now().minus(20 * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                case "5y": from = Instant.now().minus(5L * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
+                default: from = Instant.now().minus(20L * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
             }
 
             String url = String.format("https://markets.fintables.com/barbar/udf/history?symbol=%s&resolution=%s&from=%d&to=%d", symbol, resolution, from, to);

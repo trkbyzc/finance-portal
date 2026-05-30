@@ -76,8 +76,8 @@ public class TefasFundClient {
                 case "3mo": from = Instant.now().minus(90, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
                 case "6mo": from = Instant.now().minus(180, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
                 case "ytd": from = LocalDate.now().withDayOfYear(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond(); break;
-                case "3y": from = Instant.now().minus(365 * 3, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
-                case "5y": from = Instant.now().minus(365 * 5, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
+                case "3y": from = Instant.now().minus(365L * 3, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
+                case "5y": from = Instant.now().minus(365L * 5, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
                 default: from = Instant.now().minus(365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
             }
 

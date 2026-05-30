@@ -72,7 +72,7 @@ public class EvdsClient {
                 if (attempt == maxRetries) {
                     log.error("[EVDS] TCMB sunucularına ulaşılamadı. Seriler: {}", seriesParam);
                 } else {
-                    try { Thread.sleep(5000); } catch (InterruptedException ignored) {} // Python'daki gibi 5 sn bekle
+                    try { Thread.sleep(5000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; } // Python'daki gibi 5 sn bekle
                 }
             }
         }
@@ -114,7 +114,7 @@ public class EvdsClient {
                     String.join(",", seriesCodes), ++chunks, cursor, chunkEnd, added);
 
             cursor = chunkEnd.plusDays(1);
-            try { Thread.sleep(200); } catch (InterruptedException ignored) {} // hafif rate-limit dostu pause
+            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; } // hafif rate-limit dostu pause
         }
         log.info("[EVDS-PAGINATE] {} toplam: {} nokta ({} chunk)", String.join(",", seriesCodes), all.size(), chunks);
         return all;

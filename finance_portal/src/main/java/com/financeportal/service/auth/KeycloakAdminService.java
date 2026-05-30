@@ -23,6 +23,10 @@ import java.util.*;
 @Slf4j
 public class KeycloakAdminService {
 
+    // OTP secret üretimi için tek SecureRandom instance — her çağrıda new yaratmak
+    // pahalı (entropy init) ve Sonar S2245 uyarısı veriyor.
+    private static final java.security.SecureRandom SECURE_RANDOM = new java.security.SecureRandom();
+
     @Value("${keycloak.server-url:http://localhost:8080}")
     private String keycloakServerUrl;
 
@@ -193,7 +197,7 @@ public class KeycloakAdminService {
 
     private String generateBase32Secret() {
         byte[] buffer = new byte[20];
-        new java.security.SecureRandom().nextBytes(buffer);
+        SECURE_RANDOM.nextBytes(buffer);
 
         // Base32 encoder oluştur
         Base32 base32 = new Base32();

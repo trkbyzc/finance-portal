@@ -86,7 +86,7 @@ public class FredClient {
             } catch (Exception e) {
                 log.warn("[FRED] {} attempt {}/{} failed: {}", seriesId, attempt, maxRetries, e.getMessage());
                 if (attempt < maxRetries) {
-                    try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+                    try { Thread.sleep(3000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
                 }
             }
         }

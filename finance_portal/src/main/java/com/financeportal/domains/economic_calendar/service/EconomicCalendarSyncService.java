@@ -35,7 +35,7 @@ public class EconomicCalendarSyncService {
 
     private static final String TASK_NAME = "EconomicCalendar";
     private static final String CACHE_KEY = "cache:economic-calendar";
-    private static final long TTL_SECONDS = 6 * 60 * 60; // 6 saat
+    private static final long TTL_SECONDS = 6L * 60 * 60; // 6 saat
 
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }

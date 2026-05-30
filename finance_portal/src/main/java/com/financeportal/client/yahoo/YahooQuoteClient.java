@@ -62,6 +62,10 @@ public class YahooQuoteClient {
                     }
                 }
                 Thread.sleep(80); // Rate limit koruması
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.warn("[YAHOO-QUOTE] Interrupted while fetching {}", sym);
+                break;
             } catch (Exception e) {
                 log.warn("[YAHOO-QUOTE] Failed fetching {}: {}", sym, e.getMessage());
             }
