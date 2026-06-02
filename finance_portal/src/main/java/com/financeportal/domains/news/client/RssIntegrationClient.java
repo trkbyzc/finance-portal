@@ -45,7 +45,8 @@ public class RssIntegrationClient {
                     cleanDesc = cleanHtml(contentEncoded);
                 }
 
-                newsList.add(new NewsDto(title, cleanDesc, link, pubDate, sourceName, imageUrl, ""));
+                // Başlıkta da entity olabilir (&amp; vb.) → aynı temizlikten geçir
+                newsList.add(new NewsDto(cleanHtml(title), cleanDesc, link, pubDate, sourceName, imageUrl, ""));
             }
             log.info("[RSS] Fetched {} news articles from '{}' in {} ms.", newsList.size(), sourceName, (System.currentTimeMillis() - startTime));
         } catch (Exception e) {
@@ -74,7 +75,10 @@ public class RssIntegrationClient {
 
     private String cleanHtml(String html) {
         if (html == null) return "";
-        return html.replaceAll("<[^>]*>", "").replaceAll("&nbsp;", " ").trim();
+        // Jsoup: HTML etiketlerini temizler VE sayısal/hex entity'leri decode eder
+        // (örn. &#x1f6a8; → 🚨, &amp; → &, &nbsp; → boşluk). Önceki regex sadece etiket
+        // siliyordu, bu yüzden CoinTurk gibi kaynaklardaki "&#x1f..." emoji kodları ham kalıyordu.
+        return org.jsoup.Jsoup.parse(html).text().trim();
     }
 
     private String getTagValue(String tag, Element element) {
