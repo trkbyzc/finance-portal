@@ -16,6 +16,7 @@ import PortfolioTabs from '../../components/portfolio/PortfolioTabs';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 import HoldingsTable from '../../components/portfolio/HoldingsTable';
 import PortfolioActivityCharts from '../../components/portfolio/charts/PortfolioActivityCharts';
+import PortfolioSwitcher from '../../components/portfolio/PortfolioSwitcher';
 import usePortfolioPricing from './hooks/usePortfolioPricing';
 import usePortfolioTabs from './hooks/usePortfolioTabs';
 
@@ -45,9 +46,42 @@ const PortfolioPage = () => {
         return next;
     });
 
+    // Çoklu adlandırılmış portföy
+    const [selectedPortfolioId, setSelectedPortfolioId] = useState(null);
+    const { data: portfolios = [] } = useQuery({
+        queryKey: ['portfolios'],
+        queryFn: portfolioApi.getPortfolios
+    });
+    const activePortfolioId = useMemo(
+        () => (selectedPortfolioId && portfolios.some(p => p.id === selectedPortfolioId))
+            ? selectedPortfolioId
+            : (portfolios[0]?.id ?? null),
+        [selectedPortfolioId, portfolios]
+    );
+
     const { data: portfolio, isLoading, error } = useQuery({
-        queryKey: ['portfolio'],
-        queryFn: portfolioApi.getMyPortfolio
+        queryKey: ['portfolio', activePortfolioId],
+        queryFn: () => portfolioApi.getMyPortfolio(activePortfolioId)
+    });
+
+    const createPortfolioMutation = useMutation({
+        mutationFn: portfolioApi.createPortfolio,
+        onSuccess: (res) => {
+            queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+            if (res?.id) setSelectedPortfolioId(res.id);
+        }
+    });
+    const renamePortfolioMutation = useMutation({
+        mutationFn: ({ id, name }) => portfolioApi.renamePortfolio(id, name),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
+    });
+    const deletePortfolioMutation = useMutation({
+        mutationFn: portfolioApi.deletePortfolio,
+        onSuccess: () => {
+            setSelectedPortfolioId(null);
+            queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+        }
     });
 
     const { getCurrentPrice, getDailyChange, calculateProfitLoss } = usePortfolioPricing(portfolio);
@@ -142,17 +176,19 @@ const PortfolioPage = () => {
     };
 
     const addAssetMutation = useMutation({
-        mutationFn: portfolioApi.addManualEntry,
+        mutationFn: (data) => portfolioApi.addManualEntry({ ...data, portfolioId: activePortfolioId }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
         }
     });
 
     const sellAssetMutation = useMutation({
-        mutationFn: portfolioApi.removeFromPortfolio,
+        mutationFn: (data) => portfolioApi.removeFromPortfolio({ ...data, portfolioId: activePortfolioId }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
         }
     });
@@ -184,7 +220,19 @@ const PortfolioPage = () => {
             <div className="max-w-container mx-auto">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold">{t('portfolio:pageTitle')}</h1>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <h1 className="text-2xl sm:text-3xl font-bold">{t('portfolio:pageTitle')}</h1>
+                            {portfolios.length > 0 && (
+                                <PortfolioSwitcher
+                                    portfolios={portfolios}
+                                    activeId={activePortfolioId}
+                                    onSelect={setSelectedPortfolioId}
+                                    onCreate={(name) => createPortfolioMutation.mutate(name)}
+                                    onRename={(id, name) => renamePortfolioMutation.mutate({ id, name })}
+                                    onDelete={(id) => deletePortfolioMutation.mutate(id)}
+                                />
+                            )}
+                        </div>
                         <p className="text-text-muted mt-1 text-sm sm:text-base">{t('portfolio:pageSubtitle')}</p>
                     </div>
                     <div className="flex items-center gap-2 self-start sm:self-auto">

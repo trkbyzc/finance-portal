@@ -1,12 +1,18 @@
 import { apiClient } from '../../config/apiClient';
 
 export const portfolioApi = {
-    getMyPortfolio: async () => {
-        return await apiClient.get('/portfolio/me');
+    // ---- Çoklu adlandırılmış portföy ----
+    getPortfolios: async () => await apiClient.get('/portfolio/list'),
+    createPortfolio: async (name) => await apiClient.post('/portfolio/list', { name }),
+    renamePortfolio: async (portfolioId, name) => await apiClient.put(`/portfolio/list/${portfolioId}`, { name }),
+    deletePortfolio: async (portfolioId) => await apiClient.delete(`/portfolio/list/${portfolioId}`),
+
+    getMyPortfolio: async (portfolioId) => {
+        return await apiClient.get('/portfolio/me', { params: portfolioId ? { portfolioId } : {} });
     },
 
-    getPortfolioSummary: async () => {
-        return await apiClient.get('/portfolio/summary');
+    getPortfolioSummary: async (portfolioId) => {
+        return await apiClient.get('/portfolio/summary', { params: portfolioId ? { portfolioId } : {} });
     },
 
     addManualEntry: async (data) => {
@@ -15,7 +21,8 @@ export const portfolioApi = {
             assetType: data.assetType,
             quantity: data.quantity,
             price: data.averagePrice,
-            contractSize: data.contractSize // VİOP çarpanı (varsa); diğer varlıklarda backend 1 sayar
+            contractSize: data.contractSize, // VİOP çarpanı (varsa); diğer varlıklarda backend 1 sayar
+            portfolioId: data.portfolioId // hedef portföy (yoksa backend varsayılanı kullanır)
         });
     },
 
@@ -24,7 +31,8 @@ export const portfolioApi = {
             symbol: data.symbol,
             assetType: data.assetType,
             quantity: data.quantity,
-            price: data.averagePrice
+            price: data.averagePrice,
+            portfolioId: data.portfolioId
         });
     },
 
@@ -36,7 +44,8 @@ export const portfolioApi = {
                 quantity: data.quantity,
                 // SellModal market price gönderir → backend SELL audit'i gerçek işlem fiyatıyla yazar.
                 // 0 veya yoksa backend fallback olarak averagePrice (cost-basis) kullanır.
-                price: data.averagePrice ?? 0
+                price: data.averagePrice ?? 0,
+                portfolioId: data.portfolioId
             }
         });
     },

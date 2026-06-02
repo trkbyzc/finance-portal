@@ -2,6 +2,15 @@
   "pageTitle": "My Portfolio",
   "hideBalances": "Hide balances",
   "showBalances": "Show balances",
+  "switcher": {
+    "create": "New Portfolio",
+    "createPrompt": "New portfolio name:",
+    "rename": "Rename",
+    "renamePrompt": "New name:",
+    "delete": "Delete",
+    "deleteConfirm": "This portfolio and its holdings will be deleted. Are you sure?",
+    "assets": "assets"
+  },
   "pageSubtitle": "Live value, P/L and distribution of your investments",
   "export": {
     "subtitle": "FinansPortal Portfolio Report",

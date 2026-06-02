@@ -2,6 +2,7 @@ package com.financeportal.service.portfolio;
 
 import com.financeportal.exception.ResourceNotFoundException;
 import com.financeportal.model.dto.portfolio.TradeRequestDto;
+import com.financeportal.model.entity.Portfolio;
 import com.financeportal.model.entity.PortfolioItem;
 import com.financeportal.model.entity.Transaction;
 import com.financeportal.model.entity.User;
@@ -40,18 +41,25 @@ public class PortfolioTradeService {
      * Tek bir {@code @Transactional} sınırı içinde çağrılır (caller PortfolioService).
      * Hem portfolio_items aggregate hem transactions audit satırı aynı tx'te commit/rollback olur.
      */
-    public void executeManualEntry(UUID userId, TradeRequestDto request) {
+    public void executeManualEntry(UUID userId, Portfolio portfolio, TradeRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
-        PortfolioItem item = portfolioItemRepository.findByUser_IdAndSymbol(userId, request.getSymbol()).orElse(null);
+        PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol()).orElse(null);
 
         if (item == null) {
             // VİOP çarpanı ekleme anında snapshot'lanır (sonradan mock tablo değişse de pozisyon doğru kalır).
             BigDecimal contractSize = (request.getContractSize() != null && request.getContractSize().signum() > 0)
                     ? request.getContractSize()
                     : BigDecimal.ONE;
-            item = new PortfolioItem(UUID.randomUUID(), user, request.getSymbol(), request.getAssetType(),
-                    request.getQuantity(), request.getPrice(), contractSize);
+            item = new PortfolioItem();
+            item.setId(UUID.randomUUID());
+            item.setUser(user);
+            item.setPortfolio(portfolio);
+            item.setSymbol(request.getSymbol());
+            item.setAssetType(request.getAssetType());
+            item.setQuantity(request.getQuantity());
+            item.setAveragePrice(request.getPrice());
+            item.setContractSize(contractSize);
         } else {
             BigDecimal oldTotal = item.getQuantity().multiply(item.getAveragePrice());
             BigDecimal newTotal = request.getQuantity().multiply(request.getPrice());
@@ -67,8 +75,8 @@ public class PortfolioTradeService {
                 request.getQuantity(), request.getPrice(), null);
     }
 
-    public void executeUpdateManualEntry(UUID userId, TradeRequestDto request) {
-        PortfolioItem item = portfolioItemRepository.findByUser_IdAndSymbol(userId, request.getSymbol())
+    public void executeUpdateManualEntry(UUID userId, Portfolio portfolio, TradeRequestDto request) {
+        PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol())
                 .orElseThrow(() -> new ResourceNotFoundException("Varlık bulunamadı: " + request.getSymbol()));
 
         BigDecimal oldQty = item.getQuantity();
@@ -90,8 +98,8 @@ public class PortfolioTradeService {
         }
     }
 
-    public void executeRemoveFromPortfolio(UUID userId, TradeRequestDto request) {
-        PortfolioItem item = portfolioItemRepository.findByUser_IdAndSymbol(userId, request.getSymbol())
+    public void executeRemoveFromPortfolio(UUID userId, Portfolio portfolio, TradeRequestDto request) {
+        PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol())
                 .orElseThrow(() -> new ResourceNotFoundException("Varlık bulunamadı: " + request.getSymbol()));
 
         BigDecimal removed;

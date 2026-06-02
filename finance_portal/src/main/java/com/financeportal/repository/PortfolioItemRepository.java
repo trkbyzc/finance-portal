@@ -15,4 +15,9 @@ public interface PortfolioItemRepository extends BaseRepository<PortfolioItem, U
 
     // Kullanıcının tüm portföyünü getirir
     List<PortfolioItem> findByUser_Id(UUID userId);
+
+    // Belirli bir portföydeki varlıklar
+    List<PortfolioItem> findByPortfolio_Id(UUID portfolioId);
+
+    Optional<PortfolioItem> findByPortfolio_IdAndSymbol(UUID portfolioId, String symbol);
 }

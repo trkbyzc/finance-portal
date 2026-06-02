@@ -23,6 +23,11 @@ public class PortfolioItem {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // Hangi portföye ait. Geçişte nullable; yeni kayıtlarda her zaman set edilir.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "portfolio_id")
+    private Portfolio portfolio;
+
     @Column(nullable = false)
     private String symbol; // Örn: THYAO.IS, BTC, USD
 

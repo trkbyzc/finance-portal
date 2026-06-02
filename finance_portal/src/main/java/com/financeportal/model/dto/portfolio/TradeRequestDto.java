@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +17,5 @@ public class TradeRequestDto {
     private BigDecimal quantity; // Kaç adet/miktar alınacak?
     private BigDecimal price;    // Anlık alış fiyatı
     private BigDecimal contractSize; // VİOP sözleşme büyüklüğü (çarpan); opsiyonel, yoksa 1
+    private UUID portfolioId;    // Hedef portföy; yoksa kullanıcının varsayılan portföyü
 }
