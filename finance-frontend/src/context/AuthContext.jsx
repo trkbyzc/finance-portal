@@ -170,8 +170,18 @@ export const AuthProvider = ({ children }) => {
         window.location.href = registerUrl;
     };
 
+    // JWT exp süresi dolmuş mu? (id_token_hint için taze olmalı)
+    const isJwtExpired = (jwt) => {
+        try {
+            const payload = JSON.parse(atob(jwt.split('.')[1]));
+            return !payload.exp || (payload.exp * 1000) <= Date.now();
+        } catch {
+            return true;
+        }
+    };
+
     // 🚀 ÇIKIŞ METODU (GARANTİ SESSION TEMİZLEYİCİ)
-    const logout = () => {
+    const logout = async () => {
         console.log('🚪 Çıkış yapılıyor, oturum tamamen kapatılıyor...');
 
         if (refreshTimer) {
@@ -179,13 +189,35 @@ export const AuthProvider = ({ children }) => {
             setRefreshTimer(null);
         }
 
-        // 1. Yerel verileri (Tokenleri) anında temizle
-        forceLocalLogout();
+        // id_token_hint geçiyoruz → Keycloak KENDİ çıkış onay ekranını ATLAR, doğrudan
+        // session'ı kapatıp ?logout=true ile döner. Onayı uygulama içi pop-up'ta gösteriyoruz.
+        //
+        // ÖNEMLİ: id_token localStorage'da olmayabilir (sayfa açılışında refresh yapılmıyor,
+        // access token JWT-decode ile doğrulanıyor) ya da süresi dolmuş olabilir. Keycloak
+        // geçersiz/eksik hint'te kendi onay sayfasını gösterir. Bu yüzden çıkıştan hemen önce
+        // refresh_token ile DOĞRUDAN taze bir id_token alıyoruz (refresh grant id_token döndürür).
+        let idToken = localStorage.getItem('id_token');
+        if (!idToken || isJwtExpired(idToken)) {
+            try {
+                const rt = tokenManager.getRefreshToken();
+                if (rt) {
+                    const data = await authApi.refreshAccessToken(rt);
+                    if (data?.id_token) {
+                        localStorage.setItem('id_token', data.id_token);
+                        idToken = data.id_token;
+                    }
+                }
+            } catch (e) {
+                console.warn('Çıkış öncesi id_token tazeleme başarısız, hint olmadan devam:', e);
+            }
+        }
 
-        // 2. Keycloak session'ını tamamen sıfırlayan URL'ye yolla
-        const logoutUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/logout?client_id=${CLIENT_ID}&post_logout_redirect_uri=${encodeURIComponent(POST_LOGOUT_URI)}`;
+        // NOT: Token'ları burada SİLMİYORUZ. Temizlik ?logout=true ile dönüşte yapılır.
+        let logoutUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/logout?client_id=${CLIENT_ID}&post_logout_redirect_uri=${encodeURIComponent(POST_LOGOUT_URI)}`;
+        if (idToken) {
+            logoutUrl += `&id_token_hint=${encodeURIComponent(idToken)}`;
+        }
 
-        // Kullanıcıyı Keycloak'a postala (Orada varsa bir cookie, onu da sıfırlayıp bizi sitemize geri atacak)
         window.location.href = logoutUrl;
     };
 

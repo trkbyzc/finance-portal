@@ -1,15 +1,17 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../profile/Avatar';
 import useProfileAvatar from '../../hooks/useProfileAvatar';
+import LogoutConfirmModal from './LogoutConfirmModal';
 
 export default function UserDrawer({ open, onClose }) {
     const { user, logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const { t } = useTranslation('navbar');
+    const [confirmLogout, setConfirmLogout] = useState(false);
 
     useEffect(() => {
         if (!open) return;
@@ -138,7 +140,7 @@ export default function UserDrawer({ open, onClose }) {
 
                 <div className="p-3 border-t border-border">
                     <button
-                        onClick={() => { logout(); onClose(); }}
+                        onClick={() => { onClose(); setConfirmLogout(true); }}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sell hover:bg-sell/10 transition-colors group"
                     >
                         <div className="w-9 h-9 rounded-lg bg-sell/10 flex items-center justify-center border border-sell/20 group-hover:bg-sell/20 transition-colors">
@@ -148,6 +150,12 @@ export default function UserDrawer({ open, onClose }) {
                     </button>
                 </div>
             </aside>
+
+            <LogoutConfirmModal
+                open={confirmLogout}
+                onConfirm={() => { setConfirmLogout(false); logout(); }}
+                onCancel={() => setConfirmLogout(false)}
+            />
         </>
     );
 }

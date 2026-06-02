@@ -34,6 +34,11 @@ const AuthCallbackPage = () => {
 
                 if (tokenData && tokenData.access_token) {
                     tokenManager.setTokens(tokenData.access_token, tokenData.refresh_token);
+                    // id_token'ı sakla → çıkışta id_token_hint olarak kullanılır, böylece
+                    // Keycloak kendi çıkış onay sayfasını ATLAR (uygulama içi pop-up yeterli).
+                    if (tokenData.id_token) {
+                        localStorage.setItem('id_token', tokenData.id_token);
+                    }
                     setMessage(t('callback.success'));
 
                     setTimeout(() => {

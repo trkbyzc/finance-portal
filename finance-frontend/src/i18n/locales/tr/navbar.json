@@ -67,5 +67,11 @@
     "adminPanel": "Yönetim Paneli",
     "adminPanelSub": "Kullanıcı yönetimi, sistem ayarları",
     "logout": "Çıkış Yap"
+  },
+  "logoutConfirm": {
+    "title": "Çıkış Yapılsın mı?",
+    "body": "Finansal verilerinizin güvenliği için oturumunuzu sonlandırmak üzeresiniz. Dilerseniz çıkış yapabilir veya işlemlere geri dönebilirsiniz.",
+    "confirm": "Güvenli Çıkış Yap",
+    "cancel": "İşlemlere Geri Dön"
   }
 }

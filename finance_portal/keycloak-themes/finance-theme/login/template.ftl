@@ -1,4 +1,4 @@
-<#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
+<#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false compact=false>
 <!DOCTYPE html>
 <html lang="${(locale.currentLanguageTag)!'tr'}">
 <head>
@@ -26,7 +26,7 @@
     </#if>
 </head>
 
-<body class="kc-page ${bodyClass}">
+<body class="kc-page ${bodyClass}<#if compact> kc-compact</#if>">
 
     <#-- Toolbar: tema + dil -->
     <div class="kc-toolbar">
@@ -46,6 +46,49 @@
         </#if>
     </div>
 
+    <#if compact>
+    <#-- Compact mod (örn. çıkış onayı): sol tanıtım paneli yok, sadece ortada kart + bulanık zemin -->
+    <style>
+        .kc-compact .kc-split { display: none; }
+        .kc-compact-wrap {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .kc-compact-wrap::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(120% 120% at 50% 30%, rgba(37, 99, 235, 0.22), transparent 60%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+        .kc-compact .kc-form-card {
+            position: relative;
+            z-index: 2;
+            max-width: 440px;
+            width: 100%;
+        }
+    </style>
+    <main class="kc-compact-wrap">
+        <div class="kc-form-card">
+            <#if displayMessage && message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
+                <div class="kc-alert kc-alert-${message.type}">
+                    ${kcSanitize(message.summary)?no_esc}
+                </div>
+            </#if>
+            <#nested "header">
+            <#nested "form">
+            <#if displayInfo>
+                <#nested "info">
+            </#if>
+        </div>
+    </main>
+    <#else>
     <div class="kc-split">
 
         <#-- Sol: Brand panel + animated chart -->
@@ -136,6 +179,7 @@
         </main>
 
     </div>
+    </#if>
 
     <#-- Theme toggle + locale switcher JS -->
     <script>

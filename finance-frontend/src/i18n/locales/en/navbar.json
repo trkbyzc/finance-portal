@@ -67,5 +67,11 @@
     "adminPanel": "Admin Panel",
     "adminPanelSub": "User management, system settings",
     "logout": "Log Out"
+  },
+  "logoutConfirm": {
+    "title": "Log Out?",
+    "body": "For the security of your financial data, you're about to end your session. You can log out or go back to the app.",
+    "confirm": "Securely Log Out",
+    "cancel": "Back to App"
   }
 }

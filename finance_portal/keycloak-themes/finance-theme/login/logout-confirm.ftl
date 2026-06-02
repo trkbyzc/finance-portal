@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=false; section>
+<@layout.registrationLayout displayMessage=false compact=true; section>
     <#if section = "header">
         <h1 class="kc-form-title">${msg("logoutConfirmTitle")}</h1>
     <#elseif section = "form">
