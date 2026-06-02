@@ -56,7 +56,7 @@ export default function Navbar() {
                 { label: t('navbar:items.depositSim'), to: '/interest' },
                 { type: 'divider' },
                 // TR tahvil pazarı
-                { label: t('navbar:items.trBonds'), to: '/chart/TP.TRT070335K16?cat=TR_BOND', desc: t('navbar:items.trBondsDesc') },
+                { label: t('navbar:items.trBonds'), to: '/markets/tr-bonds', desc: t('navbar:items.trBondsDesc') },
                 { type: 'divider' },
                 // Global tahvil pazarı
                 { label: t('navbar:items.globalBonds'), to: '/markets/bonds', desc: t('navbar:items.globalBondsDesc') },

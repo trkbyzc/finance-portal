@@ -6,6 +6,15 @@ import { detectNativeCurrency, isYieldAsset } from '../utils/currencyConversion'
 
 const GLOBAL_ETFS = ["SPY", "GLD", "TLT", "VNQ", "DIA", "IWM", "VTI", "VOO"];
 
+/** "TP.TRT030626K26" → "DİBS 03.06.2026" (ISIN içindeki DDMMYY vade tarihinden). */
+const parseTrBondName = (symbol) => {
+    const isin = symbol.startsWith('TP.') ? symbol.slice(3) : symbol;
+    if (isin.length < 9) return symbol;
+    const dd = isin.slice(3, 5), mm = isin.slice(5, 7), yy = isin.slice(7, 9);
+    if (!/^\d{2}$/.test(dd) || !/^\d{2}$/.test(mm) || !/^\d{2}$/.test(yy)) return symbol;
+    return `DİBS ${dd}.${mm}.20${yy}`;
+};
+
 /**
  * Tek bir sembolün allMarketsData içindeki ilk uygun match'ini bulur.
  */
@@ -92,10 +101,19 @@ export const useAssetDetails = (symbol) => {
 
     let asset = null;
 
-    if (isTrBond && trBondsList.length > 0) {
-        const found = trBondsList.find(b => b.SERI_NO === decodedSymbol || b.symbol === decodedSymbol) || trBondsList[0];
+    if (isTrBond) {
+        const found = trBondsList.find(b => b.SERI_NO === decodedSymbol || b.symbol === decodedSymbol);
         if (found) {
             asset = { ...found, assetCategory: 'BOND', chartType: 'LINE', price: found.yield || found.price };
+        } else {
+            // Katalogdan gelen bireysel DİBS (benchmark listesinde yok) — sembolden ad türet.
+            // Grafik, vade kovasının benchmark eğrisini gösterir (bireysel getiri açık kaynakta yok).
+            asset = {
+                symbol: decodedSymbol,
+                name: parseTrBondName(decodedSymbol),
+                assetCategory: 'BOND',
+                chartType: 'LINE'
+            };
         }
     } else if (allMarketsData) {
         // 🚀 Kategori belirleme önceliği: URL ?cat= > sembol pattern > global fallback

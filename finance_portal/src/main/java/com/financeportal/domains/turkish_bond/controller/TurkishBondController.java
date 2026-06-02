@@ -25,4 +25,10 @@ public class TurkishBondController {
     public ResponseEntity<List<Map<String, Object>>> getTurkishBonds() {
         return ResponseEntity.ok(turkishBondService.getTurkishBonds());
     }
+
+    @GetMapping("/tr-bonds/catalog")
+    @Operation(summary = "Vade kategorilerine göre DİBS listesi (dashboard)")
+    public ResponseEntity<List<Map<String, Object>>> getCategorizedBonds() {
+        return ResponseEntity.ok(turkishBondService.getCategorizedBonds());
+    }
 }

@@ -1,0 +1,1185 @@
+[
+  {
+    "symbol": "TP.TRT030626K26",
+    "isin": "TRT030626K26",
+    "maturity": "2026-06-03",
+    "bucket": "SHORT",
+    "name": "DİBS 03.06.2026"
+  },
+  {
+    "symbol": "TP.TRT120626T18",
+    "isin": "TRT120626T18",
+    "maturity": "2026-06-12",
+    "bucket": "SHORT",
+    "name": "DİBS 12.06.2026"
+  },
+  {
+    "symbol": "TP.TRT260626K11",
+    "isin": "TRT260626K11",
+    "maturity": "2026-06-26",
+    "bucket": "SHORT",
+    "name": "DİBS 26.06.2026"
+  },
+  {
+    "symbol": "TP.TRT080726K20",
+    "isin": "TRT080726K20",
+    "maturity": "2026-07-08",
+    "bucket": "SHORT",
+    "name": "DİBS 08.07.2026"
+  },
+  {
+    "symbol": "TP.TRT220726F11",
+    "isin": "TRT220726F11",
+    "maturity": "2026-07-22",
+    "bucket": "SHORT",
+    "name": "DİBS 22.07.2026"
+  },
+  {
+    "symbol": "TP.TRD050826K12",
+    "isin": "TRD050826K12",
+    "maturity": "2026-08-05",
+    "bucket": "SHORT",
+    "name": "DİBS 05.08.2026"
+  },
+  {
+    "symbol": "TP.TRT120826T16",
+    "isin": "TRT120826T16",
+    "maturity": "2026-08-12",
+    "bucket": "SHORT",
+    "name": "DİBS 12.08.2026"
+  },
+  {
+    "symbol": "TP.TRT190826T27",
+    "isin": "TRT190826T27",
+    "maturity": "2026-08-19",
+    "bucket": "SHORT",
+    "name": "DİBS 19.08.2026"
+  },
+  {
+    "symbol": "TP.TRT020926K24",
+    "isin": "TRT020926K24",
+    "maturity": "2026-09-02",
+    "bucket": "SHORT",
+    "name": "DİBS 02.09.2026"
+  },
+  {
+    "symbol": "TP.TRD160926A10",
+    "isin": "TRD160926A10",
+    "maturity": "2026-09-16",
+    "bucket": "SHORT",
+    "name": "DİBS 16.09.2026"
+  },
+  {
+    "symbol": "TP.TRD160926K26",
+    "isin": "TRD160926K26",
+    "maturity": "2026-09-16",
+    "bucket": "SHORT",
+    "name": "DİBS 16.09.2026"
+  },
+  {
+    "symbol": "TP.TRT071026K34",
+    "isin": "TRT071026K34",
+    "maturity": "2026-10-07",
+    "bucket": "SHORT",
+    "name": "DİBS 07.10.2026"
+  },
+  {
+    "symbol": "TP.TRT141026K19",
+    "isin": "TRT141026K19",
+    "maturity": "2026-10-14",
+    "bucket": "SHORT",
+    "name": "DİBS 14.10.2026"
+  },
+  {
+    "symbol": "TP.TRT041126K44",
+    "isin": "TRT041126K44",
+    "maturity": "2026-11-04",
+    "bucket": "SHORT",
+    "name": "DİBS 04.11.2026"
+  },
+  {
+    "symbol": "TP.TRD111126K19",
+    "isin": "TRD111126K19",
+    "maturity": "2026-11-11",
+    "bucket": "SHORT",
+    "name": "DİBS 11.11.2026"
+  },
+  {
+    "symbol": "TP.TRT091226K22",
+    "isin": "TRT091226K22",
+    "maturity": "2026-12-09",
+    "bucket": "SHORT",
+    "name": "DİBS 09.12.2026"
+  },
+  {
+    "symbol": "TP.TRT161226K49",
+    "isin": "TRT161226K49",
+    "maturity": "2026-12-16",
+    "bucket": "SHORT",
+    "name": "DİBS 16.12.2026"
+  },
+  {
+    "symbol": "TP.TRD060127K17",
+    "isin": "TRD060127K17",
+    "maturity": "2027-01-06",
+    "bucket": "SHORT",
+    "name": "DİBS 06.01.2027"
+  },
+  {
+    "symbol": "TP.TRT130127K69",
+    "isin": "TRT130127K69",
+    "maturity": "2027-01-13",
+    "bucket": "SHORT",
+    "name": "DİBS 13.01.2027"
+  },
+  {
+    "symbol": "TP.TRD200127T28",
+    "isin": "TRD200127T28",
+    "maturity": "2027-01-20",
+    "bucket": "SHORT",
+    "name": "DİBS 20.01.2027"
+  },
+  {
+    "symbol": "TP.TRD100227K44",
+    "isin": "TRD100227K44",
+    "maturity": "2027-02-10",
+    "bucket": "SHORT",
+    "name": "DİBS 10.02.2027"
+  },
+  {
+    "symbol": "TP.TRT170227K23",
+    "isin": "TRT170227K23",
+    "maturity": "2027-02-17",
+    "bucket": "SHORT",
+    "name": "DİBS 17.02.2027"
+  },
+  {
+    "symbol": "TP.TRD100327K19",
+    "isin": "TRD100327K19",
+    "maturity": "2027-03-10",
+    "bucket": "SHORT",
+    "name": "DİBS 10.03.2027"
+  },
+  {
+    "symbol": "TP.TRT170327K71",
+    "isin": "TRT170327K71",
+    "maturity": "2027-03-17",
+    "bucket": "SHORT",
+    "name": "DİBS 17.03.2027"
+  },
+  {
+    "symbol": "TP.TRT070427K15",
+    "isin": "TRT070427K15",
+    "maturity": "2027-04-07",
+    "bucket": "SHORT",
+    "name": "DİBS 07.04.2027"
+  },
+  {
+    "symbol": "TP.TRT140427K40",
+    "isin": "TRT140427K40",
+    "maturity": "2027-04-14",
+    "bucket": "SHORT",
+    "name": "DİBS 14.04.2027"
+  },
+  {
+    "symbol": "TP.TRT050527T17",
+    "isin": "TRT050527T17",
+    "maturity": "2027-05-05",
+    "bucket": "SHORT",
+    "name": "DİBS 05.05.2027"
+  },
+  {
+    "symbol": "TP.TRT190527K28",
+    "isin": "TRT190527K28",
+    "maturity": "2027-05-19",
+    "bucket": "SHORT",
+    "name": "DİBS 19.05.2027"
+  },
+  {
+    "symbol": "TP.TRT090627K52",
+    "isin": "TRT090627K52",
+    "maturity": "2027-06-09",
+    "bucket": "Y1",
+    "name": "DİBS 09.06.2027"
+  },
+  {
+    "symbol": "TP.TRT160627A14",
+    "isin": "TRT160627A14",
+    "maturity": "2027-06-16",
+    "bucket": "Y1",
+    "name": "DİBS 16.06.2027"
+  },
+  {
+    "symbol": "TP.TRD160627K28",
+    "isin": "TRD160627K28",
+    "maturity": "2027-06-16",
+    "bucket": "Y1",
+    "name": "DİBS 16.06.2027"
+  },
+  {
+    "symbol": "TP.TRT070727K12",
+    "isin": "TRT070727K12",
+    "maturity": "2027-07-07",
+    "bucket": "Y1",
+    "name": "DİBS 07.07.2027"
+  },
+  {
+    "symbol": "TP.TRT140727K47",
+    "isin": "TRT140727K47",
+    "maturity": "2027-07-14",
+    "bucket": "Y1",
+    "name": "DİBS 14.07.2027"
+  },
+  {
+    "symbol": "TP.TRT210727K48",
+    "isin": "TRT210727K48",
+    "maturity": "2027-07-21",
+    "bucket": "Y1",
+    "name": "DİBS 21.07.2027"
+  },
+  {
+    "symbol": "TP.TRD110827K21",
+    "isin": "TRD110827K21",
+    "maturity": "2027-08-11",
+    "bucket": "Y1",
+    "name": "DİBS 11.08.2027"
+  },
+  {
+    "symbol": "TP.TRT180827A10",
+    "isin": "TRT180827A10",
+    "maturity": "2027-08-18",
+    "bucket": "Y1",
+    "name": "DİBS 18.08.2027"
+  },
+  {
+    "symbol": "TP.TRD080927T26",
+    "isin": "TRD080927T26",
+    "maturity": "2027-09-08",
+    "bucket": "Y1",
+    "name": "DİBS 08.09.2027"
+  },
+  {
+    "symbol": "TP.TRT150927K85",
+    "isin": "TRT150927K85",
+    "maturity": "2027-09-15",
+    "bucket": "Y1",
+    "name": "DİBS 15.09.2027"
+  },
+  {
+    "symbol": "TP.TRT150927K44",
+    "isin": "TRT150927K44",
+    "maturity": "2027-09-15",
+    "bucket": "Y1",
+    "name": "DİBS 15.09.2027"
+  },
+  {
+    "symbol": "TP.TRT061027K34",
+    "isin": "TRT061027K34",
+    "maturity": "2027-10-06",
+    "bucket": "Y1",
+    "name": "DİBS 06.10.2027"
+  },
+  {
+    "symbol": "TP.TRT131027K35",
+    "isin": "TRT131027K35",
+    "maturity": "2027-10-13",
+    "bucket": "Y1",
+    "name": "DİBS 13.10.2027"
+  },
+  {
+    "symbol": "TP.TRT201027K51",
+    "isin": "TRT201027K51",
+    "maturity": "2027-10-20",
+    "bucket": "Y1",
+    "name": "DİBS 20.10.2027"
+  },
+  {
+    "symbol": "TP.TRT171127K22",
+    "isin": "TRT171127K22",
+    "maturity": "2027-11-17",
+    "bucket": "Y1",
+    "name": "DİBS 17.11.2027"
+  },
+  {
+    "symbol": "TP.TRD171127T13",
+    "isin": "TRD171127T13",
+    "maturity": "2027-11-17",
+    "bucket": "Y1",
+    "name": "DİBS 17.11.2027"
+  },
+  {
+    "symbol": "TP.TRT081227K14",
+    "isin": "TRT081227K14",
+    "maturity": "2027-12-08",
+    "bucket": "Y1",
+    "name": "DİBS 08.12.2027"
+  },
+  {
+    "symbol": "TP.TRT151227K15",
+    "isin": "TRT151227K15",
+    "maturity": "2027-12-15",
+    "bucket": "Y1",
+    "name": "DİBS 15.12.2027"
+  },
+  {
+    "symbol": "TP.TRD050128K17",
+    "isin": "TRD050128K17",
+    "maturity": "2028-01-05",
+    "bucket": "Y1",
+    "name": "DİBS 05.01.2028"
+  },
+  {
+    "symbol": "TP.TRT120128T11",
+    "isin": "TRT120128T11",
+    "maturity": "2028-01-12",
+    "bucket": "Y1",
+    "name": "DİBS 12.01.2028"
+  },
+  {
+    "symbol": "TP.TRT190128T22",
+    "isin": "TRT190128T22",
+    "maturity": "2028-01-19",
+    "bucket": "Y1",
+    "name": "DİBS 19.01.2028"
+  },
+  {
+    "symbol": "TP.TRT160228K23",
+    "isin": "TRT160228K23",
+    "maturity": "2028-02-16",
+    "bucket": "Y1",
+    "name": "DİBS 16.02.2028"
+  },
+  {
+    "symbol": "TP.TRT010328K11",
+    "isin": "TRT010328K11",
+    "maturity": "2028-03-01",
+    "bucket": "Y1",
+    "name": "DİBS 01.03.2028"
+  },
+  {
+    "symbol": "TP.TRT080328K22",
+    "isin": "TRT080328K22",
+    "maturity": "2028-03-08",
+    "bucket": "Y1",
+    "name": "DİBS 08.03.2028"
+  },
+  {
+    "symbol": "TP.TRT150328K80",
+    "isin": "TRT150328K80",
+    "maturity": "2028-03-15",
+    "bucket": "Y1",
+    "name": "DİBS 15.03.2028"
+  },
+  {
+    "symbol": "TP.TRT050428K16",
+    "isin": "TRT050428K16",
+    "maturity": "2028-04-05",
+    "bucket": "Y1",
+    "name": "DİBS 05.04.2028"
+  },
+  {
+    "symbol": "TP.TRD120428K23",
+    "isin": "TRD120428K23",
+    "maturity": "2028-04-12",
+    "bucket": "Y1",
+    "name": "DİBS 12.04.2028"
+  },
+  {
+    "symbol": "TP.TRT100528K18",
+    "isin": "TRT100528K18",
+    "maturity": "2028-05-10",
+    "bucket": "Y1",
+    "name": "DİBS 10.05.2028"
+  },
+  {
+    "symbol": "TP.TRD070628K10",
+    "isin": "TRD070628K10",
+    "maturity": "2028-06-07",
+    "bucket": "Y2",
+    "name": "DİBS 07.06.2028"
+  },
+  {
+    "symbol": "TP.TRT140628K13",
+    "isin": "TRT140628K13",
+    "maturity": "2028-06-14",
+    "bucket": "Y2",
+    "name": "DİBS 14.06.2028"
+  },
+  {
+    "symbol": "TP.TRT230628K12",
+    "isin": "TRT230628K12",
+    "maturity": "2028-06-23",
+    "bucket": "Y2",
+    "name": "DİBS 23.06.2028"
+  },
+  {
+    "symbol": "TP.TRT050728K21",
+    "isin": "TRT050728K21",
+    "maturity": "2028-07-05",
+    "bucket": "Y2",
+    "name": "DİBS 05.07.2028"
+  },
+  {
+    "symbol": "TP.TRT190728T26",
+    "isin": "TRT190728T26",
+    "maturity": "2028-07-19",
+    "bucket": "Y2",
+    "name": "DİBS 19.07.2028"
+  },
+  {
+    "symbol": "TP.TRT190728A19",
+    "isin": "TRT190728A19",
+    "maturity": "2028-07-19",
+    "bucket": "Y2",
+    "name": "DİBS 19.07.2028"
+  },
+  {
+    "symbol": "TP.TRD020828T22",
+    "isin": "TRD020828T22",
+    "maturity": "2028-08-02",
+    "bucket": "Y2",
+    "name": "DİBS 02.08.2028"
+  },
+  {
+    "symbol": "TP.TRD300828K19",
+    "isin": "TRD300828K19",
+    "maturity": "2028-08-30",
+    "bucket": "Y2",
+    "name": "DİBS 30.08.2028"
+  },
+  {
+    "symbol": "TP.TRT060928T11",
+    "isin": "TRT060928T11",
+    "maturity": "2028-09-06",
+    "bucket": "Y2",
+    "name": "DİBS 06.09.2028"
+  },
+  {
+    "symbol": "TP.TRT130928T12",
+    "isin": "TRT130928T12",
+    "maturity": "2028-09-13",
+    "bucket": "Y2",
+    "name": "DİBS 13.09.2028"
+  },
+  {
+    "symbol": "TP.TRT130928K37",
+    "isin": "TRT130928K37",
+    "maturity": "2028-09-13",
+    "bucket": "Y2",
+    "name": "DİBS 13.09.2028"
+  },
+  {
+    "symbol": "TP.TRT111028K28",
+    "isin": "TRT111028K28",
+    "maturity": "2028-10-11",
+    "bucket": "Y2",
+    "name": "DİBS 11.10.2028"
+  },
+  {
+    "symbol": "TP.TRT181028K39",
+    "isin": "TRT181028K39",
+    "maturity": "2028-10-18",
+    "bucket": "Y2",
+    "name": "DİBS 18.10.2028"
+  },
+  {
+    "symbol": "TP.TRT011128K29",
+    "isin": "TRT011128K29",
+    "maturity": "2028-11-01",
+    "bucket": "Y2",
+    "name": "DİBS 01.11.2028"
+  },
+  {
+    "symbol": "TP.TRD081128T21",
+    "isin": "TRD081128T21",
+    "maturity": "2028-11-08",
+    "bucket": "Y2",
+    "name": "DİBS 08.11.2028"
+  },
+  {
+    "symbol": "TP.TRT151128K15",
+    "isin": "TRT151128K15",
+    "maturity": "2028-11-15",
+    "bucket": "Y2",
+    "name": "DİBS 15.11.2028"
+  },
+  {
+    "symbol": "TP.TRT061228T16",
+    "isin": "TRT061228T16",
+    "maturity": "2028-12-06",
+    "bucket": "Y2",
+    "name": "DİBS 06.12.2028"
+  },
+  {
+    "symbol": "TP.TRT061228K31",
+    "isin": "TRT061228K31",
+    "maturity": "2028-12-06",
+    "bucket": "Y2",
+    "name": "DİBS 06.12.2028"
+  },
+  {
+    "symbol": "TP.TRT030129K28",
+    "isin": "TRT030129K28",
+    "maturity": "2029-01-03",
+    "bucket": "Y2",
+    "name": "DİBS 03.01.2029"
+  },
+  {
+    "symbol": "TP.TRD170129A14",
+    "isin": "TRD170129A14",
+    "maturity": "2029-01-17",
+    "bucket": "Y2",
+    "name": "DİBS 17.01.2029"
+  },
+  {
+    "symbol": "TP.TRD070229K13",
+    "isin": "TRD070229K13",
+    "maturity": "2029-02-07",
+    "bucket": "Y2",
+    "name": "DİBS 07.02.2029"
+  },
+  {
+    "symbol": "TP.TRT140229T17",
+    "isin": "TRT140229T17",
+    "maturity": "2029-02-14",
+    "bucket": "Y2",
+    "name": "DİBS 14.02.2029"
+  },
+  {
+    "symbol": "TP.TRT070329T23",
+    "isin": "TRT070329T23",
+    "maturity": "2029-03-07",
+    "bucket": "Y2",
+    "name": "DİBS 07.03.2029"
+  },
+  {
+    "symbol": "TP.TRT140329K64",
+    "isin": "TRT140329K64",
+    "maturity": "2029-03-14",
+    "bucket": "Y2",
+    "name": "DİBS 14.03.2029"
+  },
+  {
+    "symbol": "TP.TRD140329K21",
+    "isin": "TRD140329K21",
+    "maturity": "2029-03-14",
+    "bucket": "Y2",
+    "name": "DİBS 14.03.2029"
+  },
+  {
+    "symbol": "TP.TRT110429T26",
+    "isin": "TRT110429T26",
+    "maturity": "2029-04-11",
+    "bucket": "Y2",
+    "name": "DİBS 11.04.2029"
+  },
+  {
+    "symbol": "TP.TRT180429K28",
+    "isin": "TRT180429K28",
+    "maturity": "2029-04-18",
+    "bucket": "Y2",
+    "name": "DİBS 18.04.2029"
+  },
+  {
+    "symbol": "TP.TRT020529K25",
+    "isin": "TRT020529K25",
+    "maturity": "2029-05-02",
+    "bucket": "Y2",
+    "name": "DİBS 02.05.2029"
+  },
+  {
+    "symbol": "TP.TRT060629K12",
+    "isin": "TRT060629K12",
+    "maturity": "2029-06-06",
+    "bucket": "Y3",
+    "name": "DİBS 06.06.2029"
+  },
+  {
+    "symbol": "TP.TRT130629T14",
+    "isin": "TRT130629T14",
+    "maturity": "2029-06-13",
+    "bucket": "Y3",
+    "name": "DİBS 13.06.2029"
+  },
+  {
+    "symbol": "TP.TRT130629T48",
+    "isin": "TRT130629T48",
+    "maturity": "2029-06-13",
+    "bucket": "Y3",
+    "name": "DİBS 13.06.2029"
+  },
+  {
+    "symbol": "TP.TRT220629K12",
+    "isin": "TRT220629K12",
+    "maturity": "2029-06-22",
+    "bucket": "Y3",
+    "name": "DİBS 22.06.2029"
+  },
+  {
+    "symbol": "TP.TRT040729T14",
+    "isin": "TRT040729T14",
+    "maturity": "2029-07-04",
+    "bucket": "Y3",
+    "name": "DİBS 04.07.2029"
+  },
+  {
+    "symbol": "TP.TRT110729K14",
+    "isin": "TRT110729K14",
+    "maturity": "2029-07-11",
+    "bucket": "Y3",
+    "name": "DİBS 11.07.2029"
+  },
+  {
+    "symbol": "TP.TRT180729K25",
+    "isin": "TRT180729K25",
+    "maturity": "2029-07-18",
+    "bucket": "Y3",
+    "name": "DİBS 18.07.2029"
+  },
+  {
+    "symbol": "TP.TRT150829K27",
+    "isin": "TRT150829K27",
+    "maturity": "2029-08-15",
+    "bucket": "Y3",
+    "name": "DİBS 15.08.2029"
+  },
+  {
+    "symbol": "TP.TRT120929K37",
+    "isin": "TRT120929K37",
+    "maturity": "2029-09-12",
+    "bucket": "Y3",
+    "name": "DİBS 12.09.2029"
+  },
+  {
+    "symbol": "TP.TRT120929K45",
+    "isin": "TRT120929K45",
+    "maturity": "2029-09-12",
+    "bucket": "Y3",
+    "name": "DİBS 12.09.2029"
+  },
+  {
+    "symbol": "TP.TRT120929T12",
+    "isin": "TRT120929T12",
+    "maturity": "2029-09-12",
+    "bucket": "Y3",
+    "name": "DİBS 12.09.2029"
+  },
+  {
+    "symbol": "TP.TRT031029T10",
+    "isin": "TRT031029T10",
+    "maturity": "2029-10-03",
+    "bucket": "Y3",
+    "name": "DİBS 03.10.2029"
+  },
+  {
+    "symbol": "TP.TRT101029K10",
+    "isin": "TRT101029K10",
+    "maturity": "2029-10-10",
+    "bucket": "Y3",
+    "name": "DİBS 10.10.2029"
+  },
+  {
+    "symbol": "TP.TRT171029K13",
+    "isin": "TRT171029K13",
+    "maturity": "2029-10-17",
+    "bucket": "Y3",
+    "name": "DİBS 17.10.2029"
+  },
+  {
+    "symbol": "TP.TRT141129K15",
+    "isin": "TRT141129K15",
+    "maturity": "2029-11-14",
+    "bucket": "Y3",
+    "name": "DİBS 14.11.2029"
+  },
+  {
+    "symbol": "TP.TRT051229K15",
+    "isin": "TRT051229K15",
+    "maturity": "2029-12-05",
+    "bucket": "Y3",
+    "name": "DİBS 05.12.2029"
+  },
+  {
+    "symbol": "TP.TRT211229T16",
+    "isin": "TRT211229T16",
+    "maturity": "2029-12-21",
+    "bucket": "Y3",
+    "name": "DİBS 21.12.2029"
+  },
+  {
+    "symbol": "TP.TRD261229K18",
+    "isin": "TRD261229K18",
+    "maturity": "2029-12-26",
+    "bucket": "Y3",
+    "name": "DİBS 26.12.2029"
+  },
+  {
+    "symbol": "TP.TRT020130A10",
+    "isin": "TRT020130A10",
+    "maturity": "2030-01-02",
+    "bucket": "Y3",
+    "name": "DİBS 02.01.2030"
+  },
+  {
+    "symbol": "TP.TRT090130K37",
+    "isin": "TRT090130K37",
+    "maturity": "2030-01-09",
+    "bucket": "Y3",
+    "name": "DİBS 09.01.2030"
+  },
+  {
+    "symbol": "TP.TRT090130A13",
+    "isin": "TRT090130A13",
+    "maturity": "2030-01-09",
+    "bucket": "Y3",
+    "name": "DİBS 09.01.2030"
+  },
+  {
+    "symbol": "TP.TRD060230K29",
+    "isin": "TRD060230K29",
+    "maturity": "2030-02-06",
+    "bucket": "Y3",
+    "name": "DİBS 06.02.2030"
+  },
+  {
+    "symbol": "TP.TRD130330K11",
+    "isin": "TRD130330K11",
+    "maturity": "2030-03-13",
+    "bucket": "Y3",
+    "name": "DİBS 13.03.2030"
+  },
+  {
+    "symbol": "TP.TRT130330K47",
+    "isin": "TRT130330K47",
+    "maturity": "2030-03-13",
+    "bucket": "Y3",
+    "name": "DİBS 13.03.2030"
+  },
+  {
+    "symbol": "TP.TRT100430K15",
+    "isin": "TRT100430K15",
+    "maturity": "2030-04-10",
+    "bucket": "Y3",
+    "name": "DİBS 10.04.2030"
+  },
+  {
+    "symbol": "TP.TRD010530K13",
+    "isin": "TRD010530K13",
+    "maturity": "2030-05-01",
+    "bucket": "Y3",
+    "name": "DİBS 01.05.2030"
+  },
+  {
+    "symbol": "TP.TRT080530K18",
+    "isin": "TRT080530K18",
+    "maturity": "2030-05-08",
+    "bucket": "Y3",
+    "name": "DİBS 08.05.2030"
+  },
+  {
+    "symbol": "TP.TRT080530T35",
+    "isin": "TRT080530T35",
+    "maturity": "2030-05-08",
+    "bucket": "Y3",
+    "name": "DİBS 08.05.2030"
+  },
+  {
+    "symbol": "TP.TRT050630K10",
+    "isin": "TRT050630K10",
+    "maturity": "2030-06-05",
+    "bucket": "Y4",
+    "name": "DİBS 05.06.2030"
+  },
+  {
+    "symbol": "TP.TRT050630T29",
+    "isin": "TRT050630T29",
+    "maturity": "2030-06-05",
+    "bucket": "Y4",
+    "name": "DİBS 05.06.2030"
+  },
+  {
+    "symbol": "TP.TRT100730A14",
+    "isin": "TRT100730A14",
+    "maturity": "2030-07-10",
+    "bucket": "Y4",
+    "name": "DİBS 10.07.2030"
+  },
+  {
+    "symbol": "TP.TRT100730K20",
+    "isin": "TRT100730K20",
+    "maturity": "2030-07-10",
+    "bucket": "Y4",
+    "name": "DİBS 10.07.2030"
+  },
+  {
+    "symbol": "TP.TRD170730T22",
+    "isin": "TRD170730T22",
+    "maturity": "2030-07-17",
+    "bucket": "Y4",
+    "name": "DİBS 17.07.2030"
+  },
+  {
+    "symbol": "TP.TRT170730K23",
+    "isin": "TRT170730K23",
+    "maturity": "2030-07-17",
+    "bucket": "Y4",
+    "name": "DİBS 17.07.2030"
+  },
+  {
+    "symbol": "TP.TRT140830K25",
+    "isin": "TRT140830K25",
+    "maturity": "2030-08-14",
+    "bucket": "Y4",
+    "name": "DİBS 14.08.2030"
+  },
+  {
+    "symbol": "TP.TRT110930T10",
+    "isin": "TRT110930T10",
+    "maturity": "2030-09-11",
+    "bucket": "Y4",
+    "name": "DİBS 11.09.2030"
+  },
+  {
+    "symbol": "TP.TRT110930K27",
+    "isin": "TRT110930K27",
+    "maturity": "2030-09-11",
+    "bucket": "Y4",
+    "name": "DİBS 11.09.2030"
+  },
+  {
+    "symbol": "TP.TRT110930A11",
+    "isin": "TRT110930A11",
+    "maturity": "2030-09-11",
+    "bucket": "Y4",
+    "name": "DİBS 11.09.2030"
+  },
+  {
+    "symbol": "TP.TRT021030A19",
+    "isin": "TRT021030A19",
+    "maturity": "2030-10-02",
+    "bucket": "Y4",
+    "name": "DİBS 02.10.2030"
+  },
+  {
+    "symbol": "TP.TRT091030K10",
+    "isin": "TRT091030K10",
+    "maturity": "2030-10-09",
+    "bucket": "Y4",
+    "name": "DİBS 09.10.2030"
+  },
+  {
+    "symbol": "TP.TRT161030K11",
+    "isin": "TRT161030K11",
+    "maturity": "2030-10-16",
+    "bucket": "Y4",
+    "name": "DİBS 16.10.2030"
+  },
+  {
+    "symbol": "TP.TRT131130A15",
+    "isin": "TRT131130A15",
+    "maturity": "2030-11-13",
+    "bucket": "Y4",
+    "name": "DİBS 13.11.2030"
+  },
+  {
+    "symbol": "TP.TRT131130K13",
+    "isin": "TRT131130K13",
+    "maturity": "2030-11-13",
+    "bucket": "Y4",
+    "name": "DİBS 13.11.2030"
+  },
+  {
+    "symbol": "TP.TRD271130K15",
+    "isin": "TRD271130K15",
+    "maturity": "2030-11-27",
+    "bucket": "Y4",
+    "name": "DİBS 27.11.2030"
+  },
+  {
+    "symbol": "TP.TRT080131T12",
+    "isin": "TRT080131T12",
+    "maturity": "2031-01-08",
+    "bucket": "Y4",
+    "name": "DİBS 08.01.2031"
+  },
+  {
+    "symbol": "TP.TRT150131K20",
+    "isin": "TRT150131K20",
+    "maturity": "2031-01-15",
+    "bucket": "Y4",
+    "name": "DİBS 15.01.2031"
+  },
+  {
+    "symbol": "TP.TRD050231K11",
+    "isin": "TRD050231K11",
+    "maturity": "2031-02-05",
+    "bucket": "Y4",
+    "name": "DİBS 05.02.2031"
+  },
+  {
+    "symbol": "TP.TRT120231K22",
+    "isin": "TRT120231K22",
+    "maturity": "2031-02-12",
+    "bucket": "Y4",
+    "name": "DİBS 12.02.2031"
+  },
+  {
+    "symbol": "TP.TRT120331K39",
+    "isin": "TRT120331K39",
+    "maturity": "2031-03-12",
+    "bucket": "Y4",
+    "name": "DİBS 12.03.2031"
+  },
+  {
+    "symbol": "TP.TRT090431K17",
+    "isin": "TRT090431K17",
+    "maturity": "2031-04-09",
+    "bucket": "Y4",
+    "name": "DİBS 09.04.2031"
+  },
+  {
+    "symbol": "TP.TRT160431A10",
+    "isin": "TRT160431A10",
+    "maturity": "2031-04-16",
+    "bucket": "Y4",
+    "name": "DİBS 16.04.2031"
+  },
+  {
+    "symbol": "TP.TRT160431K18",
+    "isin": "TRT160431K18",
+    "maturity": "2031-04-16",
+    "bucket": "Y4",
+    "name": "DİBS 16.04.2031"
+  },
+  {
+    "symbol": "TP.TRT160431T27",
+    "isin": "TRT160431T27",
+    "maturity": "2031-04-16",
+    "bucket": "Y4",
+    "name": "DİBS 16.04.2031"
+  },
+  {
+    "symbol": "TP.TRT300431K10",
+    "isin": "TRT300431K10",
+    "maturity": "2031-04-30",
+    "bucket": "Y4",
+    "name": "DİBS 30.04.2031"
+  },
+  {
+    "symbol": "TP.TRT280531T14",
+    "isin": "TRT280531T14",
+    "maturity": "2031-05-28",
+    "bucket": "Y4",
+    "name": "DİBS 28.05.2031"
+  },
+  {
+    "symbol": "TP.TRD280531T12",
+    "isin": "TRD280531T12",
+    "maturity": "2031-05-28",
+    "bucket": "Y4",
+    "name": "DİBS 28.05.2031"
+  },
+  {
+    "symbol": "TP.TRD250631K13",
+    "isin": "TRD250631K13",
+    "maturity": "2031-06-25",
+    "bucket": "Y5",
+    "name": "DİBS 25.06.2031"
+  },
+  {
+    "symbol": "TP.TRT130831K25",
+    "isin": "TRT130831K25",
+    "maturity": "2031-08-13",
+    "bucket": "Y5",
+    "name": "DİBS 13.08.2031"
+  },
+  {
+    "symbol": "TP.TRT100931K35",
+    "isin": "TRT100931K35",
+    "maturity": "2031-09-10",
+    "bucket": "Y5",
+    "name": "DİBS 10.09.2031"
+  },
+  {
+    "symbol": "TP.TRD291031K13",
+    "isin": "TRD291031K13",
+    "maturity": "2031-10-29",
+    "bucket": "Y5",
+    "name": "DİBS 29.10.2031"
+  },
+  {
+    "symbol": "TP.TRD040232K11",
+    "isin": "TRD040232K11",
+    "maturity": "2032-02-04",
+    "bucket": "Y5",
+    "name": "DİBS 04.02.2032"
+  },
+  {
+    "symbol": "TP.TRT110232T23",
+    "isin": "TRT110232T23",
+    "maturity": "2032-02-11",
+    "bucket": "Y5",
+    "name": "DİBS 11.02.2032"
+  },
+  {
+    "symbol": "TP.TRT100332T15",
+    "isin": "TRT100332T15",
+    "maturity": "2032-03-10",
+    "bucket": "Y5",
+    "name": "DİBS 10.03.2032"
+  },
+  {
+    "symbol": "TP.TRT100332K22",
+    "isin": "TRT100332K22",
+    "maturity": "2032-03-10",
+    "bucket": "Y5",
+    "name": "DİBS 10.03.2032"
+  },
+  {
+    "symbol": "TP.TRD070432T25",
+    "isin": "TRD070432T25",
+    "maturity": "2032-04-07",
+    "bucket": "Y5",
+    "name": "DİBS 07.04.2032"
+  },
+  {
+    "symbol": "TP.TRT280432T22",
+    "isin": "TRT280432T22",
+    "maturity": "2032-04-28",
+    "bucket": "Y5",
+    "name": "DİBS 28.04.2032"
+  },
+  {
+    "symbol": "TP.TRD230632A16",
+    "isin": "TRD230632A16",
+    "maturity": "2032-06-23",
+    "bucket": "Y5",
+    "name": "DİBS 23.06.2032"
+  },
+  {
+    "symbol": "TP.TRT140732K24",
+    "isin": "TRT140732K24",
+    "maturity": "2032-07-14",
+    "bucket": "Y5",
+    "name": "DİBS 14.07.2032"
+  },
+  {
+    "symbol": "TP.TRD040832K15",
+    "isin": "TRD040832K15",
+    "maturity": "2032-08-04",
+    "bucket": "Y5",
+    "name": "DİBS 04.08.2032"
+  },
+  {
+    "symbol": "TP.TRT110832T27",
+    "isin": "TRT110832T27",
+    "maturity": "2032-08-11",
+    "bucket": "Y5",
+    "name": "DİBS 11.08.2032"
+  },
+  {
+    "symbol": "TP.TRD250832K10",
+    "isin": "TRD250832K10",
+    "maturity": "2032-08-25",
+    "bucket": "Y5",
+    "name": "DİBS 25.08.2032"
+  },
+  {
+    "symbol": "TP.TRT061032K11",
+    "isin": "TRT061032K11",
+    "maturity": "2032-10-06",
+    "bucket": "Y5",
+    "name": "DİBS 06.10.2032"
+  },
+  {
+    "symbol": "TP.TRT131032K12",
+    "isin": "TRT131032K12",
+    "maturity": "2032-10-13",
+    "bucket": "Y5",
+    "name": "DİBS 13.10.2032"
+  },
+  {
+    "symbol": "TP.TRD271032T23",
+    "isin": "TRD271032T23",
+    "maturity": "2032-10-27",
+    "bucket": "Y5",
+    "name": "DİBS 27.10.2032"
+  },
+  {
+    "symbol": "TP.TRT120133K21",
+    "isin": "TRT120133K21",
+    "maturity": "2033-01-12",
+    "bucket": "Y5",
+    "name": "DİBS 12.01.2033"
+  },
+  {
+    "symbol": "TP.TRD230233T18",
+    "isin": "TRD230233T18",
+    "maturity": "2033-02-23",
+    "bucket": "Y5",
+    "name": "DİBS 23.02.2033"
+  },
+  {
+    "symbol": "TP.TRT300333K19",
+    "isin": "TRT300333K19",
+    "maturity": "2033-03-30",
+    "bucket": "Y5",
+    "name": "DİBS 30.03.2033"
+  },
+  {
+    "symbol": "TP.TRT130733T25",
+    "isin": "TRT130733T25",
+    "maturity": "2033-07-13",
+    "bucket": "Y5",
+    "name": "DİBS 13.07.2033"
+  },
+  {
+    "symbol": "TP.TRT070933T21",
+    "isin": "TRT070933T21",
+    "maturity": "2033-09-07",
+    "bucket": "Y5",
+    "name": "DİBS 07.09.2033"
+  },
+  {
+    "symbol": "TP.TRD070933A12",
+    "isin": "TRD070933A12",
+    "maturity": "2033-09-07",
+    "bucket": "Y5",
+    "name": "DİBS 07.09.2033"
+  },
+  {
+    "symbol": "TP.TRT051033T20",
+    "isin": "TRT051033T20",
+    "maturity": "2033-10-05",
+    "bucket": "Y5",
+    "name": "DİBS 05.10.2033"
+  },
+  {
+    "symbol": "TP.TRT290334K11",
+    "isin": "TRT290334K11",
+    "maturity": "2034-03-29",
+    "bucket": "Y5",
+    "name": "DİBS 29.03.2034"
+  },
+  {
+    "symbol": "TP.TRT270934T26",
+    "isin": "TRT270934T26",
+    "maturity": "2034-09-27",
+    "bucket": "Y5",
+    "name": "DİBS 27.09.2034"
+  },
+  {
+    "symbol": "TP.TRT050935A14",
+    "isin": "TRT050935A14",
+    "maturity": "2035-09-05",
+    "bucket": "Y5",
+    "name": "DİBS 05.09.2035"
+  },
+  {
+    "symbol": "TP.TRT180237T13",
+    "isin": "TRT180237T13",
+    "maturity": "2037-02-18",
+    "bucket": "Y10",
+    "name": "DİBS 18.02.2037"
+  }
+]

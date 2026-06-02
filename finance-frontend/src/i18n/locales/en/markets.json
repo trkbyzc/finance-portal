@@ -180,6 +180,18 @@
       "global": "Global"
     }
   },
+  "trBonds": {
+    "headerTitle": "Turkish Bonds & Bills",
+    "headerSubtitle": "Treasury debt securities by maturity — click a bond to see its chart",
+    "all": "All",
+    "yieldNote": "Yield is taken from the benchmark of the maturity bucket; bonds of similar maturity track the benchmark closely.",
+    "cols": {
+      "bond": "Bond",
+      "maturity": "Maturity",
+      "group": "Maturity Group",
+      "yield": "Yield"
+    }
+  },
   "eurobonds": {
     "headerTitle": "Turkey Treasury Eurobonds",
     "headerSubtitle": "USD-denominated TR Treasury eurobonds — click a bond to see its price chart",

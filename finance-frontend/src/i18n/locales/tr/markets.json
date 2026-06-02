@@ -180,6 +180,18 @@
       "global": "Küresel"
     }
   },
+  "trBonds": {
+    "headerTitle": "Türkiye Tahvil & Bono",
+    "headerSubtitle": "Vade kategorilerine göre Hazine DİBS'leri — bir tahvile tıklayıp grafiğini görün",
+    "all": "Tümü",
+    "yieldNote": "Getiri, ilgili vade kovasının gösterge (benchmark) tahvilinden alınır; aynı vadedeki tahviller benchmark'ı yakından izler.",
+    "cols": {
+      "bond": "Tahvil",
+      "maturity": "Vade",
+      "group": "Vade Grubu",
+      "yield": "Getiri"
+    }
+  },
   "eurobonds": {
     "headerTitle": "Türkiye Hazine Eurobondları",
     "headerSubtitle": "USD cinsi TR Hazine eurobondları — bir bonoya tıklayıp fiyat grafiğini görün",

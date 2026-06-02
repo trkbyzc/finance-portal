@@ -2,6 +2,7 @@ package com.financeportal.domains.turkish_bond.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.domains.turkish_bond.config.TurkishBondCatalog;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.service.mapper.BondMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,10 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,10 +30,47 @@ public class TurkishBondService {
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
     private final BondMapper bondMapper;
+    private final TurkishBondCatalog bondCatalog;
+
+    // Vade kovası → benchmark label (BondMapper'daki gösterge etiketleriyle birebir)
+    private static final Map<String, String> BUCKET_LABEL = Map.of(
+            "SHORT", "Kısa Vadeli", "Y1", "1+ Yıl", "Y2", "2+ Yıl",
+            "Y3", "3+ Yıl", "Y4", "4+ Yıl", "Y5", "5 Yıl+", "Y10", "10 Yıl+");
 
     public List<Map<String, Object>> getTurkishBonds() {
         List<Map<String, Object>> yieldCurve = bondMapper.getBondYieldCurve();
         return yieldCurve.isEmpty() ? bondMapper.getFallbackYieldCurve() : yieldCurve;
+    }
+
+    /**
+     * Vade kategorilerine göre küratörlü DİBS listesi (dashboard için).
+     * Her tahvilin getirisi, vade kovasının benchmark göstergesinden alınır
+     * (bireysel tahvil getirisi açık kaynakta yok; aynı vadedekiler benchmark'ı yakından izler).
+     */
+    public List<Map<String, Object>> getCategorizedBonds() {
+        // Benchmark label → yield haritası
+        Map<String, Double> yieldByLabel = new LinkedHashMap<>();
+        for (Map<String, Object> b : getTurkishBonds()) {
+            Object lbl = b.get("label");
+            Object y = b.get("yield");
+            if (lbl != null && y instanceof Number n) yieldByLabel.put(lbl.toString(), n.doubleValue());
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (TurkishBondCatalog.CatalogEntry e : bondCatalog.getEntries()) {
+            String label = BUCKET_LABEL.getOrDefault(e.getBucket(), "");
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("symbol", e.getSymbol());
+            item.put("isin", e.getIsin());
+            item.put("name", e.getName());
+            item.put("maturity", e.getMaturity());
+            item.put("bucket", e.getBucket());
+            item.put("label", label);
+            Double y = yieldByLabel.get(label);
+            if (y != null) item.put("yield", y);
+            result.add(item);
+        }
+        return result;
     }
 
     /**
@@ -43,6 +83,13 @@ public class TurkishBondService {
 
         try {
             String jsonStr = stringRedisTemplate.opsForValue().get(redisKey);
+            // Katalog tahvillerinin kendi tarihçesi yok → vade kovasının benchmark eğrisine düş.
+            if ((jsonStr == null || jsonStr.isEmpty()) && symbol != null && symbol.startsWith("TP.")) {
+                String benchKey = benchmarkKeyForBondSymbol(symbol);
+                if (benchKey != null && !benchKey.equals(redisKey)) {
+                    jsonStr = stringRedisTemplate.opsForValue().get(benchKey);
+                }
+            }
             if (jsonStr == null || jsonStr.isEmpty()) {
                 log.debug("[TR-BOND] {} için Redis'te tarihçe yok (TurkishBondSyncService henüz çalışmadı olabilir).", symbol);
                 return List.of();
@@ -95,5 +142,32 @@ public class TurkishBondService {
             case "TP.TRT050935A14.ORAN" -> "evds:benchmark:10y";
             default -> symbol.startsWith("TP.") ? "evds:history:" + symbol : null;
         };
+    }
+
+    /**
+     * Katalog tahvili (TP.&lt;ISIN&gt;) için vadeye göre benchmark Redis key'i.
+     * ISIN'in DDMMYY vade tarihinden kalan yıl hesaplanır, vade kovasına eşlenir.
+     * Bireysel tahvil tarihçesi olmadığından grafik bu temsili eğriyi gösterir.
+     */
+    private String benchmarkKeyForBondSymbol(String symbol) {
+        try {
+            String isin = symbol.startsWith("TP.") ? symbol.substring(3) : symbol;
+            if (isin.length() < 9) return null;
+            int d = Integer.parseInt(isin.substring(3, 5));
+            int m = Integer.parseInt(isin.substring(5, 7));
+            int y = 2000 + Integer.parseInt(isin.substring(7, 9));
+            LocalDate mat = LocalDate.of(y, m, d);
+            double years = ChronoUnit.DAYS.between(LocalDate.now(), mat) / 365.25;
+            if (years < 0) return null;
+            if (years < 1) return "evds:benchmark:1m";   // Kısa Vadeli
+            if (years < 2) return "evds:benchmark:3m";   // 1+ Yıl
+            if (years < 3) return "evds:benchmark:6m";   // 2+ Yıl
+            if (years < 4) return "evds:benchmark:1y";   // 3+ Yıl
+            if (years < 5) return "evds:benchmark:2y";   // 4+ Yıl
+            if (years < 10) return "evds:benchmark:5y";  // 5 Yıl+
+            return "evds:benchmark:10y";                 // 10 Yıl+
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

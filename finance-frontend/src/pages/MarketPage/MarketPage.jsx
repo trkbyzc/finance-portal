@@ -12,6 +12,7 @@ import EffectiveCurrenciesDashboard from './dashboards/EffectiveCurrenciesDashbo
 import CryptoDashboard from './dashboards/CryptoDashboard/CryptoDashboard'; // 🚀 KRİPTO EKLENDİ
 import CommoditiesDashboard from './dashboards/CommodityDashboard/CommoditiesDashboard';
 import GlobalBondsDashboard from './dashboards/GlobalBondsDashboard/GlobalBondsDashboard';
+import TurkishBondsDashboard from './dashboards/TurkishBondsDashboard/TurkishBondsDashboard';
 import EurobondDashboard from './dashboards/EurobondDashboard/EurobondDashboard';
 import TurkishFundsDashboard from './dashboards/TurkishFundsDashboard/TurkishFundsDashboard';
 import GlobalFundsDashboard from './dashboards/GlobalFundsDashboard/GlobalFundsDashboard';
@@ -67,6 +68,11 @@ export default function MarketPage() {
     // Küresel Tahviller
     if (category === 'bonds') {
         return <GlobalBondsDashboard category={category} />;
+    }
+
+    // Türkiye Tahvil & Bono (DİBS) — vade kategorili dashboard
+    if (category === 'tr-bonds') {
+        return <TurkishBondsDashboard category={category} />;
     }
 
     // Türkiye Eurobond (FRED TR10Y + EVDS aggregate)

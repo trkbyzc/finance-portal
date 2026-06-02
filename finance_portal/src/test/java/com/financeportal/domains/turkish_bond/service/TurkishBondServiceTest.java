@@ -2,6 +2,7 @@ package com.financeportal.domains.turkish_bond.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.financeportal.domains.turkish_bond.config.TurkishBondCatalog;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.service.mapper.BondMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,12 +37,15 @@ class TurkishBondServiceTest {
     @Mock
     private BondMapper bondMapper;
 
+    @Mock
+    private TurkishBondCatalog bondCatalog;
+
     private TurkishBondService service;
 
     @BeforeEach
     void setUp() {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        service = new TurkishBondService(redisTemplate, objectMapper, bondMapper);
+        service = new TurkishBondService(redisTemplate, objectMapper, bondMapper, bondCatalog);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
     }
 
