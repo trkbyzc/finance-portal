@@ -24,6 +24,31 @@
             <link href="${url.resourcesPath}/${style}" rel="stylesheet" />
         </#list>
     </#if>
+
+    <#-- Şifre göster/gizle (göz) toggle stili -->
+    <style>
+        .kc-password-wrap { position: relative; display: block; }
+        .kc-password-wrap .kc-input { width: 100%; padding-right: 44px; }
+        .kc-password-toggle {
+            position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; padding: 0;
+            background: transparent; border: none; cursor: pointer;
+            color: #94a3b8; transition: color .15s;
+        }
+        .kc-password-toggle:hover { color: #2563eb; }
+        .kc-password-toggle .kc-eye { width: 20px; height: 20px; }
+
+        /* Alan (field) hata mesajı — yanlış giriş / mevcut kullanıcı-email vb. */
+        .kc-field-error {
+            display: block;
+            margin-top: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #ef4444;
+            line-height: 1.3;
+        }
+    </style>
 </head>
 
 <body class="kc-page ${bodyClass}<#if compact> kc-compact</#if>">
@@ -204,6 +229,24 @@
             }
         })();
 
+        // Şifre göster/gizle (göz ikonu) — tüm .kc-password-toggle butonları
+        (function () {
+            document.querySelectorAll('.kc-password-toggle').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var input = document.getElementById(btn.getAttribute('data-target'));
+                    if (!input) return;
+                    var willShow = input.type === 'password';
+                    input.type = willShow ? 'text' : 'password';
+                    var open = btn.querySelector('.kc-eye-open');
+                    var closed = btn.querySelector('.kc-eye-closed');
+                    if (open) open.hidden = willShow;
+                    if (closed) closed.hidden = !willShow;
+                    btn.setAttribute('aria-label', willShow
+                        ? (btn.getAttribute('data-hide-label') || '')
+                        : (btn.getAttribute('data-show-label') || ''));
+                });
+            });
+        })();
     </script>
 </body>
 </html>
