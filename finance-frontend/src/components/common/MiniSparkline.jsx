@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { historicalApi } from '../../services/api';
@@ -9,13 +9,38 @@ import { historicalApi } from '../../services/api';
  * Reusable: TR Stocks, VIOP ve gerekli her sayfada kullan. Asset category prop'u
  * backend chart strategy chain'ini doğru route etmek için kritik (VIOP=VIOP, hisse=STOCK).
  *
- * Performance:
+ * Performance — LAZY:
+ *   - Veri çekme ve recharts render'ı yalnızca satır ekrana girince başlar (IntersectionObserver).
+ *     VIOP gibi 100+ satırlı listelerde aksi halde mount anında yüzlerce istek + chart aynı anda
+ *     açılıp tarayıcıyı saniyelerce kilitliyordu. Artık sadece görünen ~10-15 satır yüklenir.
  *   - Tek useQuery per symbol — TanStack cache, staleTime 5dk
  *   - dot=false + isAnimationActive=false — çok hücrede render edildiği için kritik
  *
  * Hata/boş data durumunda sessizce boş div döner (kart yüksekliği korunur).
  */
 export default function MiniSparkline({ symbol, color, category = 'STOCK', width = 80, height = 30 }) {
+    const containerRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        if (isVisible) return; // bir kez görünür olunca observer'a gerek yok
+        const el = containerRef.current;
+        if (!el) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            // 150px önden tetikle — kullanıcı satıra ulaşmadan grafik hazır olsun
+            { rootMargin: '150px' }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [isVisible]);
+
     const { data } = useQuery({
         queryKey: ['mini-sparkline', category, symbol],
         queryFn: async () => {
@@ -28,27 +53,25 @@ export default function MiniSparkline({ symbol, color, category = 'STOCK', width
                 .filter(p => p.value > 0);
         },
         staleTime: 5 * 60 * 1000,
-        enabled: !!symbol
+        enabled: !!symbol && isVisible
     });
 
-    if (!data || data.length < 2) {
-        return <div style={{ width, height }} />;
-    }
-
     return (
-        <div style={{ width, height }}>
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>
-                    <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke={color}
-                        strokeWidth={1.5}
-                        dot={false}
-                        isAnimationActive={false}
-                    />
-                </LineChart>
-            </ResponsiveContainer>
+        <div ref={containerRef} style={{ width, height }}>
+            {isVisible && data && data.length >= 2 && (
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>
+                        <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke={color}
+                            strokeWidth={1.5}
+                            dot={false}
+                            isAnimationActive={false}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            )}
         </div>
     );
 }
