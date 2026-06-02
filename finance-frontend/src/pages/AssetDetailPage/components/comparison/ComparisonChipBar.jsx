@@ -18,13 +18,7 @@ export default function ComparisonChipBar({
         <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-xl font-bold text-text flex items-center gap-2">
                 <BarChart2 className="text-primary" /> {t('asset:comparison.title')} {isPriceMode ? `(${currencySymbol})` : '(%)'}
-                <span
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
-                        currency === 'TRY'
-                            ? 'text-sell border-sell/40 bg-sell/10'
-                            : 'text-buy border-buy/40 bg-buy/10'
-                    }`}
-                >
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border text-text border-border bg-surface-2">
                     {currency}
                 </span>
             </h2>

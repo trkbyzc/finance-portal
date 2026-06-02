@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { init, dispose } from 'klinecharts';
 import { getViopChartStyles } from '../utils/viopChartConfig';
+import { formatKlineDate } from '../../../../utils/formatters/dateFormatter';
 
 /**
  * 🚀 FAZA 2: ViopTradingChart için chart instance yönetimi
@@ -29,7 +30,10 @@ export const useViopChartInstance = (containerRef) => {
         // Yeni chart instance oluştur
         try {
             chartInstance.current = init(containerRef.current, {
-                styles: getViopChartStyles()
+                styles: getViopChartStyles(),
+                customApi: {
+                    formatDate: (_dateTimeFormat, timestamp, format) => formatKlineDate(timestamp, format)
+                }
             });
             console.log('✅ ViopChart instance created successfully');
         } catch (error) {

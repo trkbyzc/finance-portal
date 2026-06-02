@@ -10,8 +10,10 @@ import { useTranslation } from 'react-i18next';
  * @param {Array} options [{ key, label, color }]
  * @param {Object} activeMap { key: bool }
  * @param {Function} onToggle (key) => void
+ * @param {string} [buttonColor] Verilirse TÜM butonlar bu tek renkte gösterilir
+ *   (örn. BIST için lacivert). Grafik çizgileri yine kendi `b.color`'ını kullanır.
  */
-export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle }) {
+export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle, buttonColor }) {
     const { t } = useTranslation('charts');
     const hasActive = Object.values(activeMap).some(Boolean);
 
@@ -22,6 +24,7 @@ export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options,
             </span>
             {options.map(b => {
                 const active = activeMap[b.key];
+                const c = buttonColor || b.color;
                 return (
                     <button
                         key={b.key}
@@ -30,8 +33,8 @@ export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options,
                             active ? 'text-text shadow-lg' : 'bg-surface-2 hover:bg-surface-hover'
                         }`}
                         style={active
-                            ? { backgroundColor: b.color, borderColor: b.color, boxShadow: `0 0 12px ${b.color}55` }
-                            : { color: b.color, borderColor: `${b.color}66` }
+                            ? { backgroundColor: c, borderColor: c, boxShadow: `0 0 12px ${c}55` }
+                            : { color: c, borderColor: `${c}66` }
                         }
                     >
                         {b.label}

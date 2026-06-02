@@ -4,6 +4,28 @@ import {
     Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
+import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
+
+/**
+ * Karşılaştırma grafiğiyle aynı açık (beyaz) tooltip — siyah kutu yerine.
+ * Modül seviyesinde tanımlı; recharts `content` element'ine ekstra prop'lar geçer,
+ * active/payload/label'ı kendisi enjekte eder.
+ */
+function PriceTooltip({ active, payload, label, stroke, isYield, t, formatPriceLabel }) {
+    if (!active || !payload || !payload.length) return null;
+    const v = payload[0].value;
+    return (
+        <div className="bg-surface-2 border border-border p-3 rounded-lg shadow-xl">
+            <p className="text-text text-sm mb-1">{formatChartDate(label)}</p>
+            <p className="text-sm font-bold flex items-center gap-2" style={{ color: stroke }}>
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: stroke }} />
+                {isYield
+                    ? `${t('yield')}: %${Number(v).toFixed(3)}`
+                    : `${t('price')}: ${formatPriceLabel(v)}`}
+            </p>
+        </div>
+    );
+}
 
 /**
  * Recharts area veya line chart (klinecharts kullanılmadığı modlarda).
@@ -17,9 +39,7 @@ export default function PriceChart({
 
     const stroke = isEurobond ? '#ff9800' : '#2962ff';
     const yTickFormatter = (v) => isYield ? `%${v.toFixed(2)}` : formatPriceLabel(v);
-    const tooltipFormatter = (v) => isYield
-        ? [`%${Number(v).toFixed(3)}`, t('yield')]
-        : [formatPriceLabel(v), t('price')];
+    const tooltipEl = <PriceTooltip stroke={stroke} isYield={isYield} t={t} formatPriceLabel={formatPriceLabel} />;
 
     return (
         <div className="w-full h-full p-4">
@@ -33,28 +53,22 @@ export default function PriceChart({
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
-                        <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} />
+                        <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} tickFormatter={formatChartDate} />
                         <YAxis
                             stroke="#787b86"
                             orientation="right"
                             domain={['auto', 'auto']}
                             tickFormatter={yTickFormatter}
                         />
-                        <RechartsTooltip
-                            contentStyle={{ backgroundColor: '#1e222d', border: '1px solid #2a2e39' }}
-                            formatter={tooltipFormatter}
-                        />
+                        <RechartsTooltip content={tooltipEl} />
                         <Area type="monotone" dataKey="close" stroke={stroke} strokeWidth={3} fillOpacity={1} fill="url(#colorClose)" />
                     </AreaChart>
                 ) : (
                     <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
-                        <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} />
+                        <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} tickFormatter={formatChartDate} />
                         <YAxis stroke="#787b86" orientation="right" tickFormatter={yTickFormatter} />
-                        <RechartsTooltip
-                            contentStyle={{ backgroundColor: '#1e222d', border: '1px solid #2a2e39' }}
-                            formatter={tooltipFormatter}
-                        />
+                        <RechartsTooltip content={tooltipEl} />
                         <Line type="monotone" dataKey="close" stroke="#2962ff" strokeWidth={3} dot={false} />
                     </LineChart>
                 )}

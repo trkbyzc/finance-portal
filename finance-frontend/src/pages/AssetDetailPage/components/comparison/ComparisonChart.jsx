@@ -3,6 +3,7 @@ import { Loader2, GitCompare } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { COMPARISON_COLORS, formatPriceLabel } from './comparisonHelpers';
+import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
 
 /**
  * Recharts multi-line karşılaştırma grafiği. Asset'ler solid line, enflasyon overlay'leri kesik çizgi.
@@ -26,7 +27,7 @@ export default function ComparisonChart({
         if (!active || !payload || !payload.length) return null;
         return (
             <div className="bg-surface-2 border border-border p-3 rounded-lg shadow-xl">
-                <p className="text-text text-sm mb-2">{label}</p>
+                <p className="text-text text-sm mb-2">{formatChartDate(label)}</p>
                 {payload.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm font-medium" style={{ color: entry.color }}>
                         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
@@ -52,7 +53,7 @@ export default function ComparisonChart({
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" strokeOpacity={0.25} vertical={false} />
-                    <XAxis dataKey="date" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 12 }} tickMargin={10} minTickGap={30} />
+                    <XAxis dataKey="date" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 12 }} tickMargin={10} minTickGap={30} tickFormatter={formatChartDate} />
                     <YAxis
                         orientation="right"
                         stroke="#94a3b8"

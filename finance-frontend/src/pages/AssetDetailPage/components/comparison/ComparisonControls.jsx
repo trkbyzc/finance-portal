@@ -65,7 +65,7 @@ export default function ComparisonControls({
                     className={`px-3 py-1 text-xs font-bold rounded-md transition border ${
                         trInflationActive
                             ? 'bg-sell text-text border-sell shadow-lg shadow-sell/30'
-                            : 'bg-surface-2 text-sell border-sell/40 hover:border-sell'
+                            : 'bg-surface-2 text-text border-border hover:border-border-strong'
                     }`}
                 >
                     {t('charts:trInflation')}
@@ -75,7 +75,7 @@ export default function ComparisonControls({
                     className={`px-3 py-1 text-xs font-bold rounded-md transition border ${
                         usdInflationActive
                             ? 'bg-warning text-text border-warning shadow-lg shadow-warning/30'
-                            : 'bg-surface-2 text-warning border-warning/40 hover:border-warning'
+                            : 'bg-surface-2 text-text border-border hover:border-border-strong'
                     }`}
                 >
                     {t('charts:usInflation')}

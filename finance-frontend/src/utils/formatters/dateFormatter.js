@@ -32,6 +32,43 @@ export const formatDateTime = (dateInput) => {
     }).format(date);
 };
 
+/**
+ * Grafik (recharts) eksen/tooltip tarihleri için — Türk usulü GG.AA.YYYY.
+ * Girdi 'YYYY-MM-DD', 'YYYY-MM-DD HH:mm', dizi veya timestamp olabilir.
+ * Saat bilgisi varsa GG.AA.YYYY SS:dd döner.
+ */
+export const formatChartDate = (value) => {
+    if (value === null || value === undefined || value === '') return '';
+    const date = parseDate(value);
+    if (!date) return String(value);
+    const hasTime = typeof value === 'string' && value.includes(':');
+    return new Intl.DateTimeFormat(getLocale(), {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        ...(hasTime ? { hour: '2-digit', minute: '2-digit' } : {})
+    }).format(date);
+};
+
+/**
+ * klinecharts customApi.formatDate için — timestamp + klinecharts format şablonuna göre
+ * Türk usulü tarih. Şablon granülaritesini korur (sadece saat / sadece tarih / tam).
+ */
+export const formatKlineDate = (timestamp, format = '') => {
+    const d = new Date(timestamp);
+    if (isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    const f = String(format);
+    const hasYear = f.includes('YYYY');
+    const hasTime = f.includes('HH');
+    if (hasYear && hasTime) return `${dd}.${mm}.${yyyy} ${hh}:${mi}`;
+    if (hasTime && !hasYear) return `${hh}:${mi}`;
+    if (hasYear) return `${dd}.${mm}.${yyyy}`;
+    return `${dd}.${mm}`; // 'MM-DD' benzeri kısa eksen etiketi
+};
+
 export const formatDateLong = (dateInput) => {
     const date = parseDate(dateInput);
     if (!date) return '-';

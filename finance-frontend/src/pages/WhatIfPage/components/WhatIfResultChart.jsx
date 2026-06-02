@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { PALETTE, fmtTry } from '../whatIfHelpers';
+import { formatChartDate } from '../../../utils/formatters/dateFormatter';
 
 /**
  * Multi-line karşılaştırma grafiği. result.assets'in series'lerini tarih bazında merge eder,
@@ -30,11 +31,12 @@ export default function WhatIfResultChart({ result }) {
                 <ResponsiveContainer>
                     <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                        <XAxis dataKey="date" stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} />
+                        <XAxis dataKey="date" stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} tickFormatter={formatChartDate} />
                         <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} />
                         <Tooltip
                             contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8 }}
                             labelStyle={{ color: 'var(--color-text-muted)' }}
+                            labelFormatter={formatChartDate}
                             formatter={(v) => `${fmtTry(v)} ₺`}
                         />
                         <Legend />

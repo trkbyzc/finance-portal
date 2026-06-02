@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { init, dispose } from 'klinecharts';
 import { getChartStyles } from '../utils/chartConfig';
+import { formatKlineDate } from '../../../../utils/formatters/dateFormatter';
 
 /**
  * 🎨 Chart Instance Hook
@@ -31,8 +32,12 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone) =
             chartInstance.current = null;
         }
 
-        // Yeni instance oluştur
-        const chart = init(containerRef.current);
+        // Yeni instance oluştur — tarihler Türk usulü GG.AA.YYYY (eksen + crosshair tooltip)
+        const chart = init(containerRef.current, {
+            customApi: {
+                formatDate: (_dateTimeFormat, timestamp, format) => formatKlineDate(timestamp, format)
+            }
+        });
         chart.setStyles(getChartStyles(chartType));
         chart.createIndicator('VOL', false, { id: 'pane_VOL', height: 100 });
         chartInstance.current = chart;

@@ -3,12 +3,13 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../../utils/formatters/numberFormatter';
+import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-bg border border-border p-3 rounded-xl shadow-2xl">
-                <p className="text-text-muted text-xs font-bold mb-1">{label}</p>
+            <div className="bg-surface-2 border border-border p-3 rounded-xl shadow-2xl">
+                <p className="text-text-muted text-xs font-bold mb-1">{formatChartDate(label)}</p>
                 <p className="text-primary text-lg font-mono font-black">
                     {formatNumber(payload[0].value, 2, 4)}
                     <span className="text-[10px] text-text-muted ml-1">TRY</span>
@@ -47,7 +48,7 @@ export default function FundChartArea({ chartData, loading }) {
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2a2e39" />
-                        <XAxis dataKey="dateStr" stroke="#868993" tick={{ fontSize: 11 }} tickMargin={10} minTickGap={30} axisLine={false} tickLine={false} />
+                        <XAxis dataKey="dateStr" stroke="#868993" tick={{ fontSize: 11 }} tickMargin={10} minTickGap={30} axisLine={false} tickLine={false} tickFormatter={formatChartDate} />
                         <YAxis stroke="#868993" domain={['dataMin', 'dataMax']} orientation="right" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(val) => val.toFixed(2)} />
                         <Tooltip content={<CustomTooltip />} />
                         <Area type="monotone" dataKey="close" stroke="#2962ff" strokeWidth={3} fillOpacity={1} fill="url(#colorPrice)" activeDot={{ r: 6, fill: '#fff', stroke: '#2962ff', strokeWidth: 2 }} />

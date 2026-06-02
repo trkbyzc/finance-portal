@@ -2,14 +2,15 @@ import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { RANGE_KEYS } from './eurobondShared';
+import { formatChartDate } from '../../../../../utils/formatters/dateFormatter';
 
 const EmbTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     const p = payload[0];
     const raw = p.payload.close ?? p.payload.price ?? p.value;
     return (
-        <div className="bg-bg border border-border px-3 py-2 rounded text-xs">
-            <div className="text-text-muted">{p.payload.date}</div>
+        <div className="bg-surface-2 border border-border px-3 py-2 rounded text-xs">
+            <div className="text-text-muted">{formatChartDate(p.payload.date)}</div>
             <div className="font-mono font-bold text-warning">${Number(raw).toFixed(2)}</div>
         </div>
     );
@@ -69,7 +70,7 @@ export default function EmbAreaChart({ activeRange, setActiveRange, embHistory, 
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
-                        <XAxis dataKey="date" stroke="#787b86" tick={{ fontSize: 11 }} minTickGap={40} />
+                        <XAxis dataKey="date" stroke="#787b86" tick={{ fontSize: 11 }} minTickGap={40} tickFormatter={formatChartDate} />
                         <YAxis stroke="#787b86" orientation="right" tick={{ fontSize: 11 }} domain={['auto', 'auto']} tickFormatter={(v) => `$${v.toFixed(0)}`} />
                         <Tooltip content={<EmbTooltip />} />
                         <Area

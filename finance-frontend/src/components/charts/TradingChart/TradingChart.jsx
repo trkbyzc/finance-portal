@@ -134,6 +134,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                     options={BIST_OPTIONS}
                     activeMap={activeBists}
                     onToggle={toggleBist}
+                    buttonColor="#2962ff"
                 />
             )}
 
