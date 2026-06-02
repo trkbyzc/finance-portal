@@ -5,6 +5,7 @@ import { ShieldCheck } from 'lucide-react';
 
 import { adminApi } from '../../services/api/adminApi';
 import { useAuth } from '../../context/AuthContext';
+import Modal from '../../components/layout/Modal.jsx';
 import BanModal from './components/BanModal';
 import AdminFilters from './components/AdminFilters';
 import AdminUsersTable from './components/AdminUsersTable';
@@ -42,6 +43,12 @@ export default function AdminPage() {
     // Ban modal
     const [banTarget, setBanTarget] = useState(null);
     const [banDuration, setBanDuration] = useState('30');
+
+    // Genel onay/bildirim modal'ı (native confirm/alert yerine)
+    // onConfirm varsa → onay diyaloğu (İptal + onay butonu); yoksa → bilgi bildirimi.
+    const [modal, setModal] = useState(null);
+    const closeModal = () => setModal(null);
+    const notify = (title, message, type = 'info') => setModal({ title, message, type });
 
     useEffect(() => { setPage(0); }, [debouncedSearch, roleFilter, bannedFilter]);
 
@@ -91,45 +98,73 @@ export default function AdminPage() {
             setBanDuration('30');
         } catch (e) {
             console.error(e);
-            alert(t('admin:toast.error'));
+            notify(t('common:status.error'), t('admin:toast.error'), 'error');
         }
     };
 
-    const handleUnban = async (user) => {
-        if (!window.confirm(`${user.username} — ${t('admin:users.actions.unban')}?`)) return;
-        try {
-            await unbanMutation.mutateAsync(user.id);
-        } catch (e) {
-            console.error(e);
-            alert(t('admin:toast.error'));
-        }
+    const handleUnban = (user) => {
+        setModal({
+            title: t('admin:users.actions.unban'),
+            message: t('admin:users.confirmUnban', { username: user.username }),
+            confirmText: t('admin:users.actions.unban'),
+            type: 'info',
+            onConfirm: async () => {
+                try {
+                    await unbanMutation.mutateAsync(user.id);
+                } catch (e) {
+                    console.error(e);
+                    notify(t('common:status.error'), t('admin:toast.error'), 'error');
+                }
+            }
+        });
     };
 
-    const handleForceLogout = async (user) => {
-        if (!window.confirm(t('admin:users.confirmForceLogout', { username: user.username }))) return;
-        try {
-            const res = await logoutMutation.mutateAsync(user.id);
-            if (res?.success) alert(t('admin:toast.loggedOut'));
-            else alert(t('admin:toast.logoutFailed'));
-        } catch (e) {
-            console.error(e);
-            alert(t('admin:toast.error'));
-        }
+    const handleForceLogout = (user) => {
+        setModal({
+            title: t('admin:users.actions.forceLogout'),
+            message: t('admin:users.confirmForceLogout', { username: user.username }),
+            confirmText: t('admin:users.actions.forceLogout'),
+            type: 'info',
+            onConfirm: async () => {
+                try {
+                    const res = await logoutMutation.mutateAsync(user.id);
+                    notify(
+                        t('admin:users.actions.forceLogout'),
+                        res?.success ? t('admin:toast.loggedOut') : t('admin:toast.logoutFailed'),
+                        res?.success ? 'success' : 'error'
+                    );
+                } catch (e) {
+                    console.error(e);
+                    notify(t('common:status.error'), t('admin:toast.error'), 'error');
+                }
+            }
+        });
     };
 
-    const handleDelete = async (user) => {
+    const handleDelete = (user) => {
         if (currentUserId && user.id === currentUserId) {
-            alert(t('admin:toast.cannotDeleteSelf'));
+            notify(t('common:status.error'), t('admin:toast.cannotDeleteSelf'), 'error');
             return;
         }
-        if (!window.confirm(t('admin:users.confirmDelete', { username: user.username }))) return;
-        try {
-            const res = await deleteMutation.mutateAsync(user.id);
-            alert(res?.keycloakDeleted ? t('admin:toast.deleted') : t('admin:toast.deletedKeycloakSkipped'));
-        } catch (e) {
-            console.error(e);
-            alert(e.response?.data?.message || t('admin:toast.error'));
-        }
+        setModal({
+            title: t('admin:users.actions.delete'),
+            message: t('admin:users.confirmDelete', { username: user.username }),
+            confirmText: t('admin:users.actions.delete'),
+            type: 'error',
+            onConfirm: async () => {
+                try {
+                    const res = await deleteMutation.mutateAsync(user.id);
+                    notify(
+                        t('admin:users.actions.delete'),
+                        res?.keycloakDeleted ? t('admin:toast.deleted') : t('admin:toast.deletedKeycloakSkipped'),
+                        'success'
+                    );
+                } catch (e) {
+                    console.error(e);
+                    notify(t('common:status.error'), e.response?.data?.message || t('admin:toast.error'), 'error');
+                }
+            }
+        });
     };
 
     const handleClearFilters = () => {
@@ -182,6 +217,23 @@ export default function AdminPage() {
                     onClose={() => { setBanTarget(null); setBanDuration('30'); }}
                     isSubmitting={banMutation.isPending}
                     t={t}
+                />
+            )}
+
+            {modal && (
+                <Modal
+                    isOpen={true}
+                    title={modal.title}
+                    message={modal.message}
+                    type={modal.type}
+                    confirmText={modal.confirmText}
+                    showCancel={!!modal.onConfirm}
+                    onCancel={closeModal}
+                    onClose={() => {
+                        const fn = modal.onConfirm;
+                        closeModal();
+                        if (fn) fn();
+                    }}
                 />
             )}
         </div>

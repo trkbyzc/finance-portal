@@ -31,6 +31,7 @@
       "delete": "Sil"
     },
     "confirmBan": "Bu kullanıcıyı yasaklamak istediğinize emin misiniz?",
+    "confirmUnban": "{{username}} kullanıcısının banını kaldırmak istiyor musunuz?",
     "confirmDelete": "{{username}} hem Keycloak'tan hem DB'den silinecek. Bu işlem geri alınamaz. Devam edelim mi?",
     "confirmForceLogout": "{{username}} kullanıcısının tüm oturumlarını kapatmak istiyor musun?",
     "forceLogoutNote": "Refresh token'lar invalide edilir. Mevcut access token ~5dk içinde süresi dolar."
@@ -55,9 +56,13 @@
   "banModal": {
     "title": "Kullanıcıyı Banla",
     "subtitle": "{{username}} için ban süresi seç",
+    "duration1": "1 gün",
     "duration7": "7 gün",
     "duration30": "30 gün",
     "duration90": "90 gün",
+    "durationCustom": "Özel süre",
+    "durationCustomPlaceholder": "Gün",
+    "daysSuffix": "gün",
     "durationPermanent": "Süresiz (Kalıcı)",
     "permanentWarning": "Kalıcı ban anında tüm oturumları sonlandırır ve unban edilene kadar kullanıcıyı tamamen engeller.",
     "confirm": "Banla",

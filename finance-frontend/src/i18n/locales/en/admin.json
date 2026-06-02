@@ -31,6 +31,7 @@
       "delete": "Delete"
     },
     "confirmBan": "Are you sure you want to ban this user?",
+    "confirmUnban": "Remove the ban for {{username}}?",
     "confirmDelete": "{{username}} will be removed from both Keycloak and the database. This cannot be undone. Continue?",
     "confirmForceLogout": "End all sessions for {{username}}?",
     "forceLogoutNote": "Refresh tokens are invalidated. Existing access token expires in ~5 minutes."
@@ -55,9 +56,13 @@
   "banModal": {
     "title": "Ban User",
     "subtitle": "Pick a ban duration for {{username}}",
+    "duration1": "1 day",
     "duration7": "7 days",
     "duration30": "30 days",
     "duration90": "90 days",
+    "durationCustom": "Custom",
+    "durationCustomPlaceholder": "Days",
+    "daysSuffix": "days",
     "durationPermanent": "Permanent",
     "permanentWarning": "A permanent ban ends all sessions immediately and locks the user out until manually unbanned.",
     "confirm": "Ban",
