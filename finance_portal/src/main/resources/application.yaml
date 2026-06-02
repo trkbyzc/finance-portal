@@ -80,18 +80,47 @@ keycloak:
   elasticsearch:
     uris: ${ELASTICSEARCH_URI:http://localhost:9200}
 
-  management:
-    tracing:
-      sampling:
-        probability: 1.0 # %100: Gelen her HTTP isteğini ve metrikleri kaydet
-    endpoints:
-      web:
-        exposure:
-          include: "health,info,prometheus" # Performans metriklerini dışarı aç
-    health:
-      ldap:
-        enabled: false # LDAP federation kullanılmıyor
 
+# ============================================================================
+#  Actuator / Observability — DİKKAT: 'management' TOP-LEVEL'dır, spring altında DEĞİL.
+#  (Eskiden yanlışlıkla spring: altındaydı; o yüzden /actuator/prometheus boştu.)
+#
+#  Trace'ler OTel Java Agent (-javaagent) ile toplanır, in-code tracer yok;
+#  bu yüzden burada tracing.sampling YOK — örnekleme agent tarafında
+#  OTEL_TRACES_SAMPLER env'i ile kontrol edilir (bkz. run-dev.ps1).
+# ============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus,metrics" # Prometheus bu ucu scrape eder
+  endpoint:
+    health:
+      show-details: when_authorized
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      # Tüm metriklere ortak etiket — Grafana/Prometheus'ta servisi ayırt etmek için
+      application: ${spring.application.name:finance-portal}
+    distribution:
+      # http.server.requests için histogram bucket'larını yayınla.
+      # Olmazsa sadece _count/_sum üretilir; Grafana'daki p50/p95/p99
+      # (histogram_quantile + _bucket) "No data" gösterir.
+      percentiles-histogram:
+        http.server.requests: true
+      # Latency bucket aralığı (1ms..5s) — quantile çözünürlüğü için
+      minimum-expected-value:
+        http.server.requests: 1ms
+      maximum-expected-value:
+        http.server.requests: 5s
+      slo:
+        http.server.requests: 50ms,100ms,200ms,500ms,1s,2s
+  health:
+    ldap:
+      enabled: false # LDAP federation kullanılmıyor
 
 
 server:

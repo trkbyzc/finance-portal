@@ -148,13 +148,24 @@
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
 
+		<!-- Metrics: Micrometer Prometheus registry -> /actuator/prometheus.
+		     Prometheus bu ucu doğrudan scrape eder (Collector çökse bile backend
+		     liveness/JVM/HTTP metrikleri görünür). -->
 		<dependency>
 			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-tracing-bridge-otel</artifactId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
+
+		<!-- Traces: OpenTelemetry Java Agent (-javaagent) ile bytecode
+		     instrument ediliyor (bkz. run-dev.ps1 / scripts/download-otel-agent.ps1).
+		     Bu yüzden in-code micrometer-tracing-bridge-otel + otlp exporter
+		     KALDIRILDI — ikisi birden GlobalOpenTelemetry'yi set etmeye çalışıp
+		     çakışır. Agent tek trace kaynağıdır. -->
+		<!-- OTel Java Agent SDK'yı kendi taşır; ek runtime bağımlılığı gerekmez. -->
 		<dependency>
-			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-otlp</artifactId>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-instrumentation-annotations</artifactId>
+			<version>2.4.0</version>
 		</dependency>
 
 		<dependency>
