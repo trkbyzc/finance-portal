@@ -56,7 +56,8 @@ export default function CommoditiesDashboard() {
     }, [searchQuery, activeCategory, commodities]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
             <CommodityHeader
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -83,6 +84,7 @@ export default function CommoditiesDashboard() {
                     />
                 </div>
             </div>
+          </div>
         </div>
     );
 }

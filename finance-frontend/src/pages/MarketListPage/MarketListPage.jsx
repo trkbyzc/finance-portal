@@ -100,8 +100,8 @@ export default function MarketListPage() {
     );
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-8">
-            <div className="max-w-container mx-auto">
+        <div className="min-h-screen bg-bg text-text">
+            <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
 
                 {/* HEADERS */}
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">

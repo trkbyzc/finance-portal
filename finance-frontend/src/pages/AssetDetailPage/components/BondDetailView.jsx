@@ -9,7 +9,8 @@ import { translateBondLabel, translateBondName, translateBondDate } from '../../
 export default function BondDetailView({ asset, trBondsList, decodedSymbol, navigate }) {
     const { t } = useTranslation(['asset', 'markets', 'common']);
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-text-muted hover:text-text mb-6 transition bg-surface-2 px-4 py-2 rounded-lg border border-border hover:border-border-strong w-fit"
@@ -83,6 +84,7 @@ export default function BondDetailView({ asset, trBondsList, decodedSymbol, navi
             </div>
 
             <NewsSection category="Tahvil & Faiz" titleKey="news:categories.bond" accent="primary" />
+          </div>
         </div>
     );
 }

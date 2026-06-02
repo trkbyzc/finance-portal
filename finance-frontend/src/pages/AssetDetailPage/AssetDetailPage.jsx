@@ -78,8 +78,8 @@ export default function AssetDetailPage() {
     };
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10 relative">
-            <div className="max-w-container mx-auto">
+        <div className="min-h-screen bg-bg text-text relative">
+            <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
                 <AssetHeader asset={asset} navigate={navigate} onAddPortfolioClick={handleOpenModal} />
                 <AssetChartArea asset={asset} isViop={isViop} />
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Globe, TrendingUp, TrendingDown, ChevronRight } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +20,8 @@ export default function UsStocksDashboard() {
     }, [searchQuery, stocks]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
@@ -28,9 +29,6 @@ export default function UsStocksDashboard() {
                         <span className="w-2 h-8 bg-primary rounded-full"></span>
                         {t('markets:stocks.usHeaderTitle')}
                     </h1>
-                    <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
-                        <Globe size={16} /> {t('markets:stocks.usHeaderSubtitle')}
-                    </p>
                 </div>
 
                 <div className="relative w-full md:w-72">
@@ -105,6 +103,7 @@ export default function UsStocksDashboard() {
                     )}
                 </div>
             )}
+          </div>
         </div>
     );
 }

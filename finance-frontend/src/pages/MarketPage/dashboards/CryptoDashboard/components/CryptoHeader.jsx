@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Globe } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function CryptoHeader({ searchQuery, setSearchQuery }) {
@@ -8,12 +8,9 @@ export default function CryptoHeader({ searchQuery, setSearchQuery }) {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
                 <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
-                    <span className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"></span>
+                    <span className="w-2 h-8 bg-primary rounded-full"></span>
                     {t('crypto.headerTitle')}
                 </h1>
-                <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
-                    <Globe size={16} className="text-primary" /> {t('crypto.headerSubtitle')}
-                </p>
             </div>
 
             <div className="relative w-full md:w-80">

@@ -44,21 +44,15 @@ export default function GlobalFuturesDashboard() {
     }, [searchQuery, futures]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
             {/* Header */}
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
-                        <BarChart3 size={20} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight">
-                            {t('markets:globalFutures.headerTitle')}
-                        </h1>
-                        <p className="text-text-muted text-sm mt-1">
-                            {t('markets:globalFutures.headerSubtitle')}
-                        </p>
-                    </div>
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                        <span className="w-2 h-8 bg-primary rounded-full"></span>
+                        {t('markets:globalFutures.headerTitle')}
+                    </h1>
                 </div>
 
                 <div className="relative w-full md:w-72">
@@ -148,6 +142,7 @@ export default function GlobalFuturesDashboard() {
                     </div>
                 </div>
             )}
+          </div>
         </div>
     );
 }

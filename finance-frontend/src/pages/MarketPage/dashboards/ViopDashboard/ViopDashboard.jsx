@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Zap, Clock, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, Clock, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNavigate } from 'react-router-dom';
@@ -43,18 +43,16 @@ export default function ViopDashboard() {
     }, [contracts]);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
 
             {/* Header — büyük başlık + alt başlık + sağda search */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase text-text tracking-tight flex items-center gap-3">
-                        <span className="w-2 h-8 bg-warning rounded-full" />
+                        <span className="w-2 h-8 bg-primary rounded-full" />
                         {t('markets:viop.headerTitle')}
                     </h1>
-                    <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
-                        <Zap size={16} className="text-warning" /> {t('markets:viop.headerSubtitle')}
-                    </p>
                 </div>
 
                 <div className="relative w-full md:w-80">
@@ -179,6 +177,7 @@ export default function ViopDashboard() {
                     </div>
                 </div>
             )}
+          </div>
         </div>
     );
 }

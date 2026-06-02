@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMarketData } from '../../../../hooks/useMarketData';
-import { Globe, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../../utils/formatters/numberFormatter';
@@ -11,15 +11,13 @@ export default function GlobalFundsDashboard() {
     const { t } = useTranslation(['markets', 'common']);
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
             <div className="mb-10">
-                <h1 className="text-2xl sm:text-3xl font-black uppercase flex items-center gap-3">
-                    <span className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"></span>
+                <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                    <span className="w-2 h-8 bg-primary rounded-full"></span>
                     {t('markets:funds.globalHeaderTitle')}
                 </h1>
-                <p className="text-text-muted text-sm mt-2 ml-5 flex items-center gap-2">
-                    <Globe size={16} className="text-primary" /> {t('markets:funds.globalHeaderSubtitle')}
-                </p>
             </div>
 
             <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
@@ -58,6 +56,7 @@ export default function GlobalFundsDashboard() {
                     </tbody>
                 </table>
             </div>
+          </div>
         </div>
     );
 }

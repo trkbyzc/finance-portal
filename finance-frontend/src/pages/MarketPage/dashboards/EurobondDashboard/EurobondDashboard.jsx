@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Landmark } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -69,7 +69,8 @@ export default function EurobondDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-bg text-text p-4 md:p-6 lg:p-10">
+        <div className="min-h-screen bg-bg text-text">
+          <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-text-muted hover:text-text mb-6 transition bg-surface-2 px-4 py-2 rounded-lg border border-border"
@@ -77,16 +78,11 @@ export default function EurobondDashboard() {
                 <ArrowLeft size={18} /> {t('asset:back')}
             </button>
 
-            <div className="mb-8 flex items-center gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-warning/10 border border-warning/30 flex items-center justify-center text-warning">
-                    <Landmark size={32} />
-                </div>
-                <div>
-                    <h1 className="text-2xl sm:text-3xl font-black text-text tracking-tight">
-                        {t('markets:eurobonds.headerTitle')}
-                    </h1>
-                    <p className="text-text-muted text-sm mt-1">{t('markets:eurobonds.headerSubtitle')}</p>
-                </div>
+            <div className="mb-8">
+                <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
+                    <span className="w-2 h-8 bg-primary rounded-full"></span>
+                    {t('markets:eurobonds.headerTitle')}
+                </h1>
             </div>
 
             <EurobondKpiCards
@@ -110,6 +106,7 @@ export default function EurobondDashboard() {
                 embAsset={embAsset}
                 onAssetClick={handleAssetClick}
             />
+          </div>
         </div>
     );
 }
