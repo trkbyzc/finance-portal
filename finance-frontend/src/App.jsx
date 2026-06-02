@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 
 // Component ve Sayfa Importları
 import Navbar from './components/layout/Navbar/Navbar.jsx';
+import Footer from './components/layout/Footer/Footer.jsx';
 import Dashboard from './pages/Dashboard/Dashboard.jsx';
 import MarketPage from './pages/MarketPage/MarketPage.jsx';
 import NewsPage from './pages/NewsPage/NewsPage';
@@ -70,6 +71,7 @@ function App() {
                                 <Route path="/preferences" element={<ProtectedRoute><PreferencesPage /></ProtectedRoute>} />
                             </Routes>
                         </main>
+                        <Footer />
                     </div>
                 </Router>
             </CurrencyProvider>

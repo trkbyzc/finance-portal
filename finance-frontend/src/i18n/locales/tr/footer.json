@@ -1,0 +1,29 @@
+{
+  "description": "Borsa, döviz, kripto, emtia, fon ve tahvil piyasalarını canlı takip edin. Tüm finansal veriler tek panelde.",
+  "columns": {
+    "markets": "Piyasalar",
+    "tools": "Araçlar",
+    "corporate": "Kurumsal"
+  },
+  "links": {
+    "trStocks": "BIST Hisseleri",
+    "usStocks": "ABD Hisseleri",
+    "crypto": "Kripto Paralar",
+    "currencies": "Döviz Kurları",
+    "commodities": "Emtialar",
+    "funds": "Yatırım Fonları",
+    "interest": "Faiz Hesaplayıcı",
+    "portfolio": "Portföyüm",
+    "watchlist": "İzleme Listem",
+    "simulation": "Simülasyon",
+    "economicCalendar": "Ekonomik Takvim",
+    "news": "Haberler",
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "privacy": "Gizlilik & KVKK",
+    "terms": "Kullanım Koşulları"
+  },
+  "copyright": "© {{year}} FinansPortal — . Tüm hakları saklıdır.",
+  "disclaimer": "Yasal Uyarı: Bu sitede yer alan veriler yalnızca bilgilendirme amaçlıdır, yatırım tavsiyesi niteliği taşımaz ve gecikmeli olabilir. Yatırım kararlarınızdan doğan sorumluluk size aittir.",
+  "dataSources": "Veri kaynakları: TCMB · Yahoo Finance · CoinGecko · TEFAS · FRED"
+}

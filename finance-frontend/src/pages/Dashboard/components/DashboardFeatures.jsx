@@ -1,21 +1,13 @@
 import React from 'react';
-import { Zap, LineChart, Rocket } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const ACCENT_CLASS = {
-    primary: 'text-primary bg-primary/10 border-primary/30',
-    buy: 'text-buy bg-buy/10 border-buy/30',
-    warning: 'text-warning bg-warning/10 border-warning/30'
-};
-
-function FeatureCard({ icon: Icon, accent, title, desc }) {
+function FeatureCard({ title }) {
     return (
         <div className="p-6 bg-surface border border-border rounded-2xl hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group">
-            <div className={`mb-5 w-12 h-12 rounded-xl flex items-center justify-center border ${ACCENT_CLASS[accent]} group-hover:scale-110 transition-transform`}>
-                <Icon size={22} />
-            </div>
-            <h3 className="font-bold mb-2 text-lg text-text">{title}</h3>
-            <p className="text-sm text-text-muted leading-relaxed">{desc}</p>
+            <h3 className="font-bold text-lg text-text flex items-center gap-3">
+                <span className="w-2 h-8 bg-primary rounded-full shrink-0"></span>
+                {title}
+            </h3>
         </div>
     );
 }
@@ -24,9 +16,9 @@ export default function DashboardFeatures() {
     const { t } = useTranslation('dashboard');
 
     const features = [
-        { icon: Zap, accent: 'warning', title: t('features.realtime.title'), desc: t('features.realtime.desc') },
-        { icon: LineChart, accent: 'primary', title: t('features.tools.title'), desc: t('features.tools.desc') },
-        { icon: Rocket, accent: 'buy', title: t('features.portfolio.title'), desc: t('features.portfolio.desc') }
+        { title: t('features.realtime.title') },
+        { title: t('features.tools.title') },
+        { title: t('features.portfolio.title') }
     ];
 
     return (

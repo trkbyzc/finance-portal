@@ -1,8 +1,10 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Clock, ImageOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';
-import { formatNumber, formatPercent } from '../../../utils/formatters/numberFormatter';
+import { formatPercent } from '../../../utils/formatters/numberFormatter';
+import { formatDateTime } from '../../../utils/formatters/dateFormatter';
+import { useNewsData } from '../../../hooks/useNewsData';
 
 const TAB_TO_CATEGORY = {
     stocks: 'STOCK',
@@ -23,11 +25,19 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
     const tabCategory = TAB_TO_CATEGORY[activeTab] || null;
     const { t, i18n } = useTranslation('dashboard');
     const locale = i18n.language?.startsWith('en') ? 'en-US' : 'tr-TR';
+    const isNewsTab = activeTab === 'news';
+
+    const { news, loading: newsLoading } = useNewsData('Tümü');
+    const newsItems = (news || []).slice(0, 12);
 
     const activeTabTitle = tabs.find(tb => tb.id === activeTab)?.title || '';
-    const viewAllLabel = i18n.language?.startsWith('en')
-        ? `View All ${activeTabTitle} →`
-        : `Tüm ${activeTabTitle} Piyasasını Gör →`;
+    const viewAllLabel = isNewsTab
+        ? t('tabs.viewAllNews')
+        : i18n.language?.startsWith('en')
+            ? `View All ${activeTabTitle} →`
+            : `Tüm ${activeTabTitle} Piyasasını Gör →`;
+
+    const showLoading = isNewsTab ? newsLoading : tabLoading;
 
     return (
         <div className="relative group">
@@ -54,9 +64,45 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
                 </div>
 
                 <div className="flex-1 overflow-y-auto hide-scrollbar">
-                    {tabLoading ? (
+                    {showLoading ? (
                         <div className="h-full flex items-center justify-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-2 border-border border-t-primary"></div>
+                        </div>
+                    ) : isNewsTab ? (
+                        /* HABERLER sekmesi — ayrı haber listesi */
+                        <div className="divide-y divide-border/40">
+                            {newsItems.map((item, i) => (
+                                <div
+                                    key={`${item.link || i}-${i}`}
+                                    onClick={() => navigate('/news/detail', { state: { newsItem: item } })}
+                                    className="flex items-center gap-3 p-3 pl-4 hover:bg-surface-hover cursor-pointer transition-colors group/row"
+                                >
+                                    <div className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-border bg-bg flex items-center justify-center">
+                                        {item.imageUrl ? (
+                                            <img
+                                                src={item.imageUrl}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { e.target.style.display = 'none'; }}
+                                            />
+                                        ) : (
+                                            <ImageOff size={18} className="text-border" />
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                        <span className="text-xs font-bold text-text line-clamp-2 leading-snug group-hover/row:text-primary transition-colors">
+                                            {item.title}
+                                        </span>
+                                        <div className="flex items-center gap-2 text-[10px] text-text-muted font-bold uppercase tracking-tight mt-1">
+                                            <span className="text-primary truncate max-w-30">{item.source}</span>
+                                            <span className="flex items-center gap-1 shrink-0">
+                                                <Clock size={10} /> {formatDateTime(item.pubDate)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <ChevronRight size={16} className="shrink-0 text-border group-hover/row:text-primary transition-colors" />
+                                </div>
+                            ))}
                         </div>
                     ) : (
                         <table className="w-full text-left">
@@ -100,6 +146,7 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
 
                 <button
                     onClick={() => {
+                        if (isNewsTab) { navigate('/news'); return; }
                         const targetCategory = activeTab === 'stocks' ? 'tr-stocks' : activeTab;
                         navigate(`/markets/${targetCategory}/list`);
                     }}

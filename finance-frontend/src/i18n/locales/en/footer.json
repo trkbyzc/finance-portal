@@ -1,0 +1,29 @@
+{
+  "description": "Track stock, forex, crypto, commodity, fund and bond markets live. All financial data in a single panel.",
+  "columns": {
+    "markets": "Markets",
+    "tools": "Tools",
+    "corporate": "Company"
+  },
+  "links": {
+    "trStocks": "BIST Stocks",
+    "usStocks": "US Stocks",
+    "crypto": "Cryptocurrencies",
+    "currencies": "Exchange Rates",
+    "commodities": "Commodities",
+    "funds": "Investment Funds",
+    "interest": "Interest Calculator",
+    "portfolio": "My Portfolio",
+    "watchlist": "Watchlist",
+    "simulation": "Simulation",
+    "economicCalendar": "Economic Calendar",
+    "news": "News",
+    "about": "About Us",
+    "contact": "Contact",
+    "privacy": "Privacy & GDPR",
+    "terms": "Terms of Use"
+  },
+  "copyright": "© {{year}} FinansPortal — . All rights reserved.",
+  "disclaimer": "Disclaimer: The data on this site is for informational purposes only, does not constitute investment advice and may be delayed. You are solely responsible for your investment decisions.",
+  "dataSources": "Data sources: CBRT · Yahoo Finance · CoinGecko · TEFAS · FRED"
+}

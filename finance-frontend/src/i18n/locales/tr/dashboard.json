@@ -15,6 +15,8 @@
     "currencies": "Dövizler",
     "commodities": "Emtia",
     "crypto": "Kripto",
+    "news": "Haberler",
+    "viewAllNews": "Tüm Haberleri Gör →",
     "title": "Anlık Piyasalar",
     "subtitle": "En çok takip edilen varlıkları sekmeler arasında geçiş yaparak inceleyin"
   },
@@ -60,5 +62,35 @@
     "accessDenied": "Erişim Engellendi",
     "accessDeniedMessage": "Hesabınıza erişim kısıtlanmıştır.",
     "accessDeniedDetail": "Detaylı bilgi için yönetim ile iletişime geçiniz."
+  },
+  "greeting": {
+    "morning": "Günaydın",
+    "afternoon": "İyi günler",
+    "evening": "İyi akşamlar",
+    "night": "İyi geceler",
+    "subtitle": "Bugün piyasalarda neler oluyor, bir göz atalım."
+  },
+  "summary": {
+    "title": "Piyasa Özeti",
+    "bist100": "BIST 100",
+    "usd": "Dolar",
+    "eur": "Euro",
+    "btc": "Bitcoin"
+  },
+  "widgets": {
+    "portfolioTitle": "Portföyüm",
+    "totalValue": "Toplam Değer",
+    "dailyPnl": "Toplam K/Z",
+    "distribution": "Varlık Dağılımı",
+    "watchlistTitle": "İzleme Listem",
+    "newsTitle": "Senin İçin Haberler",
+    "converterTitle": "Döviz Çevirici",
+    "viewAll": "Tümünü Gör",
+    "emptyPortfolioTitle": "Henüz varlık eklemedin",
+    "emptyPortfolioDesc": "İlk varlığını ekleyerek portföyünü buradan takip etmeye başla.",
+    "emptyPortfolioCta": "Portföy Oluştur",
+    "emptyWatchlistTitle": "İzleme listen boş",
+    "emptyWatchlistDesc": "Takip etmek istediğin sembolleri ekle, anlık fiyatları burada gör.",
+    "emptyWatchlistCta": "Piyasalara Göz At"
   }
 }

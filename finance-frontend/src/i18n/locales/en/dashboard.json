@@ -15,6 +15,8 @@
     "currencies": "Forex",
     "commodities": "Commodities",
     "crypto": "Crypto",
+    "news": "News",
+    "viewAllNews": "View All News →",
     "title": "Live Markets",
     "subtitle": "Browse the most-watched assets by switching between tabs"
   },
@@ -60,5 +62,35 @@
     "accessDenied": "Access Denied",
     "accessDeniedMessage": "Your account access is restricted.",
     "accessDeniedDetail": "Please contact administration for details."
+  },
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "night": "Good night",
+    "subtitle": "Let's take a look at what's happening in the markets today."
+  },
+  "summary": {
+    "title": "Market Summary",
+    "bist100": "BIST 100",
+    "usd": "Dollar",
+    "eur": "Euro",
+    "btc": "Bitcoin"
+  },
+  "widgets": {
+    "portfolioTitle": "My Portfolio",
+    "totalValue": "Total Value",
+    "dailyPnl": "Total P/L",
+    "distribution": "Asset Allocation",
+    "watchlistTitle": "My Watchlist",
+    "newsTitle": "News For You",
+    "converterTitle": "Currency Converter",
+    "viewAll": "View All",
+    "emptyPortfolioTitle": "No assets yet",
+    "emptyPortfolioDesc": "Add your first asset and start tracking your portfolio here.",
+    "emptyPortfolioCta": "Create Portfolio",
+    "emptyWatchlistTitle": "Your watchlist is empty",
+    "emptyWatchlistDesc": "Add the symbols you want to follow and see live prices here.",
+    "emptyWatchlistCta": "Browse Markets"
   }
 }

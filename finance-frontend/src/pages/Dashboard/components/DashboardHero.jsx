@@ -1,6 +1,7 @@
 import React from 'react';
 import { Activity, ArrowRight, UserPlus, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { goToRegister } from '../../../utils/keycloak';
 
 export default function DashboardHero({ navigate }) {
     const { t } = useTranslation('dashboard');
@@ -18,10 +19,6 @@ export default function DashboardHero({ navigate }) {
                 </span>
             </h1>
 
-            <p className="text-lg text-text-muted max-w-lg leading-relaxed">
-                {t('hero.subtitle')}
-            </p>
-
             <div className="flex flex-wrap gap-3 pt-2">
                 <button
                     onClick={() => navigate('/markets/live')}
@@ -30,7 +27,7 @@ export default function DashboardHero({ navigate }) {
                     {t('hero.exploreMarkets')} <ArrowRight size={18} />
                 </button>
                 <button
-                    onClick={() => navigate('/register')}
+                    onClick={goToRegister}
                     className="px-6 py-3 rounded-xl bg-surface hover:bg-surface-hover border border-border hover:border-border-strong text-text font-semibold flex items-center gap-2 transition-all"
                 >
                     <UserPlus size={18} /> {t('cta.createAccount')}
