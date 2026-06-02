@@ -1,0 +1,32 @@
+# Prometheus v2.51 — metrik deposu (7g retention).
+# İki kaynaktan metrik toplar:
+#  1) finance-portal-backend  -> backend'in /actuator/prometheus ucu (host'ta çalışır)
+#  2) otel-collector          -> Java Agent'ın OTLP metriklerini :8889'da expose eder
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s   # alert kuralları bu aralıkla değerlendirilir
+
+# Alarm kuralları (servis DOWN, yüksek hata oranı, yavaş p95, yüksek heap)
+rule_files:
+  - /etc/prometheus/alert-rules.yml
+
+scrape_configs:
+  # (1) Backend doğrudan — Collector çökse bile JVM/HTTP/liveness metrikleri görünür.
+  #     Backend host'ta (mvnw spring-boot:run) çalışır; container'dan host'a erişim
+  #     için host.docker.internal kullanılır.
+  - job_name: 'finance-portal-backend'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+        labels:
+          application: 'finance-portal'
+
+  # (2) OTel Collector'ın Prometheus exporter'ı (agent metrikleri)
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8889']
+
+  # (3) Prometheus kendi metrikleri
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

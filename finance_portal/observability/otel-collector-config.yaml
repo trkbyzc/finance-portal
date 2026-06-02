@@ -1,0 +1,50 @@
+# OpenTelemetry Collector (contrib 0.96.0)
+# OTel Java Agent -> OTLP gRPC :4317 -> bu collector.
+#   - traces  -> Tempo (otlp grpc tempo:4317)
+#   - metrics -> Prometheus exporter :8889 (Prometheus bu ucu scrape eder)
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+  # Kaynak (resource) bilgisini koru/normalize et
+  resource:
+    attributes:
+      - key: service.namespace
+        value: finance-portal
+        action: upsert
+
+exporters:
+  # Trace deposu -> Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+  # Metrikler -> Prometheus formatında :8889'da expose et (Prometheus scrape eder)
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true   # resource attribute'larını metrik label'ı yap (service_name vb.)
+  # Debug için (gerekirse açılır)
+  debug:
+    verbosity: basic
+
+service:
+  telemetry:
+    logs:
+      level: info
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [prometheus]

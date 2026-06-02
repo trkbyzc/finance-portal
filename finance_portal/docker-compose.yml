@@ -150,6 +150,83 @@ services:
       opensearch:
         condition: service_healthy
 
+  # ==========================================================================
+  #  OBSERVABILITY — 3 pillar: Metrics + Traces + Logs -> Grafana
+  #  (Logs ayağı zaten Kafka -> Logstash -> OpenSearch ile çalışıyor.)
+  # ==========================================================================
+
+  # OTel Collector — Java Agent'tan OTLP (:4317/:4318) alır;
+  #   traces -> Tempo, metrics -> Prometheus exporter (:8889).
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: finance-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./observability/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC (agent -> collector)
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus exporter (collector -> prometheus scrape)
+    depends_on:
+      - tempo
+    restart: unless-stopped
+
+  # Tempo — dağıtık izleme (trace) deposu. Grafana Tempo datasource :3200'e bağlanır.
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: finance-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./observability/tempo.yaml:/etc/tempo.yaml
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP API (Grafana)
+    restart: unless-stopped
+
+  # Prometheus — metrik deposu. Backend /actuator/prometheus + collector :8889 scrape eder.
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: finance-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-remote-write-receiver'   # Tempo metrics_generator remote_write için
+      - '--enable-feature=exemplar-storage'
+      - '--web.enable-lifecycle'               # POST /-/reload ile config/kural hot-reload
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./observability/alert-rules.yml:/etc/prometheus/alert-rules.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # container -> host'taki backend (Linux uyumu)
+    restart: unless-stopped
+
+  # Grafana — birleşik görselleştirme (Prometheus + Tempo + OpenSearch).
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: finance-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-opensearch-datasource
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      # Editor: anonim kullanıcı Explore'a erişebilsin (trace linkine tıklayınca
+      # Tempo Explore açılır). Viewer rolü Explore'a giremez -> link home'a atar.
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Editor
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - tempo
+      - opensearch
+    restart: unless-stopped
+
   # SonarQube — kod kalitesi / statik analiz.
   # NORMAL `docker compose up` ile BAŞLAMAZ (profiles: sonar).
   # Sadece istenince:  docker compose --profile sonar up -d sonarqube
@@ -178,3 +255,6 @@ volumes:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_logs:
+  tempo_data:
+  prometheus_data:
+  grafana_data:

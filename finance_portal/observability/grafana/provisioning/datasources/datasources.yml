@@ -1,0 +1,59 @@
+# Grafana datasource provisioning — 3 pillar tek arayüzde.
+apiVersion: 1
+
+datasources:
+  # ---- METRICS ----
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    uid: prometheus
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+      # Exemplar -> Tempo trace'ine atla
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: tempo
+
+  # ---- TRACES ----
+  - name: Tempo
+    type: tempo
+    access: proxy
+    uid: tempo
+    url: http://tempo:3200
+    jsonData:
+      httpMethod: GET
+      # Trace -> ilgili logları OpenSearch'te bul (trace_id ile)
+      tracesToLogsV2:
+        datasourceUid: opensearch
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        customQuery: true
+        query: 'mdc.traceId:"$${__trace.traceId}"'
+      # Trace -> metrik korelasyonu
+      tracesToMetrics:
+        datasourceUid: prometheus
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
+
+  # ---- LOGS ----
+  - name: OpenSearch
+    type: grafana-opensearch-datasource
+    access: proxy
+    uid: opensearch
+    url: http://opensearch:9200
+    jsonData:
+      database: 'finance-logs-*'
+      flavor: 'OpenSearch'
+      version: '2.11.1'
+      timeField: '@timestamp'
+      pplEnabled: true
+      # NOT: mdc.traceId -> Tempo geçişi datasource dataLink'i ile DEĞİL,
+      # log dashboard'undaki tablo panelinin field override'ındaki internal
+      # link ile yapılır (finance-portal-logs.json). Burada 'url' içeren bir
+      # dataLink TANIMLAMA: trace_id'yi göreli URL sanıp Grafana ana sayfasına
+      # atar.

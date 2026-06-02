@@ -1,0 +1,61 @@
+# Prometheus alert kuralları — Finance Portal.
+# Prometheus bunları her 15s'de değerlendirir; koşul 'for' süresince sürerse
+# alarm önce PENDING, sonra FIRING olur (Prometheus UI > Alerts ve Grafana
+# "Aktif Alarmlar" panelinde görünür).
+#
+# Not: Şu an Alertmanager YOK; alarmlar Prometheus içinde değerlendirilir ve
+# görünür olur ama Slack/e-posta'ya GÖNDERİLMEZ. Bildirim için Alertmanager
+# eklemek ayrı bir adım (kanal + kimlik bilgisi gerektirir).
+groups:
+  - name: finance-portal-alerts
+    rules:
+      # 1) Servis DOWN — backend 1 dakikadır scrape edilemiyor
+      - alert: BackendDown
+        expr: up{job="finance-portal-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Finance Portal backend DOWN"
+          description: "{{ $labels.instance }} 1 dakikadır erişilemiyor (servis kapalı veya /actuator/prometheus yanıt vermiyor)."
+
+      # 2) Yüksek hata oranı — 5xx oranı son 5dk'da %5'i aştı
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{job="finance-portal-backend", status=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(http_server_requests_seconds_count{job="finance-portal-backend"}[5m])), 1)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Yüksek hata oranı (5xx > %5)"
+          description: "Son 5 dakikada 5xx hata oranı {{ $value | humanizePercentage }} (eşik %5)."
+
+      # 3) Yavaş yanıt — p95 yanıt süresi son 5dk'da 1sn'yi aştı
+      - alert: SlowResponseP95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_server_requests_seconds_bucket{job="finance-portal-backend"}[5m])) by (le)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yavaş yanıt (p95 > 1s)"
+          description: "p95 yanıt süresi {{ $value | humanizeDuration }} (eşik 1s), 5 dakikadır yüksek."
+
+      # 4) Yüksek JVM heap — kullanım son 5dk'da %85'i aştı (OOM riski)
+      - alert: HighHeapUsage
+        expr: |
+          sum(jvm_memory_used_bytes{job="finance-portal-backend", area="heap"})
+          /
+          sum(jvm_memory_max_bytes{job="finance-portal-backend", area="heap"})
+          > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek JVM heap kullanımı (>%85)"
+          description: "Heap kullanımı {{ $value | humanizePercentage }} (eşik %85), 5 dakikadır yüksek; OOM riski."

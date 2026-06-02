@@ -1,0 +1,14 @@
+# Dashboard provider — /var/lib/grafana/dashboards altındaki JSON'ları otomatik yükler.
+apiVersion: 1
+
+providers:
+  - name: 'finance-portal'
+    orgId: 1
+    folder: 'Finance Portal'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
