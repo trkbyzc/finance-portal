@@ -4,7 +4,9 @@
  */
 
 export const getChartStyles = (chartType = 'candle_solid') => ({
-    candle: { type: chartType },
+    // tooltip.showRule 'none': klinecharts'ın üstteki "Time/Open/High..." legend'ı gizlenir
+    // (artık kendi OHLCV kartlarımız var). Crosshair çizgileri bundan etkilenmez.
+    candle: { type: chartType, tooltip: { showRule: 'none' } },
     grid: { 
         show: true, 
         horizontal: { color: '#2a2e39', style: 'dashed' }, 

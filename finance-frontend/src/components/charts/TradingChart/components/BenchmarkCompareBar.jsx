@@ -10,8 +10,9 @@ import { useTranslation } from 'react-i18next';
  * @param {Array} options [{ key, label, color }]
  * @param {Object} activeMap { key: bool }
  * @param {Function} onToggle (key) => void
- * @param {string} [buttonColor] Verilirse TÜM butonlar bu tek renkte gösterilir
- *   (örn. BIST için lacivert). Grafik çizgileri yine kendi `b.color`'ını kullanır.
+ * @param {string} [buttonColor] Verilirse: PASİF butonlar nötr/siyah, AKTİF buton bu renkle
+ *   (lacivert) dolgulu olur. Grafik çizgileri yine kendi `b.color`'ını kullanır.
+ *   Verilmezse eski davranış: pasif = kendi renginde outline.
  */
 export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle, buttonColor }) {
     const { t } = useTranslation('charts');
@@ -25,16 +26,21 @@ export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options,
             {options.map(b => {
                 const active = activeMap[b.key];
                 const c = buttonColor || b.color;
+                // buttonColor varsa: pasif nötr/siyah; yoksa pasif kendi renginde outline
+                const passiveClass = buttonColor
+                    ? 'bg-surface-2 text-text border-border hover:border-border-strong'
+                    : 'bg-surface-2 hover:bg-surface-hover';
+                const passiveStyle = buttonColor ? undefined : { color: c, borderColor: `${c}66` };
                 return (
                     <button
                         key={b.key}
                         onClick={() => onToggle(b.key)}
                         className={`px-3 py-1 text-xs font-bold rounded-md border transition-all ${
-                            active ? 'text-text shadow-lg' : 'bg-surface-2 hover:bg-surface-hover'
+                            active ? 'text-text shadow-lg' : passiveClass
                         }`}
                         style={active
                             ? { backgroundColor: c, borderColor: c, boxShadow: `0 0 12px ${c}55` }
-                            : { color: c, borderColor: `${c}66` }
+                            : passiveStyle
                         }
                     >
                         {b.label}

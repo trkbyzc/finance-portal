@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, memo, useMemo } from 'react';
+import React, { useEffect, useRef, useState, memo, useMemo, useCallback } from 'react';
 import { registerCustomOverlays } from '../../../config/customOverlays.js';
 import { useChartData } from '../../../hooks/charts/useChartData';
 import { useChartInstance } from './hooks/useChartInstance';
@@ -11,6 +11,7 @@ import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConve
 import { BIST_OPTIONS, CRYPTO_OPTIONS } from './tradingChartConstants';
 
 import ChartHeader from './components/ChartHeader';
+import ChartOhlcvBar from './components/ChartOhlcvBar';
 import ChartSidebar from './components/ChartSidebar';
 import ChartStatusOverlay from './components/ChartStatusOverlay';
 import BenchmarkCompareBar from './components/BenchmarkCompareBar';
@@ -91,8 +92,23 @@ function TradingChart({ asset, initialRange = '1y' }) {
     // Overlay aktifken zorla recharts moduna geç (klinecharts dispose)
     const useRechartsFinal = useRecharts || showOverlayChart;
 
+    // Crosshair ile gezilen mum (hover) — yoksa son mum gösterilir
+    const [hoverCandle, setHoverCandle] = useState(null);
+    const handleCrosshairChange = useCallback((data) => {
+        setHoverCandle(data?.kLineData ?? null);
+    }, []);
+    // Sembol/aralık/para birimi değişince hover sıfırlansın — render sırasında guard'lı reset
+    // (React'in "you might not need an effect" deseni; effect içinde setState yok).
+    // currency dahil: $/₺ toggle'ında hover snapshot'ı eski kurda kalıp kartları yanıltmasın.
+    const resetKey = `${backendSymbol}|${activeRange}|${currency}`;
+    const [prevResetKey, setPrevResetKey] = useState(resetKey);
+    if (resetKey !== prevResetKey) {
+        setPrevResetKey(resetKey);
+        setHoverCandle(null);
+    }
+
     // Kline + indicator + overlay (drawing tool) hooks
-    const chartInstance = useChartInstance(klineContainer, candleType, useRechartsFinal, isNone);
+    const chartInstance = useChartInstance(klineContainer, candleType, useRechartsFinal, isNone, handleCrosshairChange);
     const { activeIndicators, toggleIndicator } = useChartIndicators(chartInstance);
     const { editingText, setEditingText, createOverlay, removeAllOverlays, updateTextOverlay } = useChartOverlays(chartInstance);
 
@@ -127,6 +143,14 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 disableInteraction={showOverlayChart}
             />
 
+            {/* OHLC + Hacim özeti — sadece klinecharts (candle) modunda, başlığın altında */}
+            {!useRechartsFinal && !isNone && chartData.length > 0 && (
+                <ChartOhlcvBar
+                    candle={hoverCandle || chartData[chartData.length - 1]}
+                    formatPriceLabel={formatPriceLabel}
+                />
+            )}
+
             {isTrStock && (
                 <BenchmarkCompareBar
                     labelKey="bistCompare"
@@ -145,6 +169,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                     options={CRYPTO_OPTIONS}
                     activeMap={activeCryptoBench}
                     onToggle={toggleCryptoBench}
+                    buttonColor="#2962ff"
                 />
             )}
 

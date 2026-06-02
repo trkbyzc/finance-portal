@@ -69,6 +69,14 @@
   "bistCompareActive": "Karşılaştırma aktif · grafik % normalize edildi · diğer butonlar pasif",
   "cryptoCompare": "Kripto Endeksi Karşılaştır:",
   "cryptoCompareActive": "Karşılaştırma aktif · grafik % normalize edildi · diğer butonlar pasif",
+  "ohlcv": {
+    "open": "Açılış",
+    "high": "Yüksek",
+    "low": "Düşük",
+    "close": "Kapanış",
+    "volume": "Hacim",
+    "change": "Değişim"
+  },
   "price": "Fiyat",
   "yield": "Getiri",
   "trInflation": "TR Enflasyon",

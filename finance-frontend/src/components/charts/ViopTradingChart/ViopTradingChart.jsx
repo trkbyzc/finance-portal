@@ -6,6 +6,7 @@ import { detectNativeCurrency } from '../../../utils/currencyConversion';
 import ViopHeader from './components/ViopHeader';
 import ViopControls from './components/ViopControls';
 import ViopChartArea from './components/ViopChartArea';
+import ChartOhlcvBar from '../TradingChart/components/ChartOhlcvBar';
 
 // 🚀 FAZA 1: Veri çekme useEffect'i kaldırıldı, custom hook kullanılıyor
 export default function ViopTradingChart({ asset }) {
@@ -21,6 +22,9 @@ export default function ViopTradingChart({ asset }) {
 
     const [customFromDate, setCustomFromDate] = useState(fromDate);
     const [customToDate, setCustomToDate] = useState(toDate);
+
+    // Crosshair ile gezilen mum (hover) — yoksa son mum gösterilir
+    const [hoverCandle, setHoverCandle] = useState(null);
 
     const handleRangeChange = (newRange) => {
         setRange(newRange);
@@ -41,6 +45,22 @@ export default function ViopTradingChart({ asset }) {
     const { currency, convertPrice } = useCurrency();
     const nativeCurrency = useMemo(() => detectNativeCurrency({ ...asset, assetCategory: 'VIOP' }), [asset]);
     const shouldConvert = currency !== nativeCurrency;
+
+    // Sembol/aralık/para birimi değişince hover sıfırlansın (toggle'da eski kurda kalmasın)
+    const resetKey = `${asset?.symbol}|${range}|${currency}`;
+    const [prevResetKey, setPrevResetKey] = useState(resetKey);
+    if (resetKey !== prevResetKey) {
+        setPrevResetKey(resetKey);
+        setHoverCandle(null);
+    }
+
+    const currencySymbol = currency === 'TRY' ? '₺' : '$';
+    const formatPriceLabel = (v) => {
+        if (v == null || Number.isNaN(v)) return '';
+        const locale = currency === 'TRY' ? 'tr-TR' : 'en-US';
+        const digits = Math.abs(v) < 1 ? 4 : 2;
+        return `${currencySymbol}${Number(v).toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+    };
 
     const chartData = useMemo(() => {
         if (!shouldConvert || !rawChartData?.length) return rawChartData;
@@ -74,12 +94,17 @@ export default function ViopTradingChart({ asset }) {
                             { offset: 1, color: 'rgba(41, 98, 255, 0.01)' }
                         ]
                     },
-                    tooltip: { showRule: 'always' }
+                    tooltip: { showRule: 'none' }
                 },
                 xAxis: { axisLine: { color: '#2a2e39' }, tickText: { color: '#868993' } },
                 yAxis: { position: 'right', tickText: { color: '#868993' } },
                 timeZone: 'Europe/Istanbul'
             }
+        });
+
+        // Crosshair hareketinde OHLCV kartlarını canlı güncelle
+        chartInstance.current.subscribeAction('onCrosshairChange', (data) => {
+            setHoverCandle(data?.kLineData ?? null);
         });
 
         return () => {
@@ -106,6 +131,9 @@ export default function ViopTradingChart({ asset }) {
     return (
         <div className="flex flex-col w-full h-full bg-bg text-text">
             <ViopHeader asset={asset} />
+            {chartData.length > 0 && (
+                <ChartOhlcvBar candle={hoverCandle || chartData[chartData.length - 1]} formatPriceLabel={formatPriceLabel} />
+            )}
             <ViopControls
                 range={range}
                 handleRangeChange={handleRangeChange}

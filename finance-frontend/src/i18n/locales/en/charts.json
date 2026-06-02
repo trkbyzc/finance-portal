@@ -69,6 +69,14 @@
   "bistCompareActive": "Comparison active · chart normalized to % · other buttons disabled",
   "cryptoCompare": "Compare with Crypto Index:",
   "cryptoCompareActive": "Comparison active · chart normalized to % · other buttons disabled",
+  "ohlcv": {
+    "open": "Open",
+    "high": "High",
+    "low": "Low",
+    "close": "Close",
+    "volume": "Volume",
+    "change": "Change"
+  },
   "price": "Price",
   "yield": "Yield",
   "trInflation": "TR Inflation",

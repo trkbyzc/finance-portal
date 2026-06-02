@@ -13,7 +13,7 @@ import { formatKlineDate } from '../../../../utils/formatters/dateFormatter';
  * @param {boolean} isNone - Chart yok mu?
  * @returns {React.RefObject} Chart instance ref
  */
-export const useChartInstance = (containerRef, chartType, isLineChart, isNone) => {
+export const useChartInstance = (containerRef, chartType, isLineChart, isNone, onCrosshairChange) => {
     const chartInstance = useRef(null);
 
     useEffect(() => {
@@ -40,6 +40,12 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone) =
         });
         chart.setStyles(getChartStyles(chartType));
         chart.createIndicator('VOL', false, { id: 'pane_VOL', height: 100 });
+
+        // Crosshair hareketinde üstteki OHLCV kartlarını canlı güncellemek için
+        if (onCrosshairChange) {
+            chart.subscribeAction('onCrosshairChange', onCrosshairChange);
+        }
+
         chartInstance.current = chart;
 
         // Resize handler
