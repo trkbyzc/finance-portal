@@ -1,9 +1,10 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Star, ChevronRight, ArrowRight } from 'lucide-react';
+import { Star, ChevronRight, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { watchlistApi } from '../../../services/api/watchlistApi';
+import { aggregateApi } from '../../../services/api';
 import MiniSparkline from '../../../components/common/MiniSparkline';
 import DashboardWidgetCard from './DashboardWidgetCard';
 
@@ -16,6 +17,12 @@ function chartTarget(symbol, assetType) {
     return cat ? `/chart/${encodeURIComponent(chartSymbol)}?cat=${cat}` : `/chart/${encodeURIComponent(chartSymbol)}`;
 }
 
+const fmtPrice = (v) => {
+    if (v == null) return '—';
+    const digits = Math.abs(v) < 1 ? 4 : 2;
+    return Number(v).toLocaleString('tr-TR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+};
+
 export default function WatchlistWidget() {
     const { t } = useTranslation(['dashboard', 'common']);
     const navigate = useNavigate();
@@ -23,6 +30,32 @@ export default function WatchlistWidget() {
     const { data: items, isLoading } = useQuery({
         queryKey: ['watchlist'],
         queryFn: watchlistApi.getMyWatchlist
+    });
+
+    // İzleme listesindeki semboller için anlık fiyat + değişim (tek seferde tüm market listeleri)
+    const { data: quotes = {} } = useQuery({
+        queryKey: ['watchlistQuotes'],
+        enabled: !!(items && items.length),
+        staleTime: 60 * 1000,
+        queryFn: async () => {
+            const [stocks, cryptos, currencies, commodities, bonds] = await Promise.all([
+                aggregateApi.getMarketsByEndpoint('/stocks').catch(() => []),
+                aggregateApi.getMarketsByEndpoint('/crypto-currencies').catch(() => []),
+                aggregateApi.getMarketsByEndpoint('/currencies').catch(() => []),
+                aggregateApi.getMarketsByEndpoint('/commodities').catch(() => []),
+                aggregateApi.getMarketsByEndpoint('/bonds').catch(() => [])
+            ]);
+            const map = {};
+            const add = (arr, keyField) => (arr || []).forEach(x => {
+                const k = x[keyField];
+                if (k && map[k] === undefined) {
+                    map[k] = { price: x.price ?? x.forexSelling, change: x.changePercent };
+                }
+            });
+            add(stocks, 'symbol'); add(commodities, 'symbol'); add(bonds, 'symbol');
+            add(cryptos, 'currencyCode'); add(currencies, 'currencyCode');
+            return map;
+        }
     });
 
     const shellProps = {
@@ -60,6 +93,10 @@ export default function WatchlistWidget() {
             <div className="divide-y divide-border/50">
                 {items.slice(0, 6).map((item, i) => {
                     const symbol = item.symbol || item.currencyCode || '';
+                    const quote = quotes[symbol] || quotes[symbol.replace('-USD', '')] || {};
+                    const change = quote.change;
+                    const up = (change || 0) >= 0;
+                    const priceSym = (item.assetType === 'CRYPTO' || item.assetType === 'COMMODITY') ? '$' : '₺';
                     return (
                         <div
                             key={item.id || item.itemId || `${symbol}-${i}`}
@@ -70,11 +107,25 @@ export default function WatchlistWidget() {
                                 <span className="text-sm font-bold text-text group-hover:text-primary transition-colors">
                                     {symbol.replace('-USD', '')}
                                 </span>
-                                <span className="text-[10px] text-text-muted truncate max-w-40">
+                                <span className="text-[10px] text-text-muted truncate max-w-32">
                                     {item.name || item.currencyName || item.assetType}
                                 </span>
                             </div>
-                            <MiniSparkline symbol={symbol} category={item.assetType} color={PRIMARY} width={70} height={28} />
+
+                            <MiniSparkline symbol={symbol} category={item.assetType} color={PRIMARY} width={56} height={26} />
+
+                            <div className="text-right shrink-0 min-w-20">
+                                <div className="text-sm font-mono font-bold text-text">
+                                    {quote.price != null ? `${priceSym}${fmtPrice(quote.price)}` : '—'}
+                                </div>
+                                {change != null && (
+                                    <div className={`text-[11px] font-bold font-mono flex items-center justify-end gap-0.5 ${up ? 'text-buy' : 'text-sell'}`}>
+                                        {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                                        {up ? '+' : ''}{Number(change).toFixed(2)}%
+                                    </div>
+                                )}
+                            </div>
+
                             <ChevronRight size={16} className="shrink-0 text-border group-hover:text-primary transition-colors" />
                         </div>
                     );
