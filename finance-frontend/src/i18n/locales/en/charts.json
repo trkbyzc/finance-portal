@@ -47,7 +47,21 @@
     "text": "Text",
     "ruler": "Ruler",
     "fibonacci": "Fibonacci",
-    "removeAll": "Clear All Drawings"
+    "removeAll": "Clear All Drawings",
+    "saveChart": "Save Chart",
+    "saveSuccess": "Chart saved to your \"My Account\" page.",
+    "saveError": "Could not save chart."
+  },
+  "saved": {
+    "title": "My Saved Charts",
+    "subtitle": "Charts where you saved drawings. Click a card to open.",
+    "emptyTitle": "No saved charts yet",
+    "emptyDesc": "Draw on a chart and press the save (💾) button on the left.",
+    "open": "Open",
+    "rename": "Rename",
+    "delete": "Delete",
+    "renamePrompt": "New name:",
+    "deleteConfirm": "Delete the \"{{name}}\" chart?"
   },
   "sidebar": {
     "openInterest": "Open Interest",

@@ -28,6 +28,7 @@ import SimulationPage from './pages/SimulationPage/SimulationPage';
 import WhatIfPage from './pages/WhatIfPage/WhatIfPage';
 import EconomicCalendarPage from './pages/EconomicCalendarPage/EconomicCalendarPage';
 import PreferencesPage from './pages/PreferencesPage/PreferencesPage';
+import SavedChartsPage from './pages/SavedChartsPage/SavedChartsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
 import GlobalTicker from './components/layout/MarketTicker/GlobalTicker';
@@ -69,6 +70,7 @@ function App() {
                                 <Route path="/what-if" element={<ProtectedRoute><WhatIfPage /></ProtectedRoute>} />
                                 <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                                 <Route path="/preferences" element={<ProtectedRoute><PreferencesPage /></ProtectedRoute>} />
+                                <Route path="/saved-charts" element={<ProtectedRoute><SavedChartsPage /></ProtectedRoute>} />
                             </Routes>
                         </main>
                         <Footer />

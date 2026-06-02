@@ -47,7 +47,21 @@
     "text": "Metin",
     "ruler": "Cetvel",
     "fibonacci": "Fibonacci",
-    "removeAll": "Tüm Çizimleri Sil"
+    "removeAll": "Tüm Çizimleri Sil",
+    "saveChart": "Grafiği Kaydet",
+    "saveSuccess": "Grafik \"Hesabım\" sayfasına kaydedildi.",
+    "saveError": "Grafik kaydedilemedi."
+  },
+  "saved": {
+    "title": "Kayıtlı Grafiklerim",
+    "subtitle": "Çizimlerini kaydettiğin grafikler. Açmak için karta tıkla.",
+    "emptyTitle": "Henüz kayıtlı grafik yok",
+    "emptyDesc": "Bir grafikte çizim yapıp soldaki kaydet (💾) butonuna bas.",
+    "open": "Aç",
+    "rename": "Yeniden adlandır",
+    "delete": "Sil",
+    "renamePrompt": "Yeni ad:",
+    "deleteConfirm": "\"{{name}}\" grafiği silinsin mi?"
   },
   "sidebar": {
     "openInterest": "Açık Pozisyon",

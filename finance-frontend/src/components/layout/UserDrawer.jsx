@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare } from 'lucide-react';
+import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare, CandlestickChart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../profile/Avatar';
@@ -110,6 +110,13 @@ export default function UserDrawer({ open, onClose }) {
                         sub={t('drawer.whatIfSub')}
                         accent="primary"
                         onClick={() => go('/what-if')}
+                    />
+                    <DrawerItem
+                        icon={CandlestickChart}
+                        label={t('drawer.savedCharts')}
+                        sub={t('drawer.savedChartsSub')}
+                        accent="primary"
+                        onClick={() => go('/saved-charts')}
                     />
                     <DrawerItem
                         icon={Bell}

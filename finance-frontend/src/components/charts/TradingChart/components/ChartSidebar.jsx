@@ -1,8 +1,7 @@
-import React from 'react';
-import { Edit3, Minus, Square, ArrowUpRight, Type, Ruler, Trash2 } from 'lucide-react';
+import { Edit3, Minus, Square, ArrowUpRight, Type, Ruler, Trash2, Save, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export default function ChartSidebar({ onDraw, onRemoveAll }) {
+export default function ChartSidebar({ onDraw, onRemoveAll, onSave, saving }) {
     const { t } = useTranslation('charts');
 
     const DRAWING_TOOLS = [
@@ -30,6 +29,20 @@ export default function ChartSidebar({ onDraw, onRemoveAll }) {
                 </div>
             ))}
             <div className="flex-1"></div>
+            {onSave && (
+                <div className="relative group flex items-center justify-center w-full">
+                    <button
+                        onClick={onSave}
+                        disabled={saving}
+                        className="p-2 text-primary/80 hover:text-primary hover:bg-primary/10 rounded transition-colors disabled:opacity-50"
+                    >
+                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                    </button>
+                    <div className="absolute left-full ml-3 px-2 py-1.5 bg-primary/15 text-primary border border-primary/30 text-xs font-bold rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 pointer-events-none shadow-lg">
+                        {t('tools.saveChart', 'Grafiği Kaydet')}
+                    </div>
+                </div>
+            )}
             <div className="relative group flex items-center justify-center w-full mb-2">
                 <button
                     onClick={onRemoveAll}

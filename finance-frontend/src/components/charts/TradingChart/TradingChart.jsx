@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState, memo, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { registerCustomOverlays } from '../../../config/customOverlays.js';
+import { savedChartApi } from '../../../services/api/savedChartApi';
 import { useChartData } from '../../../hooks/charts/useChartData';
 import { useChartInstance } from './hooks/useChartInstance';
 import { useChartIndicators } from './hooks/useChartIndicators';
@@ -35,6 +38,9 @@ registerCustomOverlays();
  */
 function TradingChart({ asset, initialRange = '1y' }) {
     const klineContainer = useRef();
+    const { t } = useTranslation('charts');
+    const [searchParams] = useSearchParams();
+    const savedChartId = searchParams.get('saved');
 
     const backendSymbol = useMemo(() => normalizeSymbol(asset), [asset]);
     const chartType = useMemo(() => getChartType(asset), [asset]);
@@ -112,7 +118,33 @@ function TradingChart({ asset, initialRange = '1y' }) {
     // Kline + indicator + overlay (drawing tool) hooks
     const chartInstance = useChartInstance(klineContainer, candleType, useRechartsFinal, isNone, handleCrosshairChange);
     const { activeIndicators, toggleIndicator } = useChartIndicators(chartInstance);
-    const { editingText, setEditingText, createOverlay, removeAllOverlays, updateTextOverlay } = useChartOverlays(chartInstance);
+    const {
+        editingText, setEditingText, createOverlay, removeAllOverlays, updateTextOverlay,
+        getOverlaysSnapshot, restoreOverlays
+    } = useChartOverlays(chartInstance);
+
+    // Kaydedilmiş grafik açılışı: payload'ı çek, ayarları uygula, çizimleri restore için beklet
+    const [saving, setSaving] = useState(false);
+    const restorePayloadRef = useRef(null);
+    const restoredRef = useRef(false);
+    useEffect(() => {
+        restoredRef.current = false;
+        restorePayloadRef.current = null;
+        if (!savedChartId) return;
+        let cancelled = false;
+        savedChartApi.getChart(savedChartId)
+            .then(res => {
+                if (cancelled) return;
+                try {
+                    const p = JSON.parse(res?.payload || '{}');
+                    restorePayloadRef.current = Array.isArray(p.overlays) ? p.overlays : [];
+                    if (p.settings?.range) setActiveRange(p.settings.range);
+                    if (p.settings?.candleType) setCandleType(p.settings.candleType);
+                } catch { /* bozuk payload, sessizce geç */ }
+            })
+            .catch(() => { /* erişilemedi */ });
+        return () => { cancelled = true; };
+    }, [savedChartId]);
 
     // KLineCharts data apply + dynamic precision (PEPE/SHIB gibi düşük fiyatlı coinler için)
     useEffect(() => {
@@ -120,8 +152,38 @@ function TradingChart({ asset, initialRange = '1y' }) {
             const maxPrice = chartData.reduce((m, d) => Math.max(m, d.close || 0, d.high || 0), 0);
             chartInstance.current.setPriceVolumePrecision(computePricePrecision(maxPrice), 0);
             chartInstance.current.applyNewData(chartData);
+
+            // Veri uygulandıktan sonra kaydedilmiş çizimleri bir kez geri yükle
+            if (!restoredRef.current && restorePayloadRef.current) {
+                restoreOverlays(restorePayloadRef.current);
+                restoredRef.current = true;
+            }
         }
-    }, [chartData, useRechartsFinal, isNone, candleType]);
+    }, [chartData, useRechartsFinal, isNone, candleType, restoreOverlays]);
+
+    const handleSaveChart = useCallback(async () => {
+        setSaving(true);
+        try {
+            const payload = JSON.stringify({
+                overlays: getOverlaysSnapshot(),
+                settings: { range: activeRange, candleType }
+            });
+            if (savedChartId) {
+                await savedChartApi.updateChart(savedChartId, {
+                    name: displayName, assetCategory: asset?.assetCategory, payload
+                });
+            } else {
+                await savedChartApi.createChart({
+                    symbol: backendSymbol, assetCategory: asset?.assetCategory, name: displayName, payload
+                });
+            }
+            alert(t('tools.saveSuccess', 'Grafik "Hesabım" sayfasına kaydedildi.'));
+        } catch (e) {
+            alert(e?.response?.data?.message || e?.message || t('tools.saveError', 'Grafik kaydedilemedi.'));
+        } finally {
+            setSaving(false);
+        }
+    }, [getOverlaysSnapshot, activeRange, candleType, savedChartId, displayName, asset, backendSymbol, t]);
 
     if (isNone) {
         return <div className="h-125 flex items-center justify-center bg-surface text-text-muted">📊 Desteklenmiyor.</div>;
@@ -172,7 +234,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
 
             <div className="flex flex-1 overflow-hidden relative">
                 {!useRechartsFinal && (
-                    <ChartSidebar onDraw={createOverlay} onRemoveAll={removeAllOverlays} />
+                    <ChartSidebar onDraw={createOverlay} onRemoveAll={removeAllOverlays} onSave={handleSaveChart} saving={saving} />
                 )}
 
                 <div className="flex-1 w-full bg-surface relative p-2">
