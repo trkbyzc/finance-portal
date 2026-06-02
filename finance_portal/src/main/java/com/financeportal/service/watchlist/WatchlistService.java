@@ -105,10 +105,9 @@ public class WatchlistService {
                 .build();
     }
 
-    @SuppressWarnings("unchecked")
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {
         try {
-            return (List<?>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
+            return marketChartService.getHistoricalDataWithEvdsFallback(
                     symbol, assetType.name(), "1mo", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[WATCHLIST] {} için historical fetch başarısız: {}", symbol, e.getMessage());

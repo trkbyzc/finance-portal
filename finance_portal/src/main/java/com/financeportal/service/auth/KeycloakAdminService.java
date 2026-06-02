@@ -171,9 +171,6 @@ public class KeycloakAdminService {
 
     public Map<String, String> generateOTPCredential(String userId, String username) {
         try {
-            RealmResource realmResource = keycloak.realm(realm);
-            UserResource userResource = realmResource.users().get(userId);
-
             String secret = generateBase32Secret();
 
             String qrCodeUrl = String.format(

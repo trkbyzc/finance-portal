@@ -1,7 +1,8 @@
 package com.financeportal.model.dto.user;
 
-import com.financeportal.model.enums.RiskProfile; // 🚀 IMPORT ŞART
+import com.financeportal.model.enums.RiskProfile;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -10,6 +11,6 @@ public class UserResponseDto {
     private UUID id;
     private String name;
     private String email;
-    private com.financeportal.model.enums.RiskProfile riskProfile; // 🚀 BU EKSİKTİ
-    private java.time.LocalDateTime createdAt;
+    private RiskProfile riskProfile;
+    private LocalDateTime createdAt;
 }

@@ -40,7 +40,9 @@ public class CoinGeckoClient {
                         coinGeckoBaseUrl, page
                 );
 
-                ResponseEntity<List> response = restTemplate.exchange(url, HttpMethod.GET, entity, List.class);
+                ResponseEntity<List<Object>> response = restTemplate.exchange(
+                        url, HttpMethod.GET, entity,
+                        new org.springframework.core.ParameterizedTypeReference<List<Object>>() {});
 
                 if (response.getBody() != null) {
                     processCoins(response.getBody(), allRates);

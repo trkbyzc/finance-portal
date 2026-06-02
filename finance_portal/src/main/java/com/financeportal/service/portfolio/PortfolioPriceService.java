@@ -78,7 +78,7 @@ public class PortfolioPriceService {
     private BigDecimal extractCryptoCurrencyPrice(List<?> list, String symbol) {
         if (list == null) return BigDecimal.ZERO;
         for (Object obj : list) {
-            if (obj instanceof LinkedHashMap map && symbol.equals(map.get("currencyCode"))) {
+            if (obj instanceof LinkedHashMap<?, ?> map && symbol.equals(map.get("currencyCode"))) {
                 return convertToBigDecimal(map.get("forexSelling"));
             } else if (obj instanceof CryptoDto crypto && symbol.equals(crypto.getCurrencyCode())) {
                 return crypto.getForexSelling() != null ? crypto.getForexSelling() : BigDecimal.ZERO;
@@ -92,7 +92,7 @@ public class PortfolioPriceService {
     private BigDecimal extractPriceFromList(List<?> list, String symbol) {
         if (list == null || list.isEmpty()) return BigDecimal.ZERO;
         for (Object obj : list) {
-            if (obj instanceof LinkedHashMap map && symbol.equals(map.get("symbol"))) {
+            if (obj instanceof LinkedHashMap<?, ?> map && symbol.equals(map.get("symbol"))) {
                 return convertToBigDecimal(map.get("price"));
             } else if (obj instanceof MarketAssetDto asset && symbol.equals(asset.getSymbol())) {
                 return asset.getPrice() != null ? asset.getPrice() : BigDecimal.ZERO;

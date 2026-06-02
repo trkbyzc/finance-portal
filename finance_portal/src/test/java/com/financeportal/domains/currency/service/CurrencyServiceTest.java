@@ -56,7 +56,7 @@ class CurrencyServiceTest {
     }
 
     @Test
-    void historical_filtersOutOldDatesBeforeCutoff() throws Exception {
+    void historical_filtersOutOldDatesBeforeCutoff() {
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
         // Veri: bir kayıt 2 yıl önce (1y cutoff'unun dışında), bir kayıt bugün (içinde)
         LocalDate today = LocalDate.now();
@@ -75,7 +75,7 @@ class CurrencyServiceTest {
     }
 
     @Test
-    void historical_uppercasesCodeForRedisLookup() throws Exception {
+    void historical_uppercasesCodeForRedisLookup() {
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
         when(valueOps.get("evds:currency:EUR")).thenReturn("[]");
 
@@ -100,7 +100,7 @@ class CurrencyServiceTest {
     }
 
     @Test
-    void historical_skipsRecordsWithoutDate() throws Exception {
+    void historical_skipsRecordsWithoutDate() {
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
         // Bir kaydın "date" alanı yok, diğeri var
         String json = String.format(

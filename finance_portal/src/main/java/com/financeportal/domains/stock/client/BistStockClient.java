@@ -46,7 +46,9 @@ public class BistStockClient {
         try {
             String url = "https://markets.fintables.com/barbar/server/query?fields=C,CP,V&type=equity";
             HttpEntity<String> entity = new HttpEntity<>(getHeaders());
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
 
             if (response.getBody() != null && response.getBody().get("results") != null) {
                 Map<String, List<Map<String, Object>>> results = (Map<String, List<Map<String, Object>>>) response.getBody().get("results");
@@ -93,7 +95,6 @@ public class BistStockClient {
     }
 
     public List<HistoricalDataDto> fetchIndexHistory(String symbol, String range) {
-        long startTime = System.currentTimeMillis();
         List<HistoricalDataDto> historyList = new ArrayList<>();
         try {
             long to = Instant.now().getEpochSecond();

@@ -35,7 +35,7 @@ public class PortfolioAnalyticsService {
 
             return new PortfolioItemDto(item.getSymbol(), item.getAssetType().name(), item.getQuantity(),
                     item.getAveragePrice(), totalCost, currentPrice, currentValue, profitLoss, profitLossPct);
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public PortfolioSummaryDto buildPortfolioSummary(List<PortfolioItem> items) {

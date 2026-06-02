@@ -26,7 +26,7 @@ public class MarketChartService {
     public MarketChartService(List<ChartDataStrategy> strategies, CacheService cacheService, ChartMapper chartMapper) {
         this.chartStrategies = strategies.stream()
                 .sorted(AnnotationAwareOrderComparator.INSTANCE)
-                .collect(Collectors.toList());
+                .toList();
 
         this.cacheService = cacheService;
         this.chartMapper = chartMapper;

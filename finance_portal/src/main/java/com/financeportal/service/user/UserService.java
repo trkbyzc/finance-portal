@@ -78,7 +78,7 @@ public class UserService {
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public UserResponseDto getUserById(UUID id) {

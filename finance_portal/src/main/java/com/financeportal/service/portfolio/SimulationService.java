@@ -229,7 +229,7 @@ public class SimulationService {
         try {
             // TR-altın, currency, crypto, vb. — özel strateji'ler ChartDataStrategy implementasyonlarında.
             // TurkishGoldChartStrategy GRAM_ALTIN/CEYREK_ALTIN/TAM_ALTIN... için GC=F × USDTRY synthesizer'ı koşturur.
-            return (List<?>) (List) marketChartService.getHistoricalDataWithEvdsFallback(
+            return marketChartService.getHistoricalDataWithEvdsFallback(
                     symbol, assetType.name(), "max", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[SIM] {} için historical fetch başarısız: {}", symbol, e.getMessage());
