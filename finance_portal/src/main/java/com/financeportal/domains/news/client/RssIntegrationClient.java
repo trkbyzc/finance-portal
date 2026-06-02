@@ -59,7 +59,17 @@ public class RssIntegrationClient {
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(conn.getInputStream());
+
+        // XXE (XML External Entity) koruması — OWASP standardı. Dış RSS XML'lerinden
+        // <!DOCTYPE> / <!ENTITY> ile dosya okuma, SSRF, billion-laughs attack engellenir.
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        return dbf.newDocumentBuilder().parse(conn.getInputStream());
     }
 
     private String cleanHtml(String html) {
