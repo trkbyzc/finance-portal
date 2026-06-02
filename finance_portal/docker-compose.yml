@@ -34,6 +34,10 @@ services:
       - "8080:8080"
     volumes:
       - ./keycloak-themes:/opt/keycloak/themes
+      # Banlı kullanıcıyı 2FA öncesi engelleyen özel authenticator (SPI).
+      # JAR'ı önce derle: ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package
+      # start-dev provider'ları açılışta otomatik build eder; sonra realm flow'una eklenmeli (README).
+      - ./keycloak-providers/ban-authenticator/target/ban-authenticator.jar:/opt/keycloak/providers/ban-authenticator.jar
     depends_on:
       - postgres
     restart: unless-stopped
