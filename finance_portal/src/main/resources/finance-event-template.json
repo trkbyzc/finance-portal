@@ -1,0 +1,49 @@
+{
+  "//comment": "log4j2 JsonTemplateLayout şablonu — Kafka -> OpenSearch (finance-logs-*).",
+  "//comment2": "OTel Java Agent ThreadContext'e trace_id/span_id/trace_flags yazar. Mevcut OpenSearch dashboard'ları mdc.traceId / mdc.spanId alanlarını beklediği için burada açıkça eşliyoruz (trace_id -> traceId). Böylece agent'a geçişte dashboard'lar bozulmaz.",
+  "@timestamp": {
+    "$resolver": "timestamp",
+    "pattern": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+      "timeZone": "UTC"
+    }
+  },
+  "@version": "1",
+  "level": {
+    "$resolver": "level",
+    "field": "name"
+  },
+  "logger_name": {
+    "$resolver": "logger",
+    "field": "name"
+  },
+  "thread_name": {
+    "$resolver": "thread",
+    "field": "name"
+  },
+  "message": {
+    "$resolver": "message",
+    "stringified": true
+  },
+  "mdc": {
+    "traceId": {
+      "$resolver": "mdc",
+      "key": "trace_id"
+    },
+    "spanId": {
+      "$resolver": "mdc",
+      "key": "span_id"
+    },
+    "traceFlags": {
+      "$resolver": "mdc",
+      "key": "trace_flags"
+    }
+  },
+  "stack_trace": {
+    "$resolver": "exception",
+    "field": "stackTrace",
+    "stackTrace": {
+      "stringified": true
+    }
+  }
+}

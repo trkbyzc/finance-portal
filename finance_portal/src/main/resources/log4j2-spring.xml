@@ -3,11 +3,15 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <!-- charset="UTF-8" şart: Windows default cp1254/cp857 Türkçe karakteri mojibake ediyor ("EMTİA" → "EMT─░A") -->
-            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{traceId:-}] [SpanId: %X{spanId:-}] %c{1}:%L - %m%n" />
+            <!-- trace_id / span_id: OTel Java Agent (-javaagent) ThreadContext'e bu anahtarlarla yazar.
+                 (Eski micrometer-tracing 'traceId'/'spanId' kullanıyordu; agent'a geçişte snake_case oldu.) -->
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{trace_id:-}] [SpanId: %X{span_id:-}] %c{1}:%L - %m%n" />
         </Console>
 
+        <!-- Kafka -> Logstash -> OpenSearch (finance-logs-*). Özel şablon trace_id'yi
+             mdc.traceId'ye eşler; mevcut OpenSearch dashboard'ları değişmeden çalışır. -->
         <Kafka name="Kafka" topic="finance-app-logs" syncSend="false">
-            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"/>
+            <JsonTemplateLayout eventTemplateUri="classpath:finance-event-template.json"/>
             <Property name="bootstrap.servers">localhost:9092</Property>
         </Kafka>
     </Appenders>
