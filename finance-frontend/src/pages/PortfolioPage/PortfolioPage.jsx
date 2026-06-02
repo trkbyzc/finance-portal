@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Eye, EyeOff, FileSpreadsheet, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import { exportPortfolioExcel, exportPortfolioPdf, loadLogoDataUrl } from '../../utils/portfolioExport';
 import { portfolioApi } from '../../services/api/portfolioApi';
+import { economyApi } from '../../services/api';
 import AddToPortfolioModal from '../../components/portfolio/AddToPortfolioModal';
 import BuyMoreModal from '../../components/portfolio/BuyMoreModal';
 import SellModal from '../../components/portfolio/SellModal';
@@ -51,6 +52,36 @@ const PortfolioPage = () => {
 
     const { getCurrentPrice, getDailyChange, calculateProfitLoss } = usePortfolioPricing(portfolio);
     const { activeTab, setActiveTab, tabsState, filteredPortfolio } = usePortfolioTabs(portfolio);
+
+    // Reel (enflasyon-düzeltilmiş) getiri için: en erken alış tarihi (işlemler) + CPI endeksi (EVDS)
+    const { data: txPage } = useQuery({
+        queryKey: ['portfolio-tx-all'],
+        queryFn: () => portfolioApi.getTransactions({ size: 500 }),
+        enabled: !!portfolio && portfolio.length > 0
+    });
+    const { data: cpiSeries } = useQuery({
+        queryKey: ['cpi-cumulative-10y'],
+        queryFn: () => economyApi.getCumulativeInflation('10y'),
+        staleTime: 60 * 60 * 1000
+    });
+
+    const inflationFactor = useMemo(() => {
+        const cpi = Array.isArray(cpiSeries) ? cpiSeries : (cpiSeries?.content || []);
+        const txs = txPage?.content || (Array.isArray(txPage) ? txPage : []);
+        if (!cpi.length || !txs.length) return null;
+        const buys = txs.filter(tx => tx.side === 'BUY' && tx.executedAt).map(tx => tx.executedAt);
+        if (!buys.length) return null;
+        const earliest = buys.reduce((a, b) => (a < b ? a : b)); // ISO string min
+        const sorted = [...cpi].filter(p => p.date && p.value != null).sort((a, b) => (a.date < b.date ? -1 : 1));
+        if (!sorted.length) return null;
+        const cpiNow = Number(sorted[sorted.length - 1].value);
+        const targetMonth = earliest.slice(0, 7); // YYYY-MM
+        let cpiThen = null;
+        for (const p of sorted) { if (p.date.slice(0, 7) <= targetMonth) cpiThen = Number(p.value); else break; }
+        if (cpiThen == null) cpiThen = Number(sorted[0].value);
+        if (!cpiNow || !cpiThen) return null;
+        return cpiNow / cpiThen;
+    }, [cpiSeries, txPage]);
 
     // Excel / PDF dışa aktarma — aktif sekmedeki holding'leri sisteme uygun belgeye döker
     const buildExportData = () => {
@@ -212,6 +243,7 @@ const PortfolioPage = () => {
                     portfolio={filteredPortfolio}
                     calculateProfitLoss={calculateProfitLoss}
                     hidden={hideBalances}
+                    inflationFactor={inflationFactor}
                 />
 
                 {filteredPortfolio && filteredPortfolio.length > 0 && (

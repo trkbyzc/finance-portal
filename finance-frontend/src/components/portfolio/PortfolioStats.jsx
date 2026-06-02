@@ -5,7 +5,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 
 const MASK = '••••••';
 
-const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false }) => {
+const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflationFactor = null }) => {
     const { t } = useTranslation('portfolio');
     const { formatPrice } = useCurrency();
 
@@ -26,6 +26,12 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false }) => {
     const returnRate = totalInvestment > 0
         ? ((totalProfitLoss / totalInvestment) * 100)
         : 0;
+
+    // Reel (enflasyon-düzeltilmiş) K/Z: maliyet bugünkü liraya çekilir (× CPI_now/CPI_alış).
+    const hasReal = inflationFactor != null && inflationFactor > 0 && totalInvestment > 0;
+    const realCost = hasReal ? totalInvestment * inflationFactor : null;
+    const realProfitLoss = hasReal ? totalValue - realCost : null;
+    const realReturnRate = hasReal ? (realProfitLoss / realCost) * 100 : null;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -57,6 +63,14 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false }) => {
                 <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
                     {hidden ? MASK : `${totalProfitLoss >= 0 ? '+' : ''}${formatPrice(totalProfitLoss, 'TRY')}`}
                 </p>
+                {hasReal && (
+                    <p className="text-xs mt-1 text-text-muted" title={t('stats.realPnlTip', 'Enflasyona göre düzeltilmiş')}>
+                        {t('stats.realPnl', 'Reel')}:{' '}
+                        <span className={realProfitLoss >= 0 ? 'text-buy' : 'text-sell'}>
+                            {hidden ? MASK : `${realProfitLoss >= 0 ? '+' : ''}${formatPrice(realProfitLoss, 'TRY')} (${realReturnRate >= 0 ? '+' : ''}${realReturnRate.toFixed(2)}%)`}
+                        </span>
+                    </p>
+                )}
             </div>
 
             <div className="bg-surface-2 rounded-lg p-6">

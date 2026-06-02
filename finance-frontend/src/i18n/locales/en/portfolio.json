@@ -12,6 +12,8 @@
     "totalValue": "Total Value",
     "totalCost": "Total Cost",
     "totalPnl": "Total P/L",
+    "realPnl": "Real",
+    "realPnlTip": "Inflation-adjusted profit/loss",
     "totalPnlPercent": "P/L (%)",
     "dailyPnl": "Daily P/L",
     "assetCount": "Asset Count"
