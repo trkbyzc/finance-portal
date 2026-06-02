@@ -1,0 +1,22 @@
+[
+  { "isin": "US900123DV94", "slug": "tuerkei-_republikdl-notes_202631-bond-2031-us900123dv94", "currency": "USD" },
+  { "isin": "US900123DS65", "slug": "tuerkei-_republikdl-notes_202536-bond-2036-us900123ds65", "currency": "USD" },
+  { "isin": "US900123DR82", "slug": "tuerkei-_republikdl-notes_202535-bond-2035-us900123dr82", "currency": "USD" },
+  { "isin": "US900123DP27", "slug": "tuerkei-_republikdl-notes_202532-bond-2032-us900123dp27", "currency": "USD" },
+  { "isin": "US900123DN78", "slug": "tuerkei-_republikdl-notes_202435-bond-2035-us900123dn78", "currency": "USD" },
+  { "isin": "US900123DK30", "slug": "tuerkei-_republikdl-notes_202434-bond-2034-us900123dk30", "currency": "USD" },
+  { "isin": "US900123DL13", "slug": "tuerkei-_republikdl-notes_202432-bond-2032-us900123dl13", "currency": "USD" },
+  { "isin": "US900123DG28", "slug": "tuerkei-_republikdl-notes_202333-bond-2033-us900123dg28", "currency": "USD" },
+  { "isin": "US900123DH01", "slug": "tuerkei-_republikdl-notes_202329-bond-2029-us900123dh01", "currency": "USD" },
+  { "isin": "US900123DF45", "slug": "tuerkei-_republikdl-notes_202228-bond-2028-us900123df45", "currency": "USD" },
+  { "isin": "US900123DD96", "slug": "tuerkei-_republikdl-notes_202133-bond-2033-us900123dd96", "currency": "USD" },
+  { "isin": "US900123DC14", "slug": "tuerkei-_republikdl-notes_202131-bond-2031-us900123dc14", "currency": "USD" },
+  { "isin": "US900123DA57", "slug": "tuerkei-_republikdl-notes_202031-bond-2031-us900123da57", "currency": "USD" },
+  { "isin": "US900123CY43", "slug": "tuerkei-_republikdl-notes_202030-bond-2030-us900123cy43", "currency": "USD" },
+  { "isin": "US900123CT57", "slug": "tuerkei-_republikdl-notes_201929-bond-2029-us900123ct57", "currency": "USD" },
+  { "isin": "US900123CP36", "slug": "tuerkei-_republikdl-notes_201828-bond-2028-us900123cp36", "currency": "USD" },
+  { "isin": "US900123BJ84", "slug": "6_000-tuerkei-republik-bond-2041-us900123bj84", "currency": "USD" },
+  { "isin": "US900123BG46", "slug": "6_750-tuerkei-republik-bond-2040-us900123bg46", "currency": "USD" },
+  { "isin": "US900123AT75", "slug": "8_000-tuerkei-republik-bond-2034-us900123at75", "currency": "USD" },
+  { "isin": "US900123AL40", "slug": "11_875-tuerkei-republik-bond-2030-us900123al40", "currency": "USD" }
+]

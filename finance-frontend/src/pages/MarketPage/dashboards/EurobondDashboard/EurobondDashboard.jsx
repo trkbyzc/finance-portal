@@ -1,36 +1,41 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { bondFundApi, historicalApi } from '../../../../services/api';
-import { EMB_SYMBOL, SectionHeader } from './components/eurobondShared';
-import EurobondKpiCards from './components/EurobondKpiCards';
-import EurobondAggregateCharts from './components/EurobondAggregateCharts';
-import EmbAreaChart from './components/EmbAreaChart';
+import EurobondList from './components/EurobondList';
+import EurobondAreaChart from './components/EurobondAreaChart';
 
 /**
- * Eurobond dashboard'u — orchestrator.
+ * Eurobond dashboard'u — master-detail.
  *
- * 3 ana query (eurobond list / EMB historical / aggregate stats) ve 3 alt section:
- *   - KPI cards (üst)
- *   - Aggregate charts (yıl bazlı stock, currency mix, maturity dağılımı)
- *   - EMB ETF area chart (range selector ile)
+ * Solda seçili Türkiye Hazine eurobondunun area grafiği, sağda bono listesi
+ * (kupon/vade/döviz/fiyat/getiri/değişim). Liste businessinsider'dan canlı çekilir;
+ * grafik /market-data/historical?cat=EUROBOND üzerinden (EurobondChartStrategy).
  */
 export default function EurobondDashboard() {
     const navigate = useNavigate();
-    const { t } = useTranslation(['markets', 'asset']);
-    const [activeRange, setActiveRange] = useState('5y');
+    const { t } = useTranslation(['markets', 'asset', 'common']);
+    const [selectedIsin, setSelectedIsin] = useState(null);
+    const [range, setRange] = useState('1y');
 
-    const { data: eurobondList = [], isLoading: listLoading } = useQuery({
+    const { data: bonds = [], isLoading: listLoading } = useQuery({
         queryKey: ['eurobond-list'],
         queryFn: async () => (await bondFundApi.getEurobondList()) || []
     });
 
-    const { data: embHistory = [], isLoading: embLoading } = useQuery({
-        queryKey: ['emb-chart', activeRange],
+    // Seçili bono: kullanıcı seçimi varsa o, yoksa ilk bono (effect/setState yok — türetilmiş).
+    const selected = useMemo(
+        () => bonds.find(b => b.isin === selectedIsin) || bonds[0] || null,
+        [bonds, selectedIsin]
+    );
+
+    const { data: history = [], isLoading: chartLoading } = useQuery({
+        queryKey: ['eurobond-chart', selected?.isin, range],
+        enabled: !!selected?.isin,
         queryFn: async () => {
-            const res = await historicalApi.getData({ symbol: EMB_SYMBOL, category: 'EUROBOND', range: activeRange, interval: '1d' });
+            const res = await historicalApi.getData({ symbol: selected.isin, category: 'EUROBOND', range, interval: '1d' });
             const arr = Array.isArray(res) ? res : (res?.priceData || res || []);
             return arr
                 .filter(p => p && (p.close != null || p.price != null))
@@ -44,30 +49,6 @@ export default function EurobondDashboard() {
         }
     });
 
-    const { data: aggregate, isLoading: aggLoading } = useQuery({
-        queryKey: ['eurobond-aggregate'],
-        queryFn: async () => (await bondFundApi.getEurobondAggregate()) || null
-    });
-
-    const embAsset = eurobondList[0] || null;
-
-    const totalStockUsd = useMemo(() => {
-        const arr = aggregate?.totalStockByYear || [];
-        if (!arr.length) return null;
-        const last = arr[arr.length - 1];
-        return last?.value != null ? Number(last.value) : null;
-    }, [aggregate]);
-
-    const hasAggregate = aggregate &&
-        ((aggregate.totalStockByYear?.length || 0) +
-         (aggregate.currencyMix?.length || 0) +
-         (aggregate.maturityMix?.length || 0)) > 0;
-
-    const handleAssetClick = () => {
-        if (!embAsset) return;
-        navigate(`/chart/${encodeURIComponent(embAsset.symbol)}?cat=EUROBOND`);
-    };
-
     return (
         <div className="min-h-screen bg-bg text-text">
           <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
@@ -80,32 +61,32 @@ export default function EurobondDashboard() {
 
             <div className="mb-8">
                 <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
-                    <span className="w-2 h-8 bg-primary rounded-full"></span>
+                    <span className="w-2 h-8 bg-warning rounded-full"></span>
                     {t('markets:eurobonds.headerTitle')}
                 </h1>
+                <p className="text-text-muted text-sm mt-2 ml-5">{t('markets:eurobonds.headerSubtitle')}</p>
             </div>
 
-            <EurobondKpiCards
-                embAsset={embAsset}
-                listLoading={listLoading}
-                aggregate={aggregate}
-                aggLoading={aggLoading}
-                hasAggregate={hasAggregate}
-                totalStockUsd={totalStockUsd}
-            />
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div className="xl:col-span-2 h-162.5">
+                    <EurobondAreaChart
+                        bond={selected}
+                        history={history}
+                        loading={chartLoading}
+                        activeRange={range}
+                        setActiveRange={setRange}
+                    />
+                </div>
 
-            <SectionHeader title={t('markets:eurobonds.externalDebt')} sub="EVDS" />
-            <EurobondAggregateCharts aggregate={aggregate} hasAggregate={hasAggregate} />
-
-            <SectionHeader title="EMB ETF (USD EM Bond Proxy)" sub="iShares J.P. Morgan USD Emerging Markets Bond" />
-            <EmbAreaChart
-                activeRange={activeRange}
-                setActiveRange={setActiveRange}
-                embHistory={embHistory}
-                embLoading={embLoading}
-                embAsset={embAsset}
-                onAssetClick={handleAssetClick}
-            />
+                <div>
+                    <EurobondList
+                        bonds={bonds}
+                        selected={selected}
+                        onSelect={(b) => setSelectedIsin(b.isin)}
+                        loading={listLoading}
+                    />
+                </div>
+            </div>
           </div>
         </div>
     );

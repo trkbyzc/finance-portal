@@ -109,6 +109,8 @@ external-api:
     xml-url: ${TCMB_XML_URL:https://www.tcmb.gov.tr/kurlar/today.xml}
   binance:
     base-url: ${BINANCE_BASE_URL:https://api.binance.com}
+  businessinsider:
+    base-url: ${BUSINESSINSIDER_BASE_URL:https://markets.businessinsider.com}
   fred:
     base-url: ${FRED_BASE_URL:https://api.stlouisfed.org}
     api-key: ${FRED_API_KEY:}

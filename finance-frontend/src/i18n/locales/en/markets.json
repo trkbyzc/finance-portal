@@ -181,13 +181,17 @@
     }
   },
   "eurobonds": {
-    "headerTitle": "Turkey Eurobond Overview",
-    "headerSubtitle": "External debt stock and 10Y TR USD bond yield",
-    "externalDebt": "External Debt Overview",
-    "tr10y": "TR 10Y USD Bond Yield",
-    "currencyMix": "Currency Mix",
-    "maturityMix": "Maturity Mix",
-    "totalStock": "Total Eurobond Stock"
+    "headerTitle": "Turkey Treasury Eurobonds",
+    "headerSubtitle": "USD-denominated TR Treasury eurobonds — click a bond to see its price chart",
+    "cols": {
+      "bond": "Bond",
+      "coupon": "Coupon",
+      "maturity": "Maturity",
+      "currency": "Currency",
+      "price": "Price",
+      "yield": "Yield",
+      "change": "Change"
+    }
   },
   "funds": {
     "trHeaderTitle": "Turkish Investment Funds",

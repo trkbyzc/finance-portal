@@ -181,13 +181,17 @@
     }
   },
   "eurobonds": {
-    "headerTitle": "Türkiye Eurobond Görünümü",
-    "headerSubtitle": "Dış borçlanma stoku ve 10 yıllık TR USD tahvil getirisi",
-    "externalDebt": "Dış Borçlanma Görünümü",
-    "tr10y": "TR 10Y USD Tahvil Getirisi",
-    "currencyMix": "Döviz Cinsi Dağılımı",
-    "maturityMix": "Vade Dağılımı",
-    "totalStock": "Toplam Eurobond Stoku"
+    "headerTitle": "Türkiye Hazine Eurobondları",
+    "headerSubtitle": "USD cinsi TR Hazine eurobondları — bir bonoya tıklayıp fiyat grafiğini görün",
+    "cols": {
+      "bond": "Bono",
+      "coupon": "Kupon",
+      "maturity": "Vade",
+      "currency": "Döviz",
+      "price": "Fiyat",
+      "yield": "Getiri",
+      "change": "Değişim"
+    }
   },
   "funds": {
     "trHeaderTitle": "Türk Yatırım Fonları",

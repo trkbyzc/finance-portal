@@ -1,69 +1,88 @@
 package com.financeportal.domains.eurobond.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.financeportal.client.yahoo.YahooQuoteClient;
-import com.financeportal.domains.eurobond.dto.EurobondAggregateDto;
-import com.financeportal.model.dto.market.MarketAssetDto;
+import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient;
+import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient.BusinessInsiderBondDetail;
+import com.financeportal.domains.eurobond.config.EurobondCatalog;
+import com.financeportal.domains.eurobond.dto.EurobondDto;
+import com.financeportal.service.cache.CacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.Collections;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Eurobond verilerini sağlar.
+ * Türkiye Hazine eurobond listesini sağlar.
  *
- * - getEurobondList(): Yahoo'dan EMB (iShares J.P. Morgan USD EM Bond ETF) fiyatı çekilir.
- *   Türkiye'nin USD cinsi Eurobond getirisinin en pratik açık-kaynak proxy'si — Türkiye EMB ETF'in
- *   yaklaşık %8-10'unu oluşturur. Doğrudan TR Eurobond yield serisi açık kaynaklarda yok.
- *
- * - getAggregateOverview(): EurobondSyncService tarafından Redis'e yazılan EVDS aggregate
- *   ("Türkiye Dış Borçlanma Görünümü") verisi okunur.
+ * Kimlikler {@link EurobondCatalog}'tan (küratörlü), fiyat/getiri/kupon/vade/değişim/döviz
+ * businessinsider'dan CANLI çekilir ({@link BusinessInsiderBondClient}). Sonuç 6 saat cache'lenir.
+ * {@link #resolveTkData(String)} grafik stratejisinin isin→tkData çözümü için kullanılır.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EurobondService {
 
-    private static final String AGGREGATE_KEY = "eurobond:aggregate:overview";
-    private static final String[] EUROBOND_PROXY_SYMBOLS = { "EMB" };
+    private static final String CACHE_KEY = "cache:eurobonds";
+    private static final long CACHE_TTL_MINUTES = 360; // 6 saat
 
-    private final YahooQuoteClient yahooQuoteClient;
-    private final StringRedisTemplate stringRedisTemplate;
-    private final ObjectMapper objectMapper;
+    private final EurobondCatalog catalog;
+    private final BusinessInsiderBondClient client;
+    private final CacheService cacheService;
 
-    public List<MarketAssetDto> getEurobondList() {
-        log.info("[EUROBOND] Yahoo'dan EMB ETF (USD EM Bond proxy) çekiliyor.");
-        List<MarketAssetDto> list = yahooQuoteClient.fetchQuotes(EUROBOND_PROXY_SYMBOLS, "EUROBOND");
-
-        // Yahoo'dan dönen DTO'lara EUROBOND-spesifik metadata ekle
-        for (MarketAssetDto dto : list) {
-            dto.setAssetCategory("EUROBOND");
-            dto.setChartType("LINE");
-            if (dto.getName() == null || dto.getName().isBlank()) {
-                dto.setName("iShares J.P. Morgan USD EM Bond ETF");
-            }
-        }
-        return list;
+    public List<EurobondDto> getEurobondList() {
+        return cacheService.getOrFetch(CACHE_KEY, this::buildList, CACHE_TTL_MINUTES);
     }
 
-    public EurobondAggregateDto getAggregateOverview() {
-        try {
-            String jsonStr = stringRedisTemplate.opsForValue().get(AGGREGATE_KEY);
-            if (jsonStr != null && !jsonStr.isEmpty()) {
-                return objectMapper.readValue(jsonStr, EurobondAggregateDto.class);
+    /** ISIN (sembol) → businessinsider tkData; bulunamazsa null. */
+    public String resolveTkData(String symbol) {
+        if (symbol == null) return null;
+        String target = symbol.trim().toUpperCase(Locale.ENGLISH);
+        return getEurobondList().stream()
+                .filter(b -> target.equalsIgnoreCase(b.getIsin()))
+                .map(EurobondDto::getTkData)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private List<EurobondDto> buildList() {
+        List<EurobondDto> result = new ArrayList<>();
+        for (EurobondCatalog.CatalogEntry entry : catalog.getEntries()) {
+            BusinessInsiderBondDetail detail = client.fetchDetail(entry.getSlug());
+            if (detail == null) {
+                log.warn("[EUROBOND] Detay alınamadı, atlanıyor: {}", entry.getIsin());
+                continue;
             }
-        } catch (Exception e) {
-            log.error("[EUROBOND] Aggregate okuma hatası: {}", e.getMessage());
+            String currency = detail.getCurrency() != null ? detail.getCurrency() : entry.getCurrency();
+            result.add(EurobondDto.builder()
+                    .symbol(entry.getIsin())
+                    .isin(entry.getIsin())
+                    .name(buildName(detail.getCoupon(), detail.getMaturity(), currency))
+                    .currency(currency)
+                    .coupon(detail.getCoupon())
+                    .maturity(detail.getMaturity())
+                    .bondYield(detail.getBondYield())
+                    .price(detail.getPrice())
+                    .changePercent(detail.getChangePercent())
+                    .tkData(detail.getTkData())
+                    .chartType("LINE")
+                    .assetCategory("EUROBOND")
+                    .build());
         }
-        return new EurobondAggregateDto(
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                LocalDate.now().toString()
-        );
+        log.info("[EUROBOND] {} eurobond derlendi (katalog: {}).", result.size(), catalog.getEntries().size());
+        return result;
+    }
+
+    /** "Türkiye %6.375 2031 (USD)" — kupon/vade yoksa makul fallback. */
+    private String buildName(BigDecimal coupon, String maturity, String currency) {
+        String year = (maturity != null && maturity.length() >= 4) ? maturity.substring(0, 4) : "";
+        StringBuilder sb = new StringBuilder("Türkiye");
+        if (coupon != null) sb.append(" %").append(coupon.stripTrailingZeros().toPlainString());
+        if (!year.isEmpty()) sb.append(' ').append(year);
+        if (currency != null) sb.append(" (").append(currency).append(')');
+        return sb.toString();
     }
 }

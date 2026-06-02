@@ -6,7 +6,6 @@ export const bondFundApi = {
     getTrFunds: () => apiClient.get('/market-data/tr-funds'),
     getGlobalFunds: () => apiClient.get('/market-data/global-funds'),
 
-    // Eurobond
-    getEurobondList: () => apiClient.get('/market-data/eurobonds'),
-    getEurobondAggregate: () => apiClient.get('/market-data/eurobonds/aggregate')
+    // Eurobond — Türkiye Hazine eurobondları (businessinsider canlı)
+    getEurobondList: () => apiClient.get('/market-data/eurobonds')
 };
