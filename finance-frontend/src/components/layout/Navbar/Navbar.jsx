@@ -127,7 +127,7 @@ export default function Navbar() {
                     </div>
 
                     {/* SAĞ: Live + Theme + Lang + User */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
                         <div className="hidden sm:block">
                             <NavActions />
                         </div>
