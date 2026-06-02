@@ -1,5 +1,6 @@
 package com.financeportal.domains.eurobond.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient.BusinessInsiderBondDetail;
 import com.financeportal.domains.eurobond.config.EurobondCatalog;
@@ -32,9 +33,15 @@ public class EurobondService {
     private final EurobondCatalog catalog;
     private final BusinessInsiderBondClient client;
     private final CacheService cacheService;
+    private final ObjectMapper objectMapper;
 
     public List<EurobondDto> getEurobondList() {
-        return cacheService.getOrFetch(CACHE_KEY, this::buildList, CACHE_TTL_MINUTES);
+        // CacheService (GenericJackson2) cache-hit'te elemanları LinkedHashMap olarak döndürür;
+        // tip güvenliği için ObjectMapper ile EurobondDto'ya çeviriyoruz (cache-miss'te zaten DTO).
+        List<?> raw = cacheService.getOrFetch(CACHE_KEY, this::buildList, CACHE_TTL_MINUTES);
+        return raw.stream()
+                .map(o -> objectMapper.convertValue(o, EurobondDto.class))
+                .toList();
     }
 
     /** ISIN (sembol) → businessinsider tkData; bulunamazsa null. */

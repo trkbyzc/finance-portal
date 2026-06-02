@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Search, ExternalLink } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -7,11 +7,11 @@ const fmt = (v, digits = 2) => (v == null || Number.isNaN(Number(v)) ? '—' : N
 const ccySymbol = (c) => (c === 'EUR' ? '€' : '$');
 
 /**
- * Türkiye Hazine eurobond listesi — arama + tablo (TurkishFundsDashboard tablo deseni).
- * Satır tıklama → soldaki grafik için seçim; "↗" → tam detay sayfası (/chart/:isin?cat=EUROBOND).
- * Sütunlar: İsim/ISIN, Kupon, Vade, Döviz, Fiyat, Getiri, Günlük Değişim.
+ * Türkiye Hazine eurobond listesi — VİOP tarzı tam genişlik tablo.
+ * Bir satıra tıklayınca o bononun grafiği açılır (/chart/:isin?cat=EUROBOND).
+ * Sütunlar: Bono (İsim + ISIN/Döviz), Kupon, Vade, Fiyat, Getiri, Günlük Değişim.
  */
-export default function EurobondList({ bonds, selected, onSelect, loading }) {
+export default function EurobondList({ bonds, loading }) {
     const navigate = useNavigate();
     const { t } = useTranslation(['markets', 'common']);
     const [query, setQuery] = useState('');
@@ -27,79 +27,71 @@ export default function EurobondList({ bonds, selected, onSelect, loading }) {
     }, [bonds, query]);
 
     return (
-        <div className="bg-surface border border-border rounded-2xl p-5 shadow-2xl flex flex-col h-162.5">
-            <div className="relative mb-4">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+        <div>
+            {/* Arama */}
+            <div className="relative w-full md:w-96 mb-6">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input
                     type="text"
-                    placeholder={t('common:searchPlaceholder')}
+                    placeholder={t('markets:common.searchPlaceholder')}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border text-text rounded-xl outline-none focus:border-warning transition text-sm"
+                    className="w-full pl-12 pr-4 py-3 bg-surface border border-border focus:border-primary text-text rounded-xl outline-none text-sm transition shadow-lg"
                 />
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-                {loading ? (
-                    <div className="h-full flex items-center justify-center text-text-muted">{t('common:status.loading')}</div>
-                ) : !filtered.length ? (
-                    <div className="h-full flex items-center justify-center text-text-muted">{t('common:status.noResults')}</div>
-                ) : (
-                    <table className="w-full text-left">
-                        <thead className="sticky top-0 bg-surface z-10">
-                        <tr className="text-text-muted text-[10px] uppercase border-b border-border">
-                            <th className="pb-2 font-bold">{t('markets:eurobonds.cols.bond')}</th>
-                            <th className="pb-2 font-bold text-right">{t('markets:eurobonds.cols.coupon')}</th>
-                            <th className="pb-2 font-bold text-right hidden sm:table-cell">{t('markets:eurobonds.cols.maturity')}</th>
-                            <th className="pb-2 font-bold text-right">{t('markets:eurobonds.cols.price')}</th>
-                            <th className="pb-2 font-bold text-right">{t('markets:eurobonds.cols.yield')}</th>
-                            <th className="pb-2 font-bold text-right">{t('markets:eurobonds.cols.change')}</th>
-                            <th className="pb-2"></th>
+            <div className="bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
+                <div className="overflow-x-auto max-h-175 custom-scrollbar">
+                    <table className="w-full text-left border-collapse min-w-190">
+                        <thead className="bg-surface-2 sticky top-0 z-10 shadow-md">
+                        <tr>
+                            <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider">{t('markets:eurobonds.cols.bond')}</th>
+                            <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:eurobonds.cols.coupon')}</th>
+                            <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:eurobonds.cols.maturity')}</th>
+                            <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:eurobonds.cols.price')}</th>
+                            <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:eurobonds.cols.yield')}</th>
+                            <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('markets:eurobonds.cols.change')}</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {filtered.map((b) => {
-                            const isSelected = selected && selected.isin === b.isin;
-                            const change = b.changePercent != null ? Number(b.changePercent) : null;
-                            const isPositive = change != null && change >= 0;
-                            return (
-                                <tr
-                                    key={b.isin}
-                                    onClick={() => onSelect(b)}
-                                    className={`border-b border-border/50 cursor-pointer group ${isSelected ? 'bg-warning/10' : 'hover:bg-surface-2'}`}
-                                >
-                                    <td className="py-3 pr-2">
-                                        <div className={`font-bold text-xs ${isSelected ? 'text-warning' : 'text-text'}`}>{b.name}</div>
-                                        <div className="text-[9px] text-text-muted">{b.isin} · {b.currency}</div>
-                                    </td>
-                                    <td className="py-3 text-right font-mono text-xs text-text">{fmt(b.coupon)}%</td>
-                                    <td className="py-3 text-right font-mono text-[11px] text-text-muted hidden sm:table-cell">{b.maturity || '—'}</td>
-                                    <td className="py-3 text-right font-mono text-xs font-bold text-text">{ccySymbol(b.currency)}{fmt(b.price)}</td>
-                                    <td className="py-3 text-right font-mono text-xs text-warning">{fmt(b.bondYield)}%</td>
-                                    <td className="py-3 text-right font-mono text-xs font-bold">
-                                        {change == null ? <span className="text-text-muted">—</span> : (
-                                            <span className={isPositive ? 'text-buy' : 'text-sell'}>{isPositive ? '+' : ''}{change.toFixed(2)}%</span>
-                                        )}
-                                    </td>
-                                    <td className="py-3 pl-1 text-right">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); navigate(`/chart/${encodeURIComponent(b.isin)}?cat=EUROBOND`); }}
-                                            title={t('common:viewDetail')}
-                                            className="text-text-muted hover:text-warning transition"
-                                        >
-                                            <ExternalLink size={14} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        <tbody className="divide-y divide-[#2a2e39]">
+                        {loading ? (
+                            <tr><td colSpan="6" className="p-10 text-center text-text-muted">{t('common:status.loading')}</td></tr>
+                        ) : !filtered.length ? (
+                            <tr><td colSpan="6" className="p-10 text-center text-text-muted">{t('markets:common.noResults')}</td></tr>
+                        ) : (
+                            filtered.map((b) => {
+                                const change = b.changePercent != null ? Number(b.changePercent) : null;
+                                const isPositive = change != null && change >= 0;
+                                return (
+                                    <tr
+                                        key={b.isin}
+                                        onClick={() => navigate(`/chart/${encodeURIComponent(b.isin)}?cat=EUROBOND`)}
+                                        className="hover:bg-surface-2 transition cursor-pointer group"
+                                    >
+                                        <td className="p-5 whitespace-nowrap">
+                                            <div className="font-bold text-text group-hover:text-primary transition">{b.name}</div>
+                                            <div className="text-[11px] text-text-muted">{b.isin} · {b.currency}</div>
+                                        </td>
+                                        <td className="p-5 text-right font-mono text-sm text-text whitespace-nowrap">{fmt(b.coupon)}%</td>
+                                        <td className="p-5 text-right font-mono text-sm text-text-muted whitespace-nowrap">{b.maturity || '—'}</td>
+                                        <td className="p-5 text-right font-mono text-sm font-bold text-text whitespace-nowrap">{ccySymbol(b.currency)}{fmt(b.price)}</td>
+                                        <td className="p-5 text-right font-mono text-sm text-primary whitespace-nowrap">{fmt(b.bondYield)}%</td>
+                                        <td className="p-5 text-right font-mono text-sm font-bold whitespace-nowrap">
+                                            {change == null ? <span className="text-text-muted">—</span> : (
+                                                <span className={isPositive ? 'text-buy' : 'text-sell'}>{isPositive ? '+' : ''}{change.toFixed(2)}%</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
                         </tbody>
                     </table>
-                )}
+                </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-border text-[10px] text-text-muted">
-                {t('common:source')}: markets.businessinsider.com · {t('common:totalCount', { count: filtered.length })}
+            <div className="mt-3 text-[11px] text-text-muted">
+                {t('markets:common.source')}: markets.businessinsider.com · {t('markets:common.totalCount', { count: filtered.length })}
             </div>
         </div>
     );

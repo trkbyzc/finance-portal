@@ -33,11 +33,12 @@ function PriceTooltip({ active, payload, label, stroke, isYield, t, formatPriceL
  * isYield asset (bond) yüzde formatlı eksen kullanır.
  */
 export default function PriceChart({
-    chartData, useAreaChart, isEurobond, isYield, formatPriceLabel
+    chartData, useAreaChart, isYield, formatPriceLabel
 }) {
     const { t } = useTranslation('charts');
 
-    const stroke = isEurobond ? '#ff9800' : '#2962ff';
+    // Tüm area/line grafikler sistem laciverti (eurobond dahil)
+    const stroke = '#2962ff';
     const yTickFormatter = (v) => isYield ? `%${v.toFixed(2)}` : formatPriceLabel(v);
     const tooltipEl = <PriceTooltip stroke={stroke} isYield={isYield} t={t} formatPriceLabel={formatPriceLabel} />;
 

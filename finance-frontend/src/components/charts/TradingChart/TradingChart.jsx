@@ -187,7 +187,6 @@ function TradingChart({ asset, initialRange = '1y' }) {
                         <PriceChart
                             chartData={chartData}
                             useAreaChart={useAreaChart}
-                            isEurobond={isEurobond}
                             isYield={isYield}
                             formatPriceLabel={formatPriceLabel}
                         />
