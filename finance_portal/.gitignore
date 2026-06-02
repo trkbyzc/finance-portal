@@ -42,3 +42,7 @@ src/main/resources/application-local.properties
 # Lokal UTF-8 baslatma scriptleri (kisisel gelistirme rahatligi, repoya gitmez)
 run-dev.cmd
 run-dev.ps1
+
+# OTel Java Agent jar — scripts/download-otel-agent.ps1 ile indirilir, repoya gitmez
+otel-agent/
+opentelemetry-javaagent.jar
