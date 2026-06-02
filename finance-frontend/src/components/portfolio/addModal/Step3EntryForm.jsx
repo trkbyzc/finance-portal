@@ -1,22 +1,71 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
+import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 
 /**
- * AddToPortfolioModal step 3 — quantity + averagePrice form. Submit → parent.onSubmit
- * (parent backend'e POST atar). Backend AssetType enum'una uygun key, parent'tan geliyor.
+ * AddToPortfolioModal step 3 — adet + tutar (çift yönlü) + alış fiyatı + tarih.
+ * Tarih seçilince o tarihteki fiyat çekilip alış fiyatı doldurulur. Submit → parent.onSubmit.
  */
 export default function Step3EntryForm({ selectedAsset, selectedType, selectedBackendValue, onSubmit, onBack }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
     const [quantity, setQuantity] = useState('');
+    const [amount, setAmount] = useState('');
     const [averagePrice, setAveragePrice] = useState('');
+    const [purchaseDate, setPurchaseDate] = useState('');
+    const [priceLoading, setPriceLoading] = useState(false);
+    const [datePriceInfo, setDatePriceInfo] = useState(null);
     const [loading, setLoading] = useState(false);
 
     // VİOP'ta 1 sözleşme = çarpan kadar dayanak; nominal = fiyat × çarpan × adet
     const isViop = selectedType === 'VIOP' || selectedBackendValue === 'FUTURE';
     const contractSize = isViop ? (Number(selectedAsset.contractSize) || 1) : 1;
+    const symbol = selectedAsset.symbol || selectedAsset.currencyCode;
+    const backendType = selectedBackendValue || selectedType;
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    const unitPrice = () => {
+        const p = parseFloat(averagePrice);
+        if (p > 0) return p;
+        return Number(selectedAsset.currentPrice || selectedAsset.price || selectedAsset.forexSelling
+            || selectedAsset.value || selectedAsset.lastPrice || selectedAsset.unitPrice || 0) || 0;
+    };
+    const handleQuantity = (v) => {
+        setQuantity(v);
+        const p = unitPrice();
+        setAmount(v && p > 0 ? String(+(parseFloat(v) * p).toFixed(2)) : '');
+    };
+    const handleAmount = (v) => {
+        setAmount(v);
+        const p = unitPrice();
+        setQuantity(v && p > 0 ? String(+(parseFloat(v) / p).toFixed(8)) : '');
+    };
+    const handlePrice = (v) => {
+        setAveragePrice(v);
+        const p = parseFloat(v);
+        if (quantity && p > 0) setAmount(String(+(parseFloat(quantity) * p).toFixed(2)));
+    };
+    const handleDate = async (v) => {
+        setPurchaseDate(v);
+        setDatePriceInfo(null);
+        if (!v || !symbol) return;
+        setPriceLoading(true);
+        try {
+            const price = await fetchPriceOnDate(symbol, backendType, v);
+            if (price != null && price > 0) {
+                setAveragePrice(String(price));
+                setDatePriceInfo({ ok: true, price });
+                if (quantity) setAmount(String(+(parseFloat(quantity) * price).toFixed(2)));
+            } else {
+                setDatePriceInfo({ ok: false });
+            }
+        } finally {
+            setPriceLoading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -67,18 +116,55 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 </div>
             </div>
 
+            {/* Adet ↔ Tutar (çift yönlü; biri girilince diğeri fiyattan hesaplanır) */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.quantity')}</label>
+                    <input
+                        type="number"
+                        step="0.00000001"
+                        value={quantity}
+                        onChange={(e) => handleQuantity(e.target.value)}
+                        placeholder="100"
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                        required
+                        autoFocus
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.amount', 'Tutar')}</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        value={amount}
+                        onChange={(e) => handleAmount(e.target.value)}
+                        placeholder="4550"
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                    />
+                </div>
+            </div>
+
+            {/* Alış tarihi → o tarihteki fiyatı çek */}
             <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.quantity')}</label>
-                <input
-                    type="number"
-                    step="0.00000001"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    placeholder="100"
-                    className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                    required
-                    autoFocus
-                />
+                <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
+                <div className="relative">
+                    <input
+                        type="date"
+                        value={purchaseDate}
+                        max={todayStr}
+                        onChange={(e) => handleDate(e.target.value)}
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                    />
+                    {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />}
+                </div>
+                {datePriceInfo?.ok && (
+                    <p className="text-[11px] text-buy mt-1">
+                        {t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}
+                    </p>
+                )}
+                {datePriceInfo && !datePriceInfo.ok && (
+                    <p className="text-[11px] text-text-muted mt-1">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</p>
+                )}
             </div>
 
             <div className="mb-6">
@@ -87,7 +173,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     type="number"
                     step="0.01"
                     value={averagePrice}
-                    onChange={(e) => setAveragePrice(e.target.value)}
+                    onChange={(e) => handlePrice(e.target.value)}
                     placeholder="45.50"
                     className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                     required

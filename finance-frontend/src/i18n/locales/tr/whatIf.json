@@ -13,7 +13,8 @@
     "modeAmountHint": "tek bir tutarı tüm varlıklara uygula",
     "modeQuantityHint": "her varlık için ayrı miktar gir",
     "qty": "Miktar",
-    "quantityHint": "her varlık için miktar gir"
+    "quantityHint": "her varlık için miktar gir",
+    "datePriceMissing": "fiyat yok"
   },
   "modal": {
     "title": "Karşılaştırmaya Varlık Ekle",

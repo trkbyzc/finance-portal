@@ -44,6 +44,9 @@
     "earliestAvailable": "Bu varlık için en erken tarih: {{date}}",
     "earliestLoading": "Tarih aralığı kontrol ediliyor…",
     "earliestUnavailable": "Bu varlık için historical veri yok",
+    "datePriceLoading": "Fiyat alınıyor…",
+    "datePriceFound": "O tarihteki fiyat",
+    "datePriceMissing": "Bu tarih için fiyat bulunamadı",
     "amount": "Tutar (TRY)",
     "notes": "Notlar (opsiyonel)",
     "notesPlaceholder": "Örn: 'Erken emeklilik için biriktirme senaryosu'"

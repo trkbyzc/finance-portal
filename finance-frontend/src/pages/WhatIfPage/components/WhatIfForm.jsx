@@ -1,4 +1,3 @@
-import React from 'react';
 import { Plus, Loader2, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WhatIfAssetChip from './WhatIfAssetChip';
@@ -103,6 +102,7 @@ export default function WhatIfForm({
                             asset={a}
                             idx={idx}
                             inputMode={inputMode}
+                            investmentDate={investmentDate}
                             onRemove={() => onRemoveAsset(idx)}
                             onQuantityChange={(v) => onQuantityChange(idx, v)}
                         />

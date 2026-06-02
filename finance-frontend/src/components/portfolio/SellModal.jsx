@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Minus, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { fetchPriceOnDate } from '../../utils/historicalPrice';
 
 /**
  * Mevcut holding'den satış yapma modal'ı.
@@ -16,24 +17,33 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
     const { formatPrice } = useCurrency();
     const native = nativeCurrencyForType(asset?.assetType, asset?.symbol);
     const [quantity, setQuantity] = useState('');
+    const [priceOverride, setPriceOverride] = useState(null); // tarih seçilince o günün fiyatı
+    const [sellDate, setSellDate] = useState('');
+    const [priceLoading, setPriceLoading] = useState(false);
+    const [datePriceInfo, setDatePriceInfo] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
     const maxQty = Number(asset?.quantity ?? 0);
-    const effectivePrice = (currentPrice && currentPrice > 0)
+    const marketPrice = (currentPrice && currentPrice > 0)
         ? currentPrice
         : Number(asset?.averagePrice ?? 0);
+    const effectivePrice = (priceOverride != null && priceOverride > 0) ? priceOverride : marketPrice;
 
     useEffect(() => {
         if (isOpen && asset) {
             // Default: hepsini sat (max miktar)
             setQuantity(String(maxQty));
+            setPriceOverride(null);
+            setSellDate('');
+            setDatePriceInfo(null);
             setError('');
         }
     }, [isOpen, asset, maxQty]);
 
     if (!isOpen || !asset) return null;
 
+    const todayStr = new Date().toISOString().slice(0, 10);
     const qtyNum = parseFloat(quantity);
     const isValid = qtyNum > 0 && qtyNum <= maxQty + 1e-9; // floating epsilon
     const isAllOut = qtyNum >= maxQty - 1e-9;
@@ -59,6 +69,34 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
             return;
         }
         setQuantity(val);
+    };
+
+    // Tutar girince fiyattan miktarı hesapla (max ile sınırla)
+    const handleAmount = (val) => {
+        if (val === '' || effectivePrice <= 0) { setQuantity(''); return; }
+        const a = parseFloat(val);
+        if (isNaN(a) || a < 0) return;
+        const q = Math.min(a / effectivePrice, maxQty);
+        setQuantity(String(+q.toFixed(8)));
+    };
+
+    const handleDate = async (v) => {
+        setSellDate(v);
+        setDatePriceInfo(null);
+        if (!v || !asset?.symbol) { setPriceOverride(null); return; }
+        setPriceLoading(true);
+        try {
+            const p = await fetchPriceOnDate(asset.symbol, asset.assetType, v);
+            if (p != null && p > 0) {
+                setPriceOverride(p);
+                setDatePriceInfo({ ok: true, price: p });
+            } else {
+                setPriceOverride(null);
+                setDatePriceInfo({ ok: false });
+            }
+        } finally {
+            setPriceLoading(false);
+        }
     };
 
     const handleSubmit = async () => {
@@ -137,6 +175,43 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                             <p className="text-[10px] text-text-muted mt-1">
                                 {t('portfolio:trade.maxQty', { max: maxQty.toFixed(6) })}
                             </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                {t('portfolio:modal.amount', 'Tutar')} ({native})
+                            </label>
+                            <input
+                                type="number"
+                                value={isValid ? String(+total.toFixed(2)) : ''}
+                                onChange={(e) => handleAmount(e.target.value)}
+                                placeholder="0.00"
+                                min="0"
+                                step="any"
+                                className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-sell"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                {t('portfolio:trade.sellDate', 'Satış Tarihi')}
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="date"
+                                    value={sellDate}
+                                    max={todayStr}
+                                    onChange={(e) => handleDate(e.target.value)}
+                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-sell"
+                                />
+                                {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />}
+                            </div>
+                            {datePriceInfo?.ok && (
+                                <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}</p>
+                            )}
+                            {datePriceInfo && !datePriceInfo.ok && (
+                                <p className="text-[11px] text-text-muted mt-1">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, piyasa fiyatı kullanılır.')}</p>
+                            )}
                         </div>
 
                         <div className="bg-bg border border-border rounded-lg p-3 space-y-2 text-sm">

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { ChevronLeft, Loader2, Calendar } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, Loader2, Calendar, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { simulationApi } from '../../../services/api/simulationApi';
+import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -21,6 +22,23 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
     const [saving, setSaving] = useState(false);
     const [earliestDate, setEarliestDate] = useState(null);
     const [earliestLoading, setEarliestLoading] = useState(false);
+    const [datePrice, setDatePrice] = useState(null);
+    const [datePriceLoading, setDatePriceLoading] = useState(false);
+
+    const handleDateChange = async (v) => {
+        setInvestmentDate(v);
+        setPreviewResult(null);
+        setDatePrice(null);
+        const sym = selectedAsset?.symbol || selectedAsset?.currencyCode;
+        if (!v || !sym) return;
+        setDatePriceLoading(true);
+        try {
+            const p = await fetchPriceOnDate(sym, backendType, v);
+            setDatePrice(p != null && p > 0 ? p : false);
+        } finally {
+            setDatePriceLoading(false);
+        }
+    };
 
     // Earliest historical date — backend'den asset'in en eski tarihini çek
     useEffect(() => {
@@ -92,12 +110,23 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
                 <input
                     type="date"
                     value={investmentDate}
-                    onChange={(e) => { setInvestmentDate(e.target.value); setPreviewResult(null); }}
+                    onChange={(e) => handleDateChange(e.target.value)}
                     min={earliestDate || undefined}
                     max={todayIso()}
                     className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                 />
                 <p className="text-xs text-text-muted mt-1">{t('simulation:modal.investmentDateHint')}</p>
+                {(datePriceLoading || datePrice !== null) && (
+                    <div className="text-xs mt-1 inline-flex items-center gap-1">
+                        {datePriceLoading ? (
+                            <span className="text-text-muted inline-flex items-center gap-1"><Loader2 className="animate-spin" size={12} />{t('simulation:modal.datePriceLoading', 'Fiyat alınıyor…')}</span>
+                        ) : datePrice ? (
+                            <span className="text-primary inline-flex items-center gap-1"><Tag size={12} />{t('simulation:modal.datePriceFound', 'O tarihteki fiyat')}: {Number(datePrice).toLocaleString('tr-TR', { maximumFractionDigits: 4 })}</span>
+                        ) : (
+                            <span className="text-warning inline-flex items-center gap-1"><Tag size={12} />{t('simulation:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı')}</span>
+                        )}
+                    </div>
+                )}
                 <div className="text-xs mt-1 inline-flex items-center gap-1">
                     {earliestLoading ? (
                         <span className="text-text-muted inline-flex items-center gap-1">

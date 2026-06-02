@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Plus, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { fetchPriceOnDate } from '../../utils/historicalPrice';
 
 /**
  * Mevcut bir holding'in üzerine ek alış yapma modal'ı.
@@ -14,24 +15,67 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
     const { formatPrice } = useCurrency();
     const native = nativeCurrencyForType(asset?.assetType, asset?.symbol);
     const [quantity, setQuantity] = useState('');
+    const [amount, setAmount] = useState('');
     const [price, setPrice] = useState('');
+    const [purchaseDate, setPurchaseDate] = useState('');
+    const [priceLoading, setPriceLoading] = useState(false);
+    const [datePriceInfo, setDatePriceInfo] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
         if (isOpen) {
             setQuantity('');
+            setAmount('');
             setPrice(currentPrice && currentPrice > 0 ? String(currentPrice.toFixed(4)) : '');
+            setPurchaseDate('');
+            setDatePriceInfo(null);
             setError('');
         }
     }, [isOpen, currentPrice]);
 
     if (!isOpen || !asset) return null;
 
+    const todayStr = new Date().toISOString().slice(0, 10);
     const qtyNum = parseFloat(quantity);
     const priceNum = parseFloat(price);
     const isValid = qtyNum > 0 && priceNum > 0;
     const total = isValid ? qtyNum * priceNum : 0;
+
+    const unitPrice = () => (priceNum > 0 ? priceNum : (currentPrice > 0 ? currentPrice : 0));
+    const handleQuantity = (v) => {
+        setQuantity(v);
+        const p = unitPrice();
+        setAmount(v && p > 0 ? String(+(parseFloat(v) * p).toFixed(2)) : '');
+    };
+    const handleAmount = (v) => {
+        setAmount(v);
+        const p = unitPrice();
+        setQuantity(v && p > 0 ? String(+(parseFloat(v) / p).toFixed(8)) : '');
+    };
+    const handlePrice = (v) => {
+        setPrice(v);
+        const p = parseFloat(v);
+        if (quantity && p > 0) setAmount(String(+(parseFloat(quantity) * p).toFixed(2)));
+    };
+    const handleDate = async (v) => {
+        setPurchaseDate(v);
+        setDatePriceInfo(null);
+        if (!v || !asset?.symbol) return;
+        setPriceLoading(true);
+        try {
+            const p = await fetchPriceOnDate(asset.symbol, asset.assetType, v);
+            if (p != null && p > 0) {
+                setPrice(String(p));
+                setDatePriceInfo({ ok: true, price: p });
+                if (quantity) setAmount(String(+(parseFloat(quantity) * p).toFixed(2)));
+            } else {
+                setDatePriceInfo({ ok: false });
+            }
+        } finally {
+            setPriceLoading(false);
+        }
+    };
 
     const handleSubmit = async () => {
         if (!isValid) {
@@ -83,20 +127,58 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                     </div>
 
                     <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                    {t('portfolio:trade.quantity')}
+                                </label>
+                                <input
+                                    type="number"
+                                    value={quantity}
+                                    onChange={(e) => handleQuantity(e.target.value)}
+                                    placeholder="0.00"
+                                    min="0"
+                                    step="any"
+                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                                    autoFocus
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                    {t('portfolio:modal.amount', 'Tutar')} ({native})
+                                </label>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => handleAmount(e.target.value)}
+                                    placeholder="0.00"
+                                    min="0"
+                                    step="any"
+                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                                />
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                {t('portfolio:trade.quantity')}
+                                {t('portfolio:modal.purchaseDate', 'Alış Tarihi')}
                             </label>
-                            <input
-                                type="number"
-                                value={quantity}
-                                onChange={(e) => setQuantity(e.target.value)}
-                                placeholder="0.00"
-                                min="0"
-                                step="any"
-                                className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                                autoFocus
-                            />
+                            <div className="relative">
+                                <input
+                                    type="date"
+                                    value={purchaseDate}
+                                    max={todayStr}
+                                    onChange={(e) => handleDate(e.target.value)}
+                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                                />
+                                {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />}
+                            </div>
+                            {datePriceInfo?.ok && (
+                                <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}</p>
+                            )}
+                            {datePriceInfo && !datePriceInfo.ok && (
+                                <p className="text-[11px] text-text-muted mt-1">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</p>
+                            )}
                         </div>
 
                         <div>
@@ -115,7 +197,7 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                             <input
                                 type="number"
                                 value={price}
-                                onChange={(e) => setPrice(e.target.value)}
+                                onChange={(e) => handlePrice(e.target.value)}
                                 placeholder="0.00"
                                 min="0"
                                 step="any"

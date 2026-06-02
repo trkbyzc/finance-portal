@@ -44,6 +44,9 @@
     "earliestAvailable": "Earliest available for this asset: {{date}}",
     "earliestLoading": "Checking date range…",
     "earliestUnavailable": "No historical data for this asset",
+    "datePriceLoading": "Fetching price…",
+    "datePriceFound": "Price on that date",
+    "datePriceMissing": "No price found for this date",
     "amount": "Amount (TRY)",
     "notes": "Notes (optional)",
     "notesPlaceholder": "e.g. 'Early-retirement savings scenario'"

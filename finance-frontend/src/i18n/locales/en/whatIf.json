@@ -13,7 +13,8 @@
     "modeAmountHint": "apply a single amount to all assets",
     "modeQuantityHint": "enter quantity per asset",
     "qty": "Quantity",
-    "quantityHint": "enter quantity per asset"
+    "quantityHint": "enter quantity per asset",
+    "datePriceMissing": "no price"
   },
   "modal": {
     "title": "Add Asset to Comparison",

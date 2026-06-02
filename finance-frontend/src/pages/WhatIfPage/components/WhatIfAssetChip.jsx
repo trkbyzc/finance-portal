@@ -1,16 +1,30 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { X, Tag, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PALETTE } from '../whatIfHelpers';
+import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 
 /**
  * Karşılaştırma formunda tek bir asset'in chip'i. Tutar modunda inline horizontal,
  * Miktar modunda vertical (altında quantity input). Renk PALETTE[idx]'ten gelir.
+ * investmentDate verildiğinde o tarihteki fiyat chip altında gösterilir.
  */
-export default function WhatIfAssetChip({ asset, idx, inputMode, onRemove, onQuantityChange }) {
+export default function WhatIfAssetChip({ asset, idx, inputMode, investmentDate, onRemove, onQuantityChange }) {
     const { t } = useTranslation(['whatIf', 'common']);
     const color = PALETTE[idx % PALETTE.length];
     const isQuantityMode = inputMode === 'quantity';
+    const [datePrice, setDatePrice] = useState(null); // null=yok, false=bulunamadı, number=fiyat
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        if (!investmentDate || !asset?.symbol) { setDatePrice(null); return; }
+        setLoading(true);
+        fetchPriceOnDate(asset.symbol, asset.assetType, investmentDate)
+            .then(p => { if (!cancelled) setDatePrice(p != null && p > 0 ? p : false); })
+            .finally(() => { if (!cancelled) setLoading(false); });
+        return () => { cancelled = true; };
+    }, [investmentDate, asset?.symbol, asset?.assetType]);
 
     return (
         <div
@@ -39,6 +53,21 @@ export default function WhatIfAssetChip({ asset, idx, inputMode, onRemove, onQua
                         step="any"
                         className="w-24 bg-surface-2 border border-border rounded px-2 py-0.5 text-xs focus:outline-none focus:border-primary"
                     />
+                </div>
+            )}
+            {(loading || datePrice !== null) && (
+                <div className={`inline-flex items-center gap-1 text-[11px] ${isQuantityMode ? '' : 'ml-1'}`}>
+                    {loading ? (
+                        <Loader2 className="animate-spin text-text-muted" size={11} />
+                    ) : datePrice ? (
+                        <span className="text-primary inline-flex items-center gap-1">
+                            <Tag size={11} />{Number(datePrice).toLocaleString('tr-TR', { maximumFractionDigits: 4 })}
+                        </span>
+                    ) : (
+                        <span className="text-text-muted inline-flex items-center gap-1">
+                            <Tag size={11} />{t('whatIf:form.datePriceMissing', 'fiyat yok')}
+                        </span>
+                    )}
                 </div>
             )}
         </div>
