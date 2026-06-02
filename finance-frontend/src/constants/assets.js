@@ -4,6 +4,8 @@
  */
 export const ASSET_CDNS = {
     CRYPTO_ICONS: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/32/color',
+    // İkincil kaynak: atomiclabs setinde olmayan (daha yeni/uzun kuyruk) coinler için.
+    CRYPTO_ICONS_FALLBACK: 'https://assets.coincap.io/assets/icons',
     FLAGS: 'https://flagcdn.com/48x36'
 };
 

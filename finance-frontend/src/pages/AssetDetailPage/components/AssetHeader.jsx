@@ -10,11 +10,26 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
     const { isAuthenticated } = useAuth();
     const { t } = useTranslation(['asset', 'common']);
 
-    const getInitials = () => {
-        if (asset?.currencyCode) return asset.currencyCode.substring(0, 2).toUpperCase();
-        if (asset?.symbol) return asset.symbol.replace('TRY=X', '').replace('=X', '').substring(0, 2).toUpperCase();
-        return '?';
+    // Varlığın temiz kısaltması (BTC, AAPL, USD...) — 2 harflik baş harf yerine TAM sembol.
+    const getTicker = () => {
+        const raw = asset?.currencyCode || asset?.symbol || '';
+        if (!raw) return '?';
+        return raw
+            .replace('TP.', '')
+            .replace('.ORAN', '')
+            .replace('-USD', '')
+            .replace('TRY=X', '')
+            .replace('=X', '')
+            .replace('.IS', '')
+            .toUpperCase();
     };
+
+    const ticker = getTicker();
+    // Uzun sembollerde (VİOP/tahvil) yazı taşmasın diye boyutu kademeli küçült.
+    const tickerSizeClass = ticker.length <= 3 ? 'text-xl'
+        : ticker.length === 4 ? 'text-lg'
+        : ticker.length <= 6 ? 'text-sm'
+        : 'text-[10px]';
 
     const changePercent = asset?.changePercent != null ? Number(asset.changePercent) : null;
     const isPositive = changePercent != null && changePercent >= 0;
@@ -34,8 +49,8 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
 
             <div className="mb-8 flex flex-col md:flex-row md:items-center justify-start gap-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary/15 to-primary/5 border border-primary/30 flex items-center justify-center font-black text-primary text-xl uppercase shadow-lg shadow-primary/10 shrink-0">
-                        {getInitials()}
+                    <div className={`w-16 h-16 rounded-2xl bg-linear-to-br from-primary/15 to-primary/5 border border-primary/30 flex items-center justify-center font-black text-primary ${tickerSizeClass} uppercase shadow-lg shadow-primary/10 shrink-0 px-1 text-center leading-tight`}>
+                        {ticker}
                     </div>
                     <div>
                         <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase text-text tracking-tight">

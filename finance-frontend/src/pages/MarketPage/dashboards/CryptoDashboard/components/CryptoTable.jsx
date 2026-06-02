@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Coins } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getCryptoIconUrl } from '../../../../../utils/cryptoUtils';
+import { getCryptoIconUrl, getCryptoIconFallbackUrl } from '../../../../../utils/cryptoUtils';
 
 export default function CryptoTable({ data, loading }) {
     const navigate = useNavigate();
@@ -63,8 +63,16 @@ export default function CryptoTable({ data, loading }) {
                                             <img
                                                 src={getCryptoIconUrl(symbol)}
                                                 alt={displaySymbol}
+                                                data-fallback="0"
                                                 className="w-full h-full object-contain"
                                                 onError={(e) => {
+                                                    // 1. atomiclabs başarısız -> coincap'i dene
+                                                    if (e.target.getAttribute('data-fallback') === '0') {
+                                                        e.target.setAttribute('data-fallback', '1');
+                                                        e.target.src = getCryptoIconFallbackUrl(symbol);
+                                                        return;
+                                                    }
+                                                    // 2. O da başarısız -> sembol metnine düş
                                                     e.target.onerror = null;
                                                     e.target.style.display = 'none';
                                                     e.target.parentNode.innerHTML = `<span class="text-[10px] font-black text-primary">${displaySymbol.substring(0,3)}</span>`;
