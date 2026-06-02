@@ -63,6 +63,14 @@
     "accessDeniedMessage": "Hesabınıza erişim kısıtlanmıştır.",
     "accessDeniedDetail": "Detaylı bilgi için yönetim ile iletişime geçiniz."
   },
+  "ban": {
+    "title": "Hesabınız Askıya Alındı",
+    "permanentBody": "Hesabınız kalıcı olarak askıya alınmıştır. Erişim için yönetim ile iletişime geçin.",
+    "tempBody": "Hesabınız geçici olarak askıya alındı, şu an giriş yapamazsınız.",
+    "daysLeft": "Kalan süre: {{days}} gün",
+    "unlockOn": "{{date}} tarihinde tekrar açılacak",
+    "close": "Anladım"
+  },
   "greeting": {
     "morning": "Günaydın",
     "afternoon": "İyi günler",

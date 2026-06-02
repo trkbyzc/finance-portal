@@ -63,6 +63,14 @@
     "accessDeniedMessage": "Your account access is restricted.",
     "accessDeniedDetail": "Please contact administration for details."
   },
+  "ban": {
+    "title": "Account Suspended",
+    "permanentBody": "Your account has been permanently suspended. Please contact administration for access.",
+    "tempBody": "Your account is temporarily suspended and you cannot log in right now.",
+    "daysLeft": "{{days}} days remaining",
+    "unlockOn": "Will be reactivated on {{date}}",
+    "close": "Got it"
+  },
   "greeting": {
     "morning": "Good morning",
     "afternoon": "Good afternoon",

@@ -37,21 +37,31 @@ apiClient.interceptors.response.use(
                 if (!isBanAlertShown) {
                     isBanAlertShown = true;
 
+                    // Yerel oturumu temizle (banlı kullanıcı çıkış yapmış sayılsın)
                     tokenManager.clearTokens();
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('refresh_token');
+                    localStorage.removeItem('id_token');
 
-                    const cleanMsg = typeof displayMsg === 'string' ? displayMsg.replace(/{"error":"|"}/g,"") : displayMsg;
+                    // Ban detayını sakla → Dashboard pop-up'ı gün/bitiş tarihiyle gösterir.
+                    // (Önceki Keycloak logout round-trip'i kaldırıldı: id_token_hint olmadan
+                    //  onay ekranı çıkıp mesaj kaybolabiliyordu. Aynı origin'e dönmek güvenilir.)
+                    // daysLeft burada (saf JS) hesaplanır; React render'ında Date.now() çağrılmasın diye.
+                    let daysLeft = null;
+                    if (errorMsgObj?.until) {
+                        const diffMs = new Date(errorMsgObj.until).getTime() - Date.now();
+                        daysLeft = Math.max(0, Math.ceil(diffMs / 86400000));
+                    }
+                    try {
+                        sessionStorage.setItem('ban_info', JSON.stringify({
+                            message: typeof displayMsg === 'string' ? displayMsg : '',
+                            banType: errorMsgObj?.banType || null,
+                            until: errorMsgObj?.until || null,
+                            daysLeft
+                        }));
+                    } catch { /* sessionStorage yoksa yoksay */ }
 
-                    // ALERT YERİNE KEYCLOAK'A YOLLAYARAK LOGOUT YAPTIR VE DASHBOARD'A PARAMETRE İLE DÖNDÜR
-                    const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL;
-                    const REALM = import.meta.env.VITE_KEYCLOAK_REALM;
-                    const CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
-
-                    // Dashboard URL'sine "?banned=true&msg=..." dönmesini sağlıyoruz.
-                    const returnURL = encodeURIComponent(`${window.location.origin}/?banned=true&msg=${encodeURIComponent(cleanMsg)}`);
-
-                    window.location.href = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/logout?client_id=${CLIENT_ID}&post_logout_redirect_uri=${returnURL}`;
+                    window.location.href = '/?banned=true';
                 }
                 return Promise.reject(error);
             }
