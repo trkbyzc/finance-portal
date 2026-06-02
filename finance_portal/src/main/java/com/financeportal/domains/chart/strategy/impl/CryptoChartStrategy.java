@@ -3,6 +3,8 @@ package com.financeportal.domains.chart.strategy.impl;
 import com.financeportal.client.binance.BinanceChartClient;
 import com.financeportal.client.yahoo.YahooChartClient;
 import com.financeportal.domains.chart.strategy.ChartDataStrategy;
+import com.financeportal.domains.crypto.client.CoinGeckoChartClient;
+import com.financeportal.domains.crypto.service.CryptoIdRegistry;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +18,12 @@ import java.util.Locale;
  * CRYPTO kategorisi için akıllı veri kaynağı seçimi:
  *   1) Önce Yahoo Finance denenir (mevcut çoğu coin için OHLC sağlar)
  *   2) Yahoo boş/yetersiz dönerse Binance klines API'sine fallback yapılır
+ *   3) Binance de yetersizse CoinGecko OHLC'ye fallback yapılır (listelenen TÜM
+ *      coinler için veri var — sembol→id eşlemesi CryptoIdRegistry'den gelir)
  *
  * Sebep: PEPE-USD, LION, BILL gibi yeni veya Yahoo'da donmuş coinler için
- * Yahoo veri tutmuyor; Binance bu coinlerin çoğunda canlı OHLC sağlıyor.
+ * Yahoo veri tutmuyor; Binance çoğunda canlı OHLC sağlıyor; Binance'te de
+ * listelenmeyen coinler için CoinGecko garanti kapsama veriyor.
  */
 @Component
 @Order(3)
@@ -30,6 +35,8 @@ public class CryptoChartStrategy implements ChartDataStrategy {
 
     private final YahooChartClient yahooChartClient;
     private final BinanceChartClient binanceChartClient;
+    private final CoinGeckoChartClient coinGeckoChartClient;
+    private final CryptoIdRegistry cryptoIdRegistry;
 
     @Override
     public boolean supports(String category, String symbol) {
@@ -56,7 +63,23 @@ public class CryptoChartStrategy implements ChartDataStrategy {
         log.warn("[CRYPTO-CHART] Yahoo'da '{}' için veri yetersiz ({} nokta). Binance fallback: {}",
                 yahooSymbol, data != null ? data.size() : 0, binanceSymbol);
 
-        return binanceChartClient.fetchKlines(binanceSymbol, range);
+        List<HistoricalDataDto> binanceData = binanceChartClient.fetchKlines(binanceSymbol, range);
+        if (binanceData != null && binanceData.size() >= MIN_ACCEPTABLE_POINTS) {
+            return binanceData;
+        }
+
+        // 3) CoinGecko OHLC fallback — listelenen tüm coinler için garanti kapsama.
+        String geckoId = cryptoIdRegistry.resolve(clean);
+        log.warn("[CRYPTO-CHART] Binance'te '{}' için veri yetersiz ({} nokta). CoinGecko fallback: id={}",
+                binanceSymbol, binanceData != null ? binanceData.size() : 0, geckoId);
+
+        List<HistoricalDataDto> geckoData = coinGeckoChartClient.fetchOhlc(geckoId, range);
+        if (geckoData != null && !geckoData.isEmpty()) {
+            return geckoData;
+        }
+
+        // Hiçbir kaynak veri vermediyse en azından Binance'in (boş olabilen) sonucunu döndür.
+        return binanceData;
     }
 
     private String toYahooSymbol(String symbol) {

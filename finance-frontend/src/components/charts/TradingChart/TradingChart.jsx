@@ -8,6 +8,7 @@ import useBenchmarkOverlay from './hooks/useBenchmarkOverlay';
 import { normalizeSymbol, getDisplayName, getChartType, isTurkishBond } from './utils/symbolUtils';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConversion';
+import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
 import { BIST_OPTIONS, CRYPTO_OPTIONS } from './tradingChartConstants';
 
 import ChartHeader from './components/ChartHeader';
@@ -66,8 +67,8 @@ function TradingChart({ asset, initialRange = '1y' }) {
     const formatPriceLabel = (v) => {
         if (v == null || Number.isNaN(v)) return '';
         const locale = displayCurrency === 'TRY' ? 'tr-TR' : 'en-US';
-        const digits = Math.abs(v) < 1 ? 4 : 2;
-        return `${currencySymbol}${Number(v).toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+        const digits = computePriceLabelDigits(v);
+        return `${currencySymbol}${Number(v).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: digits })}`;
     };
 
     const chartData = useMemo(() => {
@@ -116,12 +117,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
     useEffect(() => {
         if (!useRechartsFinal && !isNone && chartInstance.current && chartData.length > 0) {
             const maxPrice = chartData.reduce((m, d) => Math.max(m, d.close || 0, d.high || 0), 0);
-            const pricePrecision =
-                maxPrice >= 100  ? 2 :
-                maxPrice >= 1    ? 4 :
-                maxPrice >= 0.01 ? 6 :
-                                   8;
-            chartInstance.current.setPriceVolumePrecision(pricePrecision, 0);
+            chartInstance.current.setPriceVolumePrecision(computePricePrecision(maxPrice), 0);
             chartInstance.current.applyNewData(chartData);
         }
     }, [chartData, useRechartsFinal, isNone, candleType]);

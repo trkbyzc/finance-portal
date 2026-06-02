@@ -49,8 +49,22 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
 
             <div className="mb-8 flex flex-col md:flex-row md:items-center justify-start gap-6">
                 <div className="flex items-center gap-4">
-                    <div className={`w-16 h-16 rounded-2xl bg-linear-to-br from-primary/15 to-primary/5 border border-primary/30 flex items-center justify-center font-black text-primary ${tickerSizeClass} uppercase shadow-lg shadow-primary/10 shrink-0 px-1 text-center leading-tight`}>
-                        {ticker}
+                    <div className={`w-16 h-16 rounded-2xl bg-linear-to-br from-primary/15 to-primary/5 border border-primary/30 flex items-center justify-center font-black text-primary ${tickerSizeClass} uppercase shadow-lg shadow-primary/10 shrink-0 overflow-hidden px-1 text-center leading-tight`}>
+                        {asset?.image ? (
+                            <img
+                                src={asset.image}
+                                alt={ticker}
+                                className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                    // İkon yüklenmezse sembol metnine düş.
+                                    e.target.onerror = null;
+                                    e.target.style.display = 'none';
+                                    e.target.parentNode.textContent = ticker;
+                                }}
+                            />
+                        ) : (
+                            ticker
+                        )}
                     </div>
                     <div>
                         <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase text-text tracking-tight">

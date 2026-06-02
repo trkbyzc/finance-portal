@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -77,7 +76,10 @@ public class BinanceChartClient {
     }
 
     private BigDecimal parsePrice(String raw) {
-        return new BigDecimal(raw).setScale(8, RoundingMode.HALF_UP);
+        // Binance fiyatı sembolün tick-size'ına göre tam hassasiyetle string olarak döner.
+        // setScale(8) ile yuvarlamak SHIB/PEPE gibi çok küçük coinlerde basamak kaybına
+        // yol açıyordu (0.000000001234 → 0.00000000). Geleni olduğu gibi koru.
+        return new BigDecimal(raw);
     }
 
     private String mapRangeToInterval(String range) {

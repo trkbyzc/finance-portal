@@ -3,6 +3,7 @@ import { init, dispose } from 'klinecharts';
 import { useViopChartData, getPastDate } from '../../../hooks/charts/useViopChartData';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { detectNativeCurrency } from '../../../utils/currencyConversion';
+import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
 import ViopHeader from './components/ViopHeader';
 import ViopControls from './components/ViopControls';
 import ViopChartArea from './components/ViopChartArea';
@@ -58,8 +59,8 @@ export default function ViopTradingChart({ asset }) {
     const formatPriceLabel = (v) => {
         if (v == null || Number.isNaN(v)) return '';
         const locale = currency === 'TRY' ? 'tr-TR' : 'en-US';
-        const digits = Math.abs(v) < 1 ? 4 : 2;
-        return `${currencySymbol}${Number(v).toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+        const digits = computePriceLabelDigits(v);
+        return `${currencySymbol}${Number(v).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: digits })}`;
     };
 
     const chartData = useMemo(() => {
@@ -120,8 +121,7 @@ export default function ViopTradingChart({ asset }) {
         if (!chartInstance.current) return;
         if (chartData.length > 0) {
             const maxPrice = chartData.reduce((m, d) => Math.max(m, d.close || 0, d.high || 0), 0);
-            const pricePrecision = maxPrice >= 100 ? 2 : maxPrice >= 1 ? 4 : maxPrice >= 0.01 ? 6 : 8;
-            chartInstance.current.setPriceVolumePrecision(pricePrecision, 0);
+            chartInstance.current.setPriceVolumePrecision(computePricePrecision(maxPrice), 0);
             chartInstance.current.applyNewData(chartData);
         } else {
             chartInstance.current.applyNewData([]);

@@ -99,8 +99,21 @@ export default function AssetDetailPage() {
                         </div>
                         <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
                             <div className="bg-surface-2 p-3 rounded-xl border border-border flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary font-black text-sm">
-                                    {asset?.symbol?.substring(0,2) || '?'}
+                                <div className="w-10 h-10 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary font-black text-sm overflow-hidden">
+                                    {asset?.image ? (
+                                        <img
+                                            src={asset.image}
+                                            alt={asset?.symbol}
+                                            className="w-full h-full object-contain p-1"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.style.display = 'none';
+                                                e.target.parentNode.textContent = asset?.symbol?.substring(0, 2) || '?';
+                                            }}
+                                        />
+                                    ) : (
+                                        asset?.symbol?.substring(0, 2) || '?'
+                                    )}
                                 </div>
                                 <div>
                                     <div className="text-text font-bold tracking-wide">{asset?.symbol || decodedSymbol}</div>

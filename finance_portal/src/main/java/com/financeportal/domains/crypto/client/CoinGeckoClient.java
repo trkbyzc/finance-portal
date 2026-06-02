@@ -91,6 +91,10 @@ public class CoinGeckoClient {
                 dto.setChartType("CANDLE");
                 dto.setAssetCategory("CRYPTO");
 
+                // CoinGecko'nun verdiği gerçek logo URL'i + coin id (grafik OHLC fallback'i için)
+                dto.setImage((String) coinData.get("image"));
+                dto.setGeckoId((String) coinData.get("id"));
+
                 targetList.add(dto);
             }
         }

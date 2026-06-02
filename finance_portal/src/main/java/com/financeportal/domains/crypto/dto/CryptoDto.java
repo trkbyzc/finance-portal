@@ -19,4 +19,7 @@ public class CryptoDto {
     private String yahooSymbol;   // Örn: BTC-USD (Grafikler için)
     private String chartType;     // "CANDLE"
     private String assetCategory; // "CRYPTO"
+
+    private String image;         // CoinGecko coin logo URL'i (gerçek ikon — CDN tahmini yerine)
+    private String geckoId;       // CoinGecko coin id'si (örn. "bitcoin") — OHLC grafik fallback'i için
 }

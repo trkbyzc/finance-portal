@@ -2,7 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Coins } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getCryptoIconUrl, getCryptoIconFallbackUrl } from '../../../../../utils/cryptoUtils';
+
+/**
+ * Coin fiyatını biçimlendirir. 1$ altındaki çok küçük coinlerde (SHIB/PEPE)
+ * 0'dan sonra 15 basamağa kadar gösterir; trailing sıfırlar otomatik kırpılır.
+ */
+const formatCryptoPrice = (price) => {
+    const n = Number(price) || 0;
+    const maxFractionDigits = n !== 0 && Math.abs(n) < 1 ? 15 : 2;
+    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: maxFractionDigits });
+};
 
 export default function CryptoTable({ data, loading }) {
     const navigate = useNavigate();
@@ -60,24 +69,21 @@ export default function CryptoTable({ data, loading }) {
                                 >
                                     <td className="p-5 flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-full bg-surface-2 border border-border flex items-center justify-center overflow-hidden shadow-lg group-hover:border-primary transition-colors p-1">
-                                            <img
-                                                src={getCryptoIconUrl(symbol)}
-                                                alt={displaySymbol}
-                                                data-fallback="0"
-                                                className="w-full h-full object-contain"
-                                                onError={(e) => {
-                                                    // 1. atomiclabs başarısız -> coincap'i dene
-                                                    if (e.target.getAttribute('data-fallback') === '0') {
-                                                        e.target.setAttribute('data-fallback', '1');
-                                                        e.target.src = getCryptoIconFallbackUrl(symbol);
-                                                        return;
-                                                    }
-                                                    // 2. O da başarısız -> sembol metnine düş
-                                                    e.target.onerror = null;
-                                                    e.target.style.display = 'none';
-                                                    e.target.parentNode.innerHTML = `<span class="text-[10px] font-black text-primary">${displaySymbol.substring(0,3)}</span>`;
-                                                }}
-                                            />
+                                            {coin?.image ? (
+                                                <img
+                                                    src={coin.image}
+                                                    alt={displaySymbol}
+                                                    className="w-full h-full object-contain"
+                                                    onError={(e) => {
+                                                        // CoinGecko ikonu yüklenmezse sembol metnine düş.
+                                                        e.target.onerror = null;
+                                                        e.target.style.display = 'none';
+                                                        e.target.parentNode.innerHTML = `<span class="text-[10px] font-black text-primary">${displaySymbol.substring(0, 3)}</span>`;
+                                                    }}
+                                                />
+                                            ) : (
+                                                <span className="text-[10px] font-black text-primary">{displaySymbol.substring(0, 3)}</span>
+                                            )}
                                         </div>
 
                                         <div>
@@ -91,10 +97,7 @@ export default function CryptoTable({ data, loading }) {
                                     </td>
 
                                     <td className="p-5 text-right font-mono font-bold text-text">
-                                        ${Number(price) < 1
-                                        ? Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 })
-                                        : Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                                    }
+                                        ${formatCryptoPrice(price)}
                                     </td>
                                     <td className="p-5 text-right">
                                         <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full font-bold text-xs ${isPositive ? 'bg-buy/10 text-buy' : 'bg-sell/10 text-sell'}`}>

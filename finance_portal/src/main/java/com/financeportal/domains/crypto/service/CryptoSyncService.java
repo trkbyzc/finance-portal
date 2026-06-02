@@ -17,6 +17,7 @@ public class CryptoSyncService {
 
     private final CoinGeckoClient coinGeckoClient;
     private final CacheService cacheService;
+    private final CryptoIdRegistry cryptoIdRegistry;
 
     @Scheduled(fixedRate = 300000) // 5 dakikada bir çalışır
     public void fetchAndCacheCryptoRates() {
@@ -24,6 +25,7 @@ public class CryptoSyncService {
         List<CryptoDto> rates = coinGeckoClient.fetchCryptoRates();
         if (rates != null && !rates.isEmpty()) {
             cacheService.save("cache:crypto", rates, 5);
+            cryptoIdRegistry.update(rates); // sembol→geckoId eşlemesini tazele (grafik fallback'i kullanır)
             log.info("[CRYPTO_SYNC] Successfully updated {} cryptocurrencies from CoinGecko in {} ms.", rates.size(), (System.currentTimeMillis() - startTime));
         } else {
             log.warn("[CRYPTO_SYNC] Failed to update cryptocurrency rates.");
