@@ -59,7 +59,10 @@ export const useLiveMarketData = () => {
     });
 
     const turkishStocks = stocks.filter(stock => stock.symbol && stock.symbol.endsWith('.IS'));
-    const highestVolume = [...turkishStocks].sort((a, b) => (b.volume || 0) - (a.volume || 0)).slice(0, 5);
+    // En yüksek hacim = TL işlem hacmi (fiyat × lot) — TR Hisseler kenar çubuğuyla tutarlı.
+    // (Önceden ham lot sayısına göre sıralanıyordu, bu yüzden iki ekran farklı liste gösteriyordu.)
+    const tlVolume = (s) => (s.price ?? s.regularMarketPrice ?? 0) * Number(s.volume ?? 0);
+    const highestVolume = [...turkishStocks].sort((a, b) => tlVolume(b) - tlVolume(a)).slice(0, 5);
     const mostVolatile = [...turkishStocks].sort((a, b) => Math.abs(b.changePercent || 0) - Math.abs(a.changePercent || 0)).slice(0, 5);
     const topGainers = [...turkishStocks].sort((a, b) => (b.changePercent || 0) - (a.changePercent || 0)).slice(0, 5);
     const topLosers = [...turkishStocks].sort((a, b) => (a.changePercent || 0) - (b.changePercent || 0)).slice(0, 5);
