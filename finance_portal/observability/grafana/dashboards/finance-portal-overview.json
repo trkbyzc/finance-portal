@@ -1,0 +1,190 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "schemaVersion": 39,
+  "tags": ["finance-portal", "observability"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "Finance Portal — Gözlemlenebilirlik (Overview)",
+  "uid": "finance-portal-overview",
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "type": "constant",
+        "query": "finance-portal-backend",
+        "current": { "text": "finance-portal-backend", "value": "finance-portal-backend" },
+        "hide": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Service Health",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "up{job=\"$job\"}", "instant": true }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } },
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Request Volume (son 5dk, req/s)",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m]))" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "value", "graphMode": "area", "textMode": "value"
+      },
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 2, "color": { "mode": "fixed", "fixedColor": "blue" } } }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Bugünkü Toplam İstek",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(http_server_requests_seconds_count{job=\"$job\"}[24h]))" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "none", "graphMode": "none", "textMode": "value"
+      },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 } }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Error Rate (5xx, son 5dk)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "(sum(rate(http_server_requests_seconds_count{job=\"$job\",status=~\"5..\"}[5m])) OR on() vector(0)) / clamp_min(sum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m])), 1)" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background", "graphMode": "area", "textMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit", "decimals": 2,
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 0.01 }, { "color": "red", "value": 0.05 } ] }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "API Response Time (p50 / p95 / p99)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "legendFormat": "p50", "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le))" },
+        { "refId": "B", "legendFormat": "p95", "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le))" },
+        { "refId": "C", "legendFormat": "p99", "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le))" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2 } } }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Request Volume — endpoint bazında (req/s)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "legendFormat": "{{method}} {{uri}}", "expr": "sum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m])) by (method, uri)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 15, "stacking": { "mode": "normal" }, "lineWidth": 1 } } }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Error Rate — status bazında (req/s)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "legendFormat": "{{status}}", "expr": "sum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m])) by (status)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "drawStyle": "bars", "fillOpacity": 60, "stacking": { "mode": "normal" } } } }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "JVM Heap Kullanımı",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "legendFormat": "used {{area}}", "expr": "sum(jvm_memory_used_bytes{job=\"$job\"}) by (area)" },
+        { "refId": "B", "legendFormat": "max heap", "expr": "sum(jvm_memory_max_bytes{job=\"$job\", area=\"heap\"})" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "drawStyle": "line", "fillOpacity": 10 } } }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "Aktif Alarm Sayısı",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 23 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "instant": true, "expr": "count(ALERTS{alertstate=\"firing\"}) or vector(0)" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } } }
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Aktif Alarmlar (firing / pending)",
+      "gridPos": { "h": 6, "w": 18, "x": 6, "y": 23 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "instant": true, "format": "table", "expr": "ALERTS{alertstate=~\"firing|pending\"}" }
+      ],
+      "transformations": [
+        { "id": "filterFieldsByName", "options": { "include": { "pattern": "^(alertname|severity|alertstate)$" } } },
+        { "id": "organize", "options": {
+            "indexByName": { "alertname": 0, "severity": 1, "alertstate": 2 },
+            "renameByName": { "alertname": "Alarm", "severity": "Önem", "alertstate": "Durum" }
+        } }
+      ],
+      "options": { "showHeader": true, "cellHeight": "sm", "footer": { "show": false } },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "left" } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Önem" }, "properties": [
+              { "id": "mappings", "value": [ { "type": "value", "options": { "critical": { "color": "red", "index": 0 }, "warning": { "color": "yellow", "index": 1 } } } ] },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+          ] },
+          { "matcher": { "id": "byName", "options": "Durum" }, "properties": [
+              { "id": "mappings", "value": [ { "type": "value", "options": { "firing": { "color": "red", "index": 0 }, "pending": { "color": "yellow", "index": 1 } } } ] },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+          ] }
+        ]
+      }
+    }
+  ]
+}
