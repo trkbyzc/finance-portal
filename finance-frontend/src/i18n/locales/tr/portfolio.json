@@ -3,6 +3,11 @@
   "pageSubtitle": "Yatırımlarınızın anlık değeri, kar/zarar ve dağılımı",
   "hideBalances": "Bakiyeleri gizle",
   "showBalances": "Bakiyeleri göster",
+  "export": {
+    "subtitle": "FinansPortal Portföy Raporu",
+    "excel": "Excel indir",
+    "pdf": "PDF indir"
+  },
   "stats": {
     "totalValue": "Toplam Değer",
     "totalCost": "Toplam Maliyet",

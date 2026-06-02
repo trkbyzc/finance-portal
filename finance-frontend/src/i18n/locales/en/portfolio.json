@@ -3,6 +3,11 @@
   "hideBalances": "Hide balances",
   "showBalances": "Show balances",
   "pageSubtitle": "Live value, P/L and distribution of your investments",
+  "export": {
+    "subtitle": "FinansPortal Portfolio Report",
+    "excel": "Download Excel",
+    "pdf": "Download PDF"
+  },
   "stats": {
     "totalValue": "Total Value",
     "totalCost": "Total Cost",

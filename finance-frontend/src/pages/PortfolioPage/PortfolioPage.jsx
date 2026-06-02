@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, FileSpreadsheet, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
+import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { exportPortfolioExcel, exportPortfolioPdf, loadLogoDataUrl } from '../../utils/portfolioExport';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import AddToPortfolioModal from '../../components/portfolio/AddToPortfolioModal';
 import BuyMoreModal from '../../components/portfolio/BuyMoreModal';
@@ -48,6 +50,64 @@ const PortfolioPage = () => {
 
     const { getCurrentPrice, calculateProfitLoss } = usePortfolioPricing(portfolio);
     const { activeTab, setActiveTab, tabsState, filteredPortfolio } = usePortfolioTabs(portfolio);
+
+    // Excel / PDF dışa aktarma — aktif sekmedeki holding'leri sisteme uygun belgeye döker
+    const buildExportData = () => {
+        const list = filteredPortfolio || [];
+        const rows = list.map(item => {
+            const calc = calculateProfitLoss(item);
+            return {
+                symbol: item.symbol,
+                type: t('common:assetTypes.' + item.assetType, item.assetType),
+                quantity: item.quantity,
+                avgPrice: item.averagePrice,
+                currentPrice: calc.currentPrice,
+                currentValue: calc.currentValue,
+                pnl: calc.profitLoss,
+                pnlPct: calc.profitLossPercent,
+                currency: nativeCurrencyForType(item.assetType, item.symbol)
+            };
+        });
+        const totalCost = list.reduce((s, i) => s + i.averagePrice * i.quantity * (Number(i.contractSize) || 1), 0);
+        const totalValue = rows.reduce((s, r) => s + (r.currentValue || 0), 0);
+        const totalPnl = totalValue - totalCost;
+        const returnRate = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
+        const meta = {
+            title: t('portfolio:pageTitle'),
+            subtitle: t('portfolio:export.subtitle'),
+            date: new Date().toLocaleDateString('tr-TR'),
+            dateLabel: t('common:labels.date'),
+            fileBase: `finansportal-portfoy-${new Date().toISOString().slice(0, 10)}`,
+            footer: 'FinansPortal',
+            headers: {
+                asset: t('portfolio:holdings.cols.asset'),
+                type: t('common:labels.type'),
+                quantity: t('portfolio:holdings.cols.quantity'),
+                avgPrice: t('portfolio:holdings.cols.avgPrice'),
+                currentPrice: t('portfolio:holdings.cols.currentPrice'),
+                value: t('portfolio:holdings.cols.totalValue'),
+                pnl: t('portfolio:holdings.cols.pnl'),
+                pnlPct: t('portfolio:stats.totalPnlPercent'),
+                currency: t('common:labels.currency'),
+                totalCost: t('portfolio:stats.totalCost'),
+                totalValue: t('portfolio:stats.totalValue'),
+                totalPnl: t('portfolio:stats.totalPnl'),
+                returnRate: t('portfolio:stats.totalPnlPercent')
+            }
+        };
+        return { rows, summary: { totalCost, totalValue, totalPnl, returnRate }, meta };
+    };
+
+    const onExportExcel = () => {
+        const { rows, summary, meta } = buildExportData();
+        if (rows.length) exportPortfolioExcel(rows, summary, meta);
+    };
+    const onExportPdf = async () => {
+        const { rows, summary, meta } = buildExportData();
+        if (!rows.length) return;
+        const logo = await loadLogoDataUrl();
+        exportPortfolioPdf(rows, summary, meta, logo);
+    };
 
     const addAssetMutation = useMutation({
         mutationFn: portfolioApi.addManualEntry,
@@ -113,6 +173,21 @@ const PortfolioPage = () => {
                             <span className={currency === 'TRY' ? 'text-primary' : 'text-text-muted'}>₺</span>
                             <span className="text-text-muted">/</span>
                             <span className={currency === 'USD' ? 'text-primary' : 'text-text-muted'}>$</span>
+                        </button>
+                        {/* Excel / PDF dışa aktarma */}
+                        <button
+                            onClick={onExportExcel}
+                            title={t('portfolio:export.excel', 'Excel indir')}
+                            className="w-11 h-11 flex items-center justify-center rounded-lg bg-surface-2 hover:bg-surface-hover border border-border text-buy transition"
+                        >
+                            <FileSpreadsheet size={20} />
+                        </button>
+                        <button
+                            onClick={onExportPdf}
+                            title={t('portfolio:export.pdf', 'PDF indir')}
+                            className="w-11 h-11 flex items-center justify-center rounded-lg bg-surface-2 hover:bg-surface-hover border border-border text-sell transition"
+                        >
+                            <FileText size={20} />
                         </button>
                         <button
                             onClick={() => setIsModalOpen(true)}
