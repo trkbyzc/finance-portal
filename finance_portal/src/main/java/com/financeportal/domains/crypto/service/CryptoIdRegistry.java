@@ -38,12 +38,15 @@ public class CryptoIdRegistry {
     }
 
     private String normalize(String symbol) {
+        // Önce uppercase: replace büyük/küçük harfe duyarlı olduğundan, küçük harf
+        // gelen sembollerde (örn. "pepeusdt") eklerin soyulabilmesi için şart.
+        // USDT, USD'den önce soyulmalı (aksi halde USDT'den sadece "T" kalır).
         return symbol
+                .toUpperCase(Locale.ENGLISH)
                 .replace("-USD", "")
                 .replace("USDT", "")
                 .replace("USD", "")
                 .replace("/", "")
-                .trim()
-                .toUpperCase(Locale.ENGLISH);
+                .trim();
     }
 }
