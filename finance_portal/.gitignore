@@ -38,3 +38,7 @@ build/
 src/main/resources/application-local.yml
 src/main/resources/application-local.yaml
 src/main/resources/application-local.properties
+
+# Lokal UTF-8 baslatma scriptleri (kisisel gelistirme rahatligi, repoya gitmez)
+run-dev.cmd
+run-dev.ps1

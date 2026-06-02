@@ -9,20 +9,9 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
-    # SonarCloud secret'lari job-level env'e cek — sonra if: env.SONAR_TOKEN != '' calisir.
-    # Secret tanimsiz iken bu env'ler bos string olur, sonar step'i skip.
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-
     steps:
       - name: Kodu Cek (Checkout)
         uses: actions/checkout@v4
-        with:
-          # SonarCloud blame icin tam git tarihcesi lazim (shallow=1 ise UNKNOWN olur)
-          fetch-depth: 0
 
       - name: JDK 21 Kurulumu
         uses: actions/setup-java@v4
@@ -44,6 +33,8 @@ jobs:
         working-directory: ./finance_portal
 
       # JaCoCo XML + HTML raporlarini artifact olarak yukle (14 gun saklanir).
+      # SonarQube analizi local'de yapiliyor (docs/sonar.md) - SonarCloud private
+      # repo'da ucretli oldugu icin CI'da kosmuyor.
       - name: JaCoCo Coverage Raporunu Artifact Olarak Yukle
         if: always()
         uses: actions/upload-artifact@v4
@@ -51,19 +42,6 @@ jobs:
           name: jacoco-coverage-report
           path: finance_portal/target/site/jacoco/
           retention-days: 14
-
-      # SonarCloud analizi — sadece SONAR_TOKEN secret'i tanimliysa kosar.
-      # Setup icin: finance_portal/docs/sonar-ci.md
-      - name: SonarCloud Analizi (opsiyonel)
-        if: env.SONAR_TOKEN != ''
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./mvnw -B --no-transfer-progress sonar:sonar \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=${SONAR_ORGANIZATION} \
-            -Dsonar.projectKey=${SONAR_PROJECT_KEY}
-        working-directory: ./finance_portal
 
       - name: Docker Compose Testi (Build Kontrolu)
         run: docker compose config
