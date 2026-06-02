@@ -16,7 +16,7 @@ import { formatNumber } from '../../../../../utils/formatters/numberFormatter';
 const getCommodityIcon = (code) => {
     const c = code.toUpperCase();
     if (c.includes('CL')) return <Droplets className="text-blue-400" size={20} />;
-    if (c.includes('GC') || c.includes('GA')) return <Coins className="text-warning" size={20} />;
+    if (c.includes('GC') || c.includes('GA')) return <Coins className="text-primary" size={20} />;
     if (c.includes('SI') || c.includes('GAG')) return <Gem className="text-gray-400" size={20} />;
     if (c.includes('NG')) return <Flame className="text-orange-500" size={20} />;
     if (c.includes('ZW') || c.includes('ZC')) return <Wheat className="text-yellow-600" size={20} />;
@@ -32,7 +32,7 @@ export default function CommodityTable({ data, loading }) {
     return (
         <div className="bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
             <div className="p-5 border-b border-border bg-surface-2/50 flex items-center gap-3">
-                <Coins className="text-warning" size={20} />
+                <Coins className="text-primary" size={20} />
                 <h2 className="text-lg font-bold text-text tracking-tight">{t('markets:commodity.headerTitle')}</h2>
             </div>
             <div className="overflow-x-auto max-h-[600px] custom-scrollbar">
@@ -60,7 +60,7 @@ export default function CommodityTable({ data, loading }) {
                                     className="hover:bg-surface-2 transition cursor-pointer group"
                                 >
                                     <td className="p-5 flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center shadow-inner group-hover:border-warning transition-all">
+                                        <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center shadow-inner group-hover:border-primary transition-all">
                                             {getCommodityIcon(code)}
                                         </div>
                                         <div>
@@ -73,10 +73,10 @@ export default function CommodityTable({ data, loading }) {
                                     <td className="p-5 text-right font-mono font-bold text-text-muted">
                                         ₺{formatNumber(buying)}
                                     </td>
-                                    <td className="p-5 text-right font-mono font-bold text-text group-hover:text-warning">
+                                    <td className="p-5 text-right font-mono font-bold text-text group-hover:text-primary">
                                         ₺{formatNumber(selling)}
                                     </td>
-                                    <td className="p-5 text-right text-text-muted group-hover:text-warning">
+                                    <td className="p-5 text-right text-text-muted group-hover:text-primary">
                                         <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                     </td>
                                 </tr>

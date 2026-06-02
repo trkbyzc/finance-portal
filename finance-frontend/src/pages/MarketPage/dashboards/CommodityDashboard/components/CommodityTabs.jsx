@@ -20,8 +20,8 @@ export default function CommodityTabs({ activeCategory, setActiveCategory }) {
                     onClick={() => setActiveCategory(tab.id)}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border transition-all whitespace-nowrap text-xs font-bold uppercase tracking-wider
                         ${activeCategory === tab.id
-                        ? 'bg-warning/10 border-warning text-warning shadow-[0_0_15px_rgba(251,191,36,0.1)]'
-                        : 'bg-surface border-border text-text-muted hover:border-warning/50 hover:text-text'
+                        ? 'bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(41,98,255,0.15)]'
+                        : 'bg-surface border-border text-text-muted hover:border-primary/50 hover:text-text'
                     }`}
                 >
                     {tab.icon}

@@ -23,7 +23,7 @@ export default function CryptoNewsSidebar({ news, loading }) {
                 </div>
             ) : (
                 <div className="flex flex-col gap-4">
-                    {news.map((item, index) => (
+                    {news.slice(0, 6).map((item, index) => (
                         <div
                             key={index}
                             onClick={() => navigate('/news/detail', { state: { newsItem: item } })}

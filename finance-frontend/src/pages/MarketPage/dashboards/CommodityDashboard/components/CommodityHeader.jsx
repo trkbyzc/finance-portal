@@ -20,7 +20,7 @@ export default function CommodityHeader({ searchQuery, setSearchQuery }) {
                     placeholder={t('common.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-surface border border-border focus:border-warning text-text rounded-xl outline-none text-sm transition shadow-lg"
+                    className="w-full pl-12 pr-4 py-3 bg-surface border border-border focus:border-primary text-text rounded-xl outline-none text-sm transition shadow-lg"
                 />
             </div>
         </div>

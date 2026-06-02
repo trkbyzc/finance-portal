@@ -8,9 +8,9 @@ export default function CommoditySpotlight({ items, loading, show }) {
     if (loading || !show || items.length === 0) return null;
 
     const getTheme = (code) => {
-        if (code.includes('GA')) return { bg: 'from-warning/20', border: 'border-warning', text: 'text-warning', icon: '🌕' };
+        if (code.includes('GA')) return { bg: 'from-primary/20', border: 'border-primary', text: 'text-primary', icon: '🌕' };
         if (code.includes('GAG') || code.includes('XAG')) return { bg: 'from-text-muted/20', border: 'border-border-strong', text: 'text-text-muted', icon: '🥈' };
-        return { bg: 'from-warning/20', border: 'border-warning', text: 'text-warning', icon: '📦' };
+        return { bg: 'from-primary/20', border: 'border-primary', text: 'text-primary', icon: '📦' };
     };
 
     return (
