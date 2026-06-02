@@ -86,6 +86,7 @@
     "btc": "Bitcoin"
   },
   "widgets": {
+    "marketTitle": "Market Summary",
     "portfolioTitle": "My Portfolio",
     "totalValue": "Total Value",
     "dailyPnl": "Total P/L",
@@ -100,5 +101,15 @@
     "emptyWatchlistTitle": "Your watchlist is empty",
     "emptyWatchlistDesc": "Add the symbols you want to follow and see live prices here.",
     "emptyWatchlistCta": "Browse Markets"
+  },
+  "customize": {
+    "edit": "Customize",
+    "done": "Done",
+    "title": "Customize Dashboard",
+    "dragHint": "Drag cards to reorder, hide with (x).",
+    "remove": "Hide",
+    "reset": "Reset to Default",
+    "allAdded": "All widgets are added.",
+    "empty": "All widgets are hidden. Add them from above."
   }
 }

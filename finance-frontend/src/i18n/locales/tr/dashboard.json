@@ -86,6 +86,7 @@
     "btc": "Bitcoin"
   },
   "widgets": {
+    "marketTitle": "Piyasa Özeti",
     "portfolioTitle": "Portföyüm",
     "totalValue": "Toplam Değer",
     "dailyPnl": "Toplam K/Z",
@@ -100,5 +101,15 @@
     "emptyWatchlistTitle": "İzleme listen boş",
     "emptyWatchlistDesc": "Takip etmek istediğin sembolleri ekle, anlık fiyatları burada gör.",
     "emptyWatchlistCta": "Piyasalara Göz At"
+  },
+  "customize": {
+    "edit": "Özelleştir",
+    "done": "Bitti",
+    "title": "Dashboard Özelleştir",
+    "dragHint": "Kartları sürükleyerek sıralayın, (x) ile gizleyin.",
+    "remove": "Gizle",
+    "reset": "Varsayılana Dön",
+    "allAdded": "Tüm widget'lar ekli.",
+    "empty": "Tüm widget'lar gizli. Yukarıdan ekleyebilirsiniz."
   }
 }
