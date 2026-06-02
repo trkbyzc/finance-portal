@@ -28,7 +28,7 @@ export default function CommoditiesSection({ commodityCards, onSelect, isLoading
                     return (
                         <div
                             key={idx}
-                            onClick={() => onSelect(item.symbol)}
+                            onClick={() => onSelect(item.symbol, item.category || 'COMMODITY')}
                             className="flex justify-between items-center p-4 border-b border-border hover:bg-surface transition-colors rounded-lg cursor-pointer group"
                         >
                             <div className="flex items-center gap-3">

@@ -38,9 +38,20 @@ export default function TurkishGoldPage() {
 
                     <div className="divide-y divide-[#2a2e39]">
                         {golds.length > 0 ? (
-                            golds.map((gold, index) => (
-                                <GoldRow key={index} gold={gold} navigate={navigate} />
-                            ))
+                            golds.map((gold, index) => {
+                                // Grafik gram eğrisini gösterdiği için sadece gram bazlı altınlar tıklanabilir
+                                const clickable = (gold.symbol || '').includes('GRAM');
+                                return (
+                                    <GoldRow
+                                        key={index}
+                                        gold={gold}
+                                        clickable={clickable}
+                                        onClick={clickable
+                                            ? () => navigate(`/chart/${encodeURIComponent(gold.symbol)}?cat=COMMODITY`)
+                                            : undefined}
+                                    />
+                                );
+                            })
                         ) : (
                             <div className="p-8 text-center text-text-muted">
                                 {t('common:status.noData')}

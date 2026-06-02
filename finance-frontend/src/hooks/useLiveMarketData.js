@@ -18,6 +18,7 @@ export const useLiveMarketData = () => {
             { queryKey: ['stocks'], queryFn: stockApi.getAllStocks },
             { queryKey: ['ipos'], queryFn: economyApi.getHalkaArz },
             { queryKey: ['commodities'], queryFn: commodityApi.getAllCommodities },
+            { queryKey: ['turkishGold'], queryFn: commodityApi.getTurkishGold },
             { queryKey: ['currencies'], queryFn: currencyApi.getAllCurrencies },
             { queryKey: ['trBonds'], queryFn: bondFundApi.getTrBonds },
             { queryKey: ['globalBonds'], queryFn: bondFundApi.getGlobalBonds },
@@ -28,7 +29,7 @@ export const useLiveMarketData = () => {
     });
 
     const [
-        indicesRes, stocksRes, iposRes, commoditiesRes, currenciesRes,
+        indicesRes, stocksRes, iposRes, commoditiesRes, turkishGoldRes, currenciesRes,
         trBondsRes, globalBondsRes, globalFundsRes, trFundsRes, economyMacroRes
     ] = results;
 
@@ -42,6 +43,7 @@ export const useLiveMarketData = () => {
     const stocks = stocksRes.data || [];
     const ipos = iposRes.data || [];
     const commodities = commoditiesRes.data || [];
+    const turkishGold = turkishGoldRes.data || [];
     const currencies = currenciesRes.data || [];
     const trBonds = trBondsRes.data?.value || trBondsRes.data || [];
     const globalBonds = globalBondsRes.data || [];
@@ -67,30 +69,35 @@ export const useLiveMarketData = () => {
     const topGainers = [...turkishStocks].sort((a, b) => (b.changePercent || 0) - (a.changePercent || 0)).slice(0, 5);
     const topLosers = [...turkishStocks].sort((a, b) => (a.changePercent || 0) - (b.changePercent || 0)).slice(0, 5);
 
+    const gramGold = turkishGold.find(g => g.symbol === 'GRAM_ALTIN');
     const commodityCards = [
         commodities.find(c => c.symbol === 'GC=F') && {
             ...commodities.find(c => c.symbol === 'GC=F'),
             name: t('goldUsdOz'),
             iconColor: 'bg-[#ff9800]',
-            currency: 'USD'
+            currency: 'USD',
+            category: 'COMMODITY'
         },
         commodities.find(c => c.symbol === 'SI=F') && {
             ...commodities.find(c => c.symbol === 'SI=F'),
             name: t('silverUsdOz'),
             iconColor: 'bg-[#9e9e9e]',
-            currency: 'USD'
+            currency: 'USD',
+            category: 'COMMODITY'
         },
-        (commodities.find(c => c.symbol === 'GRAM') || commodities.find(c => c.symbol === 'XAU_TRY_CALC')) && {
-            ...(commodities.find(c => c.symbol === 'GRAM') || commodities.find(c => c.symbol === 'XAU_TRY_CALC')),
+        gramGold && {
+            ...gramGold,
             name: t('goldTryGr'),
             iconColor: 'bg-[#ff9800]',
-            currency: 'TRY / GRM'
+            currency: 'TRY / GRM',
+            category: 'COMMODITY'
         },
         commodities.find(c => c.symbol === 'CL=F') && {
             ...commodities.find(c => c.symbol === 'CL=F'),
             name: t('crudeOil'),
             iconColor: 'bg-[#424242]',
-            currency: 'USD'
+            currency: 'USD',
+            category: 'COMMODITY'
         }
     ].filter(Boolean);
 

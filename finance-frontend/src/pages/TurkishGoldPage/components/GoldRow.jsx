@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 
-export default function GoldRow({ gold, onClick }) {
+export default function GoldRow({ gold, onClick, clickable = true }) {
     const { t } = useTranslation('common');
     const sellPrice = gold.price || 0;
     const buyPrice = gold.buyPrice || sellPrice;
@@ -12,7 +12,7 @@ export default function GoldRow({ gold, onClick }) {
     return (
         <div
             onClick={onClick}
-            className="flex flex-col md:flex-row items-center justify-between bg-surface border border-border rounded-2xl p-4 md:p-5 shadow-lg hover:border-warning/50 hover:bg-surface-2 transition-all group cursor-pointer"
+            className={`flex flex-col md:flex-row items-center justify-between bg-surface border border-border rounded-2xl p-4 md:p-5 shadow-lg transition-all group ${clickable ? 'hover:border-warning/50 hover:bg-surface-2 cursor-pointer' : ''}`}
         >
             <div className="flex items-center gap-4 w-full md:w-1/3 mb-4 md:mb-0">
                 <div className="w-12 h-12 rounded-full bg-bg flex shrink-0 items-center justify-center font-black text-warning border border-warning/20 shadow-[0_0_10px_rgba(255,152,0,0.1)]">

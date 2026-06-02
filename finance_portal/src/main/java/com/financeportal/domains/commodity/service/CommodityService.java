@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,23 @@ public class CommodityService {
     private final CacheService cacheService;
 
     private static final String[] COMMODITY_SYMBOLS = { "GC=F", "SI=F", "PL=F", "PA=F", "CL=F", "BZ=F", "NG=F", "HG=F", "ZW=F", "ZC=F", "KC=F", "CC=F", "CT=F" };
+
+    // Yahoo vadeli isimleri ("Gold Aug 25") yerine temiz Türkçe isimler; değerli metaller "(ONS)" etiketli.
+    private static final Map<String, String> COMMODITY_NAMES = Map.ofEntries(
+            Map.entry("GC=F", "Altın (ONS)"),
+            Map.entry("SI=F", "Gümüş (ONS)"),
+            Map.entry("PL=F", "Platin (ONS)"),
+            Map.entry("PA=F", "Paladyum (ONS)"),
+            Map.entry("CL=F", "Ham Petrol (WTI)"),
+            Map.entry("BZ=F", "Brent Petrolü"),
+            Map.entry("NG=F", "Doğal Gaz"),
+            Map.entry("HG=F", "Bakır"),
+            Map.entry("ZW=F", "Buğday"),
+            Map.entry("ZC=F", "Mısır"),
+            Map.entry("KC=F", "Kahve"),
+            Map.entry("CC=F", "Kakao"),
+            Map.entry("CT=F", "Pamuk")
+    );
 
     public List<CommodityDto> getCommodities() {
         return cacheService.getOrFetch("cache:commodities", () -> {
@@ -98,10 +116,24 @@ public class CommodityService {
 
     private CommodityDto mapToCommodity(MarketAssetDto m) {
         CommodityDto c = new CommodityDto();
-        c.setSymbol(m.getSymbol()); c.setName(m.getName()); c.setAssetType(m.getAssetType());
+        c.setSymbol(m.getSymbol()); c.setName(resolveCommodityName(m.getSymbol(), m.getName())); c.setAssetType(m.getAssetType());
         c.setPrice(m.getPrice()); c.setBuyPrice(m.getBuyPrice()); c.setChangePercent(m.getChangePercent());
         c.setVolume(m.getVolume()); c.setYahooSymbol(m.getYahooSymbol()); c.setChartType(m.getChartType());
         c.setAssetCategory(m.getAssetCategory());
         return c;
+    }
+
+    /**
+     * Emtia için temiz görünen isim: küratörlü Türkçe isim varsa onu, yoksa Yahoo
+     * isminden sondaki vade ayı/yıl ("... Aug 25", "... Jul 2025") temizlenmiş hâlini döndürür.
+     */
+    private String resolveCommodityName(String symbol, String yahooName) {
+        if (symbol != null && COMMODITY_NAMES.containsKey(symbol)) {
+            return COMMODITY_NAMES.get(symbol);
+        }
+        if (yahooName == null) return symbol;
+        // "Gold Aug 25" / "Crude Oil Jul 2025" → vade ayı + yıl son ekini at
+        return yahooName.replaceAll(
+                "\\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\w*\\.?\\s*\\d{2,4}$", "").trim();
     }
 }

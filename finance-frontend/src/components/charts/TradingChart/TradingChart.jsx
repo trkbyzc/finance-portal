@@ -5,7 +5,7 @@ import { useChartInstance } from './hooks/useChartInstance';
 import { useChartIndicators } from './hooks/useChartIndicators';
 import { useChartOverlays } from './hooks/useChartOverlays';
 import useBenchmarkOverlay from './hooks/useBenchmarkOverlay';
-import { normalizeSymbol, getDisplayName, getChartType, isTurkishBond } from './utils/symbolUtils';
+import { normalizeSymbol, getDisplayName, getChartType, isTurkishBond, isTurkishGold } from './utils/symbolUtils';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConversion';
 import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
@@ -43,8 +43,9 @@ function TradingChart({ asset, initialRange = '1y' }) {
 
     const isCurrency = asset?.assetCategory === 'CURRENCY';
     const isEurobond = asset?.assetCategory === 'EUROBOND';
+    const isGold = useMemo(() => isTurkishGold(backendSymbol), [backendSymbol]);
     const useRecharts = chartType === 'LINE' || isCurrency;
-    const useAreaChart = isCurrency || isEurobond;
+    const useAreaChart = isCurrency || isEurobond || isGold; // gram altın da döviz gibi area
     const isNone = chartType === 'NONE';
 
     const [activeRange, setActiveRange] = useState(isTrBond ? 'ytd' : initialRange);

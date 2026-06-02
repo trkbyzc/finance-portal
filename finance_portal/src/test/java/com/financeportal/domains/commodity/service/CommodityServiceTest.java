@@ -57,6 +57,35 @@ class CommodityServiceTest {
         org.mockito.Mockito.verify(cacheService).getOrFetch(eq("cache:commodities"), any(), eq(5L));
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void getCommodities_mapsCuratedTurkishNames_andStripsFuturesMonth() {
+        when(cacheService.getOrFetch(anyString(), any(Supplier.class), anyLong()))
+                .thenAnswer(inv -> ((Supplier<List<CommodityDto>>) inv.getArgument(1)).get());
+
+        // Yahoo vadeli isimleri (Gold Aug 25) gelir; küratörlü map "Altın (ONS)" vermeli
+        com.financeportal.model.dto.market.MarketAssetDto gold =
+                new com.financeportal.model.dto.market.MarketAssetDto();
+        gold.setSymbol("GC=F");
+        gold.setName("Gold Aug 25");
+        com.financeportal.model.dto.market.MarketAssetDto silver =
+                new com.financeportal.model.dto.market.MarketAssetDto();
+        silver.setSymbol("SI=F");
+        silver.setName("Silver Jul 2025");
+        // Map'te olmayan sembol → Yahoo isminden vade ayı temizlenir
+        com.financeportal.model.dto.market.MarketAssetDto unknown =
+                new com.financeportal.model.dto.market.MarketAssetDto();
+        unknown.setSymbol("XX=F");
+        unknown.setName("Lumber Sep 26");
+        when(yahooClient.fetchQuotes(any(String[].class), anyString())).thenReturn(List.of(gold, silver, unknown));
+
+        List<CommodityDto> result = service.getCommodities();
+
+        assertEquals("Altın (ONS)", result.get(0).getName());
+        assertEquals("Gümüş (ONS)", result.get(1).getName());
+        assertEquals("Lumber", result.get(2).getName()); // vade ayı/yıl atıldı
+    }
+
     // -------- getTurkishGold (Truncgil → fallback math) --------
 
     @Test

@@ -18,6 +18,9 @@ export const detectNativeCurrency = (asset) => {
     if (cat === 'TR_BOND') return 'TRY';
     if (cat === 'TR_FUND') return 'TRY';
 
+    // Türk altını (GRAM_ALTIN vb.) TRY bazlı fiyatlanır; USD toggle güncel kurla böler.
+    if (sym.includes('ALTIN') || sym.includes('ALTİN') || sym.includes('BILEZIK')) return 'TRY';
+
     // VIOP — BIST'te işlem gören kontratlar TRY denominated (F_XU030, F_USDTRY, BİST 30 Vadeli, vb.)
     if (cat === 'VIOP') return 'TRY';
 
