@@ -1,6 +1,8 @@
 {
   "pageTitle": "Portföyüm",
   "pageSubtitle": "Yatırımlarınızın anlık değeri, kar/zarar ve dağılımı",
+  "hideBalances": "Bakiyeleri gizle",
+  "showBalances": "Bakiyeleri göster",
   "stats": {
     "totalValue": "Toplam Değer",
     "totalCost": "Toplam Maliyet",

@@ -1,11 +1,19 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Wallet, PieChart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../context/CurrencyContext';
 
-const PortfolioStats = ({ portfolio, calculateProfitLoss }) => {
+const MASK = '••••••';
+
+const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false }) => {
     const { t } = useTranslation('portfolio');
+    const { formatPrice } = useCurrency();
+
+    // Toplamlar TRY bazlı tutulur; TRY/USD toggle formatPrice ile uygulanır.
+    const money = (v) => (hidden ? MASK : formatPrice(v, 'TRY'));
+
     const totalInvestment = portfolio?.reduce((sum, item) => {
-        return sum + (item.averagePrice * item.quantity);
+        return sum + (item.averagePrice * item.quantity * (Number(item.contractSize) || 1));
     }, 0) || 0;
 
     const totalValue = portfolio?.reduce((sum, item) => {
@@ -26,7 +34,7 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss }) => {
                     <Wallet size={20} className="text-text-muted" />
                     <p className="text-text-muted text-sm">{t('stats.totalCost')}</p>
                 </div>
-                <p className="text-2xl font-bold">{totalInvestment.toFixed(2)} ₺</p>
+                <p className="text-2xl font-bold">{money(totalInvestment)}</p>
             </div>
 
             <div className="bg-surface-2 rounded-lg p-6">
@@ -34,7 +42,7 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss }) => {
                     <PieChart size={20} className="text-text-muted" />
                     <p className="text-text-muted text-sm">{t('stats.totalValue')}</p>
                 </div>
-                <p className="text-2xl font-bold">{totalValue.toFixed(2)} ₺</p>
+                <p className="text-2xl font-bold">{money(totalValue)}</p>
             </div>
 
             <div className="bg-surface-2 rounded-lg p-6">
@@ -47,7 +55,7 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss }) => {
                     <p className="text-text-muted text-sm">{t('stats.totalPnl')}</p>
                 </div>
                 <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
-                    {totalProfitLoss >= 0 ? '+' : ''}{totalProfitLoss.toFixed(2)} ₺
+                    {hidden ? MASK : `${totalProfitLoss >= 0 ? '+' : ''}${formatPrice(totalProfitLoss, 'TRY')}`}
                 </p>
             </div>
 
@@ -61,7 +69,7 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss }) => {
                     <p className="text-text-muted text-sm">{t('stats.totalPnlPercent')}</p>
                 </div>
                 <p className={`text-2xl font-bold ${returnRate >= 0 ? 'text-buy' : 'text-sell'}`}>
-                    {returnRate >= 0 ? '+' : ''}{returnRate.toFixed(2)}%
+                    {hidden ? MASK : `${returnRate >= 0 ? '+' : ''}${returnRate.toFixed(2)}%`}
                 </p>
             </div>
         </div>

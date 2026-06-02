@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../context/CurrencyContext';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import AddToPortfolioModal from '../../components/portfolio/AddToPortfolioModal';
 import BuyMoreModal from '../../components/portfolio/BuyMoreModal';
@@ -29,6 +31,15 @@ const PortfolioPage = () => {
     const [sellAsset, setSellAsset] = useState(null);
     const [historySymbol, setHistorySymbol] = useState(null);
     const queryClient = useQueryClient();
+    const { currency, toggleCurrency } = useCurrency();
+
+    // Bakiye gizleme (göz ikonu) — localStorage'da kalıcı
+    const [hideBalances, setHideBalances] = useState(() => localStorage.getItem('hideBalances') === '1');
+    const toggleHide = () => setHideBalances(v => {
+        const next = !v;
+        localStorage.setItem('hideBalances', next ? '1' : '0');
+        return next;
+    });
 
     const { data: portfolio, isLoading, error } = useQuery({
         queryKey: ['portfolio'],
@@ -84,12 +95,32 @@ const PortfolioPage = () => {
                         <h1 className="text-2xl sm:text-3xl font-bold">{t('portfolio:pageTitle')}</h1>
                         <p className="text-text-muted mt-1 text-sm sm:text-base">{t('portfolio:pageSubtitle')}</p>
                     </div>
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-primary-hover rounded font-semibold transition self-start sm:self-auto"
-                    >
-                        + {t('common:actions.add')}
-                    </button>
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                        {/* Bakiye gizle/göster */}
+                        <button
+                            onClick={toggleHide}
+                            title={hideBalances ? t('portfolio:showBalances', 'Bakiyeleri göster') : t('portfolio:hideBalances', 'Bakiyeleri gizle')}
+                            className="w-11 h-11 flex items-center justify-center rounded-lg bg-surface-2 hover:bg-surface-hover border border-border text-text-muted hover:text-text transition"
+                        >
+                            {hideBalances ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                        {/* TRY / USD */}
+                        <button
+                            onClick={toggleCurrency}
+                            title={t('asset:showInCurrency', 'Para birimi')}
+                            className="h-11 px-3 flex items-center gap-1 rounded-lg bg-surface-2 hover:bg-surface-hover border border-border text-sm font-bold transition"
+                        >
+                            <span className={currency === 'TRY' ? 'text-primary' : 'text-text-muted'}>₺</span>
+                            <span className="text-text-muted">/</span>
+                            <span className={currency === 'USD' ? 'text-primary' : 'text-text-muted'}>$</span>
+                        </button>
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-primary-hover rounded font-semibold transition"
+                        >
+                            + {t('common:actions.add')}
+                        </button>
+                    </div>
                 </div>
 
                 {portfolio && portfolio.length > 0 && tabsState.tabs.length > 1 && (
@@ -104,20 +135,24 @@ const PortfolioPage = () => {
                 <PortfolioStats
                     portfolio={filteredPortfolio}
                     calculateProfitLoss={calculateProfitLoss}
+                    hidden={hideBalances}
                 />
 
                 {filteredPortfolio && filteredPortfolio.length > 0 && (
-                    <PortfolioCharts
-                        portfolio={filteredPortfolio}
-                        calculateProfitLoss={calculateProfitLoss}
-                        groupBy={activeTab === 'ALL' ? 'assetType' : 'symbol'}
-                        parentAssetType={activeTab === 'ALL' ? null : activeTab}
-                    />
+                    <div className={hideBalances ? 'blur-md select-none pointer-events-none transition' : 'transition'}>
+                        <PortfolioCharts
+                            portfolio={filteredPortfolio}
+                            calculateProfitLoss={calculateProfitLoss}
+                            groupBy={activeTab === 'ALL' ? 'assetType' : 'symbol'}
+                            parentAssetType={activeTab === 'ALL' ? null : activeTab}
+                        />
+                    </div>
                 )}
 
                 <HoldingsTable
                     portfolio={filteredPortfolio}
                     calculateProfitLoss={calculateProfitLoss}
+                    hidden={hideBalances}
                     onOpenHistory={setHistorySymbol}
                     onOpenBuy={setBuyMoreAsset}
                     onOpenSell={setSellAsset}

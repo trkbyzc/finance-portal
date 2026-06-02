@@ -16,7 +16,7 @@ import { nativeCurrencyForType } from '../../utils/currencyConversion';
  *   - lg+:       Ort. Maliyet, Toplam Değer
  * Mobile kullanıcı varlığın altında ek detay görür (asset cell içinde gizli kolonların özet rozetleri).
  */
-export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHistory, onOpenBuy, onOpenSell }) {
+export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHistory, onOpenBuy, onOpenSell, hidden = false }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
 
@@ -52,6 +52,7 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
                             calc={calculateProfitLoss(item)}
                             formatPrice={formatPrice}
                             t={t}
+                            hidden={hidden}
                             onOpenHistory={onOpenHistory}
                             onOpenBuy={onOpenBuy}
                             onOpenSell={onOpenSell}
@@ -63,9 +64,11 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
     );
 }
 
-function HoldingRow({ item, calc, formatPrice, t, onOpenHistory, onOpenBuy, onOpenSell }) {
+function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory, onOpenBuy, onOpenSell }) {
     const native = nativeCurrencyForType(item.assetType, item.symbol);
     const positive = calc.profitLoss >= 0;
+    const MASK = '••••';
+    const money = (v) => (hidden ? MASK : formatPrice(v, native));
     // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
     const multiplier = Number(item.contractSize) || 1;
     const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;
@@ -84,19 +87,23 @@ function HoldingRow({ item, calc, formatPrice, t, onOpenHistory, onOpenBuy, onOp
                 {item.quantity}
                 {showMultiplier && <span className="text-text-muted text-[11px] ml-1" title={t('portfolio:modal.contractSize')}>× {multiplier}</span>}
             </td>
-            <td className="hidden lg:table-cell p-2 md:p-4 text-right whitespace-nowrap">{formatPrice(item.averagePrice, native)}</td>
-            <td className="p-2 md:p-4 text-right text-sm md:text-base whitespace-nowrap">{formatPrice(calc.currentPrice, native)}</td>
-            <td className="hidden lg:table-cell p-2 md:p-4 text-right font-semibold whitespace-nowrap">{formatPrice(calc.currentValue, native)}</td>
+            <td className="hidden lg:table-cell p-2 md:p-4 text-right whitespace-nowrap">{money(item.averagePrice)}</td>
+            <td className="p-2 md:p-4 text-right text-sm md:text-base whitespace-nowrap">{money(calc.currentPrice)}</td>
+            <td className="hidden lg:table-cell p-2 md:p-4 text-right font-semibold whitespace-nowrap">{money(calc.currentValue)}</td>
             <td className={`p-2 md:p-4 text-right font-semibold text-sm md:text-base whitespace-nowrap ${positive ? 'text-buy' : 'text-sell'}`}>
                 {/* Mobile: sadece yüzde; md+: hem tutar hem yüzde */}
                 <span className="md:hidden">
-                    {calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%
+                    {hidden ? MASK : `${calc.profitLossPercent >= 0 ? '+' : ''}${calc.profitLossPercent.toFixed(2)}%`}
                 </span>
                 <span className="hidden md:inline">
-                    {positive ? '+' : '-'}{formatPrice(Math.abs(calc.profitLoss), native)}
-                    <span className="text-sm ml-1">
-                        ({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)
-                    </span>
+                    {hidden ? MASK : (
+                        <>
+                            {positive ? '+' : '-'}{formatPrice(Math.abs(calc.profitLoss), native)}
+                            <span className="text-sm ml-1">
+                                ({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)
+                            </span>
+                        </>
+                    )}
                 </span>
             </td>
             <td className="p-1 sm:p-2 md:p-4 text-center whitespace-nowrap">

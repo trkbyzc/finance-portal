@@ -1,5 +1,7 @@
 {
   "pageTitle": "My Portfolio",
+  "hideBalances": "Hide balances",
+  "showBalances": "Show balances",
   "pageSubtitle": "Live value, P/L and distribution of your investments",
   "stats": {
     "totalValue": "Total Value",
