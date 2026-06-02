@@ -12,6 +12,7 @@
     "totalUsers": "Toplam Kullanıcı",
     "active": "Aktif",
     "banned": "Yasaklı",
+    "protected": "Korumalı (Yönetici)",
     "search": "Kullanıcı adı veya e-posta ara...",
     "cols": {
       "username": "Kullanıcı Adı",

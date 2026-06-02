@@ -12,6 +12,7 @@
     "totalUsers": "Total Users",
     "active": "Active",
     "banned": "Banned",
+    "protected": "Protected (Admin)",
     "search": "Search by username or email...",
     "cols": {
       "username": "Username",

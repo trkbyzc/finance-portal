@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ban, ShieldOff, LogOut, Trash2 } from 'lucide-react';
+import { Ban, ShieldOff, LogOut, Trash2, ShieldCheck } from 'lucide-react';
 import { formatDate } from '../../../utils/formatters/dateFormatter';
 
 /**
@@ -14,6 +14,8 @@ export default function UserRow({ user, isSelf, onBan, onUnban, onForceLogout, o
     const realmRoles = user.realmRoles || [];
     const hasRealmRoles = realmRoles.length > 0;
     const isOrphan = !hasRealmRoles;
+    // Yöneticiler korumalı — banlama/oturum kapatma/silme aksiyonları gösterilmez
+    const isAdmin = user.role === 'ADMIN';
 
     return (
         <tr className="border-b border-border/50 hover:bg-surface-hover transition">
@@ -55,6 +57,11 @@ export default function UserRow({ user, isSelf, onBan, onUnban, onForceLogout, o
                 )}
             </td>
             <td className="p-4 text-right">
+                {isAdmin ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-semibold">
+                        <ShieldCheck size={14} /> {t('admin:users.protected')}
+                    </span>
+                ) : (
                 <div className="inline-flex items-center gap-2">
                     {isBanned ? (
                         <button
@@ -90,6 +97,7 @@ export default function UserRow({ user, isSelf, onBan, onUnban, onForceLogout, o
                         <Trash2 size={14} />
                     </button>
                 </div>
+                )}
             </td>
         </tr>
     );
