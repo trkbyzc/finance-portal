@@ -180,6 +180,46 @@
       "global": "Küresel"
     }
   },
+  "economyDash": {
+    "headerTitle": "Türkiye Ekonomisi",
+    "headerSubtitle": "TCMB EVDS makro göstergeleri — bir göstergeye tıklayıp grafiğini görün",
+    "source": "Kaynak: TCMB EVDS / FRED",
+    "note": "Veriler TCMB EVDS'ten günlük çekilir; enflasyon serileri yıllık % değişimdir.",
+    "categories": {
+      "inflation": "Enflasyon",
+      "rates": "Faizler",
+      "growth": "Büyüme & Gelir",
+      "external": "Dış Denge & Rezerv",
+      "fx": "Döviz Kurları",
+      "labor": "İşgücü",
+      "budget": "Bütçe",
+      "activity": "Aktivite & Güven",
+      "market": "Borsa & Altın",
+      "global": "Küresel"
+    },
+    "metrics": {
+      "inflationRate": "TÜFE (Yıllık)",
+      "ppi": "Yİ-ÜFE (Yıllık)",
+      "coreInflation": "Çekirdek Enflasyon (C)",
+      "interestRate": "Politika Faizi",
+      "depositRate": "TL Mevduat Faizi",
+      "loanRate": "İhtiyaç Kredisi Faizi",
+      "gdp": "GSYİH (reel)",
+      "gdpPerCapita": "Kişi Başı Milli Gelir",
+      "currentAccount": "Cari İşlemler Dengesi",
+      "reserves": "TCMB Toplam Rezervler",
+      "reer": "Reel Efektif Döviz Kuru",
+      "usdTry": "Dolar / TL",
+      "eurTry": "Euro / TL",
+      "unemploymentRate": "İşsizlik Oranı",
+      "budgetBalance": "Genel Bütçe Dengesi",
+      "capacityUtilization": "Kapasite Kullanım Oranı",
+      "consumerConfidence": "Tüketici Güven Endeksi",
+      "bist100": "BIST 100 Endeksi",
+      "gramGold": "Gram Altın (TL)",
+      "usInflation": "ABD Enflasyonu (CPI)"
+    }
+  },
   "trBonds": {
     "headerTitle": "Türkiye Tahvil & Bono",
     "headerSubtitle": "Vade kategorilerine göre Hazine DİBS'leri — bir tahvile tıklayıp grafiğini görün",

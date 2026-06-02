@@ -112,6 +112,12 @@ export default function Navbar() {
                                 {t('navbar:news')}
                             </Link>
                             <Link
+                                to="/markets/economy"
+                                className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
+                            >
+                                {t('navbar:economy')}
+                            </Link>
+                            <Link
                                 to="/economic-calendar"
                                 className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors text-center leading-tight max-w-27.5"
                             >
@@ -185,6 +191,7 @@ export default function Navbar() {
                 navConfig={navConfig}
                 extraLinks={[
                     { to: '/news', label: t('navbar:news') },
+                    { to: '/markets/economy', label: t('navbar:economy') },
                     { to: '/economic-calendar', label: t('navbar:economicCalendar') }
                 ]}
             />

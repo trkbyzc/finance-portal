@@ -3,6 +3,7 @@ package com.financeportal.domains.economy.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.client.EvdsClient;
+import com.financeportal.domains.economy.config.EconomyIndicators;
 import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +52,8 @@ public class EconomySyncService {
         // History TCMB tarafından ~2022-08'de yeniden yapılandırıldı, ondan eskisi yok.
         // Daha uzun politika faizi tarihçesi için doğru EVDS kodu tespit edilmeli.
         Double interest = extractLatest(evdsClient.fetchSeries(List.of("TP.APIFON4"), today.minusDays(180), today, null), "TP.APIFON4");
-        Double unemployment = extractLatest(evdsClient.fetchSeries(List.of("TP.TIG08"), today.minusDays(180), today, null), "TP.TIG08");
-        Double inflation = extractLatest(evdsClient.fetchSeries(List.of("TP.GENENDEKS.T1"), today.minusDays(180), today, "3"), "TP.GENENDEKS.T1");
+        Double unemployment = extractLatest(evdsClient.fetchSeries(List.of("TP.YISGUCU2.G8"), today.minusDays(365), today, null), "TP.YISGUCU2.G8");
+        Double inflation = extractLatest(evdsClient.fetchSeries(List.of("TP.TUKFIY2025.GENEL"), today.minusDays(365), today, "3"), "TP.TUKFIY2025.GENEL");
 
         macroData.put("interestRate", interest != null ? interest : 50.00);
         macroData.put("unemploymentRate", unemployment != null ? unemployment : 8.70);
@@ -64,14 +65,13 @@ public class EconomySyncService {
             log.info("[EVDS-ECONOMY] Anlık ekonomi verileri Redis'e yazıldı.");
         } catch (Exception e) { log.error("Macro JSON Error", e); }
 
-        // 2. 10 YILLIK GRAFİK GEÇMİŞİ
+        // 2. 10 YILLIK GRAFİK GEÇMİŞİ — gösterge kayıt defterindeki tüm EVDS serileri
         LocalDate tenYearsAgo = today.minusDays(3650);
-        saveHistory("TP.APIFON4", "interestRate", tenYearsAgo, today, null);
-        saveHistory("TP.TIG08", "unemploymentRate", tenYearsAgo, today, null);
-        saveHistory("TP.GENENDEKS.T1", "inflationRate", tenYearsAgo, today, "3");
-        // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer
-        // Frontend basePrice normalization yapıyor, raw endeks gerekiyor (örn. 100 -> 145 = +%45 toplam)
-        saveHistory("TP.GENENDEKS.T1", "cumulativeInflationRate", tenYearsAgo, today, null);
+        for (EconomyIndicators.Indicator ind : EconomyIndicators.ALL) {
+            saveHistory(ind.code(), ind.key(), tenYearsAgo, today, ind.formula());
+        }
+        // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer (ayrı key)
+        saveHistory("TP.TUKFIY2025.GENEL", "cumulativeInflationRate", tenYearsAgo, today, null);
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
         }
@@ -87,7 +87,11 @@ public class EconomySyncService {
     }
 
     private void saveHistory(String code, String metricName, LocalDate start, LocalDate end, String formula) {
-        List<JsonNode> nodes = evdsClient.fetchSeries(List.of(code), start, end, formula);
+        // Formula (yıllık %değişim) gerektirenlerde tekli fetch (aylık seri, <1000 nokta);
+        // seviye serilerinde paginated (günlük 10y > 1000 nokta sınırını aşar) → tam geçmiş.
+        List<JsonNode> nodes = (formula != null)
+                ? evdsClient.fetchSeries(List.of(code), start, end, formula)
+                : evdsClient.fetchSeriesPaginated(List.of(code), start, end, 3);
         List<Map<String, Object>> historyList = new ArrayList<>();
 
         for (JsonNode node : nodes) {

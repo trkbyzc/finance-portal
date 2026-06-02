@@ -35,4 +35,10 @@ public class EconomyController {
             @RequestParam(defaultValue = "10y") String range) {
         return ResponseEntity.ok(economyService.getEconomyHistory(metric, range));
     }
+
+    @GetMapping("/economy/indicators")
+    @Operation(summary = "Ekonomi göstergeleri kayıt defteri (key, kategori, birim)")
+    public ResponseEntity<List<Map<String, Object>>> getIndicators() {
+        return ResponseEntity.ok(economyService.getIndicators());
+    }
 }

@@ -180,6 +180,46 @@
       "global": "Global"
     }
   },
+  "economyDash": {
+    "headerTitle": "Turkish Economy",
+    "headerSubtitle": "CBRT EVDS macro indicators — click an indicator to see its chart",
+    "source": "Source: CBRT EVDS / FRED",
+    "note": "Data is pulled daily from CBRT EVDS; inflation series are year-over-year % change.",
+    "categories": {
+      "inflation": "Inflation",
+      "rates": "Interest Rates",
+      "growth": "Growth & Income",
+      "external": "External Balance & Reserves",
+      "fx": "Exchange Rates",
+      "labor": "Labor",
+      "budget": "Budget",
+      "activity": "Activity & Confidence",
+      "market": "Equities & Gold",
+      "global": "Global"
+    },
+    "metrics": {
+      "inflationRate": "CPI (YoY)",
+      "ppi": "PPI (YoY)",
+      "coreInflation": "Core Inflation (C)",
+      "interestRate": "Policy Rate",
+      "depositRate": "TL Deposit Rate",
+      "loanRate": "Consumer Loan Rate",
+      "gdp": "GDP (real)",
+      "gdpPerCapita": "GDP per Capita",
+      "currentAccount": "Current Account Balance",
+      "reserves": "CBRT Total Reserves",
+      "reer": "Real Effective Exchange Rate",
+      "usdTry": "USD / TRY",
+      "eurTry": "EUR / TRY",
+      "unemploymentRate": "Unemployment Rate",
+      "budgetBalance": "Budget Balance",
+      "capacityUtilization": "Capacity Utilization",
+      "consumerConfidence": "Consumer Confidence Index",
+      "bist100": "BIST 100 Index",
+      "gramGold": "Gram Gold (TRY)",
+      "usInflation": "US Inflation (CPI)"
+    }
+  },
   "trBonds": {
     "headerTitle": "Turkish Bonds & Bills",
     "headerSubtitle": "Treasury debt securities by maturity — click a bond to see its chart",

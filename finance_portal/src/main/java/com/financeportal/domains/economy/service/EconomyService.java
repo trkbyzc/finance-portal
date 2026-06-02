@@ -2,6 +2,7 @@ package com.financeportal.domains.economy.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.domains.economy.config.EconomyIndicators;
 import com.financeportal.domains.economy.dto.EconomyDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,19 @@ public class EconomyService {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
+
+    /** Ekonomi göstergeleri kayıt defteri — frontend sidebar gruplaması için (key, kategori, birim). */
+    public List<Map<String, Object>> getIndicators() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (EconomyIndicators.Indicator ind : EconomyIndicators.ALL) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("key", ind.key());
+            m.put("category", ind.category());
+            m.put("unit", ind.unit());
+            list.add(m);
+        }
+        return list;
+    }
 
     // Redis'ten anlık makro verileri okur
     public EconomyDto getMacroEconomyData() {
