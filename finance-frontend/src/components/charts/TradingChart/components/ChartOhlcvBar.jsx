@@ -17,7 +17,8 @@ export default function ChartOhlcvBar({ candle, formatPriceLabel }) {
 
     const locale = i18n.language?.startsWith('en') ? 'en-US' : 'tr-TR';
     const fmtVol = (v) => {
-        if (v == null || v === 0) return '0';
+        if (v == null) return '—';            // hacim verisi yok (örn. endeks)
+        if (v === 0) return '0';
         return new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).format(v);
     };
 
@@ -31,7 +32,8 @@ export default function ChartOhlcvBar({ candle, formatPriceLabel }) {
             value: `${up ? '+' : ''}${changePct.toFixed(2)}%`,
             tone: up ? 'text-buy' : 'text-sell'
         },
-        { label: t('ohlcv.volume'), value: fmtVol(volume), tone: 'text-text' }
+        // Hacim kartı yalnızca veri varsa (endeks gibi hacimsiz varlıklarda gösterilmez)
+        ...(volume != null ? [{ label: t('ohlcv.volume'), value: fmtVol(volume), tone: 'text-text' }] : [])
     ];
 
     return (

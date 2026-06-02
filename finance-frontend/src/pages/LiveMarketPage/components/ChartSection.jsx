@@ -4,6 +4,7 @@ import { AreaChart, CandlestickChart, ExternalLink } from 'lucide-react';
 import { init, dispose } from 'klinecharts';
 import { useTranslation } from 'react-i18next';
 import { formatIndexName } from '../LiveMarketUtils';
+import ChartOhlcvBar from '../../../components/charts/TradingChart/components/ChartOhlcvBar';
 
 const RANGE_KEYS = [
     { key: '1d', value: '1d' },
@@ -21,7 +22,22 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
     const [chartType, setChartType] = useState('area');
     const { t } = useTranslation(['common', 'markets']);
 
+    // OHLCV kartları — crosshair ile gezilen mum (yoksa son mum)
+    const [bar, setBar] = useState(null);
+    const [hover, setHover] = useState(null);
+    // Sembol/tip/aralık değişince hover sıfırlansın (render-içi guard'lı reset)
+    const resetKey = `${selectedSymbol}|${chartType}|${selectedRange}`;
+    const [prevKey, setPrevKey] = useState(resetKey);
+    if (resetKey !== prevKey) { setPrevKey(resetKey); setHover(null); }
+    const candle = hover || bar;
+
     const isBistMainIndex = selectedSymbol?.includes('XU100') || selectedSymbol?.includes('XU030') || selectedSymbol?.includes('XU050');
+
+    // Endeks TRY bazlı — OHLCV kartları için fiyat formatlayıcı
+    const formatPriceLabel = (v) => {
+        if (v == null || Number.isNaN(v)) return '';
+        return `₺${Number(v).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
 
     useEffect(() => {
         if (!chartRef.current || !selectedSymbol) return;
@@ -31,8 +47,12 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
             grid: { show: false },
             xAxis: { axisLine: { show: false }, tickText: { color: '#868993', size: 10 } },
             yAxis: { position: 'right', axisLine: { show: false }, tickText: { color: '#868993', size: 10 } },
-            tooltip: { showRule: 'none' }
+            // Üstteki "Time/Open/High..." klinecharts legend'i gizli (kendi OHLCV kartlarımız var)
+            candle: { tooltip: { showRule: 'none' } }
         });
+
+        // Crosshair hareketinde kartları canlı güncelle
+        chartInstance.current.subscribeAction('onCrosshairChange', (d) => setHover(d?.kLineData ?? null));
 
         const fetchHistory = async () => {
             try {
@@ -49,11 +69,12 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
                 }));
 
                 chartInstance.current.applyNewData(chartData);
+                setBar(chartData.length ? chartData[chartData.length - 1] : null);
 
                 if (chartType === 'area') {
-                    chartInstance.current.setStyles({ candle: { type: 'area', area: { lineColor: '#2962ff', fillColor: [{ offset: 0, color: 'rgba(41, 98, 255, 0.3)' }, { offset: 1, color: 'rgba(41, 98, 255, 0)' }] } } });
+                    chartInstance.current.setStyles({ candle: { type: 'area', tooltip: { showRule: 'none' }, area: { lineColor: '#2962ff', fillColor: [{ offset: 0, color: 'rgba(41, 98, 255, 0.3)' }, { offset: 1, color: 'rgba(41, 98, 255, 0)' }] } } });
                 } else {
-                    chartInstance.current.setStyles({ candle: { type: 'candle_solid' } });
+                    chartInstance.current.setStyles({ candle: { type: 'candle_solid', tooltip: { showRule: 'none' } } });
                 }
             } catch (e) { console.error("Chart history fetch failed:", e); }
         };
@@ -64,24 +85,35 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
 
     return (
         <div className="mb-12">
-            <div className="bg-surface border border-border rounded-3xl p-4 md:p-6 h-[500px] relative shadow-2xl">
-                <div className="absolute top-6 right-6 z-20 text-right">
-                    <div className="text-xl font-bold text-text uppercase">{formatIndexName(selectedSymbol)}</div>
-                    <div className="text-sm text-text-muted">{t('markets:live.snapshotSubtitle')}</div>
+            <div className="bg-surface border border-border rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col">
+                {/* Üst: chart tipi (sol) + başlık (sağ) */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-1 bg-bg/80 backdrop-blur p-1 rounded-xl border border-border">
+                        <button onClick={() => setChartType('area')} className={`p-2 rounded-lg transition-all ${chartType === 'area' ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text'}`}><AreaChart size={18} /></button>
+                        <button onClick={() => setChartType('candle_solid')} className={`p-2 rounded-lg transition-all ${chartType === 'candle_solid' ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text'}`}><CandlestickChart size={18} /></button>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-xl font-bold text-text uppercase">{formatIndexName(selectedSymbol)}</div>
+                        <div className="text-sm text-text-muted">{t('markets:live.snapshotSubtitle')}</div>
+                    </div>
                 </div>
 
-                <div className="absolute top-6 left-6 z-20 flex items-center gap-1 bg-bg/80 backdrop-blur p-1 rounded-xl border border-border">
-                    <button onClick={() => setChartType('area')} className={`p-2 rounded-lg transition-all ${chartType === 'area' ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text'}`}><AreaChart size={18} /></button>
-                    <button onClick={() => setChartType('candle_solid')} className={`p-2 rounded-lg transition-all ${chartType === 'candle_solid' ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text'}`}><CandlestickChart size={18} /></button>
-                </div>
+                {/* OHLCV kartları (TradingChart ile aynı) */}
+                {candle && (
+                    <div className="mb-3 -mx-1">
+                        <ChartOhlcvBar candle={candle} formatPriceLabel={formatPriceLabel} />
+                    </div>
+                )}
 
-                <div className="absolute bottom-6 left-6 z-20 flex items-center gap-1 bg-bg/80 backdrop-blur p-1 rounded-xl border border-border">
+                {/* Grafik */}
+                <div ref={chartRef} className="w-full h-95" />
+
+                {/* Aralık butonları */}
+                <div className="flex items-center gap-1 mt-3 flex-wrap">
                     {RANGE_KEYS.map((btn) => (
                         <button key={btn.value} onClick={() => setSelectedRange(btn.value)} className={`px-3 py-1 text-[11px] font-bold rounded-lg transition-all ${selectedRange === btn.value ? 'bg-primary text-text' : 'text-text-muted hover:text-text hover:bg-surface-2'}`}>{t(`common:ranges.${btn.key}`)}</button>
                     ))}
                 </div>
-
-                <div ref={chartRef} className="w-full h-full pt-12" />
             </div>
 
             {isBistMainIndex && (
