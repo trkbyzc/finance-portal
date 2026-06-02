@@ -3,11 +3,10 @@ import { init, dispose } from 'klinecharts';
 import { useViopChartData, getPastDate } from '../../../hooks/charts/useViopChartData';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { detectNativeCurrency } from '../../../utils/currencyConversion';
-import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
+import { computePricePrecision } from '../../../utils/priceFormat';
 import ViopHeader from './components/ViopHeader';
 import ViopControls from './components/ViopControls';
 import ViopChartArea from './components/ViopChartArea';
-import ChartOhlcvBar from '../TradingChart/components/ChartOhlcvBar';
 
 // 🚀 FAZA 1: Veri çekme useEffect'i kaldırıldı, custom hook kullanılıyor
 export default function ViopTradingChart({ asset }) {
@@ -23,9 +22,6 @@ export default function ViopTradingChart({ asset }) {
 
     const [customFromDate, setCustomFromDate] = useState(fromDate);
     const [customToDate, setCustomToDate] = useState(toDate);
-
-    // Crosshair ile gezilen mum (hover) — yoksa son mum gösterilir
-    const [hoverCandle, setHoverCandle] = useState(null);
 
     const handleRangeChange = (newRange) => {
         setRange(newRange);
@@ -46,22 +42,6 @@ export default function ViopTradingChart({ asset }) {
     const { currency, convertPrice } = useCurrency();
     const nativeCurrency = useMemo(() => detectNativeCurrency({ ...asset, assetCategory: 'VIOP' }), [asset]);
     const shouldConvert = currency !== nativeCurrency;
-
-    // Sembol/aralık/para birimi değişince hover sıfırlansın (toggle'da eski kurda kalmasın)
-    const resetKey = `${asset?.symbol}|${range}|${currency}`;
-    const [prevResetKey, setPrevResetKey] = useState(resetKey);
-    if (resetKey !== prevResetKey) {
-        setPrevResetKey(resetKey);
-        setHoverCandle(null);
-    }
-
-    const currencySymbol = currency === 'TRY' ? '₺' : '$';
-    const formatPriceLabel = (v) => {
-        if (v == null || Number.isNaN(v)) return '';
-        const locale = currency === 'TRY' ? 'tr-TR' : 'en-US';
-        const digits = computePriceLabelDigits(v);
-        return `${currencySymbol}${Number(v).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: digits })}`;
-    };
 
     const chartData = useMemo(() => {
         if (!shouldConvert || !rawChartData?.length) return rawChartData;
@@ -103,11 +83,6 @@ export default function ViopTradingChart({ asset }) {
             }
         });
 
-        // Crosshair hareketinde OHLCV kartlarını canlı güncelle
-        chartInstance.current.subscribeAction('onCrosshairChange', (data) => {
-            setHoverCandle(data?.kLineData ?? null);
-        });
-
         return () => {
             if (chartInstance.current) {
                 dispose(chartContainerRef.current);
@@ -131,9 +106,6 @@ export default function ViopTradingChart({ asset }) {
     return (
         <div className="flex flex-col w-full h-full bg-bg text-text">
             <ViopHeader asset={asset} />
-            {chartData.length > 0 && (
-                <ChartOhlcvBar candle={hoverCandle || chartData[chartData.length - 1]} formatPriceLabel={formatPriceLabel} />
-            )}
             <ViopControls
                 range={range}
                 handleRangeChange={handleRangeChange}
