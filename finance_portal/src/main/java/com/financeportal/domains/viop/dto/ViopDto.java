@@ -18,4 +18,5 @@ public class ViopDto {
     private String yahooSymbol;
     private String chartType;
     private String assetCategory;
+    private BigDecimal contractSize; // Sözleşme büyüklüğü / çarpan (nominal = fiyat × çarpan × adet)
 }

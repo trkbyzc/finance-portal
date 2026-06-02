@@ -46,8 +46,12 @@ public class PortfolioTradeService {
         PortfolioItem item = portfolioItemRepository.findByUser_IdAndSymbol(userId, request.getSymbol()).orElse(null);
 
         if (item == null) {
+            // VİOP çarpanı ekleme anında snapshot'lanır (sonradan mock tablo değişse de pozisyon doğru kalır).
+            BigDecimal contractSize = (request.getContractSize() != null && request.getContractSize().signum() > 0)
+                    ? request.getContractSize()
+                    : BigDecimal.ONE;
             item = new PortfolioItem(UUID.randomUUID(), user, request.getSymbol(), request.getAssetType(),
-                    request.getQuantity(), request.getPrice());
+                    request.getQuantity(), request.getPrice(), contractSize);
         } else {
             BigDecimal oldTotal = item.getQuantity().multiply(item.getAveragePrice());
             BigDecimal newTotal = request.getQuantity().multiply(request.getPrice());

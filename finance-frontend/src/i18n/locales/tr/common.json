@@ -8,7 +8,9 @@
     "COMMODITY": "Emtia",
     "BOND_TR": "Türk Tahvili",
     "BOND": "Küresel Tahvil",
-    "FUND": "Yatırım Fonu"
+    "FUND": "Yatırım Fonu",
+    "VIOP": "VİOP (Vadeli)",
+    "FUTURE": "VİOP (Vadeli)"
   },
   "actions": {
     "save": "Kaydet",

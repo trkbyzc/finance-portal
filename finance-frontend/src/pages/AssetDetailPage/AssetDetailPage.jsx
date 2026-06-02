@@ -42,15 +42,26 @@ export default function AssetDetailPage() {
         setIsAddModalOpen(true);
     };
 
+    // Frontend assetCategory → backend AssetType enum (VIOP→FUTURE, TR_BOND/EUROBOND→BOND, TR_FUND→FUND)
+    const toBackendAssetType = (category) => {
+        const map = {
+            VIOP: 'FUTURE', TR_BOND: 'BOND', EUROBOND: 'BOND', TR_FUND: 'FUND', INDEX: 'STOCK'
+        };
+        return map[category] || category || 'STOCK';
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
+            const isViop = asset?.assetCategory === 'VIOP';
             const payload = {
                 symbol: asset?.symbol || decodedSymbol,
-                assetType: asset?.assetCategory || 'STOCK',
+                assetType: toBackendAssetType(asset?.assetCategory),
                 quantity: parseFloat(formData.quantity),
-                averagePrice: parseFloat(formData.price)
+                averagePrice: parseFloat(formData.price),
+                // VİOP'ta sözleşme büyüklüğü (çarpan) holding'e snapshot'lanır
+                ...(isViop ? { contractSize: Number(asset?.contractSize) || 1 } : {})
             };
 
             await portfolioApi.addManualEntry(payload);
@@ -148,6 +159,24 @@ export default function AssetDetailPage() {
                                     placeholder="150.25"
                                 />
                             </div>
+
+                            {asset?.assetCategory === 'VIOP' && (
+                                <div className="bg-surface-2 border border-border rounded-xl p-3 text-xs">
+                                    <div className="flex justify-between">
+                                        <span className="text-text-muted">{t('portfolio:modal.contractSize', 'Sözleşme Büyüklüğü (çarpan)')}</span>
+                                        <span className="font-bold text-text">× {Number(asset?.contractSize) || 1}</span>
+                                    </div>
+                                    {parseFloat(formData.quantity) > 0 && (
+                                        <div className="flex justify-between mt-1.5">
+                                            <span className="text-text-muted">{t('portfolio:modal.notional', 'Nominal Değer')}</span>
+                                            <span className="font-bold text-primary">
+                                                {((parseFloat(formData.price) || Number(asset?.displayPrice) || 0) * (Number(asset?.contractSize) || 1) * parseFloat(formData.quantity)).toLocaleString('tr-TR', { maximumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <p className="text-[10px] text-text-muted mt-1.5">{t('portfolio:modal.notionalHint', 'Nominal = fiyat × çarpan × adet. Portföy değeri ve K/Z bu çarpanla hesaplanır.')}</p>
+                                </div>
+                            )}
 
                             <button
                                 type="submit"

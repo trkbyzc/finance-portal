@@ -13,7 +13,8 @@ public class PortfolioItemDto {
     private String assetType;
     private BigDecimal quantity;
     private BigDecimal averagePrice;    // Maliyetimiz (Alış)
-    private BigDecimal totalCost;       // Adet * Maliyet (Toplam Maliyet)
+    private BigDecimal contractSize;    // VİOP çarpanı (diğer varlıklarda 1)
+    private BigDecimal totalCost;       // Adet * Çarpan * Maliyet (Toplam Maliyet)
 
     // -- YENİ EKLENEN (İSTERLER 4. MADDE) --
     private BigDecimal currentPrice;    // Anlık Piyasa Fiyatı

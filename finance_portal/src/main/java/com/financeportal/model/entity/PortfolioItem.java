@@ -35,4 +35,9 @@ public class PortfolioItem {
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal averagePrice; // Ortalama Alış Maliyeti
+
+    // VİOP sözleşme büyüklüğü (çarpan): nominal = fiyat × çarpan × adet.
+    // VİOP dışı varlıklarda 1. Pozisyon ekleme anındaki değer snapshot'lanır.
+    @Column(name = "contract_size", nullable = false, precision = 19, scale = 6)
+    private BigDecimal contractSize;
 }

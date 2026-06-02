@@ -66,6 +66,9 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
 function HoldingRow({ item, calc, formatPrice, t, onOpenHistory, onOpenBuy, onOpenSell }) {
     const native = nativeCurrencyForType(item.assetType, item.symbol);
     const positive = calc.profitLoss >= 0;
+    // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
+    const multiplier = Number(item.contractSize) || 1;
+    const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;
     return (
         <tr className="border-b border-border hover:bg-bg transition">
             <td className="p-2 md:p-4 whitespace-nowrap">
@@ -73,11 +76,14 @@ function HoldingRow({ item, calc, formatPrice, t, onOpenHistory, onOpenBuy, onOp
                 {/* Mobile-only: tip + adet özet rozeti (md altında gizli kolonların yerine) */}
                 <div className="md:hidden mt-0.5 text-[10px] text-text-muted">
                     {t('common:assetTypes.' + item.assetType, item.assetType)}
-                    <span className="sm:hidden"> · {item.quantity}</span>
+                    <span className="sm:hidden"> · {item.quantity}{showMultiplier ? ` × ${multiplier}` : ''}</span>
                 </div>
             </td>
             <td className="hidden md:table-cell p-2 md:p-4 text-text-muted whitespace-nowrap">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
-            <td className="hidden sm:table-cell p-2 md:p-4 text-right whitespace-nowrap">{item.quantity}</td>
+            <td className="hidden sm:table-cell p-2 md:p-4 text-right whitespace-nowrap">
+                {item.quantity}
+                {showMultiplier && <span className="text-text-muted text-[11px] ml-1" title={t('portfolio:modal.contractSize')}>× {multiplier}</span>}
+            </td>
             <td className="hidden lg:table-cell p-2 md:p-4 text-right whitespace-nowrap">{formatPrice(item.averagePrice, native)}</td>
             <td className="p-2 md:p-4 text-right text-sm md:text-base whitespace-nowrap">{formatPrice(calc.currentPrice, native)}</td>
             <td className="hidden lg:table-cell p-2 md:p-4 text-right font-semibold whitespace-nowrap">{formatPrice(calc.currentValue, native)}</td>

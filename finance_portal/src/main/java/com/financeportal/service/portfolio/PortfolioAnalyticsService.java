@@ -23,9 +23,11 @@ public class PortfolioAnalyticsService {
 
     public List<PortfolioItemDto> buildPortfolioItems(List<PortfolioItem> items) {
         return items.stream().map(item -> {
-            BigDecimal totalCost = item.getQuantity().multiply(item.getAveragePrice());
+            // VİOP çarpanı (sözleşme büyüklüğü); diğer varlıklarda/eski kayıtlarda 1.
+            BigDecimal multiplier = item.getContractSize() != null ? item.getContractSize() : BigDecimal.ONE;
+            BigDecimal totalCost = item.getQuantity().multiply(item.getAveragePrice()).multiply(multiplier);
             BigDecimal currentPrice = priceService.getCurrentPrice(item.getSymbol(), item.getAssetType());
-            BigDecimal currentValue = item.getQuantity().multiply(currentPrice);
+            BigDecimal currentValue = item.getQuantity().multiply(currentPrice).multiply(multiplier);
             BigDecimal profitLoss = currentValue.subtract(totalCost);
             BigDecimal profitLossPct = BigDecimal.ZERO;
 
@@ -34,7 +36,7 @@ public class PortfolioAnalyticsService {
             }
 
             return new PortfolioItemDto(item.getSymbol(), item.getAssetType().name(), item.getQuantity(),
-                    item.getAveragePrice(), totalCost, currentPrice, currentValue, profitLoss, profitLossPct);
+                    item.getAveragePrice(), multiplier, totalCost, currentPrice, currentValue, profitLoss, profitLossPct);
         }).toList();
     }
 
@@ -44,9 +46,10 @@ public class PortfolioAnalyticsService {
         List<AssetDistributionDto> distribution = new ArrayList<>();
 
         for (PortfolioItem item : items) {
-            BigDecimal itemCost = item.getQuantity().multiply(item.getAveragePrice());
+            BigDecimal multiplier = item.getContractSize() != null ? item.getContractSize() : BigDecimal.ONE;
+            BigDecimal itemCost = item.getQuantity().multiply(item.getAveragePrice()).multiply(multiplier);
             BigDecimal currentPrice = priceService.getCurrentPrice(item.getSymbol(), item.getAssetType());
-            BigDecimal itemValue = item.getQuantity().multiply(currentPrice);
+            BigDecimal itemValue = item.getQuantity().multiply(currentPrice).multiply(multiplier);
 
             totalAssetCost = totalAssetCost.add(itemCost);
             totalAssetValue = totalAssetValue.add(itemValue);

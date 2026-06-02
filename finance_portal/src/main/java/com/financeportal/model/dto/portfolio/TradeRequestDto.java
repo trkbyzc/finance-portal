@@ -15,4 +15,5 @@ public class TradeRequestDto {
     private AssetType assetType; // STOCK, CRYPTO vb.
     private BigDecimal quantity; // Kaç adet/miktar alınacak?
     private BigDecimal price;    // Anlık alış fiyatı
+    private BigDecimal contractSize; // VİOP sözleşme büyüklüğü (çarpan); opsiyonel, yoksa 1
 }

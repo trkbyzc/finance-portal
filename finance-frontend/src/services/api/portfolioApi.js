@@ -14,7 +14,8 @@ export const portfolioApi = {
             symbol: data.symbol,
             assetType: data.assetType,
             quantity: data.quantity,
-            price: data.averagePrice
+            price: data.averagePrice,
+            contractSize: data.contractSize // VİOP çarpanı (varsa); diğer varlıklarda backend 1 sayar
         });
     },
 

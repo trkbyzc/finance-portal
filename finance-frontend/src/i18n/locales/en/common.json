@@ -8,7 +8,9 @@
     "COMMODITY": "Commodity",
     "BOND_TR": "TR Bond",
     "BOND": "Global Bond",
-    "FUND": "Fund"
+    "FUND": "Fund",
+    "VIOP": "VIOP (Futures)",
+    "FUTURE": "VIOP (Futures)"
   },
   "actions": {
     "save": "Save",

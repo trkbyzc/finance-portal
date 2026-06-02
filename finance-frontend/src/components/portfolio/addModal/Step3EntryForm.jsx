@@ -14,6 +14,10 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const [averagePrice, setAveragePrice] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // VİOP'ta 1 sözleşme = çarpan kadar dayanak; nominal = fiyat × çarpan × adet
+    const isViop = selectedType === 'VIOP' || selectedBackendValue === 'FUTURE';
+    const contractSize = isViop ? (Number(selectedAsset.contractSize) || 1) : 1;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -22,7 +26,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 symbol: selectedAsset.symbol || selectedAsset.currencyCode,
                 assetType: selectedBackendValue || selectedType,
                 quantity: parseFloat(quantity),
-                averagePrice: parseFloat(averagePrice)
+                averagePrice: parseFloat(averagePrice),
+                ...(isViop ? { contractSize } : {})
             });
         } catch (error) {
             console.error('Add to portfolio error:', error);
@@ -35,6 +40,11 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const currentPrice = selectedAsset.currentPrice || selectedAsset.price || selectedAsset.forexSelling
         || selectedAsset.value || selectedAsset.lastPrice || selectedAsset.unitPrice || 0;
     const native = nativeCurrencyForType(selectedType, selectedAsset?.symbol || selectedAsset?.currencyCode);
+
+    // VİOP nominal değeri (girilen adet üzerinden) — kullanıcı gerçek maruziyeti görsün
+    const qtyNum = parseFloat(quantity);
+    const priceNum = parseFloat(averagePrice) || currentPrice || 0;
+    const notional = isViop && qtyNum > 0 ? priceNum * contractSize * qtyNum : null;
 
     return (
         <form onSubmit={handleSubmit}>
@@ -83,6 +93,24 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     required
                 />
             </div>
+
+            {isViop && (
+                <div className="bg-bg border border-border rounded-lg p-4 mb-6 text-sm">
+                    <div className="flex justify-between items-center">
+                        <span className="text-text-muted">{t('portfolio:modal.contractSize', 'Sözleşme Büyüklüğü (çarpan)')}</span>
+                        <span className="font-semibold">× {contractSize}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                        <span className="text-text-muted">{t('portfolio:modal.notional', 'Nominal Değer')}</span>
+                        <span className="font-semibold text-primary">
+                            {notional != null ? formatPrice(notional, native) : '—'}
+                        </span>
+                    </div>
+                    <p className="text-[11px] text-text-muted mt-2">
+                        {t('portfolio:modal.notionalHint', 'Nominal = fiyat × çarpan × adet. Portföy değeri ve K/Z bu çarpanla hesaplanır.')}
+                    </p>
+                </div>
+            )}
 
             <div className="flex gap-3">
                 <button

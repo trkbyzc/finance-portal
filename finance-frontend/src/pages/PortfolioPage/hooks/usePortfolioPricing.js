@@ -18,15 +18,16 @@ export default function usePortfolioPricing(portfolio) {
     const { data: marketData } = useQuery({
         queryKey: ['allMarketData'],
         queryFn: async () => {
-            const [stocks, cryptos, currencies, commodities, bonds, funds] = await Promise.all([
+            const [stocks, cryptos, currencies, commodities, bonds, funds, viop] = await Promise.all([
                 apiClient.get('/market-data/stocks').catch(() => []),
                 apiClient.get('/market-data/crypto-currencies').catch(() => []),
                 apiClient.get('/market-data/currencies').catch(() => []),
                 apiClient.get('/market-data/commodities').catch(() => []),
                 apiClient.get('/market-data/bonds').catch(() => []),
-                apiClient.get('/market-data/tr-funds').catch(() => [])
+                apiClient.get('/market-data/tr-funds').catch(() => []),
+                apiClient.get('/market-data/viop').catch(() => [])
             ]);
-            return { stocks, cryptos, currencies, commodities, bonds, funds };
+            return { stocks, cryptos, currencies, commodities, bonds, funds, viop };
         },
         staleTime: 30_000
     });
@@ -70,6 +71,7 @@ export default function usePortfolioPricing(portfolio) {
                 case 'COMMODITY': return marketData.commodities?.find(c => c.symbol === symbol)?.price;
                 case 'BOND':      return marketData.bonds?.find(b => b.symbol === symbol)?.price;
                 case 'FUND':      return fundPrices?.[symbol] || null;
+                case 'FUTURE':    return marketData.viop?.find(v => v.symbol === symbol)?.price;
                 default:          return null;
             }
         } catch {
@@ -79,9 +81,11 @@ export default function usePortfolioPricing(portfolio) {
 
     const calculateProfitLoss = (item) => {
         const currentPrice = getCurrentPrice(item.symbol, item.assetType) || item.currentPrice;
-        const profitLoss = (currentPrice - item.averagePrice) * item.quantity;
+        // VİOP sözleşme büyüklüğü (çarpan); diğer varlıklarda 1. Nominal = fiyat × çarpan × adet.
+        const multiplier = Number(item.contractSize) || 1;
+        const profitLoss = (currentPrice - item.averagePrice) * item.quantity * multiplier;
         const profitLossPercent = ((currentPrice - item.averagePrice) / item.averagePrice) * 100;
-        return { currentPrice, profitLoss, profitLossPercent, currentValue: currentPrice * item.quantity };
+        return { currentPrice, profitLoss, profitLossPercent, currentValue: currentPrice * item.quantity * multiplier };
     };
 
     return { getCurrentPrice, calculateProfitLoss };

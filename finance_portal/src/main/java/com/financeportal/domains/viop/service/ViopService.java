@@ -1,6 +1,7 @@
 package com.financeportal.domains.viop.service;
 
 import com.financeportal.domains.viop.client.ViopScraperClient;
+import com.financeportal.domains.viop.config.ViopContractSpec;
 import com.financeportal.domains.viop.dto.ViopDto;
 import com.financeportal.service.cache.CacheService;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +16,24 @@ public class ViopService {
 
     private final ViopScraperClient viopScraperClient;
     private final CacheService cacheService;
+    private final ViopContractSpec contractSpec;
 
     public List<ViopDto> getViopData() {
-        return cacheService.getOrFetch("cache:viop", viopScraperClient::scrapeViopData, 5);
+        return cacheService.getOrFetch("cache:viop", () -> withContractSize(viopScraperClient.scrapeViopData()), 5);
     }
 
     @Scheduled(fixedRate = 300000)
     public void fetchViopData() {
-        List<ViopDto> list = viopScraperClient.scrapeViopData();
+        List<ViopDto> list = withContractSize(viopScraperClient.scrapeViopData());
         if (list != null && !list.isEmpty()) cacheService.save("cache:viop", list, 5);
+    }
+
+    /** Her sözleşmeye dayanak bazlı çarpanı (sözleşme büyüklüğü) ekler. */
+    private List<ViopDto> withContractSize(List<ViopDto> list) {
+        if (list == null) return null;
+        for (ViopDto v : list) {
+            v.setContractSize(contractSpec.getContractSize(v.getSymbol()));
+        }
+        return list;
     }
 }
