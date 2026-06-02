@@ -24,7 +24,20 @@
     "performance": "Performans Geçmişi",
     "byCategory": "Kategoriye Göre",
     "byAsset": "Varlığa Göre",
-    "pnlSub": "Varlık bazlı kâr / zarar"
+    "pnlSub": "Varlık bazlı kâr / zarar",
+    "costVsValue": "Maliyet / Piyasa Değeri",
+    "costVsValueSub": "Her varlık için toplam maliyet ve anlık piyasa değeri",
+    "cost": "Maliyet",
+    "marketValue": "Piyasa Değeri",
+    "dailyStatus": "Günlük Durum",
+    "dailyStatusSub": "Pozisyonların günlük % değişimine göre dağılımı (adet)",
+    "positionCount": "Pozisyon",
+    "status": {
+      "up": "Yükselen",
+      "down": "Düşen",
+      "flat": "Yatay",
+      "noData": "Veri Yok"
+    }
   },
   "tabs": {
     "all": "Tümü"

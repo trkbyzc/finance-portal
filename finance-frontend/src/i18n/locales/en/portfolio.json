@@ -24,7 +24,20 @@
     "performance": "Performance History",
     "byCategory": "By Category",
     "byAsset": "By Asset",
-    "pnlSub": "Per-asset profit / loss"
+    "pnlSub": "Per-asset profit / loss",
+    "costVsValue": "Cost / Market Value",
+    "costVsValueSub": "Total cost vs current market value per asset",
+    "cost": "Cost",
+    "marketValue": "Market Value",
+    "dailyStatus": "Daily Status",
+    "dailyStatusSub": "Positions by daily % change (count)",
+    "positionCount": "Positions",
+    "status": {
+      "up": "Gainers",
+      "down": "Losers",
+      "flat": "Flat",
+      "noData": "No Data"
+    }
   },
   "tabs": {
     "all": "All"

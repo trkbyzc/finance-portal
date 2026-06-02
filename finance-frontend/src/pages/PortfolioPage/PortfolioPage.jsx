@@ -14,6 +14,7 @@ import PortfolioCharts from '../../components/portfolio/PortfolioCharts';
 import PortfolioTabs from '../../components/portfolio/PortfolioTabs';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 import HoldingsTable from '../../components/portfolio/HoldingsTable';
+import PortfolioActivityCharts from '../../components/portfolio/charts/PortfolioActivityCharts';
 import usePortfolioPricing from './hooks/usePortfolioPricing';
 import usePortfolioTabs from './hooks/usePortfolioTabs';
 
@@ -48,7 +49,7 @@ const PortfolioPage = () => {
         queryFn: portfolioApi.getMyPortfolio
     });
 
-    const { getCurrentPrice, calculateProfitLoss } = usePortfolioPricing(portfolio);
+    const { getCurrentPrice, getDailyChange, calculateProfitLoss } = usePortfolioPricing(portfolio);
     const { activeTab, setActiveTab, tabsState, filteredPortfolio } = usePortfolioTabs(portfolio);
 
     // Excel / PDF dışa aktarma — aktif sekmedeki holding'leri sisteme uygun belgeye döker
@@ -232,6 +233,17 @@ const PortfolioPage = () => {
                     onOpenBuy={setBuyMoreAsset}
                     onOpenSell={setSellAsset}
                 />
+
+                {/* Varlık listesinin altında: Maliyet/Piyasa Değeri + Günlük Durum çubuk grafikleri */}
+                {filteredPortfolio && filteredPortfolio.length > 0 && (
+                    <div className={hideBalances ? 'blur-md select-none pointer-events-none transition' : 'transition'}>
+                        <PortfolioActivityCharts
+                            portfolio={filteredPortfolio}
+                            calculateProfitLoss={calculateProfitLoss}
+                            getDailyChange={getDailyChange}
+                        />
+                    </div>
+                )}
             </div>
 
             <AddToPortfolioModal

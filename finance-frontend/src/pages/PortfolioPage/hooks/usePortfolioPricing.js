@@ -79,6 +79,24 @@ export default function usePortfolioPricing(portfolio) {
         }
     };
 
+    // Varlığın GÜNLÜK değişim % — piyasa verisinden (günlük durum grafiği için)
+    const getDailyChange = (symbol, assetType) => {
+        if (!marketData) return null;
+        try {
+            switch (assetType) {
+                case 'STOCK':     return marketData.stocks?.find(s => s.symbol === symbol)?.changePercent;
+                case 'CRYPTO':    return marketData.cryptos?.find(c => c.currencyCode === symbol)?.changePercent;
+                case 'CURRENCY':  return marketData.currencies?.find(c => c.currencyCode === symbol)?.changePercent;
+                case 'COMMODITY': return marketData.commodities?.find(c => c.symbol === symbol)?.changePercent;
+                case 'BOND':      return marketData.bonds?.find(b => b.symbol === symbol)?.changePercent;
+                case 'FUTURE':    return marketData.viop?.find(v => v.symbol === symbol)?.changePercent;
+                default:          return null;
+            }
+        } catch {
+            return null;
+        }
+    };
+
     const calculateProfitLoss = (item) => {
         const currentPrice = getCurrentPrice(item.symbol, item.assetType) || item.currentPrice;
         // VİOP sözleşme büyüklüğü (çarpan); diğer varlıklarda 1. Nominal = fiyat × çarpan × adet.
@@ -88,5 +106,5 @@ export default function usePortfolioPricing(portfolio) {
         return { currentPrice, profitLoss, profitLossPercent, currentValue: currentPrice * item.quantity * multiplier };
     };
 
-    return { getCurrentPrice, calculateProfitLoss };
+    return { getCurrentPrice, getDailyChange, calculateProfitLoss };
 }
