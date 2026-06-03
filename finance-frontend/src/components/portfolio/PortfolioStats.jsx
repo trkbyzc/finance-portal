@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Wallet, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PieChart, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 
@@ -33,8 +33,11 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
     const realProfitLoss = hasReal ? totalValue - realCost : null;
     const realReturnRate = hasReal ? (realProfitLoss / realCost) * 100 : null;
 
+    // Reel kartı varsa 5 kolon (xl), yoksa 4 kolon
+    const gridCols = hasReal ? 'md:grid-cols-2 xl:grid-cols-5' : 'md:grid-cols-2 xl:grid-cols-4';
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className={`grid grid-cols-1 ${gridCols} gap-4 mb-6`}>
             <div className="bg-surface-2 rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-2">
                     <Wallet size={20} className="text-text-muted" />
@@ -63,14 +66,6 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
                 <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
                     {hidden ? MASK : `${totalProfitLoss >= 0 ? '+' : ''}${formatPrice(totalProfitLoss, 'TRY')}`}
                 </p>
-                {hasReal && (
-                    <p className="text-xs mt-1 text-text-muted" title={t('stats.realPnlTip', 'Enflasyona göre düzeltilmiş')}>
-                        {t('stats.realPnl', 'Reel')}:{' '}
-                        <span className={realProfitLoss >= 0 ? 'text-buy' : 'text-sell'}>
-                            {hidden ? MASK : `${realProfitLoss >= 0 ? '+' : ''}${formatPrice(realProfitLoss, 'TRY')} (${realReturnRate >= 0 ? '+' : ''}${realReturnRate.toFixed(2)}%)`}
-                        </span>
-                    </p>
-                )}
             </div>
 
             <div className="bg-surface-2 rounded-lg p-6">
@@ -86,6 +81,27 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
                     {hidden ? MASK : `${returnRate >= 0 ? '+' : ''}${returnRate.toFixed(2)}%`}
                 </p>
             </div>
+
+            {hasReal && (
+                <div
+                    className="bg-surface-2 rounded-lg p-6 border border-primary/30"
+                    title={t('stats.realPnlTip', 'Enflasyona göre düzeltilmiş kâr/zarar')}
+                >
+                    <div className="flex items-center gap-3 mb-2">
+                        <Activity size={20} className={realProfitLoss >= 0 ? 'text-buy' : 'text-sell'} />
+                        <p className="text-text-muted text-sm">{t('stats.realPnl', 'Reel')} K/Z</p>
+                    </div>
+                    <p className={`text-2xl font-bold ${realProfitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
+                        {hidden ? MASK : `${realProfitLoss >= 0 ? '+' : ''}${formatPrice(realProfitLoss, 'TRY')}`}
+                    </p>
+                    <p className={`text-xs mt-1 ${realReturnRate >= 0 ? 'text-buy' : 'text-sell'}`}>
+                        {hidden ? MASK : `${realReturnRate >= 0 ? '+' : ''}${realReturnRate.toFixed(2)}%`}
+                        <span className="text-text-muted ml-1">
+                            ({t('stats.inflation', 'Enflasyon')}: ×{inflationFactor.toFixed(2)})
+                        </span>
+                    </p>
+                </div>
+            )}
         </div>
     );
 };

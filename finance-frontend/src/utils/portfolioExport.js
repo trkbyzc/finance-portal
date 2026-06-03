@@ -94,6 +94,14 @@ export function exportPortfolioExcel(rows, summary, meta) {
         [h.totalPnl, n2(summary.totalPnl)],
         [h.returnRate, n2(summary.returnRate)]
     ];
+    // Reel K/Z varsa özet bloğunun sonuna 3 ek satır ekle
+    if (summary.realPnl != null) {
+        aoa.push(
+            [h.realPnl, n2(summary.realPnl)],
+            [h.realReturnRate, n2(summary.realReturnRate)],
+            [h.inflationFactor, Number(summary.inflationFactor.toFixed(4))]
+        );
+    }
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
     // Sütun genişlikleri (karakter cinsinden)
@@ -175,11 +183,24 @@ export async function exportPortfolioPdf(rows, summary, meta, logoDataUrl) {
     let y = (doc.lastAutoTable?.finalY || 80) + 20;
     doc.setFont(fontFamily, 'normal');
     doc.setFontSize(10); doc.setTextColor(...TEXT_DARK);
-    const line = (label, val) => { doc.text(`${label}: ${n2(val)}`, 40, y); y += 16; };
+    const line = (label, val, suffix = '') => { doc.text(`${label}: ${n2(val)}${suffix}`, 40, y); y += 16; };
     line(h.totalCost, summary.totalCost);
     line(h.totalValue, summary.totalValue);
     line(h.totalPnl, summary.totalPnl);
-    line(h.returnRate, summary.returnRate);
+    line(h.returnRate, summary.returnRate, '%');
+
+    // Reel K/Z varsa ayrı blok — nominal'in altında, görsel olarak ayırt edilsin diye renkli başlık
+    if (summary.realPnl != null) {
+        y += 6;
+        doc.setFont(fontFamily, 'bold');
+        doc.setTextColor(...NAVY);
+        doc.text(`— ${h.realPnl.split(' ')[0]} (${h.inflationFactor.toLowerCase()}: ×${summary.inflationFactor.toFixed(2)}) —`, 40, y);
+        y += 16;
+        doc.setFont(fontFamily, 'normal');
+        doc.setTextColor(...TEXT_DARK);
+        line(h.realPnl, summary.realPnl);
+        line(h.realReturnRate, summary.realReturnRate, '%');
+    }
 
     doc.setFontSize(8); doc.setTextColor(150, 150, 150);
     doc.text(meta.footer || 'FinansPortal', pageW - 40, doc.internal.pageSize.getHeight() - 20, { align: 'right' });

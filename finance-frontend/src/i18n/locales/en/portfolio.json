@@ -36,6 +36,7 @@
     "totalPnl": "Total P/L",
     "realPnl": "Real",
     "realPnlTip": "Inflation-adjusted profit/loss",
+    "inflation": "Inflation",
     "totalPnlPercent": "P/L (%)",
     "dailyPnl": "Daily P/L",
     "assetCount": "Asset Count"

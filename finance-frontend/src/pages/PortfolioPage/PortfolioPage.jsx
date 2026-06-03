@@ -145,6 +145,13 @@ const PortfolioPage = () => {
         const totalValue = rows.reduce((s, r) => s + (r.currentValue || 0), 0);
         const totalPnl = totalValue - totalCost;
         const returnRate = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
+
+        // Enflasyona göre düzeltilmiş reel K/Z (varsa) — export'a ek satır olarak gelir
+        const hasReal = inflationFactor != null && inflationFactor > 0 && totalCost > 0;
+        const realCost = hasReal ? totalCost * inflationFactor : null;
+        const realPnl = hasReal ? totalValue - realCost : null;
+        const realReturnRate = hasReal ? (realPnl / realCost) * 100 : null;
+
         const meta = {
             title: t('portfolio:pageTitle'),
             subtitle: t('portfolio:export.subtitle'),
@@ -165,10 +172,17 @@ const PortfolioPage = () => {
                 totalCost: t('portfolio:stats.totalCost'),
                 totalValue: t('portfolio:stats.totalValue'),
                 totalPnl: t('portfolio:stats.totalPnl'),
-                returnRate: t('portfolio:stats.totalPnlPercent')
+                returnRate: t('portfolio:stats.totalPnlPercent'),
+                realPnl: `${t('portfolio:stats.realPnl', 'Reel')} ${t('portfolio:stats.totalPnl')}`,
+                realReturnRate: `${t('portfolio:stats.realPnl', 'Reel')} ${t('portfolio:stats.totalPnlPercent')}`,
+                inflationFactor: t('portfolio:stats.inflation', 'Enflasyon Çarpanı')
             }
         };
-        return { rows, summary: { totalCost, totalValue, totalPnl, returnRate }, meta };
+        const summary = {
+            totalCost, totalValue, totalPnl, returnRate,
+            ...(hasReal && { realPnl, realReturnRate, inflationFactor })
+        };
+        return { rows, summary, meta };
     };
 
     const onExportExcel = () => {
