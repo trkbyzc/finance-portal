@@ -1,6 +1,7 @@
 package com.financeportal.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -29,6 +30,14 @@ public class SecurityConfig {
 
     private final UserBanFilter userBanFilter;
     private final UserSyncFilter userSyncFilter; // 🚀 EKLENDİ - Senkronizasyon filtremiz
+
+    /**
+     * CORS allowed origin pattern listesi. Default sadece local dev (localhost/127.0.0.1, herhangi port).
+     * Prod'da CORS_ALLOWED_ORIGINS env var ile gerçek domain'leri inject et (örn. https://app.example.com).
+     * "*" KESİNLİKLE kullanma — allowCredentials=true ile birleşince CSRF zafiyetine açar (S5122).
+     */
+    @Value("${security.cors.allowed-origins:http://localhost:*,http://127.0.0.1:*}")
+    private String[] corsAllowedOrigins;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -81,7 +90,9 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        // Origin listesi env var'dan (CORS_ALLOWED_ORIGINS). "*" YASAK — allowCredentials=true ile
+        // CSRF zafiyeti yaratır. Default sadece localhost (any port) dev için.
+        configuration.setAllowedOriginPatterns(Arrays.asList(corsAllowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

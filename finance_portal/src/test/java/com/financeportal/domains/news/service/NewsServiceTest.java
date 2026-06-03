@@ -204,9 +204,7 @@ class NewsServiceTest {
         when(stringRedisTemplate.opsForValue()).thenReturn(ops);
         when(ops.get(org.mockito.ArgumentMatchers.anyString())).thenReturn(null);
         when(scraperClient.scrapeArticleContent("http://x")).thenReturn("Türkçe içerik");
-        when(translationClient.translate(org.mockito.ArgumentMatchers.eq("Türkçe içerik"),
-                org.mockito.ArgumentMatchers.eq("tr"), org.mockito.ArgumentMatchers.eq("en")))
-                .thenReturn("English content");
+        when(translationClient.translate("Türkçe içerik", "tr", "en")).thenReturn("English content");
 
         String result = service.getArticleContent("http://x", "en");
 
@@ -214,6 +212,7 @@ class NewsServiceTest {
         org.mockito.Mockito.verify(ops).set(org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.eq("English content"),
                 org.mockito.ArgumentMatchers.any(java.time.Duration.class));
+        // eq() içeren mix korunur — anyString + eq + any olduğu için matcher tutarlılığı gerekli.
     }
 
     @Test

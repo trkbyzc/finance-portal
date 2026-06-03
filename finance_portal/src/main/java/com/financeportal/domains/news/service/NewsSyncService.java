@@ -95,61 +95,75 @@ public class NewsSyncService {
             List<NewsDto> masterList = getCachedNews();
             Set<String> processedLinks = masterList.stream().map(NewsDto::getLink).collect(Collectors.toSet());
 
-            int initialSize = masterList.size();
-            int newlyAddedCount = 0;
-
-            for (Map.Entry<String, String> entry : SOURCES.entrySet()) {
-                try {
-                    List<NewsDto> fetchedNews = rssIntegrationClient.fetchNewsFromSource(entry.getKey(), entry.getValue());
-
-                    for (NewsDto news : fetchedNews) {
-                        // Bazı kaynaklar (örn. Bloomberg HT) description'ı boş veya literal "[]" servis ediyor.
-                        // Frontend'de "başlık+resim ama içerik yok" görünmesin diye bu item'ları atla.
-                        if (!hasUsableDescription(news.getDescription())) continue;
-                        if (!processedLinks.contains(news.getLink())) {
-                            news.setCategory(categoryClassifier.assignCategory(news.getTitle(), news.getDescription()));
-                            masterList.add(news);
-                            processedLinks.add(news.getLink());
-                            newlyAddedCount++;
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("[NEWS_SYNC] Error processing source {}: {}", entry.getValue(), e.getMessage());
-                }
-            }
-
-            // Eski cache'te kalmış boş/garbage description'lı VEYA artık desteklenmeyen kaynak'tan gelen
-            // item'ları temizle (Bloomberg HT gibi listeden çıkarılanlar). Defansif.
-            Set<String> allowedSources = new HashSet<>(SOURCES.values());
-            int beforePurge = masterList.size();
-            masterList.removeIf(n -> !hasUsableDescription(n.getDescription())
-                    || (n.getSource() != null && !allowedSources.contains(n.getSource())));
-            int purgedCount = beforePurge - masterList.size();
-            if (purgedCount > 0) {
-                log.info("[NEWS_SYNC] {} boş/garbage description'lı eski haber cache'ten temizlendi.", purgedCount);
-            }
-
-            if (masterList.size() > initialSize - purgedCount) {
+            int newlyAddedCount = addFreshArticles(masterList, processedLinks);
+            int purgedCount = purgeStaleArticles(masterList);
+            if (newlyAddedCount > 0 || purgedCount > 0) {
                 masterList.sort((a, b) -> b.getPubDate().compareTo(a.getPubDate()));
             }
-
-            // Çeviri pass: titleEn null olanları LibreTranslate'le TR→EN. Sync süresini sınırlamak için cap.
-            // Yeni haber yok ama bazıları henüz çevrilmemiş olabilir (servis önceden kapalıydı) → her tur tekrar dene.
             int translatedCount = translatePendingNews(masterList);
-            boolean changed = newlyAddedCount > 0 || translatedCount > 0 || purgedCount > 0;
-
-            if (changed) {
-                try {
-                    String jsonStr = objectMapper.writeValueAsString(masterList);
-                    redisTemplate.opsForValue().set(REDIS_KEY, jsonStr, Duration.ofDays(7));
-                    log.info("[NEWS_SYNC] Updated news cache. Added {} articles, translated {}. Total: {}. Time: {} ms.",
-                            newlyAddedCount, translatedCount, masterList.size(), (System.currentTimeMillis() - startTime));
-                } catch (Exception e) {
-                    log.error("Haberleri cache'e yazarken hata:", e);
-                }
-            }
+            persistIfChanged(masterList, newlyAddedCount, translatedCount, purgedCount, startTime);
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
+        }
+    }
+
+    /** Tüm RSS kaynaklarını dolaşıp yeni description'lı item'ları masterList'e ekler. */
+    private int addFreshArticles(List<NewsDto> masterList, Set<String> processedLinks) {
+        int addedCount = 0;
+        for (Map.Entry<String, String> entry : SOURCES.entrySet()) {
+            addedCount += fetchFromSourceSafely(entry.getKey(), entry.getValue(), masterList, processedLinks);
+        }
+        return addedCount;
+    }
+
+    /** Tek kaynak için RSS çek + filtre + dedupe; hata olursa log'la 0 dön. */
+    private int fetchFromSourceSafely(String url, String sourceName, List<NewsDto> masterList, Set<String> processedLinks) {
+        try {
+            List<NewsDto> fetched = rssIntegrationClient.fetchNewsFromSource(url, sourceName);
+            int added = 0;
+            for (NewsDto news : fetched) {
+                if (acceptArticle(news, processedLinks)) {
+                    news.setCategory(categoryClassifier.assignCategory(news.getTitle(), news.getDescription()));
+                    masterList.add(news);
+                    processedLinks.add(news.getLink());
+                    added++;
+                }
+            }
+            return added;
+        } catch (Exception e) {
+            log.error("[NEWS_SYNC] Error processing source {}: {}", sourceName, e.getMessage());
+            return 0;
+        }
+    }
+
+    /** Item kabul kriteri: kullanılabilir description + henüz işlenmemiş link. */
+    private boolean acceptArticle(NewsDto news, Set<String> processedLinks) {
+        return hasUsableDescription(news.getDescription()) && !processedLinks.contains(news.getLink());
+    }
+
+    /** Eski cache'te kalmış boş/garbage description'lı VEYA artık desteklenmeyen kaynaktan gelen item'ları temizler. */
+    private int purgeStaleArticles(List<NewsDto> masterList) {
+        Set<String> allowedSources = new HashSet<>(SOURCES.values());
+        int beforePurge = masterList.size();
+        masterList.removeIf(n -> !hasUsableDescription(n.getDescription())
+                || (n.getSource() != null && !allowedSources.contains(n.getSource())));
+        int purgedCount = beforePurge - masterList.size();
+        if (purgedCount > 0) {
+            log.info("[NEWS_SYNC] {} boş/garbage description'lı eski haber cache'ten temizlendi.", purgedCount);
+        }
+        return purgedCount;
+    }
+
+    /** Değişiklik varsa cache'e yaz, yoksa atla. */
+    private void persistIfChanged(List<NewsDto> masterList, int newlyAdded, int translated, int purged, long startTime) {
+        if (newlyAdded == 0 && translated == 0 && purged == 0) return;
+        try {
+            String jsonStr = objectMapper.writeValueAsString(masterList);
+            redisTemplate.opsForValue().set(REDIS_KEY, jsonStr, Duration.ofDays(7));
+            log.info("[NEWS_SYNC] Updated news cache. Added {} articles, translated {}. Total: {}. Time: {} ms.",
+                    newlyAdded, translated, masterList.size(), (System.currentTimeMillis() - startTime));
+        } catch (Exception e) {
+            log.error("Haberleri cache'e yazarken hata:", e);
         }
     }
 
@@ -161,11 +175,12 @@ public class NewsSyncService {
     static boolean hasUsableDescription(String description) {
         if (description == null) return false;
         String trimmed = description.trim();
-        if (trimmed.isEmpty()) return false;
-        // Bloomberg HT bazı item'larda literal "[]" servis ediyor (bkz. <![CDATA[[]]]> formu).
-        if ("[]".equals(trimmed) || "[ ]".equals(trimmed)) return false;
-        if ("null".equalsIgnoreCase(trimmed)) return false;
-        return true;
+        // Boş, sadece whitespace, literal "[]" placeholder (Bloomberg HT <![CDATA[[]]]> formu), veya "null"
+        // → frontend'de "başlık+resim ama içerik yok" görünmesin diye atılır.
+        return !trimmed.isEmpty()
+                && !"[]".equals(trimmed)
+                && !"[ ]".equals(trimmed)
+                && !"null".equalsIgnoreCase(trimmed);
     }
 
     /**
@@ -179,20 +194,26 @@ public class NewsSyncService {
             return 0;
         }
         int translated = 0;
+        // Tek break: cap'e ulaşınca çık. continue yerine nested if'lerle akışı yönetiyoruz
+        // (S135: tur başına en fazla 1 break/continue önerisi).
         for (NewsDto news : newsList) {
             if (translated >= MAX_TRANSLATIONS_PER_RUN) break;
-            if (news.getTitleEn() != null) continue; // zaten çevrildi
-
-            String titleEn = translationClient.translate(news.getTitle(), "tr", "en");
-            String descEn = translationClient.translate(news.getDescription(), "tr", "en");
-            if (titleEn == null && descEn == null) continue;
-
-            news.setTitleEn(titleEn);
-            news.setDescriptionEn(descEn);
-            news.setCategoryEn(NewsCategoryClassifier.localize(news.getCategory(), "en"));
-            translated++;
+            if (news.getTitleEn() == null && translateOne(news)) {
+                translated++;
+            }
         }
         return translated;
+    }
+
+    /** Tek haberi çevirip alanlarını set'ler. En az bir alan çevrilebildiyse true. */
+    private boolean translateOne(NewsDto news) {
+        String titleEn = translationClient.translate(news.getTitle(), "tr", "en");
+        String descEn = translationClient.translate(news.getDescription(), "tr", "en");
+        if (titleEn == null && descEn == null) return false;
+        news.setTitleEn(titleEn);
+        news.setDescriptionEn(descEn);
+        news.setCategoryEn(NewsCategoryClassifier.localize(news.getCategory(), "en"));
+        return true;
     }
 
     protected List<NewsDto> getCachedNews() {

@@ -323,7 +323,7 @@ class NewsSyncServiceTest {
     // -------- syncOnStartupWhenTranslationReady --------
 
     @Test
-    void startup_translationReady_triggersInitialSync() throws Exception {
+    void startup_translationReady_triggersInitialSync() {
         when(translationClient.isAvailable()).thenReturn(true);
         when(valueOps.get("cache:news:v15")).thenReturn(null);
         when(rssClient.fetchNewsFromSource(anyString(), anyString()))
@@ -331,17 +331,10 @@ class NewsSyncServiceTest {
         when(categoryClassifier.assignCategory(anyString(), anyString())).thenReturn("Genel");
 
         service.syncOnStartupWhenTranslationReady();
-        // CompletableFuture.runAsync immediate execution path (LibreTranslate up first try)
-        // Poll Redis write up to 5 saniye.
-        for (int i = 0; i < 50; i++) {
-            try {
-                verify(valueOps).set(eq("cache:news:v15"), any(), eq(Duration.ofDays(7)));
-                return; // success
-            } catch (AssertionError notYet) {
-                Thread.sleep(100);
-            }
-        }
-        verify(valueOps).set(eq("cache:news:v15"), any(), eq(Duration.ofDays(7)));
+        // CompletableFuture.runAsync arka planda çalışır → Mockito'nun timeout()'ı ile bekle.
+        // Thread.sleep yerine verify(timeout) kullanılır (S2925: testlerde Thread.sleep yok).
+        verify(valueOps, org.mockito.Mockito.timeout(5000))
+                .set(eq("cache:news:v15"), any(), eq(Duration.ofDays(7)));
     }
 
     @Test
