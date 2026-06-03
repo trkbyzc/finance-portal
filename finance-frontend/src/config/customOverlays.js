@@ -126,6 +126,66 @@ export const registerCustomOverlays = () => {
         }
     });
 
+    // FIBONACCI RETRACEMENT — kullanıcı 2 nokta seçer (zirve/dip), 7 seviye çizilir.
+    // Seviyeler: 0%, 23.6%, 38.2%, 50%, 61.8%, 78.6%, 100%. Her seviye yatay çizgi + sol etiket.
+    registerOverlay({
+        name: 'fibonacciRetracement',
+        totalStep: 3,
+        needDefaultPointFigure: true,
+        needDefaultXAxisFigure: true,
+        needDefaultYAxisFigure: true,
+        createPointFigures: ({ overlay, coordinates, precision }) => {
+            if (coordinates.length < 2) return [];
+            const [start, end] = coordinates;
+            const p1 = overlay.points[0];
+            const p2 = overlay.points[1];
+            if (!p1 || !p2 || p1.value === undefined || p2.value === undefined) return [];
+
+            // Standart fibonacci retracement seviyeleri ve TradingView-uyumlu renkler
+            const LEVELS = [
+                { ratio: 0,     color: '#787b86' },
+                { ratio: 0.236, color: '#f23645' },
+                { ratio: 0.382, color: '#ff9800' },
+                { ratio: 0.5,   color: '#089981' },
+                { ratio: 0.618, color: '#2962ff' },
+                { ratio: 0.786, color: '#9c27b0' },
+                { ratio: 1,     color: '#787b86' }
+            ];
+
+            // Çizgileri start.x'ten end.x'e yatay olarak uzat
+            const xLeft = Math.min(start.x, end.x);
+            const xRight = Math.max(start.x, end.x);
+            const priceDiff = p2.value - p1.value;
+            const yDiff = end.y - start.y;
+
+            const figures = [];
+            LEVELS.forEach(({ ratio, color }) => {
+                // Seviye fiyatı: p1 + ratio * (p2 - p1); Y koordinatı orantılı interpolasyon
+                const levelPrice = p1.value + ratio * priceDiff;
+                const levelY = start.y + ratio * yDiff;
+
+                figures.push({
+                    type: 'line',
+                    attrs: { coordinates: [{ x: xLeft, y: levelY }, { x: xRight, y: levelY }] },
+                    styles: { color, size: 1, style: ratio === 0 || ratio === 1 ? 'solid' : 'dashed' }
+                });
+
+                figures.push({
+                    type: 'text',
+                    attrs: {
+                        x: xLeft - 6,
+                        y: levelY,
+                        text: `${(ratio * 100).toFixed(1)}%  ${levelPrice.toFixed(precision.price)}`,
+                        align: 'right',
+                        baseline: 'middle'
+                    },
+                    styles: { color, size: 11, backgroundColor: 'transparent' }
+                });
+            });
+            return figures;
+        }
+    });
+
     // OK çizgisi
 
     registerOverlay({

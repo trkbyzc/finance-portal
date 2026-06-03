@@ -1,4 +1,4 @@
-import { Edit3, Minus, Square, ArrowUpRight, Type, Ruler, Trash2, Save, Loader2 } from 'lucide-react';
+import { Edit3, Minus, Square, ArrowUpRight, Type, Ruler, TrendingDown, Trash2, Save, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function ChartSidebar({ onDraw, onRemoveAll, onSave, saving }) {
@@ -10,7 +10,8 @@ export default function ChartSidebar({ onDraw, onRemoveAll, onSave, saving }) {
         { id: 'customRect', icon: Square, label: t('tools.rectangle') },
         { id: 'customArrow', icon: ArrowUpRight, label: t('tools.arrow') },
         { id: 'customText', icon: Type, label: t('tools.text') },
-        { id: 'measureRuler', icon: Ruler, label: t('tools.ruler') }
+        { id: 'measureRuler', icon: Ruler, label: t('tools.ruler') },
+        { id: 'fibonacciRetracement', icon: TrendingDown, label: t('tools.fibonacci', 'Fibonacci Retracement') }
     ];
 
     return (
