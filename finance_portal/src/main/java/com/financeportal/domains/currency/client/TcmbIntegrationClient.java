@@ -88,6 +88,15 @@ public class TcmbIntegrationClient {
      * Range param'ı filtreleme için kullanılır ("max" → tüm tarihçe).
      */
     public List<HistoricalDataDto> fetchCurrencyHistoryFromRedis(String currencyCode, String range) {
+        return fetchCurrencyHistoryFromRedis(currencyCode, range, null, null);
+    }
+
+    /**
+     * Range "custom" ise startDate/endDate (yyyy-MM-dd) ile [from, to] aralığı filtrelenir;
+     * diğer range'lerde {@link #getCutoffDateByRange} cutoff'u kullanılır. Özel tarih aralığının
+     * "son 30 güne" düşüp geçmiş fiyatın kaybolması bu sayede engellenir.
+     */
+    public List<HistoricalDataDto> fetchCurrencyHistoryFromRedis(String currencyCode, String range, String startDate, String endDate) {
         String baseCode = currencyCode.replace("TRY=X", "").replace("=X", "").toUpperCase();
         String redisKey = "evds:currency:" + baseCode;
 
@@ -98,19 +107,27 @@ public class TcmbIntegrationClient {
                 return List.of();
             }
             List<Map<String, Object>> parsedData = objectMapper.readValue(jsonStr, new TypeReference<>() {});
-            return mapPointsToHistorical(parsedData, range, baseCode);
+            return mapPointsToHistorical(parsedData, range, baseCode, startDate, endDate);
         } catch (Exception e) {
             log.error("[EVDS REDIS] {} tarihçe okuma hatası: {}", baseCode, e.getMessage());
             return List.of();
         }
     }
 
-    private List<HistoricalDataDto> mapPointsToHistorical(List<Map<String, Object>> parsedData, String range, String currencyCode) {
+    private LocalDate parseIsoOrNull(String s) {
+        if (s == null || s.isBlank()) return null;
+        try { return LocalDate.parse(s.trim()); } catch (Exception e) { return null; }
+    }
+
+    private List<HistoricalDataDto> mapPointsToHistorical(List<Map<String, Object>> parsedData, String range, String currencyCode, String startDate, String endDate) {
         List<HistoricalDataDto> historyList = new ArrayList<>();
         if (parsedData == null || parsedData.isEmpty()) return historyList;
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate cutoffDate = getCutoffDateByRange(range);
+            boolean custom = "custom".equalsIgnoreCase(range);
+            LocalDate from = custom ? parseIsoOrNull(startDate) : null;
+            LocalDate to = custom ? parseIsoOrNull(endDate) : null;
+            LocalDate cutoffDate = custom ? null : getCutoffDateByRange(range);
 
             for (Map<String, Object> dataPoint : parsedData) {
                 String dateStr = (String) dataPoint.get("date");
@@ -120,7 +137,12 @@ public class TcmbIntegrationClient {
 
                 LocalDate date;
                 try { date = LocalDate.parse(dateStr, formatter); } catch (Exception ignored) { continue; }
-                if (date.isBefore(cutoffDate)) continue;
+                if (custom) {
+                    if (from != null && date.isBefore(from)) continue;
+                    if (to != null && date.isAfter(to)) continue;
+                } else if (date.isBefore(cutoffDate)) {
+                    continue;
+                }
 
                 HistoricalDataDto dto = new HistoricalDataDto();
                 dto.setDate(date);

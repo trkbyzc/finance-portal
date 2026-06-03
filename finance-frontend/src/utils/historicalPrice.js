@@ -41,9 +41,13 @@ export async function fetchPriceOnDate(symbol, assetType, dateStr) {
             .filter(p => p.date && !Number.isNaN(p.close))
             .sort((a, b) => (a.date < b.date ? -1 : 1));
         if (!pts.length) return null;
+        // Sadece istenen tarih VEYA öncesindeki en yakın günü kabul et.
+        // Döviz gibi bazı kategorilerde backend tarih aralığını yok sayıp güncel veriyi
+        // dönebiliyor; bu durumda istenen tarihten sonraki noktalar gelir ve "şimdiki fiyat"
+        // sızar. O yüzden tarihten önce nokta yoksa null döneriz (kullanıcı elle girer).
         const before = pts.filter(p => p.date <= dateStr);
-        const chosen = before.length ? before[before.length - 1] : pts[pts.length - 1];
-        return chosen ? chosen.close : null;
+        if (!before.length) return null;
+        return before[before.length - 1].close ?? null;
     } catch {
         return null;
     }

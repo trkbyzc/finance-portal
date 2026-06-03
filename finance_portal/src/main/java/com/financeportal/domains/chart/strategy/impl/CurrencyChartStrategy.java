@@ -46,7 +46,9 @@ public class CurrencyChartStrategy implements ChartDataStrategy {
         String evdsSymbol = cleanSymbol.replace("TRY=X", "").replace("=X", "");
 
         log.info("[CHART STRATEGY] Döviz grafiği TCMB EVDS'den çekiliyor: {}", evdsSymbol);
-        List<HistoricalDataDto> data = tcmbIntegrationClient.fetchCurrencyHistoryFromRedis(evdsSymbol, range);
+        // Custom (özel tarih) aralığında startDate/endDate'i EVDS filtrelemesine geçiriyoruz —
+        // aksi halde range tanınmayıp son 30 güne düşüyordu (geçmiş tarih "fiyat bulunamadı" hatası).
+        List<HistoricalDataDto> data = tcmbIntegrationClient.fetchCurrencyHistoryFromRedis(evdsSymbol, range, startDate, endDate);
 
         if (data == null || data.isEmpty() || data.size() < 5) {
             String yahooSymbol = cleanSymbol.contains("=X") ? cleanSymbol : cleanSymbol + "TRY=X";
@@ -55,7 +57,11 @@ public class CurrencyChartStrategy implements ChartDataStrategy {
             return yahooChartClient.fetchChartHistory(yahooSymbol, range, interval, startDate, endDate);
         }
 
-        patchLastPointWithLiveRate(data, evdsSymbol);
+        // Canlı son-nokta patch'i sadece güncele uzanan range'lerde anlamlı. Geçmişte biten
+        // custom aralıkta bugünün fiyatını eklemek veriyi bozar — bu yüzden atlanır.
+        if (!"custom".equalsIgnoreCase(range)) {
+            patchLastPointWithLiveRate(data, evdsSymbol);
+        }
         return data;
     }
 

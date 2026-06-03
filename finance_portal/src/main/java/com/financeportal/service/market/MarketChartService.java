@@ -44,6 +44,11 @@ public class MarketChartService {
 
         // 🚀 DÜZELTME 4: Cache key'ine kategoriyi ekledik! Çakışmaları önler.
         String cacheKey = "hist:" + safeCategory + ":" + cleanSymbol + ":" + range;
+        // Custom (özel tarih) aralığında startDate/endDate cache key'e girmeli — aksi halde
+        // tüm farklı tarih aralıkları aynı "...:custom" anahtarını paylaşıp yanlış veri döner.
+        if ("custom".equalsIgnoreCase(range)) {
+            cacheKey += ":" + startDate + ":" + endDate;
+        }
 
         return cacheService.getOrFetch(cacheKey, () -> {
             List<HistoricalDataDto> dataList = new ArrayList<>();

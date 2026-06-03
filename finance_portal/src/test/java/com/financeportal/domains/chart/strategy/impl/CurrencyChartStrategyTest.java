@@ -61,7 +61,7 @@ class CurrencyChartStrategyTest {
         for (int i = 9; i > 0; i--) evdsData.add(bar(LocalDate.now().minusDays(i), 33.0));
         evdsData.add(bar(LocalDate.now(), 34.0));
 
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(eq("USD"), anyString())).thenReturn(evdsData);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(eq("USD"), anyString(), any(), any())).thenReturn(evdsData);
 
         CurrencyDto usd = new CurrencyDto();
         usd.setCurrencyCode("USD");
@@ -77,7 +77,7 @@ class CurrencyChartStrategyTest {
 
     @Test
     void fetch_evdsLessThan5Points_yahooFallback() {
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(List.of(
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(List.of(
                 bar(LocalDate.now().minusDays(1), 33.0)));
 
         when(yahooClient.fetchChartHistory(anyString(), anyString(), anyString(), any(), any()))
@@ -91,7 +91,7 @@ class CurrencyChartStrategyTest {
 
     @Test
     void fetch_evdsNull_yahooFallback() {
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(null);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(null);
         when(yahooClient.fetchChartHistory(anyString(), anyString(), anyString(), any(), any()))
                 .thenReturn(List.of());
 
@@ -102,7 +102,7 @@ class CurrencyChartStrategyTest {
 
     @Test
     void fetch_evdsEmpty_yahooFallback() {
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(List.of());
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(List.of());
         when(yahooClient.fetchChartHistory(anyString(), anyString(), anyString(), any(), any()))
                 .thenReturn(List.of());
 
@@ -113,7 +113,7 @@ class CurrencyChartStrategyTest {
 
     @Test
     void fetch_symbolAlreadyHasEqualsX_passesThrough() {
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(List.of());
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(List.of());
         when(yahooClient.fetchChartHistory(anyString(), anyString(), anyString(), any(), any())).thenReturn(List.of());
 
         strategy.fetchHistoricalData("USDTRY=X", "1y", "1d", null, null);
@@ -129,7 +129,7 @@ class CurrencyChartStrategyTest {
         List<HistoricalDataDto> data = new ArrayList<>();
         for (int i = 9; i > 0; i--) data.add(bar(LocalDate.now().minusDays(i), 33.0));
         data.add(bar(LocalDate.now(), 34.0));
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(data);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(data);
 
         CurrencyDto usd = new CurrencyDto();
         usd.setCurrencyCode("USD");
@@ -150,7 +150,7 @@ class CurrencyChartStrategyTest {
         List<HistoricalDataDto> data = new ArrayList<>();
         for (int i = 9; i > 0; i--) data.add(bar(LocalDate.now().minusDays(i), 33.0));
         // Yeterli (≥5) nokta ama son nokta dün
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(data);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(data);
 
         CurrencyDto usd = new CurrencyDto();
         usd.setCurrencyCode("USD");
@@ -169,7 +169,7 @@ class CurrencyChartStrategyTest {
         List<HistoricalDataDto> data = new ArrayList<>();
         for (int i = 9; i > 0; i--) data.add(bar(LocalDate.now().minusDays(i), 33.0));
         data.add(bar(LocalDate.now(), 34.0));
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(data);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(data);
 
         LinkedHashMap<String, Object> usdMap = new LinkedHashMap<>();
         usdMap.put("currencyCode", "USD");
@@ -187,7 +187,7 @@ class CurrencyChartStrategyTest {
         List<HistoricalDataDto> data = new ArrayList<>();
         for (int i = 9; i > 0; i--) data.add(bar(LocalDate.now().minusDays(i), 33.0));
         data.add(bar(LocalDate.now(), 34.0));
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(data);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(data);
         when(currencyService.getCurrencyRates()).thenReturn(null);
 
         List<HistoricalDataDto> result = strategy.fetchHistoricalData("USD", "1y", "1d", null, null);
@@ -201,7 +201,7 @@ class CurrencyChartStrategyTest {
         List<HistoricalDataDto> data = new ArrayList<>();
         for (int i = 9; i > 0; i--) data.add(bar(LocalDate.now().minusDays(i), 33.0));
         data.add(bar(LocalDate.now(), 34.0));
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(data);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(data);
         CurrencyDto eur = new CurrencyDto();
         eur.setCurrencyCode("EUR");
         eur.setForexSelling(new BigDecimal("37"));
@@ -217,7 +217,7 @@ class CurrencyChartStrategyTest {
         List<HistoricalDataDto> data = new ArrayList<>();
         for (int i = 9; i > 0; i--) data.add(bar(LocalDate.now().minusDays(i), 33.0));
         data.add(bar(LocalDate.now(), 34.0));
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString())).thenReturn(data);
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(data);
         when(currencyService.getCurrencyRates()).thenThrow(new RuntimeException("down"));
 
         List<HistoricalDataDto> result = strategy.fetchHistoricalData("USD", "1y", "1d", null, null);
