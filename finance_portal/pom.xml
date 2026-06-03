@@ -366,4 +366,24 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!--
+		    Tek komutla Sonar push: ./mvnw -Psonar
+		    Zincir: clean -> test (JaCoCo agent .exec yazar) -> verify (jacoco:report -> XML uretir)
+		            -> sonar:sonar (XML'i okuyup dashboard'a coverage ile push eder).
+		    Integration testler skip (-Psonar profilinde skipITs=true).
+		    NOT: sonar.token .mvn/maven.config (gitignored). Token yoksa sonar:sonar
+		         "not authorized" verir -> UI'den token uret.
+		-->
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<skipITs>true</skipITs>
+			</properties>
+			<build>
+				<defaultGoal>clean verify sonar:sonar</defaultGoal>
+			</build>
+		</profile>
+	</profiles>
 </project>
