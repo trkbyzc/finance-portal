@@ -4,7 +4,7 @@ import { Loader2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAssetDetails } from '../../hooks/useAssetDetails';
 import { portfolioApi } from '../../services/api/portfolioApi';
-import Modal from '../../components/layout/Modal';
+import { useNotify } from '../../context/NotificationContext';
 
 import AssetHeader from './components/AssetHeader';
 import AssetChartArea from './components/AssetChartArea';
@@ -15,14 +15,13 @@ export default function AssetDetailPage() {
     const { symbol } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation(['asset', 'common', 'portfolio']);
+    const notify = useNotify();
 
-    const { asset, trBondsList, loading, isTrBond, isViop, decodedSymbol } = useAssetDetails(symbol);
+    const { asset, loading, isTrBond, isViop, decodedSymbol } = useAssetDetails(symbol);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [formData, setFormData] = useState({ quantity: '', price: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '', type: 'success' });
 
     if (loading) return (
         <div className="h-screen flex items-center justify-center bg-bg">
@@ -31,7 +30,7 @@ export default function AssetDetailPage() {
     );
 
     if (isTrBond && asset) {
-        return <BondDetailView asset={asset} trBondsList={trBondsList} decodedSymbol={decodedSymbol} navigate={navigate} />;
+        return <BondDetailView asset={asset} navigate={navigate} />;
     }
 
     const handleOpenModal = () => {
@@ -68,20 +67,18 @@ export default function AssetDetailPage() {
 
             setIsAddModalOpen(false);
 
-            setAlertModal({
-                isOpen: true,
-                title: t('common:actions.confirm'),
-                message: t('portfolio:modal.saveSuccess'),
-                type: 'success'
+            notify({
+                type: 'success',
+                title: t('portfolio:notify.assetAdded', 'Portföye eklendi'),
+                message: t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: payload.symbol })
             });
 
         } catch (error) {
             console.error("Add to portfolio error:", error);
-            setAlertModal({
-                isOpen: true,
-                title: t('common:status.error'),
-                message: error.response?.data?.message || t('common:status.error'),
-                type: 'error'
+            notify({
+                type: 'error',
+                title: t('portfolio:notify.assetAddError', 'Eklenemedi'),
+                message: error.response?.data?.message || t('common:status.error')
             });
         } finally {
             setIsSubmitting(false);
@@ -189,14 +186,6 @@ export default function AssetDetailPage() {
                     </div>
                 </div>
             )}
-
-            <Modal
-                isOpen={alertModal.isOpen}
-                title={alertModal.title}
-                message={alertModal.message}
-                type={alertModal.type}
-                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
-            />
         </div>
     );
 }

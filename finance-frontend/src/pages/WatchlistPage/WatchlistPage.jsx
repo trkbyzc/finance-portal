@@ -6,6 +6,7 @@ import { Star, Plus, Trash2, Loader2 } from 'lucide-react';
 
 import { watchlistApi } from '../../services/api/watchlistApi';
 import BaseAssetPickerModal from '../../components/common/BaseAssetPickerModal';
+import Modal from '../../components/layout/Modal';
 
 function Sparkline({ data, positive }) {
     if (!data || data.length < 2) {
@@ -43,6 +44,7 @@ export default function WatchlistPage() {
     const queryClient = useQueryClient();
     const { t } = useTranslation(['watchlist', 'common']);
     const [modalOpen, setModalOpen] = useState(false);
+    const [removeTarget, setRemoveTarget] = useState(null);
 
     const { data: items = [], isLoading, isError } = useQuery({
         queryKey: ['watchlist'],
@@ -63,9 +65,10 @@ export default function WatchlistPage() {
         await addMutation.mutateAsync(req);
     };
 
-    const handleRemove = (itemId, symbol) => {
-        if (!window.confirm(t('watchlist:actions.removeConfirm', { symbol }))) return;
-        removeMutation.mutate(itemId);
+    const handleRemove = (itemId, symbol) => setRemoveTarget({ itemId, symbol });
+    const confirmRemove = () => {
+        if (removeTarget) removeMutation.mutate(removeTarget.itemId);
+        setRemoveTarget(null);
     };
 
     const handleRowClick = (item) => {
@@ -194,6 +197,17 @@ export default function WatchlistPage() {
                             console.error('Watchlist add error', e);
                         }
                     }}
+                />
+
+                <Modal
+                    isOpen={!!removeTarget}
+                    type="error"
+                    title={t('watchlist:actions.remove', 'Kaldır')}
+                    message={t('watchlist:actions.removeConfirm', { symbol: removeTarget?.symbol })}
+                    confirmText={t('common:actions.delete', 'Kaldır')}
+                    showCancel
+                    onCancel={() => setRemoveTarget(null)}
+                    onClose={confirmRemove}
                 />
             </div>
         </div>

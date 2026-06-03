@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { CurrencyProvider } from './context/CurrencyContext';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 // Component ve Sayfa Importları
 import Navbar from './components/layout/Navbar/Navbar.jsx';
@@ -38,6 +39,7 @@ import GlobalTicker from './components/layout/MarketTicker/GlobalTicker';
 function App() {
     return (
         <AuthProvider>
+            <NotificationProvider>
             <CurrencyProvider>
                 <Router>
                     <div className="min-h-screen bg-bg text-text font-sans selection:bg-primary selection:text-primary-fg">
@@ -77,6 +79,7 @@ function App() {
                     </div>
                 </Router>
             </CurrencyProvider>
+            </NotificationProvider>
         </AuthProvider>
     );
 }

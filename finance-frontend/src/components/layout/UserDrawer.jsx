@@ -3,15 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare, CandlestickChart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 import Avatar from '../profile/Avatar';
 import useProfileAvatar from '../../hooks/useProfileAvatar';
 import LogoutConfirmModal from './LogoutConfirmModal';
+import NotificationsPanel from './NotificationsPanel';
 
 export default function UserDrawer({ open, onClose }) {
     const { user, logout, isAdmin } = useAuth();
+    const { unreadCount } = useNotifications();
     const navigate = useNavigate();
     const { t } = useTranslation('navbar');
     const [confirmLogout, setConfirmLogout] = useState(false);
+    const [notifOpen, setNotifOpen] = useState(false);
 
     useEffect(() => {
         if (!open) return;
@@ -122,7 +126,9 @@ export default function UserDrawer({ open, onClose }) {
                         icon={Bell}
                         label={t('drawer.notifications')}
                         sub={t('drawer.notificationsSub')}
-                        disabled
+                        accent="primary"
+                        badge={unreadCount > 0 ? unreadCount : null}
+                        onClick={() => setNotifOpen(true)}
                     />
                     <DrawerItem
                         icon={Settings}
@@ -163,11 +169,13 @@ export default function UserDrawer({ open, onClose }) {
                 onConfirm={() => { setConfirmLogout(false); logout(); }}
                 onCancel={() => setConfirmLogout(false)}
             />
+
+            <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
         </>
     );
 }
 
-function DrawerItem({ icon: Icon, label, sub, onClick, accent, disabled }) {
+function DrawerItem({ icon: Icon, label, sub, onClick, accent, disabled, badge }) {
     const accentClass = {
         primary: 'text-primary bg-primary/10 border-primary/20',
         buy: 'text-buy bg-buy/10 border-buy/20',
@@ -184,8 +192,13 @@ function DrawerItem({ icon: Icon, label, sub, onClick, accent, disabled }) {
                     : 'hover:bg-surface-hover'
             }`}
         >
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center border ${accentClass} shrink-0`}>
+            <div className={`relative w-9 h-9 rounded-lg flex items-center justify-center border ${accentClass} shrink-0`}>
                 <Icon size={16} />
+                {badge != null && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-primary text-primary-fg text-[10px] font-black flex items-center justify-center border-2 border-surface">
+                        {badge}
+                    </span>
+                )}
             </div>
             <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm text-text">{label}</div>

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Plus, Pencil, Trash2, Wallet, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import PromptModal from '../layout/PromptModal';
+import Modal from '../layout/Modal';
 
 /**
  * Çoklu adlandırılmış portföy seçici. Aktif portföyü gösterir; menüden geçiş,
@@ -9,6 +11,10 @@ import { useTranslation } from 'react-i18next';
 export default function PortfolioSwitcher({ portfolios, activeId, onSelect, onCreate, onRename, onDelete }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const [open, setOpen] = useState(false);
+    // { mode: 'create' | 'rename', portfolio? } | null
+    const [prompt, setPrompt] = useState(null);
+    // silinecek portföy | null
+    const [deleteTarget, setDeleteTarget] = useState(null);
     const ref = useRef(null);
 
     useEffect(() => {
@@ -20,18 +26,24 @@ export default function PortfolioSwitcher({ portfolios, activeId, onSelect, onCr
     const active = portfolios.find(p => p.id === activeId) || portfolios[0];
 
     const handleCreate = () => {
-        const name = window.prompt(t('portfolio:switcher.createPrompt', 'Yeni portföy adı:'));
-        if (name && name.trim()) onCreate(name.trim());
+        setPrompt({ mode: 'create' });
         setOpen(false);
     };
-    const handleRename = (p) => {
-        const name = window.prompt(t('portfolio:switcher.renamePrompt', 'Yeni ad:'), p.name);
-        if (name && name.trim() && name.trim() !== p.name) onRename(p.id, name.trim());
-    };
-    const handleDelete = (p) => {
-        if (window.confirm(t('portfolio:switcher.deleteConfirm', `"${p.name}" portföyü ve içindeki varlıklar silinecek. Emin misiniz?`))) {
-            onDelete(p.id);
+    const handleRename = (p) => setPrompt({ mode: 'rename', portfolio: p });
+    const handleDelete = (p) => setDeleteTarget(p);
+
+    const submitPrompt = (name) => {
+        if (prompt?.mode === 'create') {
+            onCreate(name);
+        } else if (prompt?.mode === 'rename' && name !== prompt.portfolio.name) {
+            onRename(prompt.portfolio.id, name);
         }
+        setPrompt(null);
+    };
+
+    const confirmDelete = () => {
+        if (deleteTarget) onDelete(deleteTarget.id);
+        setDeleteTarget(null);
     };
 
     return (
@@ -82,6 +94,32 @@ export default function PortfolioSwitcher({ portfolios, activeId, onSelect, onCr
                     </button>
                 </div>
             )}
+
+            <PromptModal
+                open={!!prompt}
+                title={prompt?.mode === 'rename'
+                    ? t('portfolio:switcher.rename', 'Yeniden adlandır')
+                    : t('portfolio:switcher.create', 'Yeni Portföy')}
+                label={prompt?.mode === 'rename'
+                    ? t('portfolio:switcher.renamePrompt', 'Yeni ad:')
+                    : t('portfolio:switcher.createPrompt', 'Yeni portföy adı:')}
+                placeholder={t('portfolio:switcher.namePlaceholder', 'Örn. Uzun Vade')}
+                defaultValue={prompt?.mode === 'rename' ? prompt.portfolio.name : ''}
+                confirmText={prompt?.mode === 'rename' ? t('common:actions.save') : t('common:actions.create', 'Oluştur')}
+                onSubmit={submitPrompt}
+                onCancel={() => setPrompt(null)}
+            />
+
+            <Modal
+                isOpen={!!deleteTarget}
+                type="error"
+                title={t('portfolio:switcher.delete', 'Sil')}
+                message={t('portfolio:switcher.deleteConfirm', '"{{name}}" portföyü ve içindeki varlıklar silinecek. Emin misiniz?', { name: deleteTarget?.name })}
+                confirmText={t('common:actions.delete', 'Sil')}
+                showCancel
+                onCancel={() => setDeleteTarget(null)}
+                onClose={confirmDelete}
+            />
         </div>
     );
 }

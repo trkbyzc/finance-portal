@@ -3,6 +3,7 @@ import { Eye, EyeOff, FileSpreadsheet, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
+import { useNotify } from '../../context/NotificationContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import { exportPortfolioExcel, exportPortfolioPdf, loadLogoDataUrl } from '../../utils/portfolioExport';
 import { portfolioApi } from '../../services/api/portfolioApi';
@@ -37,6 +38,7 @@ const PortfolioPage = () => {
     const [historySymbol, setHistorySymbol] = useState(null);
     const queryClient = useQueryClient();
     const { currency, toggleCurrency } = useCurrency();
+    const notify = useNotify();
 
     // Bakiye gizleme (göz ikonu) — localStorage'da kalıcı
     const [hideBalances, setHideBalances] = useState(() => localStorage.getItem('hideBalances') === '1');
@@ -66,14 +68,18 @@ const PortfolioPage = () => {
 
     const createPortfolioMutation = useMutation({
         mutationFn: portfolioApi.createPortfolio,
-        onSuccess: (res) => {
+        onSuccess: (res, name) => {
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             if (res?.id) setSelectedPortfolioId(res.id);
+            notify({ type: 'success', title: t('portfolio:notify.created', 'Portföy oluşturuldu'), message: typeof name === 'string' ? name : '' });
         }
     });
     const renamePortfolioMutation = useMutation({
         mutationFn: ({ id, name }) => portfolioApi.renamePortfolio(id, name),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['portfolios'] })
+        onSuccess: (res, vars) => {
+            queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+            notify({ type: 'info', title: t('portfolio:notify.renamed', 'Portföy yeniden adlandırıldı'), message: vars?.name || '' });
+        }
     });
     const deletePortfolioMutation = useMutation({
         mutationFn: portfolioApi.deletePortfolio,
@@ -81,6 +87,7 @@ const PortfolioPage = () => {
             setSelectedPortfolioId(null);
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+            notify({ type: 'warning', title: t('portfolio:notify.deleted', 'Portföy silindi') });
         }
     });
 
@@ -177,19 +184,34 @@ const PortfolioPage = () => {
 
     const addAssetMutation = useMutation({
         mutationFn: (data) => portfolioApi.addManualEntry({ ...data, portfolioId: activePortfolioId }),
-        onSuccess: () => {
+        onSuccess: (res, vars) => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        }
+            notify({
+                type: 'success',
+                title: t('portfolio:notify.assetAdded', 'Portföye eklendi'),
+                message: vars?.symbol ? t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: vars.symbol }) : ''
+            });
+        },
+        onError: (err) => notify({
+            type: 'error',
+            title: t('portfolio:notify.assetAddError', 'Eklenemedi'),
+            message: err?.response?.data?.message || err?.message || ''
+        })
     });
 
     const sellAssetMutation = useMutation({
         mutationFn: (data) => portfolioApi.removeFromPortfolio({ ...data, portfolioId: activePortfolioId }),
-        onSuccess: () => {
+        onSuccess: (res, vars) => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            notify({
+                type: 'info',
+                title: t('portfolio:notify.assetSold', 'Satış kaydedildi'),
+                message: vars?.symbol ? t('portfolio:notify.assetSoldMsg', '{{symbol}} pozisyonu güncellendi.', { symbol: vars.symbol }) : ''
+            });
         }
     });
 

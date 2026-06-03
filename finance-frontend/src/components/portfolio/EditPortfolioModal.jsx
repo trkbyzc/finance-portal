@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNotify } from '../../context/NotificationContext';
 
 const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
     const { t } = useTranslation(['portfolio', 'common']);
+    const notify = useNotify();
     const [quantity, setQuantity] = useState('');
     const [averagePrice, setAveragePrice] = useState('');
     const [loading, setLoading] = useState(false);
@@ -28,9 +30,10 @@ const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
             });
 
             onClose();
+            notify({ type: 'success', title: t('portfolio:notify.updated', 'Güncellendi'), message: asset.symbol });
         } catch (error) {
             console.error('Edit error:', error);
-            alert((error.response?.data?.message || error.message));
+            notify({ type: 'error', title: t('portfolio:notify.updateError', 'Güncellenemedi'), message: error.response?.data?.message || error.message || '' });
         } finally {
             setLoading(false);
         }

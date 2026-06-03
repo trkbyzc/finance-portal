@@ -7,6 +7,7 @@ import { simulationApi } from '../../services/api/simulationApi';
 import CreateSimulationModal from '../../components/simulation/CreateSimulationModal';
 import SimulationCard from '../../components/simulation/SimulationCard';
 import SimulationDetailModal from '../../components/simulation/SimulationDetailModal';
+import Modal from '../../components/layout/Modal';
 
 export default function SimulationPage() {
     const { t } = useTranslation(['simulation', 'common']);
@@ -14,6 +15,7 @@ export default function SimulationPage() {
 
     const [createOpen, setCreateOpen] = useState(false);
     const [detailSim, setDetailSim] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const { data: sims = [], isLoading, isError } = useQuery({
         queryKey: ['simulations'],
@@ -33,9 +35,10 @@ export default function SimulationPage() {
     const handlePreview = (body) => simulationApi.previewSimulation(body);
     const handleSave = (body) => createMutation.mutateAsync(body);
 
-    const handleDelete = (sim) => {
-        if (!window.confirm(t('simulation:actions.removeConfirm', { symbol: sim.symbol }))) return;
-        deleteMutation.mutate(sim.id);
+    const handleDelete = (sim) => setDeleteTarget(sim);
+    const confirmDelete = () => {
+        if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
+        setDeleteTarget(null);
     };
 
     return (
@@ -108,6 +111,17 @@ export default function SimulationPage() {
                         t={t}
                     />
                 )}
+
+                <Modal
+                    isOpen={!!deleteTarget}
+                    type="error"
+                    title={t('simulation:actions.remove', 'Sil')}
+                    message={t('simulation:actions.removeConfirm', { symbol: deleteTarget?.symbol })}
+                    confirmText={t('common:actions.delete', 'Sil')}
+                    showCancel
+                    onCancel={() => setDeleteTarget(null)}
+                    onClose={confirmDelete}
+                />
             </div>
         </div>
     );

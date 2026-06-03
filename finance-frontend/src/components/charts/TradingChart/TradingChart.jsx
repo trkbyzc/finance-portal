@@ -10,6 +10,7 @@ import { useChartOverlays } from './hooks/useChartOverlays';
 import useBenchmarkOverlay from './hooks/useBenchmarkOverlay';
 import { normalizeSymbol, getDisplayName, getChartType, isTurkishBond, isTurkishGold } from './utils/symbolUtils';
 import { useCurrency } from '../../../context/CurrencyContext';
+import { useNotify } from '../../../context/NotificationContext';
 import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConversion';
 import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
 import { BIST_OPTIONS, CRYPTO_OPTIONS } from './tradingChartConstants';
@@ -42,6 +43,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
     const [searchParams] = useSearchParams();
     const savedChartId = searchParams.get('saved');
 
+    const notify = useNotify();
     const backendSymbol = useMemo(() => normalizeSymbol(asset), [asset]);
     const chartType = useMemo(() => getChartType(asset), [asset]);
     const displayName = useMemo(() => getDisplayName(asset, backendSymbol), [asset, backendSymbol]);
@@ -177,13 +179,21 @@ function TradingChart({ asset, initialRange = '1y' }) {
                     symbol: backendSymbol, assetCategory: asset?.assetCategory, name: displayName, payload
                 });
             }
-            alert(t('tools.saveSuccess', 'Grafik "Hesabım" sayfasına kaydedildi.'));
+            notify({
+                type: 'success',
+                title: t('tools.saveSuccessTitle', 'Grafik kaydedildi'),
+                message: t('tools.saveSuccessMsg', '{{name}} grafiği "Hesabım" sayfasına kaydedildi.', { name: displayName })
+            });
         } catch (e) {
-            alert(e?.response?.data?.message || e?.message || t('tools.saveError', 'Grafik kaydedilemedi.'));
+            notify({
+                type: 'error',
+                title: t('tools.saveErrorTitle', 'Grafik kaydedilemedi'),
+                message: e?.response?.data?.message || e?.message || t('tools.saveError', 'Grafik kaydedilemedi.')
+            });
         } finally {
             setSaving(false);
         }
-    }, [getOverlaysSnapshot, activeRange, candleType, savedChartId, displayName, asset, backendSymbol, t]);
+    }, [getOverlaysSnapshot, activeRange, candleType, savedChartId, displayName, asset, backendSymbol, t, notify]);
 
     if (isNone) {
         return <div className="h-125 flex items-center justify-center bg-surface text-text-muted">📊 Desteklenmiyor.</div>;

@@ -79,8 +79,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 ...(isViop ? { contractSize } : {})
             });
         } catch (error) {
+            // Hata bildirimi parent mutation'ın onError'ında toast olarak gösterilir.
             console.error('Add to portfolio error:', error);
-            alert((error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }

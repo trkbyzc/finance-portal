@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CandlestickChart, Trash2, Pencil, ArrowRight, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { savedChartApi } from '../../services/api/savedChartApi';
+import PromptModal from '../../components/layout/PromptModal';
+import Modal from '../../components/layout/Modal';
+import { useNotify } from '../../context/NotificationContext';
 
 /**
  * "Hesabım" — Kullanıcının çizim araçlarıyla kaydettiği grafiklerin listesi.
@@ -12,6 +16,9 @@ export default function SavedChartsPage() {
     const { t, i18n } = useTranslation(['charts', 'common']);
     const navigate = useNavigate();
     const qc = useQueryClient();
+    const notify = useNotify();
+    const [renameTarget, setRenameTarget] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const { data: charts = [], isLoading } = useQuery({
         queryKey: ['savedCharts'],
@@ -24,21 +31,23 @@ export default function SavedChartsPage() {
     });
     const deleteMut = useMutation({
         mutationFn: (id) => savedChartApi.deleteChart(id),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['savedCharts'] }),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['savedCharts'] });
+            notify({ type: 'warning', title: t('charts:saved.deletedToast', 'Grafik silindi') });
+        },
     });
 
     const open = (c) => {
         const cat = c.assetCategory ? `&cat=${encodeURIComponent(c.assetCategory)}` : '';
         navigate(`/chart/${encodeURIComponent(c.symbol)}?saved=${c.id}${cat}`);
     };
-    const rename = (c) => {
-        const name = window.prompt(t('charts:saved.renamePrompt', 'Yeni ad:'), c.name);
-        if (name && name.trim() && name.trim() !== c.name) renameMut.mutate({ id: c.id, name: name.trim() });
+    const submitRename = (name) => {
+        if (renameTarget && name !== renameTarget.name) renameMut.mutate({ id: renameTarget.id, name });
+        setRenameTarget(null);
     };
-    const remove = (c) => {
-        if (window.confirm(t('charts:saved.deleteConfirm', '"{{name}}" grafiği silinsin mi?', { name: c.name }))) {
-            deleteMut.mutate(c.id);
-        }
+    const confirmDelete = () => {
+        if (deleteTarget) deleteMut.mutate(deleteTarget.id);
+        setDeleteTarget(null);
     };
 
     const fmtDate = (d) => {
@@ -88,14 +97,14 @@ export default function SavedChartsPage() {
                                     </div>
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); rename(c); }}
+                                            onClick={(e) => { e.stopPropagation(); setRenameTarget(c); }}
                                             className="p-1.5 rounded-md text-text-muted hover:text-primary hover:bg-primary/10"
                                             title={t('charts:saved.rename', 'Yeniden adlandır')}
                                         >
                                             <Pencil size={14} />
                                         </button>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); remove(c); }}
+                                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(c); }}
                                             className="p-1.5 rounded-md text-text-muted hover:text-sell hover:bg-sell/10"
                                             title={t('charts:saved.delete', 'Sil')}
                                         >
@@ -114,6 +123,27 @@ export default function SavedChartsPage() {
                     </div>
                 )}
             </div>
+
+            <PromptModal
+                open={!!renameTarget}
+                title={t('charts:saved.rename', 'Yeniden adlandır')}
+                label={t('charts:saved.renamePrompt', 'Yeni ad:')}
+                defaultValue={renameTarget?.name || ''}
+                confirmText={t('common:actions.save')}
+                onSubmit={submitRename}
+                onCancel={() => setRenameTarget(null)}
+            />
+
+            <Modal
+                isOpen={!!deleteTarget}
+                type="error"
+                title={t('charts:saved.delete', 'Sil')}
+                message={t('charts:saved.deleteConfirm', '"{{name}}" grafiği silinsin mi?', { name: deleteTarget?.name })}
+                confirmText={t('common:actions.delete', 'Sil')}
+                showCancel
+                onCancel={() => setDeleteTarget(null)}
+                onClose={confirmDelete}
+            />
         </div>
     );
 }
