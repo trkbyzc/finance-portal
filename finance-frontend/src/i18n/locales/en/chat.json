@@ -1,0 +1,39 @@
+{
+  "widget": {
+    "open": "Open assistant",
+    "close": "Close assistant"
+  },
+  "header": {
+    "title": "FinansPortal Assistant",
+    "subtitle": "Ask about your portfolio + finance",
+    "newChat": "New Chat",
+    "history": "History",
+    "noHistory": "No conversations yet"
+  },
+  "empty": {
+    "title": "Hi! How can I help?",
+    "subtitle": "Ask about your portfolio, alarms, or the market.",
+    "suggestion1": "What's in my portfolio?",
+    "suggestion2": "What's my total profit?",
+    "suggestion3": "BTC price?",
+    "suggestion4": "Show my active alarms"
+  },
+  "input": {
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "tooLong": "Message too long"
+  },
+  "error": {
+    "send": "Couldn't send message",
+    "load": "Couldn't load history",
+    "rateLimit": "Too many messages — wait a moment"
+  },
+  "delete": {
+    "title": "Delete chat",
+    "confirm": "This conversation will be deleted. Continue?",
+    "success": "Conversation deleted",
+    "failed": "Couldn't delete"
+  },
+  "disclaimer": "AI assistant. Investment decisions are yours."
+}

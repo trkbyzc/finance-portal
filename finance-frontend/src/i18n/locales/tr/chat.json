@@ -1,0 +1,39 @@
+{
+  "widget": {
+    "open": "Asistanı aç",
+    "close": "Asistanı kapat"
+  },
+  "header": {
+    "title": "FinansPortal Asistanı",
+    "subtitle": "Finans + portföyün hakkında soru sor",
+    "newChat": "Yeni Sohbet",
+    "history": "Geçmiş",
+    "noHistory": "Henüz sohbet yok"
+  },
+  "empty": {
+    "title": "Merhaba! Sana nasıl yardımcı olabilirim?",
+    "subtitle": "Portföyün, alarmların veya piyasa hakkında soru sorabilirsin.",
+    "suggestion1": "Portföyümde ne var?",
+    "suggestion2": "Toplam karım ne kadar?",
+    "suggestion3": "BTC fiyatı kaç?",
+    "suggestion4": "Aktif alarmlarım neler?"
+  },
+  "input": {
+    "placeholder": "Bir şeyler yaz...",
+    "send": "Gönder",
+    "thinking": "Düşünüyor...",
+    "tooLong": "Çok uzun mesaj"
+  },
+  "error": {
+    "send": "Mesaj gönderilemedi",
+    "load": "Geçmiş yüklenemedi",
+    "rateLimit": "Çok sık mesaj attın, biraz bekle"
+  },
+  "delete": {
+    "title": "Sohbeti sil",
+    "confirm": "Bu sohbet silinecek. Devam etmek istiyor musun?",
+    "success": "Sohbet silindi",
+    "failed": "Sohbet silinemedi"
+  },
+  "disclaimer": "Bu bir yapay zeka. Yatırım kararı sana aittir."
+}

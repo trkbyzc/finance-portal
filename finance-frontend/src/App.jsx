@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -34,6 +33,7 @@ import SavedChartsPage from './pages/SavedChartsPage/SavedChartsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
 import GlobalTicker from './components/layout/MarketTicker/GlobalTicker';
+import ChatWidget from './components/chat/ChatWidget';
 
 
 
@@ -78,6 +78,7 @@ function App() {
                             </Routes>
                         </main>
                         <Footer />
+                        <ChatWidget />
                     </div>
                 </Router>
             </CurrencyProvider>

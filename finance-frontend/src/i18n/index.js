@@ -21,6 +21,7 @@ import trEconomicCalendar from './locales/tr/economicCalendar.json';
 import trPreferences from './locales/tr/preferences.json';
 import trAlarm from './locales/tr/alarm.json';
 import trFooter from './locales/tr/footer.json';
+import trChat from './locales/tr/chat.json';
 
 import enCommon from './locales/en/common.json';
 import enNavbar from './locales/en/navbar.json';
@@ -42,6 +43,7 @@ import enEconomicCalendar from './locales/en/economicCalendar.json';
 import enPreferences from './locales/en/preferences.json';
 import enAlarm from './locales/en/alarm.json';
 import enFooter from './locales/en/footer.json';
+import enChat from './locales/en/chat.json';
 
 const STORAGE_KEY = 'finansportal-language';
 
@@ -65,7 +67,7 @@ i18n
             'common', 'navbar', 'dashboard', 'markets', 'portfolio',
             'admin', 'auth', 'profile', 'asset', 'news', 'interest',
             'charts', 'errors', 'watchlist', 'simulation', 'whatIf',
-            'economicCalendar', 'preferences', 'alarm', 'footer'
+            'economicCalendar', 'preferences', 'alarm', 'footer', 'chat'
         ],
         resources: {
             tr: {
@@ -88,7 +90,8 @@ i18n
                 economicCalendar: trEconomicCalendar,
                 preferences: trPreferences,
                 alarm: trAlarm,
-                footer: trFooter
+                footer: trFooter,
+                chat: trChat
             },
             en: {
                 common: enCommon,
@@ -110,7 +113,8 @@ i18n
                 economicCalendar: enEconomicCalendar,
                 preferences: enPreferences,
                 alarm: enAlarm,
-                footer: enFooter
+                footer: enFooter,
+                chat: enChat
             }
         },
         interpolation: {
@@ -123,7 +127,9 @@ i18n.on('languageChanged', (lng) => {
     try {
         localStorage.setItem(STORAGE_KEY, lng);
         document.documentElement.setAttribute('lang', lng);
-    } catch {}
+    } catch {
+        // localStorage erişilemiyorsa (private mode vs.) sessiz geç
+    }
 });
 
 document.documentElement.setAttribute('lang', i18n.language);
