@@ -67,7 +67,7 @@ public class StockService {
     // Hafta sonu / piyasa kapalıyken Fintables tick endpoint v=null döner ve liste boşalır.
     // Son başarılı snapshot 48 saat ayrı bir Redis key'inde tutulur; canlı boşsa oradan beslenir.
     private static final String BIST_LAST_GOOD_KEY = "cache:bist:last-good";
-    private static final long BIST_LAST_GOOD_TTL_MINUTES = 60 * 48;
+    private static final long BIST_LAST_GOOD_TTL_MINUTES = 60L * 48;
 
     private List<StockDto> fetchAndCombineStocks() {
         List<StockDto> allStocks = new ArrayList<>();

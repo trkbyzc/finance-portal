@@ -20,8 +20,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -158,6 +156,7 @@ class EffectiveCurrencySyncServiceTest {
 
         service.syncEffectiveCurrencies();
         // Tüm noktalar atlandı; history boş → set çağrılmaz
+        verify(cacheService, never()).save(eq("cache:effective-currencies"), any(), anyLong());
     }
 
     @Test
@@ -173,93 +172,35 @@ class EffectiveCurrencySyncServiceTest {
         verify(bootstrapTracker).markComplete("EffectiveCurrency");
     }
 
-    @Test
-    void calcChanges_redisHasHistory_changesNonZero(@TempDir Path tmp) throws Exception {
-        String xml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <Tarih_Date>
-                  <Currency CurrencyCode="USD">
-                    <Isim>ABD DOLARI</Isim>
-                    <BanknoteBuying>34.10</BanknoteBuying>
-                    <BanknoteSelling>34.20</BanknoteSelling>
-                  </Currency>
-                </Tarih_Date>
-                """;
-        Path xmlFile = writeXml(tmp, xml);
+    private static final String USD_BANKNOTE_XML = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Tarih_Date>
+              <Currency CurrencyCode="USD">
+                <Isim>ABD DOLARI</Isim>
+                <BanknoteBuying>34.10</BanknoteBuying>
+                <BanknoteSelling>34.20</BanknoteSelling>
+              </Currency>
+            </Tarih_Date>
+            """;
+
+    /**
+     * calcChangesFromRedis branch'lerini tek parametreli test ile kapsar:
+     * multi-point geçmiş (değişim hesaplanır), null (boş map), invalid JSON (swallow), tek nokta (zero changes).
+     * Hepsinde TCMB banknote XML aynı → cache.save her durumda çağrılır.
+     */
+    @org.junit.jupiter.params.ParameterizedTest(name = "redis history = {0}")
+    @org.junit.jupiter.params.provider.NullSource
+    @org.junit.jupiter.params.provider.ValueSource(strings = {
+            "[{\"date\":\"2020-01-01\",\"close\":7.0},{\"date\":\"2024-01-01\",\"close\":33.0}]",
+            "garbage",
+            "[{\"date\":\"2024-01-01\",\"close\":33.0}]"
+    })
+    void calcChanges_variousRedisHistories_alwaysSavesCache(String redisHistoryJson, @TempDir Path tmp) throws Exception {
+        Path xmlFile = writeXml(tmp, USD_BANKNOTE_XML);
         ReflectionTestUtils.setField(service, "tcmbXmlUrl", xmlFile.toUri().toString());
 
         when(redisTemplate.hasKey(anyString())).thenReturn(true); // skip evds sync
-        // history JSON in redis used by calcChangesFromRedis
-        when(valueOps.get("evds:effective-currency:USD")).thenReturn(
-                "[{\"date\":\"2020-01-01\",\"close\":7.0},{\"date\":\"2024-01-01\",\"close\":33.0}]"
-        );
-
-        service.syncEffectiveCurrencies();
-
-        verify(cacheService).save(eq("cache:effective-currencies"), any(), anyLong());
-    }
-
-    @Test
-    void calcChanges_redisEmpty_zeroChanges(@TempDir Path tmp) throws Exception {
-        String xml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <Tarih_Date>
-                  <Currency CurrencyCode="USD">
-                    <Isim>ABD DOLARI</Isim>
-                    <BanknoteBuying>34.10</BanknoteBuying>
-                    <BanknoteSelling>34.20</BanknoteSelling>
-                  </Currency>
-                </Tarih_Date>
-                """;
-        Path xmlFile = writeXml(tmp, xml);
-        ReflectionTestUtils.setField(service, "tcmbXmlUrl", xmlFile.toUri().toString());
-
-        when(redisTemplate.hasKey(anyString())).thenReturn(true);
-        when(valueOps.get("evds:effective-currency:USD")).thenReturn(null);
-
-        service.syncEffectiveCurrencies();
-        verify(cacheService).save(eq("cache:effective-currencies"), any(), anyLong());
-    }
-
-    @Test
-    void calcChanges_redisInvalidJson_swallowed(@TempDir Path tmp) throws Exception {
-        String xml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <Tarih_Date>
-                  <Currency CurrencyCode="USD">
-                    <Isim>ABD DOLARI</Isim>
-                    <BanknoteBuying>34.10</BanknoteBuying>
-                    <BanknoteSelling>34.20</BanknoteSelling>
-                  </Currency>
-                </Tarih_Date>
-                """;
-        Path xmlFile = writeXml(tmp, xml);
-        ReflectionTestUtils.setField(service, "tcmbXmlUrl", xmlFile.toUri().toString());
-
-        when(redisTemplate.hasKey(anyString())).thenReturn(true);
-        when(valueOps.get("evds:effective-currency:USD")).thenReturn("garbage");
-
-        service.syncEffectiveCurrencies();
-        verify(cacheService).save(eq("cache:effective-currencies"), any(), anyLong());
-    }
-
-    @Test
-    void calcChanges_singlePointHistory_zeroChanges(@TempDir Path tmp) throws Exception {
-        String xml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <Tarih_Date>
-                  <Currency CurrencyCode="USD">
-                    <Isim>ABD DOLARI</Isim>
-                    <BanknoteBuying>34.10</BanknoteBuying>
-                    <BanknoteSelling>34.20</BanknoteSelling>
-                  </Currency>
-                </Tarih_Date>
-                """;
-        Path xmlFile = writeXml(tmp, xml);
-        ReflectionTestUtils.setField(service, "tcmbXmlUrl", xmlFile.toUri().toString());
-
-        when(redisTemplate.hasKey(anyString())).thenReturn(true);
-        when(valueOps.get("evds:effective-currency:USD")).thenReturn("[{\"date\":\"2024-01-01\",\"close\":33.0}]");
+        when(valueOps.get("evds:effective-currency:USD")).thenReturn(redisHistoryJson);
 
         service.syncEffectiveCurrencies();
         verify(cacheService).save(eq("cache:effective-currencies"), any(), anyLong());

@@ -125,76 +125,29 @@ class BinanceChartClientTest {
         when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
                 .thenReturn(ResponseEntity.ok().build());
 
-        client.fetchKlines("BTCUSDT", "1d");
+        assertNotNull(client.fetchKlines("BTCUSDT", "1d"));
 
         verify(restTemplate).getForEntity(contains("interval=15m"), eq(JsonNode.class));
         verify(restTemplate).getForEntity(contains("limit=96"), eq(JsonNode.class));
     }
 
-    @Test
-    void mapRange_5y_usesWeeklyInterval() {
+    @org.junit.jupiter.params.ParameterizedTest(name = "range={0} → interval={1}, limit={2}")
+    @org.junit.jupiter.params.provider.CsvSource({
+            "5y,interval=1w,limit=260",
+            ",interval=1d,limit=30",
+            "unknownrange,interval=1d,limit=30",
+            "1mo,interval=1d,limit=30",
+            "1y,interval=1d,limit=365",
+            "5d,interval=1h,limit=168"
+    })
+    void mapRange_variousRanges_buildsCorrectIntervalAndLimit(String range, String interval, String limit) {
         when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
                 .thenReturn(ResponseEntity.ok().build());
 
-        client.fetchKlines("BTCUSDT", "5y");
+        client.fetchKlines("BTCUSDT", range);
 
-        verify(restTemplate).getForEntity(contains("interval=1w"), eq(JsonNode.class));
-        verify(restTemplate).getForEntity(contains("limit=260"), eq(JsonNode.class));
-    }
-
-    @Test
-    void mapRange_nullRange_defaultsTo1d30Limit() {
-        when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        client.fetchKlines("BTCUSDT", null);
-
-        verify(restTemplate).getForEntity(contains("interval=1d"), eq(JsonNode.class));
-        verify(restTemplate).getForEntity(contains("limit=30"), eq(JsonNode.class));
-    }
-
-    @Test
-    void mapRange_unknownRange_defaultsTo1d30Limit() {
-        when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        client.fetchKlines("BTCUSDT", "unknownrange");
-
-        verify(restTemplate).getForEntity(contains("interval=1d"), eq(JsonNode.class));
-        verify(restTemplate).getForEntity(contains("limit=30"), eq(JsonNode.class));
-    }
-
-    @Test
-    void mapRange_1mo_uses1dWith30Limit() {
-        when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        client.fetchKlines("BTCUSDT", "1mo");
-
-        verify(restTemplate).getForEntity(contains("interval=1d"), eq(JsonNode.class));
-        verify(restTemplate).getForEntity(contains("limit=30"), eq(JsonNode.class));
-    }
-
-    @Test
-    void mapRange_1y_uses1dWith365Limit() {
-        when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        client.fetchKlines("BTCUSDT", "1y");
-
-        verify(restTemplate).getForEntity(contains("interval=1d"), eq(JsonNode.class));
-        verify(restTemplate).getForEntity(contains("limit=365"), eq(JsonNode.class));
-    }
-
-    @Test
-    void mapRange_5d_uses1hInterval() {
-        when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        client.fetchKlines("BTCUSDT", "5d");
-
-        verify(restTemplate).getForEntity(contains("interval=1h"), eq(JsonNode.class));
-        verify(restTemplate).getForEntity(contains("limit=168"), eq(JsonNode.class));
+        verify(restTemplate).getForEntity(contains(interval), eq(JsonNode.class));
+        verify(restTemplate).getForEntity(contains(limit), eq(JsonNode.class));
     }
 
     @Test
@@ -202,11 +155,9 @@ class BinanceChartClientTest {
         when(restTemplate.getForEntity(anyString(), eq(JsonNode.class)))
                 .thenReturn(ResponseEntity.ok().build());
 
-        client.fetchKlines("BTCUSDT", "1g"); // gün = day
-        client.fetchKlines("BTCUSDT", "1a"); // ay = month
-        client.fetchKlines("BTCUSDT", "3a");
-        client.fetchKlines("BTCUSDT", "6a");
-
-        // No exceptions, all valid mappings
+        assertNotNull(client.fetchKlines("BTCUSDT", "1g")); // gün = day
+        assertNotNull(client.fetchKlines("BTCUSDT", "1a")); // ay = month
+        assertNotNull(client.fetchKlines("BTCUSDT", "3a"));
+        assertNotNull(client.fetchKlines("BTCUSDT", "6a"));
     }
 }

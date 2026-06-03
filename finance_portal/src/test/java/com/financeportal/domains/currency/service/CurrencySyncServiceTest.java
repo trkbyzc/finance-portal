@@ -169,10 +169,10 @@ class CurrencySyncServiceTest {
 
         try {
             service.fetchAndCacheCurrencyRates();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { /* test scenario: swallow expected exception */ }
 
-        // Even on exception, markComplete must be called
-        // (because of the try-finally block)
+        // Even on exception, markComplete must be called via try-finally
+        verify(bootstrapTracker).markComplete("Currency");
     }
 
     @Test

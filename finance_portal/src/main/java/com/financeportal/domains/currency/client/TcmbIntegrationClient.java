@@ -123,40 +123,57 @@ public class TcmbIntegrationClient {
         List<HistoricalDataDto> historyList = new ArrayList<>();
         if (parsedData == null || parsedData.isEmpty()) return historyList;
         try {
+            DateRangeFilter filter = DateRangeFilter.of(range, startDate, endDate, this::parseIsoOrNull, this::getCutoffDateByRange);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            boolean custom = "custom".equalsIgnoreCase(range);
-            LocalDate from = custom ? parseIsoOrNull(startDate) : null;
-            LocalDate to = custom ? parseIsoOrNull(endDate) : null;
-            LocalDate cutoffDate = custom ? null : getCutoffDateByRange(range);
-
             for (Map<String, Object> dataPoint : parsedData) {
-                String dateStr = (String) dataPoint.get("date");
-                Object rawClose = dataPoint.get("close");
-                Double closeVal = (rawClose instanceof Number n) ? n.doubleValue() : null;
-                if (dateStr == null || closeVal == null) continue;
-
-                LocalDate date;
-                try { date = LocalDate.parse(dateStr, formatter); } catch (Exception ignored) { continue; }
-                if (custom) {
-                    if (from != null && date.isBefore(from)) continue;
-                    if (to != null && date.isAfter(to)) continue;
-                } else if (date.isBefore(cutoffDate)) {
-                    continue;
-                }
-
-                HistoricalDataDto dto = new HistoricalDataDto();
-                dto.setDate(date);
-                dto.setTimestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
-                BigDecimal rate = BigDecimal.valueOf(closeVal).setScale(4, RoundingMode.HALF_UP);
-                dto.setOpen(rate); dto.setHigh(rate); dto.setLow(rate);
-                dto.setClose(rate); dto.setPrice(rate); dto.setVolume(0L);
-                historyList.add(dto);
+                HistoricalDataDto dto = pointToDto(dataPoint, formatter, filter);
+                if (dto != null) historyList.add(dto);
             }
             historyList.sort(Comparator.comparingLong(HistoricalDataDto::getTimestamp));
         } catch (Exception e) {
             log.error("[EVDS] {} historical map hatası: {}", currencyCode, e.getMessage());
         }
         return historyList;
+    }
+
+    /** Tek bir Redis data-point'i HistoricalDataDto'ya map'ler; range filtresine takılırsa null döner. */
+    private HistoricalDataDto pointToDto(Map<String, Object> dataPoint, DateTimeFormatter formatter, DateRangeFilter filter) {
+        String dateStr = (String) dataPoint.get("date");
+        Object rawClose = dataPoint.get("close");
+        Double closeVal = (rawClose instanceof Number n) ? n.doubleValue() : null;
+        if (dateStr == null || closeVal == null) return null;
+        LocalDate date;
+        try { date = LocalDate.parse(dateStr, formatter); } catch (Exception ignored) { return null; }
+        if (!filter.accepts(date)) return null;
+
+        HistoricalDataDto dto = new HistoricalDataDto();
+        dto.setDate(date);
+        dto.setTimestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        BigDecimal rate = BigDecimal.valueOf(closeVal).setScale(4, RoundingMode.HALF_UP);
+        dto.setOpen(rate); dto.setHigh(rate); dto.setLow(rate);
+        dto.setClose(rate); dto.setPrice(rate); dto.setVolume(0L);
+        return dto;
+    }
+
+    /** Custom range için from/to, diğerleri için cutoff'a göre tarih filtreleyici. */
+    private record DateRangeFilter(boolean custom, LocalDate from, LocalDate to, LocalDate cutoff) {
+        static DateRangeFilter of(String range, String startDate, String endDate,
+                                  java.util.function.Function<String, LocalDate> parser,
+                                  java.util.function.Function<String, LocalDate> cutoffResolver) {
+            boolean isCustom = "custom".equalsIgnoreCase(range);
+            return new DateRangeFilter(
+                    isCustom,
+                    isCustom ? parser.apply(startDate) : null,
+                    isCustom ? parser.apply(endDate) : null,
+                    isCustom ? null : cutoffResolver.apply(range)
+            );
+        }
+        boolean accepts(LocalDate date) {
+            if (custom) {
+                return (from == null || !date.isBefore(from)) && (to == null || !date.isAfter(to));
+            }
+            return !date.isBefore(cutoff);
+        }
     }
 
     private Map<String, BigDecimal> calculateChangesFromHistory(List<HistoricalDataDto> hist) {

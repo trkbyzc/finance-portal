@@ -101,10 +101,11 @@ public class BusinessInsiderBondClient {
 
             for (JsonNode point : body) {
                 String dateStr = point.path("Date").asText(null);
-                if (dateStr == null || dateStr.length() < 10) continue;
                 BigDecimal close = decimal(point.path("Close").asText(null));
-                if (close == null) continue;
-
+                // Geçersiz tarih veya kapanış yoksa nokta tamamen atlanır.
+                if (dateStr == null || dateStr.length() < 10 || close == null) {
+                    continue;
+                }
                 HistoricalDataDto dto = new HistoricalDataDto();
                 dto.setDate(LocalDate.parse(dateStr.substring(0, 10)));
                 dto.setClose(close);

@@ -50,11 +50,11 @@ class EurobondServiceTest {
                 .thenAnswer(inv -> ((Supplier<List<EurobondDto>>) inv.getArgument(1)).get());
     }
 
-    private BusinessInsiderBondDetail detail(String tk, String ccy, String coupon, String yield, String price, String maturity) {
+    private BusinessInsiderBondDetail detail(String tk, String ccy, String coupon, String bondYield, String price, String maturity) {
         return BusinessInsiderBondDetail.builder()
                 .tkData(tk).currency(ccy)
                 .coupon(coupon == null ? null : new BigDecimal(coupon))
-                .bondYield(yield == null ? null : new BigDecimal(yield))
+                .bondYield(bondYield == null ? null : new BigDecimal(bondYield))
                 .price(price == null ? null : new BigDecimal(price))
                 .changePercent(new BigDecimal("0.39"))
                 .maturity(maturity)

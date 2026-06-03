@@ -34,6 +34,7 @@ public class EconomySyncService {
     private final BootstrapReadinessTracker bootstrapTracker;
 
     private static final String TASK_NAME = "Economy";
+    private static final String CPI_SERIES_CODE = "TP.TUKFIY2025.GENEL";
 
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
@@ -53,7 +54,7 @@ public class EconomySyncService {
         // Daha uzun politika faizi tarihçesi için doğru EVDS kodu tespit edilmeli.
         Double interest = extractLatest(evdsClient.fetchSeries(List.of("TP.APIFON4"), today.minusDays(180), today, null), "TP.APIFON4");
         Double unemployment = extractLatest(evdsClient.fetchSeries(List.of("TP.YISGUCU2.G8"), today.minusDays(365), today, null), "TP.YISGUCU2.G8");
-        Double inflation = extractLatest(evdsClient.fetchSeries(List.of("TP.TUKFIY2025.GENEL"), today.minusDays(365), today, "3"), "TP.TUKFIY2025.GENEL");
+        Double inflation = extractLatest(evdsClient.fetchSeries(List.of(CPI_SERIES_CODE), today.minusDays(365), today, "3"), CPI_SERIES_CODE);
 
         macroData.put("interestRate", interest != null ? interest : 50.00);
         macroData.put("unemploymentRate", unemployment != null ? unemployment : 8.70);
@@ -71,7 +72,7 @@ public class EconomySyncService {
             saveHistory(ind.code(), ind.key(), tenYearsAgo, today, ind.formula());
         }
         // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer (ayrı key)
-        saveHistory("TP.TUKFIY2025.GENEL", "cumulativeInflationRate", tenYearsAgo, today, null);
+        saveHistory(CPI_SERIES_CODE, "cumulativeInflationRate", tenYearsAgo, today, null);
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
         }
@@ -86,9 +87,12 @@ public class EconomySyncService {
         return latest;
     }
 
+    /**
+     * EVDS serisini fetch'leyip Redis'e historyList olarak yazar.
+     * Formula (yıllık %değişim) gerektirenlerde tekli fetch (aylık seri, <1000 nokta);
+     * seviye serilerinde paginated (günlük 10y > 1000 nokta sınırını aşar) → tam geçmiş.
+     */
     private void saveHistory(String code, String metricName, LocalDate start, LocalDate end, String formula) {
-        // Formula (yıllık %değişim) gerektirenlerde tekli fetch (aylık seri, <1000 nokta);
-        // seviye serilerinde paginated (günlük 10y > 1000 nokta sınırını aşar) → tam geçmiş.
         List<JsonNode> nodes = (formula != null)
                 ? evdsClient.fetchSeries(List.of(code), start, end, formula)
                 : evdsClient.fetchSeriesPaginated(List.of(code), start, end, 3);

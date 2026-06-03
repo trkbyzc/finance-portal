@@ -35,9 +35,12 @@ public class EurobondService {
     private final CacheService cacheService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Eurobond listesini cache'ten döner. CacheService (GenericJackson2) cache-hit'te
+     * elemanları LinkedHashMap olarak döndürür; tip güvenliği için ObjectMapper ile
+     * EurobondDto'ya çeviriyoruz (cache-miss'te zaten DTO).
+     */
     public List<EurobondDto> getEurobondList() {
-        // CacheService (GenericJackson2) cache-hit'te elemanları LinkedHashMap olarak döndürür;
-        // tip güvenliği için ObjectMapper ile EurobondDto'ya çeviriyoruz (cache-miss'te zaten DTO).
         List<?> raw = cacheService.getOrFetch(CACHE_KEY, this::buildList, CACHE_TTL_MINUTES);
         return raw.stream()
                 .map(o -> objectMapper.convertValue(o, EurobondDto.class))

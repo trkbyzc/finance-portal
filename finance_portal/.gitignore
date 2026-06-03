@@ -46,3 +46,6 @@ run-dev.ps1
 # OTel Java Agent jar — scripts/download-otel-agent.ps1 ile indirilir, repoya gitmez
 otel-agent/
 opentelemetry-javaagent.jar
+
+# Sonar user token — kişisel, repoya gitmez. .mvn/maven.config'de saklanır.
+.mvn/maven.config

@@ -56,23 +56,11 @@ class TcmbIntegrationClientTest {
         org.mockito.Mockito.verify(valueOps).get("evds:currency:EUR");
     }
 
-    @Test
-    void history_redisEmpty_returnsEmpty() {
-        when(valueOps.get("evds:currency:USD")).thenReturn(null);
-
-        assertTrue(client.fetchCurrencyHistoryFromRedis("USD", "5y").isEmpty());
-    }
-
-    @Test
-    void history_redisEmptyString_returnsEmpty() {
-        when(valueOps.get("evds:currency:USD")).thenReturn("");
-
-        assertTrue(client.fetchCurrencyHistoryFromRedis("USD", "5y").isEmpty());
-    }
-
-    @Test
-    void history_invalidJson_returnsEmpty() {
-        when(valueOps.get("evds:currency:USD")).thenReturn("not json");
+    @org.junit.jupiter.params.ParameterizedTest(name = "redis returns [{0}] → empty list")
+    @org.junit.jupiter.params.provider.NullSource
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"", "not json"})
+    void history_invalidRedisPayloads_returnEmpty(String redisValue) {
+        when(valueOps.get("evds:currency:USD")).thenReturn(redisValue);
 
         assertTrue(client.fetchCurrencyHistoryFromRedis("USD", "5y").isEmpty());
     }

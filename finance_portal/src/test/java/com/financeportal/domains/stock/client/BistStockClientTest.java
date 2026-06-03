@@ -219,19 +219,9 @@ class BistStockClientTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class),
                 eq(FintablesChartResponse.class))).thenReturn(ResponseEntity.ok().build());
 
-        // Various ranges → should not throw, just call API
-        client.fetchIndexHistory("XU100", "1d");
-        client.fetchIndexHistory("XU100", "5d");
-        client.fetchIndexHistory("XU100", "1mo");
-        client.fetchIndexHistory("XU100", "3mo");
-        client.fetchIndexHistory("XU100", "6mo");
-        client.fetchIndexHistory("XU100", "ytd");
-        client.fetchIndexHistory("XU100", "1y");
-        client.fetchIndexHistory("XU100", "5y");
-        client.fetchIndexHistory("XU100", "max");
-        client.fetchIndexHistory("XU100", null); // null → "1mo" default
-
-        // No exceptions
+        for (String range : new String[]{"1d", "5d", "1mo", "3mo", "6mo", "ytd", "1y", "5y", "max", null}) {
+            assertNotNull(client.fetchIndexHistory("XU100", range));
+        }
     }
 
     @Test

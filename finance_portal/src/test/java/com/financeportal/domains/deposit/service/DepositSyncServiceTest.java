@@ -72,7 +72,7 @@ class DepositSyncServiceTest {
 
         service.syncDeposits();
 
-        verify(valueOps).set(eq("evds:deposit:32"), eq("50.0"), eq(86400L), eq(TimeUnit.SECONDS));
+        verify(valueOps).set("evds:deposit:32", "50.0", 86400L, TimeUnit.SECONDS);
     }
 
     @Test
@@ -100,7 +100,7 @@ class DepositSyncServiceTest {
     void sync_evdsThrows_markCompleteStillCalled() {
         when(evdsClient.fetchSeries(any(), any(), any(), any())).thenThrow(new RuntimeException("EVDS down"));
 
-        try { service.syncDeposits(); } catch (Exception ignored) {}
+        try { service.syncDeposits(); } catch (Exception ignored) { /* test scenario: swallow expected exception */ }
 
         verify(bootstrapTracker).markComplete("Deposit");
     }

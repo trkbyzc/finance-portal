@@ -30,7 +30,7 @@ public class ViopService {
 
     /** Her sözleşmeye dayanak bazlı çarpanı (sözleşme büyüklüğü) ekler. */
     private List<ViopDto> withContractSize(List<ViopDto> list) {
-        if (list == null) return null;
+        if (list == null) return java.util.Collections.emptyList();
         for (ViopDto v : list) {
             v.setContractSize(contractSpec.getContractSize(v.getSymbol()));
         }

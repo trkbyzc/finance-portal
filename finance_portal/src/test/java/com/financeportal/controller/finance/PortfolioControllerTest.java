@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -137,7 +135,7 @@ class PortfolioControllerTest {
         LocalDate from = LocalDate.of(2024, 1, 1);
         LocalDate to = LocalDate.of(2024, 12, 31);
         Page<TransactionDto> page = new PageImpl<>(List.of(new TransactionDto()));
-        when(service.getMyTransactions(eq("THYAO"), eq(from), eq(to), eq(0), eq(20))).thenReturn(page);
+        when(service.getMyTransactions("THYAO", from, to, 0, 20)).thenReturn(page);
 
         ResponseEntity<Page<TransactionDto>> resp = controller.getTransactions("THYAO", from, to, 0, 20);
 
@@ -146,7 +144,7 @@ class PortfolioControllerTest {
 
     @Test
     void getTransactions_allNullFilters() {
-        when(service.getMyTransactions(eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(Page.empty());
+        when(service.getMyTransactions(null, null, null, 0, 20)).thenReturn(Page.empty());
         ResponseEntity<Page<TransactionDto>> resp = controller.getTransactions(null, null, null, 0, 20);
         assertEquals(0, resp.getBody().getTotalElements());
     }

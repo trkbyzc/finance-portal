@@ -75,7 +75,7 @@ public class PortfolioTradeService {
                 request.getQuantity(), request.getPrice(), null);
     }
 
-    public void executeUpdateManualEntry(UUID userId, Portfolio portfolio, TradeRequestDto request) {
+    public void executeUpdateManualEntry(Portfolio portfolio, TradeRequestDto request) {
         PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol())
                 .orElseThrow(() -> new ResourceNotFoundException("Varlık bulunamadı: " + request.getSymbol()));
 
@@ -98,7 +98,7 @@ public class PortfolioTradeService {
         }
     }
 
-    public void executeRemoveFromPortfolio(UUID userId, Portfolio portfolio, TradeRequestDto request) {
+    public void executeRemoveFromPortfolio(Portfolio portfolio, TradeRequestDto request) {
         PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol())
                 .orElseThrow(() -> new ResourceNotFoundException("Varlık bulunamadı: " + request.getSymbol()));
 

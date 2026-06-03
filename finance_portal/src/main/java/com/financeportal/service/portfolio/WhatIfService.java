@@ -44,21 +44,8 @@ public class WhatIfService {
     );
 
     public WhatIfResultDto compare(WhatIfRequestDto req) {
-        if (req == null || req.getInvestmentDate() == null
-                || req.getAssets() == null || req.getAssets().isEmpty()) {
-            return new WhatIfResultDto(
-                    req != null ? req.getInvestmentDate() : null,
-                    req != null ? req.getAmountTry() : null,
-                    Collections.emptyList()
-            );
-        }
-        // Tutar VEYA miktar mode kabul edilir. İkisi de yoksa boş sonuç.
-        boolean hasGlobalAmount = req.getAmountTry() != null && req.getAmountTry().signum() > 0;
-        boolean allAssetsHaveQty = req.getAssets().stream()
-                .allMatch(a -> a.getQuantity() != null && a.getQuantity().signum() > 0);
-        if (!hasGlobalAmount && !allAssetsHaveQty) {
-            return new WhatIfResultDto(req.getInvestmentDate(), req.getAmountTry(), Collections.emptyList());
-        }
+        WhatIfResultDto invalid = validateOrEmpty(req);
+        if (invalid != null) return invalid;
 
         List<CompletableFuture<WhatIfAssetSeries>> futures = new ArrayList<>(req.getAssets().size());
         for (WhatIfAssetRef ref : req.getAssets()) {
@@ -83,6 +70,28 @@ public class WhatIfService {
             }
         }
         return new WhatIfResultDto(req.getInvestmentDate(), req.getAmountTry(), result);
+    }
+
+    /**
+     * Erken-çıkış doğrulaması: request geçersizse boş sonuç döner, geçerliyse null.
+     * Cognitive complexity'yi compare()'den ayırmak için ayrı method.
+     */
+    private WhatIfResultDto validateOrEmpty(WhatIfRequestDto req) {
+        if (req == null || req.getInvestmentDate() == null
+                || req.getAssets() == null || req.getAssets().isEmpty()) {
+            return new WhatIfResultDto(
+                    req != null ? req.getInvestmentDate() : null,
+                    req != null ? req.getAmountTry() : null,
+                    Collections.emptyList()
+            );
+        }
+        boolean hasGlobalAmount = req.getAmountTry() != null && req.getAmountTry().signum() > 0;
+        boolean allAssetsHaveQty = req.getAssets().stream()
+                .allMatch(a -> a.getQuantity() != null && a.getQuantity().signum() > 0);
+        if (!hasGlobalAmount && !allAssetsHaveQty) {
+            return new WhatIfResultDto(req.getInvestmentDate(), req.getAmountTry(), Collections.emptyList());
+        }
+        return null;
     }
 
     private CompletableFuture<WhatIfAssetSeries> computeOneAsync(WhatIfAssetRef ref, LocalDate date, BigDecimal amount) {

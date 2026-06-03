@@ -122,15 +122,12 @@ class YahooChartClientTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(JsonNode.class)))
                 .thenReturn(ok("{\"chart\":{\"result\":[]}}"));
 
-        // Null range maps to 1mo
-        client.fetchChartHistory("X", null, "1d", null, null);
-
-        // Turkish aliases
-        client.fetchChartHistory("X", "1g", "1d", null, null);
-        client.fetchChartHistory("X", "1a", "1d", null, null);
-        client.fetchChartHistory("X", "ytd", "1d", null, null);
-        client.fetchChartHistory("X", "5y", "1d", null, null);
-        client.fetchChartHistory("X", "unknown_range", "1d", null, null);
+        assertNotNull(client.fetchChartHistory("X", null, "1d", null, null));
+        assertNotNull(client.fetchChartHistory("X", "1g", "1d", null, null));
+        assertNotNull(client.fetchChartHistory("X", "1a", "1d", null, null));
+        assertNotNull(client.fetchChartHistory("X", "ytd", "1d", null, null));
+        assertNotNull(client.fetchChartHistory("X", "5y", "1d", null, null));
+        assertNotNull(client.fetchChartHistory("X", "unknown_range", "1d", null, null));
     }
 
     @Test

@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -53,7 +52,7 @@ public class TefasFundClient {
                             dto.setChangePercent(r.getYield_1m() != null ? r.getYield_1m() : BigDecimal.ZERO);
                             dto.setVolume(0L); dto.setAssetCategory("FUND"); dto.setChartType("LINE");
                             return dto;
-                        }).collect(Collectors.toList());
+                        }).toList();
                 log.info("[TEFAS_FUND] Fetched {} funds in {} ms.", funds.size(), (System.currentTimeMillis() - startTime));
                 return funds;
             }

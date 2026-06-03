@@ -198,7 +198,7 @@ class TcmbIntegrationClientXmlTest {
         String json = "[{\"date\":\"" + java.time.LocalDate.now().toString() + "\",\"close\":33.0}]";
         when(valueOps.get("evds:currency:USD")).thenReturn(json);
         for (String range : new String[]{"1w", "1mo", "3mo", "6mo", "1y", "5y", "10y", "all", "max", "garbage", null}) {
-            client.fetchCurrencyHistoryFromRedis("USD", range);
+            assertNotNull(client.fetchCurrencyHistoryFromRedis("USD", range));
         }
     }
 }

@@ -147,7 +147,7 @@ class NewsSyncServiceTest {
     }
 
     @Test
-    void fetch_sortedByPubDateDescending() throws Exception {
+    void fetch_sortedByPubDateDescending() {
         when(valueOps.get("cache:news:v15")).thenReturn(null);
         NewsDto older = news("http://older", "Older", "D", "2026-06-01T08:00:00+03:00");
         NewsDto newer = news("http://newer", "Newer", "D", "2026-06-01T20:00:00+03:00");

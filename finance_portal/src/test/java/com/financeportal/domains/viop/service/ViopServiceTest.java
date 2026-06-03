@@ -95,7 +95,7 @@ class ViopServiceTest {
         });
 
         Object result = service.getViopData();
-        // withContractSize(null) returns null
-        assertNull(result);
+        // withContractSize(null) returns empty list (Sonar S1168)
+        assertTrue(((List<?>) result).isEmpty());
     }
 }

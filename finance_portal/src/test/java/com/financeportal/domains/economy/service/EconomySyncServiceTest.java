@@ -84,7 +84,7 @@ class EconomySyncServiceTest {
 
         try {
             service.syncMacroEconomy();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { /* test scenario: swallow expected exception */ }
 
         verify(bootstrapTracker).markComplete("Economy");
     }

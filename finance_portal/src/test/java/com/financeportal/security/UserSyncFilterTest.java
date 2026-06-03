@@ -107,7 +107,7 @@ class UserSyncFilterTest {
 
         verify(userService, never()).syncAndCreateUser(any(), anyString(), anyString());
         verify(userService).syncRoleFromKeycloak(id, false);
-        verify(valueOps).set(eq("user_sync:" + id), eq("synced"), eq(Duration.ofHours(1)));
+        verify(valueOps).set("user_sync:" + id, "synced", Duration.ofHours(1));
     }
 
     @Test

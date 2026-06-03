@@ -17,7 +17,6 @@ import com.financeportal.security.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,7 +35,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -213,7 +211,7 @@ class PortfolioServiceTest {
 
         service.addManualEntry(req);
 
-        verify(tradeService).executeManualEntry(eq(userId), eq(defaultPortfolio), eq(req));
+        verify(tradeService).executeManualEntry(userId, defaultPortfolio, req);
     }
 
     @Test
@@ -224,7 +222,7 @@ class PortfolioServiceTest {
 
         service.addManualEntry(req);
 
-        verify(tradeService).executeManualEntry(eq(userId), eq(defaultPortfolio), eq(req));
+        verify(tradeService).executeManualEntry(userId, defaultPortfolio, req);
     }
 
     @Test
@@ -234,7 +232,7 @@ class PortfolioServiceTest {
         when(portfolioRepo.findById(defaultPortfolio.getId())).thenReturn(Optional.of(defaultPortfolio));
 
         service.updateManualEntry(req);
-        verify(tradeService).executeUpdateManualEntry(eq(userId), eq(defaultPortfolio), eq(req));
+        verify(tradeService).executeUpdateManualEntry(defaultPortfolio, req);
     }
 
     @Test
@@ -244,7 +242,7 @@ class PortfolioServiceTest {
         when(portfolioRepo.findById(defaultPortfolio.getId())).thenReturn(Optional.of(defaultPortfolio));
 
         service.removeFromPortfolio(req);
-        verify(tradeService).executeRemoveFromPortfolio(eq(userId), eq(defaultPortfolio), eq(req));
+        verify(tradeService).executeRemoveFromPortfolio(defaultPortfolio, req);
     }
 
     // -------- getMyPortfolio / getMyPortfolioSummary --------

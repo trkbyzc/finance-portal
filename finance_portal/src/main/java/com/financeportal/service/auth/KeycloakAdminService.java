@@ -169,7 +169,7 @@ public class KeycloakAdminService {
         return keycloak;
     }
 
-    public Map<String, String> generateOTPCredential(String userId, String username) {
+    public Map<String, String> generateOTPCredential(String username) {
         try {
             String secret = generateBase32Secret();
 

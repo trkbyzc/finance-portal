@@ -95,16 +95,18 @@ class SavedChartServiceTest {
         User other = new User();
         other.setId(UUID.randomUUID());
         c.setUser(other);
-        when(repo.findById(c.getId())).thenReturn(Optional.of(c));
-        assertThrows(ResourceNotFoundException.class, () -> service.getMyChart(c.getId()));
+        UUID chartId = c.getId();
+        when(repo.findById(chartId)).thenReturn(Optional.of(c));
+        assertThrows(ResourceNotFoundException.class, () -> service.getMyChart(chartId));
     }
 
     @Test
     void getMyChart_nullOwner_throws() {
         SavedChart c = chartOf("X");
         c.setUser(null);
-        when(repo.findById(c.getId())).thenReturn(Optional.of(c));
-        assertThrows(ResourceNotFoundException.class, () -> service.getMyChart(c.getId()));
+        UUID chartId = c.getId();
+        when(repo.findById(chartId)).thenReturn(Optional.of(c));
+        assertThrows(ResourceNotFoundException.class, () -> service.getMyChart(chartId));
     }
 
     @Test

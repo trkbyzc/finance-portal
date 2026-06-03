@@ -109,7 +109,7 @@ class TurkishBondSyncServiceTest {
         when(evdsClient.fetchSeriesPaginated(any(), any(), any(), any(int.class)))
                 .thenThrow(new RuntimeException("EVDS down"));
 
-        try { service.syncTurkishBonds(); } catch (Exception ignored) {}
+        try { service.syncTurkishBonds(); } catch (Exception ignored) { /* test scenario: swallow expected exception */ }
 
         verify(bootstrapTracker).markComplete("TurkishBonds");
     }

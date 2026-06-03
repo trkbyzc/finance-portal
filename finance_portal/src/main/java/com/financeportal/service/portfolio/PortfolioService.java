@@ -125,7 +125,7 @@ public class PortfolioService {
         UUID currentUserId = securityUtils.getCurrentUserId();
         Portfolio portfolio = resolvePortfolio(currentUserId, request.getPortfolioId());
         log.info("Portföydeki varlık güncellendi - userId: {}, symbol: {}", currentUserId, request.getSymbol());
-        tradeService.executeUpdateManualEntry(currentUserId, portfolio, request);
+        tradeService.executeUpdateManualEntry(portfolio, request);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -133,7 +133,7 @@ public class PortfolioService {
         UUID currentUserId = securityUtils.getCurrentUserId();
         Portfolio portfolio = resolvePortfolio(currentUserId, request.getPortfolioId());
         log.info("Portföyden varlık çıkarıldı - userId: {}, symbol: {}", currentUserId, request.getSymbol());
-        tradeService.executeRemoveFromPortfolio(currentUserId, portfolio, request);
+        tradeService.executeRemoveFromPortfolio(portfolio, request);
     }
 
     public List<PortfolioItemDto> getMyPortfolio(UUID portfolioId) {

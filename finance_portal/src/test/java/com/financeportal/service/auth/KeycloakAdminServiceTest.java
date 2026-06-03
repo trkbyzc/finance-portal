@@ -67,7 +67,7 @@ class KeycloakAdminServiceTest {
 
     @Test
     void generateOTPCredential_buildsSecretAndQrUrl() {
-        Map<String, String> result = service.generateOTPCredential("uid", "alice");
+        Map<String, String> result = service.generateOTPCredential("alice");
         assertNotNull(result.get("secret"));
         assertTrue(result.get("qrCodeUrl").contains("alice"));
         assertTrue(result.get("qrCodeUrl").startsWith("otpauth://totp/FinancePortal:"));
@@ -242,6 +242,6 @@ class KeycloakAdminServiceTest {
     @Test
     void cleanup_keycloakNull_noOp() {
         ReflectionTestUtils.setField(service, "keycloak", null);
-        service.cleanup(); // no exception
+        assertDoesNotThrow(() -> service.cleanup());
     }
 }

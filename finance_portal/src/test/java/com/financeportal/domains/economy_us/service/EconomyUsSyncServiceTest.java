@@ -112,7 +112,7 @@ class EconomyUsSyncServiceTest {
         when(fredClient.fetchObservations(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenThrow(new RuntimeException("FRED down"));
 
-        try { service.syncUsInflation(); } catch (Exception ignored) {}
+        try { service.syncUsInflation(); } catch (Exception ignored) { /* test scenario: swallow expected exception */ }
 
         verify(bootstrapTracker).markComplete("EconomyUS");
     }

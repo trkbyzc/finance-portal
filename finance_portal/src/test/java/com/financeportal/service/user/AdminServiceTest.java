@@ -75,10 +75,8 @@ class AdminServiceTest {
         when(userRepo.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of()));
 
-        service.searchUsers(null, null, null, -5, 500);
-        // Pageable build edilirken page max(0, -5)=0, size min(max(1,500),100)=100
-        // No assertion on Pageable, but verifies code path runs without throw
-        service.searchUsers(null, null, null, 0, 0);  // size 1
+        assertNotNull(service.searchUsers(null, null, null, -5, 500));
+        assertNotNull(service.searchUsers(null, null, null, 0, 0));
     }
 
     @Test

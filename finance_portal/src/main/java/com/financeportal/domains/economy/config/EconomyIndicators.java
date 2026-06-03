@@ -15,24 +15,29 @@ public final class EconomyIndicators {
 
     private EconomyIndicators() {}
 
+    private static final String CAT_INFLATION = "inflation";
+    private static final String CAT_RATES = "rates";
+    private static final String CAT_EXTERNAL = "external";
+    private static final String UNIT_PCT = "%";
+
     public record Indicator(String key, String code, String formula, String category, String unit) {}
 
     public static final List<Indicator> ALL = List.of(
             // Enflasyon (yıllık % — formula 3)
-            new Indicator("inflationRate", "TP.TUKFIY2025.GENEL", "3", "inflation", "%"),
-            new Indicator("ppi", "TP.TUFE1YI.T1", "3", "inflation", "%"),
-            new Indicator("coreInflation", "TP.FE25.OKTG04", "3", "inflation", "%"),
+            new Indicator("inflationRate", "TP.TUKFIY2025.GENEL", "3", CAT_INFLATION, UNIT_PCT),
+            new Indicator("ppi", "TP.TUFE1YI.T1", "3", CAT_INFLATION, UNIT_PCT),
+            new Indicator("coreInflation", "TP.FE25.OKTG04", "3", CAT_INFLATION, UNIT_PCT),
             // Faizler
-            new Indicator("interestRate", "TP.APIFON4", null, "rates", "%"),
-            new Indicator("depositRate", "TP.TRY.MT02", null, "rates", "%"),
-            new Indicator("loanRate", "TP.KTF10", null, "rates", "%"),
+            new Indicator("interestRate", "TP.APIFON4", null, CAT_RATES, UNIT_PCT),
+            new Indicator("depositRate", "TP.TRY.MT02", null, CAT_RATES, UNIT_PCT),
+            new Indicator("loanRate", "TP.KTF10", null, CAT_RATES, UNIT_PCT),
             // Büyüme & Gelir
             new Indicator("gdp", "TP.GSYIH26.HY.ZH", null, "growth", ""),
             new Indicator("gdpPerCapita", "TP.IMFGDPUSDPC.TUR", null, "growth", "$"),
             // Dış denge & rezerv
-            new Indicator("currentAccount", "TP.ODANA6.Q01", null, "external", "M$"),
-            new Indicator("reserves", "TP.AB.B6", null, "external", "M$"),
-            new Indicator("reer", "TP.RK.T1.Y", null, "external", ""),
+            new Indicator("currentAccount", "TP.ODANA6.Q01", null, CAT_EXTERNAL, "M$"),
+            new Indicator("reserves", "TP.AB.B6", null, CAT_EXTERNAL, "M$"),
+            new Indicator("reer", "TP.RK.T1.Y", null, CAT_EXTERNAL, ""),
             // Döviz kurları
             new Indicator("usdTry", "TP.DK.USD.A.YTL", null, "fx", "₺"),
             new Indicator("eurTry", "TP.DK.EUR.A.YTL", null, "fx", "₺"),

@@ -26,6 +26,8 @@ import java.util.UUID;
 @Tag(name = "Portföy Yönetimi", description = "Manuel portföy takibi: varlık ekleme, güncelleme, silme ve kâr/zarar analizi")
 public class PortfolioController {
 
+    private static final String MESSAGE_KEY = "message";
+
     private final PortfolioService portfolioService;
 
     // ---------- Portföy yönetimi (çoklu adlandırılmış portföy) ----------
@@ -52,7 +54,7 @@ public class PortfolioController {
     @Operation(summary = "Portföyü Sil", description = "Portföyü ve içindeki varlıkları siler. Son portföy silinemez.")
     public ResponseEntity<Map<String, String>> deletePortfolio(@PathVariable UUID portfolioId) {
         portfolioService.deletePortfolio(portfolioId);
-        return ResponseEntity.ok(Map.of("message", "Portföy silindi."));
+        return ResponseEntity.ok(Map.of(MESSAGE_KEY, "Portföy silindi."));
     }
 
     @GetMapping("/me")
@@ -72,21 +74,21 @@ public class PortfolioController {
     public ResponseEntity<Map<String, String>> addManualEntry(@RequestBody TradeRequestDto request) {
         portfolioService.addManualEntry(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", request.getSymbol() + " başarıyla portföye eklendi."));
+                .body(Map.of(MESSAGE_KEY, request.getSymbol() + " başarıyla portföye eklendi."));
     }
 
     @PutMapping("/update")
     @Operation(summary = "Portföydeki Varlığı Güncelle", description = "Mevcut varlığın miktarını ve alış fiyatını günceller.")
     public ResponseEntity<Map<String, String>> updateManualEntry(@RequestBody TradeRequestDto request) {
         portfolioService.updateManualEntry(request);
-        return ResponseEntity.ok(Map.of("message", request.getSymbol() + " başarıyla güncellendi."));
+        return ResponseEntity.ok(Map.of(MESSAGE_KEY, request.getSymbol() + " başarıyla güncellendi."));
     }
 
     @DeleteMapping("/remove")
     @Operation(summary = "Portföyden Varlık Sil", description = "Belirtilen miktarda varlığı portföyden çıkarır. Miktar verilmezse tamamen siler.")
     public ResponseEntity<Map<String, String>> removeFromPortfolio(@RequestBody TradeRequestDto request) {
         portfolioService.removeFromPortfolio(request);
-        return ResponseEntity.ok(Map.of("message", request.getSymbol() + " portföyden çıkarıldı."));
+        return ResponseEntity.ok(Map.of(MESSAGE_KEY, request.getSymbol() + " portföyden çıkarıldı."));
     }
 
     @GetMapping("/transactions")

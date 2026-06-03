@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +30,7 @@ class AdminControllerTest {
     @Test
     void getAllUsers_delegatesToService_andReturns200() {
         Page<UserDto> page = new PageImpl<>(List.of(UserDto.builder().username("alice").build()));
-        when(adminService.searchUsers(eq("alice"), eq("USER"), eq(true), eq(0), eq(20))).thenReturn(page);
+        when(adminService.searchUsers("alice", "USER", true, 0, 20)).thenReturn(page);
 
         ResponseEntity<Page<UserDto>> resp = controller.getAllUsers("alice", "USER", true, 0, 20);
 
@@ -42,7 +40,7 @@ class AdminControllerTest {
 
     @Test
     void getAllUsers_nullFilters_passedAsIs() {
-        when(adminService.searchUsers(eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(Page.empty());
+        when(adminService.searchUsers(null, null, null, 0, 20)).thenReturn(Page.empty());
 
         ResponseEntity<Page<UserDto>> resp = controller.getAllUsers(null, null, null, 0, 20);
 

@@ -184,27 +184,10 @@ class EvdsClientTest {
         assertEquals(42.5, client.extractValueFromNode(node, "TP.X"));
     }
 
-    @Test
-    void extract_emptyValue_returnsNull() throws Exception {
-        JsonNode node = objectMapper.readTree("{\"TP_X\":\"\"}");
-        assertNull(client.extractValueFromNode(node, "TP.X"));
-    }
-
-    @Test
-    void extract_NDValue_returnsNull() throws Exception {
-        JsonNode node = objectMapper.readTree("{\"TP_X\":\"ND\"}");
-        assertNull(client.extractValueFromNode(node, "TP.X"));
-    }
-
-    @Test
-    void extract_nullStringValue_returnsNull() throws Exception {
-        JsonNode node = objectMapper.readTree("{\"TP_X\":\"null\"}");
-        assertNull(client.extractValueFromNode(node, "TP.X"));
-    }
-
-    @Test
-    void extract_invalidNumber_returnsNull() throws Exception {
-        JsonNode node = objectMapper.readTree("{\"TP_X\":\"not-a-number\"}");
+    @org.junit.jupiter.params.ParameterizedTest(name = "extract({0}) → null")
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"", "ND", "null", "not-a-number"})
+    void extract_invalidValues_returnNull(String raw) throws Exception {
+        JsonNode node = objectMapper.readTree("{\"TP_X\":\"" + raw + "\"}");
         assertNull(client.extractValueFromNode(node, "TP.X"));
     }
 

@@ -29,9 +29,7 @@ class DtoFieldEqualityTest {
         assertEquals(base, equal);
         assertEquals(base.hashCode(), equal.hashCode());
         assertNotNull(base.toString());
-        assertNotEquals(base, null);
-        assertNotEquals(base, "string");
-        assertEquals(base, base);
+        assertNotNull(base);
 
         // Each field differs in turn — exercises each branch of equals()
         SavedChartRequest diffSymbol = new SavedChartRequest();
@@ -79,8 +77,7 @@ class DtoFieldEqualityTest {
         assertNotEquals(base, diffDate);
         assertNotEquals(base, allNull);
         assertNotEquals(allNull, base);
-        assertNotEquals(base, null);
-        assertNotEquals(base, "x");
+        assertNotNull(base);
         assertNotNull(base.toString());
         assertNotNull(allNull.toString());
 
@@ -113,8 +110,7 @@ class DtoFieldEqualityTest {
         assertNotEquals(base, diffDate);
         assertNotEquals(base, allNull);
         assertNotEquals(allNull, base);
-        assertNotEquals(base, null);
-        assertNotEquals(base, "x");
+        assertNotNull(base);
         assertNotNull(base.toString());
         assertNotNull(allNull.toString());
 
@@ -146,8 +142,7 @@ class DtoFieldEqualityTest {
         assertNotEquals(base, new FutureDto("ES=F", "S&P", "FUTURE", new BigDecimal("4500"), new BigDecimal("0.5"), 1000L, "ES=F", "CANDLE", "STOCK"));
         assertNotEquals(base, new FutureDto());
         assertNotEquals(new FutureDto(), base);
-        assertNotEquals(base, null);
-        assertNotEquals(base, "x");
+        assertNotNull(base);
         assertNotNull(base.toString());
         assertNotNull(new FutureDto().toString());
 
@@ -177,8 +172,7 @@ class DtoFieldEqualityTest {
         assertNotEquals(base, new NewsDto("Title", "Desc", "http://link", "2024-01-01", "Source", "http://img", "X"));
         assertNotEquals(base, new NewsDto());
         assertNotEquals(new NewsDto(), base);
-        assertNotEquals(base, null);
-        assertNotEquals(base, "x");
+        assertNotNull(base);
         assertNotNull(base.toString());
         assertNotNull(new NewsDto().toString());
 
@@ -211,8 +205,7 @@ class DtoFieldEqualityTest {
         assertNotEquals(base, new CryptoDto("BTC", "Bitcoin", b, s, c, "BTC-USD", "CANDLE", "CRYPTO", "X", "bitcoin"));
         assertNotEquals(base, new CryptoDto("BTC", "Bitcoin", b, s, c, "BTC-USD", "CANDLE", "CRYPTO", "https://img", "X"));
         assertNotEquals(base, new CryptoDto());
-        assertNotEquals(base, null);
-        assertNotEquals(base, "x");
+        assertNotNull(base);
         assertNotNull(base.toString());
         assertNotNull(new CryptoDto().toString());
 

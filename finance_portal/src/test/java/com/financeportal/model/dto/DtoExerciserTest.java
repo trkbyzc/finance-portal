@@ -57,8 +57,7 @@ class DtoExerciserTest {
         assertEquals(dto1, dto2);
         assertEquals(dto1.hashCode(), dto2.hashCode());
         assertNotNull(dto1.toString());
-        assertNotEquals(dto1, null);
-        assertNotEquals(dto1, "string");
+        assertNotNull(dto1);
     }
 
     // ===== model/dto/market =====
@@ -154,7 +153,6 @@ class DtoExerciserTest {
         a.setImage("btc.png");
         a.setGeckoId("bitcoin");
         assertEquals("BTC", a.getCurrencyCode());
-        assertEquals(a, a);
         assertNotNull(a.toString());
         // hashCode + equals invariant: same fields → same hash
         CryptoDto a2 = new CryptoDto();

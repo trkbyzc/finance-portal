@@ -144,8 +144,9 @@ class PortfolioTradeServiceTest {
     @Test
     void update_itemMissing_throws404() {
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.empty());
+        TradeRequestDto req = makeReq("BTC", "1", "50000", null);
         assertThrows(ResourceNotFoundException.class,
-                () -> service.executeUpdateManualEntry(userId, portfolio, makeReq("BTC", "1", "50000", null)));
+                () -> service.executeUpdateManualEntry(portfolio, req));
     }
 
     @Test
@@ -153,7 +154,7 @@ class PortfolioTradeServiceTest {
         PortfolioItem item = mkItem("BTC", "1", "40000");
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
 
-        service.executeUpdateManualEntry(userId, portfolio, makeReq("BTC", "3", "50000", null));
+        service.executeUpdateManualEntry(portfolio, makeReq("BTC", "3", "50000", null));
 
         assertEquals(new BigDecimal("3"), item.getQuantity());
         assertEquals(new BigDecimal("50000"), item.getAveragePrice());
@@ -169,7 +170,7 @@ class PortfolioTradeServiceTest {
         PortfolioItem item = mkItem("BTC", "5", "40000");
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
 
-        service.executeUpdateManualEntry(userId, portfolio, makeReq("BTC", "2", "50000", null));
+        service.executeUpdateManualEntry(portfolio, makeReq("BTC", "2", "50000", null));
 
         ArgumentCaptor<Transaction> tx = ArgumentCaptor.forClass(Transaction.class);
         verify(txRepo).save(tx.capture());
@@ -183,7 +184,7 @@ class PortfolioTradeServiceTest {
         PortfolioItem item = mkItem("BTC", "5", "40000");
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
 
-        service.executeUpdateManualEntry(userId, portfolio, makeReq("BTC", "5", "55000", null));
+        service.executeUpdateManualEntry(portfolio, makeReq("BTC", "5", "55000", null));
 
         // Sadece average price güncellendi, qty değişmedi → tx kaydı yok
         verify(txRepo, never()).save(any());
@@ -195,7 +196,7 @@ class PortfolioTradeServiceTest {
         PortfolioItem item = mkItem("BTC", "0", "40000");
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
 
-        service.executeUpdateManualEntry(userId, portfolio, makeReq("BTC", "5", "50000", null));
+        service.executeUpdateManualEntry(portfolio, makeReq("BTC", "5", "50000", null));
 
         ArgumentCaptor<Transaction> tx = ArgumentCaptor.forClass(Transaction.class);
         verify(txRepo).save(tx.capture());
@@ -210,7 +211,7 @@ class PortfolioTradeServiceTest {
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.empty());
         TradeRequestDto req = makeReq("BTC", null, null, null);
         assertThrows(ResourceNotFoundException.class,
-                () -> service.executeRemoveFromPortfolio(userId, portfolio, req));
+                () -> service.executeRemoveFromPortfolio(portfolio, req));
     }
 
     @Test
@@ -219,7 +220,7 @@ class PortfolioTradeServiceTest {
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
         TradeRequestDto req = makeReq("BTC", null, "60000", null);
 
-        service.executeRemoveFromPortfolio(userId, portfolio, req);
+        service.executeRemoveFromPortfolio(portfolio, req);
 
         verify(itemRepo).delete(item);
         verify(itemRepo, never()).save(any());
@@ -237,7 +238,7 @@ class PortfolioTradeServiceTest {
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
 
         // qty = item qty → tam silme
-        service.executeRemoveFromPortfolio(userId, portfolio, makeReq("BTC", "5", "60000", null));
+        service.executeRemoveFromPortfolio(portfolio, makeReq("BTC", "5", "60000", null));
         verify(itemRepo).delete(item);
     }
 
@@ -246,7 +247,7 @@ class PortfolioTradeServiceTest {
         PortfolioItem item = mkItem("BTC", "5", "40000");
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
 
-        service.executeRemoveFromPortfolio(userId, portfolio, makeReq("BTC", "2", "60000", null));
+        service.executeRemoveFromPortfolio(portfolio, makeReq("BTC", "2", "60000", null));
 
         assertEquals(new BigDecimal("3"), item.getQuantity());
         verify(itemRepo).save(item);
@@ -259,7 +260,7 @@ class PortfolioTradeServiceTest {
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
         TradeRequestDto req = makeReq("BTC", "1", "0", null);
 
-        service.executeRemoveFromPortfolio(userId, portfolio, req);
+        service.executeRemoveFromPortfolio(portfolio, req);
 
         ArgumentCaptor<Transaction> tx = ArgumentCaptor.forClass(Transaction.class);
         verify(txRepo).save(tx.capture());
@@ -273,7 +274,7 @@ class PortfolioTradeServiceTest {
         when(itemRepo.findByPortfolio_IdAndSymbol(any(), any())).thenReturn(Optional.of(item));
         TradeRequestDto req = makeReq("BTC", "1", null, null);
 
-        service.executeRemoveFromPortfolio(userId, portfolio, req);
+        service.executeRemoveFromPortfolio(portfolio, req);
 
         ArgumentCaptor<Transaction> tx = ArgumentCaptor.forClass(Transaction.class);
         verify(txRepo).save(tx.capture());
