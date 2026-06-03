@@ -12,6 +12,8 @@ import org.keycloak.models.UserModel;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -25,6 +27,11 @@ import java.util.List;
  */
 public class BanCheckAuthenticator implements Authenticator {
 
+    private static final DateTimeFormatter UNTIL_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
+    /** Ban durumu: yasak yoksa {@code null} döner. */
+    private record BanStatus(boolean permanent, LocalDateTime until) {}
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
         UserModel user = context.getUser();
@@ -34,10 +41,22 @@ public class BanCheckAuthenticator implements Authenticator {
             return;
         }
 
-        if (isBanned(context.getSession(), user.getId())) {
-            Response challenge = context.form()
-                    .setError("accountBannedMessage")
-                    .createErrorPage(Response.Status.FORBIDDEN);
+        BanStatus ban = banStatus(context.getSession(), user.getId());
+        if (ban != null) {
+            // Kalıcı / geçici bana göre kullanıcıya ne kadar süreyle banlı olduğunu bildiren
+            // parametreli mesajı seç (theme messages_*.properties içindeki {0}, {1} ile interpolate edilir).
+            Response challenge;
+            if (ban.permanent()) {
+                challenge = context.form()
+                        .setError("accountBannedPermanentMessage")
+                        .createErrorPage(Response.Status.FORBIDDEN);
+            } else {
+                long daysLeft = Math.max(1,
+                        (ChronoUnit.MINUTES.between(LocalDateTime.now(), ban.until()) + 1439) / 1440); // gün'e yukarı yuvarla
+                challenge = context.form()
+                        .setError("accountBannedUntilMessage", ban.until().format(UNTIL_FMT), daysLeft)
+                        .createErrorPage(Response.Status.FORBIDDEN);
+            }
             context.failure(AuthenticationFlowError.ACCESS_DENIED, challenge);
             return;
         }
@@ -45,7 +64,7 @@ public class BanCheckAuthenticator implements Authenticator {
         context.success();
     }
 
-    private boolean isBanned(KeycloakSession session, String userId) {
+    private BanStatus banStatus(KeycloakSession session, String userId) {
         try {
             EntityManager em = session.getProvider(JpaConnectionProvider.class).getEntityManager();
             @SuppressWarnings("unchecked")
@@ -54,18 +73,18 @@ public class BanCheckAuthenticator implements Authenticator {
                     .setParameter(1, userId)
                     .getResultList();
 
-            if (rows.isEmpty()) return false; // app users tablosunda yoksa engelleme
+            if (rows.isEmpty()) return null; // app users tablosunda yoksa engelleme
 
             Object[] row = rows.get(0);
             boolean permanent = row[0] != null && (Boolean) row[0];
-            if (permanent) return true;
+            if (permanent) return new BanStatus(true, null);
 
-            if (row[1] == null) return false;
+            if (row[1] == null) return null;
             LocalDateTime until = ((Timestamp) row[1]).toLocalDateTime();
-            return LocalDateTime.now().isBefore(until); // geçici ban hâlâ sürüyor mu?
+            return LocalDateTime.now().isBefore(until) ? new BanStatus(false, until) : null; // geçici ban hâlâ sürüyor mu?
         } catch (Exception e) {
             // DB okunamazsa fail-open: girişi bloklama (uygulama tarafındaki UserBanFilter yine yakalar).
-            return false;
+            return null;
         }
     }
 
