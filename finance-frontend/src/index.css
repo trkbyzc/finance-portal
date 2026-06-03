@@ -288,24 +288,21 @@ body {
     color: var(--color-text);
 }
 
-/* DatePicker caption dropdown (ay + yıl) — tema-uyumlu select */
-.fp-datepicker-popover .rdp-dropdowns {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    justify-content: center;
+/* Custom header'da kendi select'imizi koyduğumuz için RDP'nin caption'ını tamamen gizle */
+.fp-datepicker-popover .rdp-month_caption,
+.fp-datepicker-popover .rdp-nav {
+    display: none;
 }
-.fp-datepicker-popover .rdp-dropdown_root {
-    position: relative;
-}
-.fp-datepicker-popover .rdp-dropdown {
+
+/* Ay + Yıl select'leri — tema-uyumlu custom chevron'la */
+.fp-datepicker-popover .fp-dp-select {
     appearance: none;
     -webkit-appearance: none;
-    background: var(--color-surface-2, var(--color-surface));
+    background: var(--color-surface-2, var(--color-bg));
     color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: 6px;
-    padding: 4px 22px 4px 10px;
+    padding: 4px 24px 4px 10px;
     font-size: 13px;
     font-weight: 600;
     font-family: inherit;
@@ -316,24 +313,21 @@ body {
     background-position: right 6px center;
     background-size: 10px;
 }
-.fp-datepicker-popover .rdp-dropdown:hover {
+.fp-datepicker-popover .fp-dp-select:hover {
     border-color: var(--color-primary);
 }
-.fp-datepicker-popover .rdp-dropdown:focus {
+.fp-datepicker-popover .fp-dp-select:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
-.fp-datepicker-popover .rdp-dropdown option {
+.fp-datepicker-popover .fp-dp-select option {
     background: var(--color-surface);
     color: var(--color-text);
 }
-/* Native "Haziran 2026" label'i gizle (dropdown'larla çift görünmesin).
-   Sadece label'i hedefle — .rdp-dropdowns parent'ına dokunma. */
-.fp-datepicker-popover .rdp-caption_label {
-    display: none;
-}
-.fp-datepicker-popover .rdp-month_caption {
+
+/* Eski RDP caption layout fallback (kullanılmıyor ama defansif) */
+.fp-datepicker-popover .rdp-month_caption-fallback {
     display: flex;
     align-items: center;
     justify-content: center;
