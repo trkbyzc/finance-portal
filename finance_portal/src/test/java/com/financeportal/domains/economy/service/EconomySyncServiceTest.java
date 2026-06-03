@@ -150,10 +150,12 @@ class EconomySyncServiceTest {
     void sync_fetchSeriesPaginatedCalledForHistory() {
         when(evdsClient.fetchSeries(any(), any(), any(), any())).thenReturn(List.of());
         when(evdsClient.fetchSeriesPaginated(any(), any(), any(), any(int.class))).thenReturn(List.of());
+        // 5-arg overload (EconomySyncService.saveHistory frequency param ile çağırıyor)
+        when(evdsClient.fetchSeriesPaginated(any(), any(), any(), any(int.class), any())).thenReturn(List.of());
 
         service.syncMacroEconomy();
 
-        // 10y history for each indicator
-        verify(evdsClient, atLeastOnce()).fetchSeriesPaginated(any(), any(), any(), any(int.class));
+        // saveHistory artık 5-arg overload'ı çağırıyor (frequency=null çoğunda).
+        verify(evdsClient, atLeastOnce()).fetchSeriesPaginated(any(), any(), any(), any(int.class), any());
     }
 }
