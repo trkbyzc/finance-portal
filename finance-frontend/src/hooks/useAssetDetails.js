@@ -92,6 +92,16 @@ export const useAssetDetails = (symbol) => {
         select: (data) => data?.value || data || []
     });
 
+    // Katalog (vade kovasının benchmark getirisi ile zenginleştirilmiş bireysel DİBS listesi).
+    // Benchmark listesinde olmayan katalog tahvilinin getirisini buradan alıyoruz.
+    const { data: trBondsCatalog = [] } = useQuery({
+        queryKey: ['trBondsCatalogDetail'],
+        queryFn: bondFundApi.getTrBondsCatalog,
+        enabled: isTrBond,
+        staleTime: 5 * 60 * 1000,
+        select: (data) => data?.value || data || []
+    });
+
     const { data: allMarketsData, isLoading: marketLoading } = useQuery({
         queryKey: ['allMarketsForDetail', decodedSymbol],
         queryFn: aggregateApi.getAllMarkets,
@@ -102,15 +112,18 @@ export const useAssetDetails = (symbol) => {
     let asset = null;
 
     if (isTrBond) {
+        const catalogMatch = trBondsCatalog.find(b => b.symbol === decodedSymbol);
         const found = trBondsList.find(b => b.SERI_NO === decodedSymbol || b.symbol === decodedSymbol);
         if (found) {
             asset = { ...found, assetCategory: 'BOND', chartType: 'LINE', price: found.yield || found.price };
         } else {
-            // Katalogdan gelen bireysel DİBS (benchmark listesinde yok) — sembolden ad türet.
-            // Grafik, vade kovasının benchmark eğrisini gösterir (bireysel getiri açık kaynakta yok).
+            // Katalogdan gelen bireysel DİBS (benchmark listesinde yok) — ad ve getiri katalogdan,
+            // yoksa sembolden türetilir. Getiri, vade kovasının benchmark göstergesinden gelir.
             asset = {
                 symbol: decodedSymbol,
-                name: parseTrBondName(decodedSymbol),
+                name: catalogMatch?.name || parseTrBondName(decodedSymbol),
+                yield: catalogMatch?.yield,
+                maturityDate: catalogMatch?.maturity,
                 assetCategory: 'BOND',
                 chartType: 'LINE'
             };

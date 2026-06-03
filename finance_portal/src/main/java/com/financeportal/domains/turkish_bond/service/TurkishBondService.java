@@ -164,8 +164,8 @@ public class TurkishBondService {
             if (years < 3) return "evds:benchmark:6m";   // 2+ Yıl
             if (years < 4) return "evds:benchmark:1y";   // 3+ Yıl
             if (years < 5) return "evds:benchmark:2y";   // 4+ Yıl
-            if (years < 10) return "evds:benchmark:5y";  // 5 Yıl+
-            return "evds:benchmark:10y";                 // 10 Yıl+
+            if (years < 8) return "evds:benchmark:5y";   // 5 Yıl+ (katalog Y5 kovası ile aynı sınır)
+            return "evds:benchmark:10y";                 // 10 Yıl+ (8 yıl ve üzeri uzun vade)
         } catch (Exception e) {
             return null;
         }

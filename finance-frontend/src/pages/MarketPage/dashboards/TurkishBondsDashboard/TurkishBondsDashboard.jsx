@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { bondFundApi } from '../../../../services/api';
+import NewsSection from '../../../../components/news/NewsSection.jsx';
 
 const BUCKET_ORDER = ['SHORT', 'Y1', 'Y2', 'Y3', 'Y4', 'Y5', 'Y10'];
 const fmtMaturity = (iso) => {
@@ -140,6 +141,14 @@ export default function TurkishBondsDashboard() {
             </div>
 
             <p className="mt-3 text-[11px] text-text-muted">{t('markets:trBonds.yieldNote')}</p>
+
+            <NewsSection
+                category="Tahvil & Faiz"
+                titleKey="news:categories.bond"
+                accent="primary"
+                limit={5}
+                gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+            />
           </div>
         </div>
     );

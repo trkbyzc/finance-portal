@@ -20,8 +20,9 @@ for (const isin of lines) {
   else if (years < 3) bucket='Y2';
   else if (years < 4) bucket='Y3';
   else if (years < 5) bucket='Y4';
-  else if (years < 10) bucket='Y5';
-  else bucket='Y10';
+  else if (years < 8) bucket='Y5';
+  else bucket='Y10'; // En uzun vadeli DİBS'ler 8-11 yıl bandında kümeleniyor (kaynak veride 10+ yıl tek bond);
+                     // uzun vade ("10 Yıl+") kovasını çeşitlendirmek için sınır 8 yıla çekildi.
   const maturity = `${y}-${mm}-${dd}`;
   items.push({ symbol: 'TP.'+isin, isin, maturity, bucket, name: `DİBS ${dd}.${mm}.${y}` });
 }
