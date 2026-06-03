@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    Bot, X, Send, Loader2, Plus, History, Trash2, MessageSquareText, Sparkles
+    Bot, X, Send, Loader2, Plus, History, Trash2, MessageSquareText, Sparkles, AlertTriangle
 } from 'lucide-react';
 import { chatApi } from '../../services/api/chatApi';
 import { useAuth } from '../../context/AuthContext';
@@ -28,6 +28,7 @@ export default function ChatWidget() {
     const [historyOpen, setHistoryOpen] = useState(false);
     const [conversations, setConversations] = useState([]);
     const [historyLoading, setHistoryLoading] = useState(false);
+    const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
@@ -51,8 +52,8 @@ export default function ChatWidget() {
         (async () => {
             setHistoryLoading(true);
             try {
-                const res = await chatApi.listConversations();
-                if (!cancelled) setConversations(res.data || []);
+                const list = await chatApi.listConversations();
+                if (!cancelled) setConversations(list || []);
             } catch {
                 if (!cancelled) notify({ type: 'error', title: t('chat:error.load') });
             } finally {
@@ -64,8 +65,8 @@ export default function ChatWidget() {
 
     const loadConversation = useCallback(async (convId) => {
         try {
-            const res = await chatApi.getMessages(convId);
-            setMessages(res.data || []);
+            const msgs = await chatApi.getMessages(convId);
+            setMessages(msgs || []);
             setConversationId(convId);
             setHistoryOpen(false);
         } catch {
@@ -80,9 +81,16 @@ export default function ChatWidget() {
         inputRef.current?.focus();
     }, []);
 
-    const removeConversation = useCallback(async (convId, e) => {
+    // Silme butonuna basınca confirm modal'ı tetikle (native window.confirm yerine)
+    const requestDelete = useCallback((convId, e) => {
         e?.stopPropagation();
-        if (!window.confirm(t('chat:delete.confirm'))) return;
+        setPendingDeleteId(convId);
+    }, []);
+
+    const confirmDelete = useCallback(async () => {
+        const convId = pendingDeleteId;
+        if (!convId) return;
+        setPendingDeleteId(null);
         try {
             await chatApi.deleteConversation(convId);
             setConversations(prev => prev.filter(c => c.id !== convId));
@@ -91,7 +99,7 @@ export default function ChatWidget() {
         } catch {
             notify({ type: 'error', title: t('chat:delete.failed') });
         }
-    }, [conversationId, startNew, t, notify]);
+    }, [pendingDeleteId, conversationId, startNew, t, notify]);
 
     const send = useCallback(async (text) => {
         const msg = (text ?? input).trim();
@@ -109,17 +117,20 @@ export default function ChatWidget() {
         setIsSending(true);
 
         try {
-            const res = await chatApi.sendMessage({
+            const data = await chatApi.sendMessage({
                 conversationId,
                 message: msg,
                 locale: i18n.language
             });
-            const data = res.data;
             setConversationId(data.conversationId);
             setMessages(prev => [...prev, data.message]);
         } catch (err) {
             const status = err?.response?.status;
-            const title = status === 429 ? t('chat:error.rateLimit') : t('chat:error.send');
+            const title = status === 429
+                ? t('chat:error.rateLimit')
+                : status === 503
+                    ? t('chat:error.unavailable')
+                    : t('chat:error.send');
             notify({ type: 'error', title, message: err?.response?.data?.message || '' });
             // Optimistic mesajı geri al
             setMessages(prev => prev.filter(m => m.id !== optimistic.id));
@@ -220,7 +231,7 @@ export default function ChatWidget() {
                                             <span className="text-xs text-text truncate">{c.title || 'Sohbet'}</span>
                                         </span>
                                         <button
-                                            onClick={(e) => removeConversation(c.id, e)}
+                                            onClick={(e) => requestDelete(c.id, e)}
                                             className="p-1 rounded text-text-muted opacity-0 group-hover:opacity-100 hover:text-sell hover:bg-sell/10 transition"
                                             title={t('chat:delete.title')}
                                         >
@@ -271,6 +282,14 @@ export default function ChatWidget() {
                     </div>
                 </div>
             )}
+
+            {/* Silme onay modal'ı — native window.confirm yerine sistem temasında */}
+            <DeleteConfirmModal
+                open={pendingDeleteId != null}
+                onConfirm={confirmDelete}
+                onCancel={() => setPendingDeleteId(null)}
+                t={t}
+            />
         </>
     );
 }
@@ -323,6 +342,52 @@ function MessageBubble({ message }) {
                 }`}
             >
                 {message.content}
+            </div>
+        </div>
+    );
+}
+
+function DeleteConfirmModal({ open, onConfirm, onCancel, t }) {
+    useEffect(() => {
+        if (!open) return;
+        const handler = (e) => { if (e.key === 'Escape') onCancel(); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [open, onCancel]);
+
+    if (!open) return null;
+
+    return (
+        <div
+            onClick={onCancel}
+            className="fixed inset-0 z-150 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="bg-surface border border-border rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center animate-fade-in"
+            >
+                <div className="w-12 h-12 rounded-2xl bg-sell/10 border border-sell/30 flex items-center justify-center text-sell mx-auto mb-4">
+                    <AlertTriangle size={22} />
+                </div>
+                <h3 className="text-base font-bold text-text mb-2">{t('chat:delete.title')}</h3>
+                <p className="text-text-muted text-sm leading-relaxed mb-5">{t('chat:delete.confirm')}</p>
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={onCancel}
+                        className="flex-1 py-2.5 rounded-lg border border-border text-text hover:bg-surface-hover text-sm font-semibold transition-colors"
+                    >
+                        {t('chat:delete.cancel')}
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="flex-1 py-2.5 rounded-lg bg-sell hover:brightness-110 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-sell/25 transition-all"
+                    >
+                        <Trash2 size={14} /> {t('chat:delete.confirmButton')}
+                    </button>
+                </div>
             </div>
         </div>
     );

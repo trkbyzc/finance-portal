@@ -27,13 +27,16 @@
   "error": {
     "send": "Mesaj gönderilemedi",
     "load": "Geçmiş yüklenemedi",
-    "rateLimit": "Çok sık mesaj attın, biraz bekle"
+    "rateLimit": "Çok sık mesaj attın, biraz bekle",
+    "unavailable": "Asistana şu an ulaşılamıyor, birazdan tekrar dene"
   },
   "delete": {
     "title": "Sohbeti sil",
     "confirm": "Bu sohbet silinecek. Devam etmek istiyor musun?",
     "success": "Sohbet silindi",
-    "failed": "Sohbet silinemedi"
+    "failed": "Sohbet silinemedi",
+    "cancel": "İptal",
+    "confirmButton": "Sil"
   },
   "disclaimer": "Bu bir yapay zeka. Yatırım kararı sana aittir."
 }

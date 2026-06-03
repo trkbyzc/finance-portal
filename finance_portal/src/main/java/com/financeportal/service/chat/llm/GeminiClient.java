@@ -68,12 +68,10 @@ public class GeminiClient implements LlmClient {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String url = baseUrl + "/models/" + model + ":generateContent";
-            if (isLegacyApiKey(apiKey)) {
-                url = url + "?key=" + apiKey;
-            } else {
-                headers.setBearerAuth(apiKey);
-            }
+            // Google AI Studio her iki format (AIza... ve yeni AQ.Ab8...) için de query param
+            // ile çalışıyor. Bearer header denedik ama generativelanguage.googleapis.com
+            // 401 dönüyor — sadece ?key= kabul ediyor.
+            String url = baseUrl + "/models/" + model + ":generateContent?key=" + apiKey;
 
             HttpEntity<String> entity = new HttpEntity<>(body.toString(), headers);
             ResponseEntity<String> response = restTemplate.exchange(
@@ -94,11 +92,6 @@ public class GeminiClient implements LlmClient {
             log.error("[LLM/gemini] beklenmeyen hata", e);
             throw new LlmException("Gemini beklenmeyen: " + e.getMessage(), e, true, 0);
         }
-    }
-
-    /** Klasik AI Studio API key formatı (AIza ile başlar) → ?key= ile geçer. */
-    static boolean isLegacyApiKey(String key) {
-        return key != null && key.startsWith("AIza");
     }
 
     // ---------- request build ----------

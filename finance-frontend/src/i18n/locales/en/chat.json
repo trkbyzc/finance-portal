@@ -27,13 +27,16 @@
   "error": {
     "send": "Couldn't send message",
     "load": "Couldn't load history",
-    "rateLimit": "Too many messages — wait a moment"
+    "rateLimit": "Too many messages — wait a moment",
+    "unavailable": "Assistant is unreachable, please try again shortly"
   },
   "delete": {
     "title": "Delete chat",
     "confirm": "This conversation will be deleted. Continue?",
     "success": "Conversation deleted",
-    "failed": "Couldn't delete"
+    "failed": "Couldn't delete",
+    "cancel": "Cancel",
+    "confirmButton": "Delete"
   },
   "disclaimer": "AI assistant. Investment decisions are yours."
 }

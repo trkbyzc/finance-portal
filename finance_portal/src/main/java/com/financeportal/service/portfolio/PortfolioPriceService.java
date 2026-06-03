@@ -41,12 +41,18 @@ public class PortfolioPriceService {
     private final FundService fundService;
 
     public BigDecimal getCurrentPrice(String symbol, AssetType assetType) {
+        if (symbol == null || symbol.isBlank()) return BigDecimal.ZERO;
         try {
             switch (assetType) {
                 case STOCK:
                     return extractPriceFromList(stockService.getStocks(), symbol);
                 case CRYPTO:
-                    return extractCryptoCurrencyPrice(cryptoService.getCryptoRates(), symbol);
+                    // Portföye eklerken bazen Yahoo sembolü (BTC-USD, XRP-USD) kaydedilmiş.
+                    // CryptoService bare format ile saklar (BTC, XRP) → -USD suffix'ini at.
+                    String cryptoBase = symbol.toUpperCase().endsWith("-USD")
+                            ? symbol.substring(0, symbol.length() - 4)
+                            : symbol;
+                    return extractCryptoCurrencyPrice(cryptoService.getCryptoRates(), cryptoBase);
                 case CURRENCY:
                     return extractCryptoCurrencyPrice(currencyService.getCurrencyRates(), symbol);
                 case COMMODITY:

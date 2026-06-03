@@ -190,8 +190,10 @@ app:
     history-max: ${APP_CHAT_HISTORY_MAX:20}        # context'e koyulacak max geçmiş mesaj
     user-rate-limit-per-min: ${APP_CHAT_USER_RATE:20}
   llm:
-    primary: ${APP_LLM_PRIMARY:groq}               # groq | gemini
-    fallback: ${APP_LLM_FALLBACK:gemini}
+    # 2026 Q2: Gemini primary'e alındı (daha bol token bütçesi: ~1M input token/gün).
+    # Groq fallback — hızlı ama günlük 100k TPD'de hemen tükeniyor.
+    primary: ${APP_LLM_PRIMARY:gemini}              # gemini | groq
+    fallback: ${APP_LLM_FALLBACK:groq}
     request-timeout-ms: ${APP_LLM_TIMEOUT_MS:30000}
     groq:
       base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
@@ -199,5 +201,8 @@ app:
       api-key: ${GROQ_API_KEY:}
     gemini:
       base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
-      model: ${GEMINI_MODEL:gemini-2.0-flash}
+      # gemini-2.0-flash → free tier'dan çıkarıldı (limit: 0).
+      # gemini-1.5-flash → v1beta endpoint'inde 404 (deprecated).
+      # gemini-2.5-flash → 2026 itibariyle güncel free tier modeli.
+      model: ${GEMINI_MODEL:gemini-2.5-flash}
       api-key: ${GEMINI_API_KEY:}

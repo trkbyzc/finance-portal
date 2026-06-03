@@ -32,6 +32,42 @@ class GetAssetPriceToolTest {
         assertEquals("BTC", out.get("symbol"));
         assertEquals("CRYPTO", out.get("assetType"));
         assertEquals(new BigDecimal("65000"), out.get("price"));
+        assertEquals("USD", out.get("currency"));   // crypto → USD (CoinGecko)
+    }
+
+    @Test
+    void BIST_hissesi_bare_sembolde_bulamayinca_IS_suffix_ile_tekrar_dener() {
+        // İlk arama 0, .IS'li arama 39.20 — beklenen: tool ikinci sonucu dönsün
+        when(priceService.getCurrentPrice("THYAO", AssetType.STOCK)).thenReturn(BigDecimal.ZERO);
+        when(priceService.getCurrentPrice("THYAO.IS", AssetType.STOCK)).thenReturn(new BigDecimal("39.20"));
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of(
+                "symbol", "THYAO", "assetType", "STOCK"
+        ));
+        assertEquals(new BigDecimal("39.20"), out.get("price"));
+        assertEquals("THYAO.IS", out.get("resolvedSymbol"));
+        assertEquals("TRY", out.get("currency"));   // BIST → TRY
+    }
+
+    @Test
+    void crypto_currency_USD_olarak_etiketlenir() {
+        when(priceService.getCurrentPrice("ETH", AssetType.CRYPTO)).thenReturn(new BigDecimal("3500"));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of(
+                "symbol", "ETH", "assetType", "CRYPTO"
+        ));
+        assertEquals("USD", out.get("currency"));
+    }
+
+    @Test
+    void doviz_currency_TRY_olarak_etiketlenir() {
+        when(priceService.getCurrentPrice("EUR", AssetType.CURRENCY)).thenReturn(new BigDecimal("53.37"));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of(
+                "symbol", "EUR", "assetType", "CURRENCY"
+        ));
+        assertEquals("TRY", out.get("currency"));
     }
 
     @Test
@@ -61,13 +97,15 @@ class GetAssetPriceToolTest {
     }
 
     @Test
-    void servis_exception_atarsa_error() {
+    void servis_tum_variantlar_icin_exception_atarsa_error_doner() {
+        // Her iki variant (XYZ ve XYZ.IS) da patlasın — tool error dönmeli, exception yutmamalı
         when(priceService.getCurrentPrice("XYZ", AssetType.STOCK)).thenThrow(new RuntimeException("down"));
+        when(priceService.getCurrentPrice("XYZ.IS", AssetType.STOCK)).thenThrow(new RuntimeException("down"));
         @SuppressWarnings("unchecked")
         Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of(
                 "symbol", "XYZ", "assetType", "STOCK"
         ));
-        assertTrue(out.get("error").toString().contains("down"));
+        assertTrue(out.get("error").toString().toLowerCase().contains("bulunamad"));
     }
 
     @Test

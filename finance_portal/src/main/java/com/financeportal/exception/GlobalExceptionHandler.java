@@ -1,5 +1,6 @@
 package com.financeportal.exception;
 
+import com.financeportal.service.chat.llm.LlmException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
@@ -79,6 +80,19 @@ public class GlobalExceptionHandler {
             log.debug("[CLIENT_ABORT] {} {} — {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Chatbot LLM provider'larına erişilemediğinde (rate limit, 5xx, timeout, key yok).
+     * 503 + kullanıcı dostu mesaj — frontend "şu an asistana ulaşılamıyor" gösterir,
+     * generic 500 mesajını yer.
+     */
+    @ExceptionHandler(LlmException.class)
+    public ResponseEntity<ErrorResponse> handleLlm(LlmException ex, HttpServletRequest request) {
+        log.warn("[LLM] çağrı başarısız: status={}, retriable={}, msg={}",
+                ex.getStatusCode(), ex.isRetriable(), ex.getMessage());
+        String msg = "Asistana şu an ulaşılamıyor. Lütfen birazdan tekrar dene.";
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, msg, request);
     }
 
     // 6. Beklenmedik Sistem Hataları (500) - Son Savunma Hattı

@@ -56,7 +56,9 @@ class GeminiClientTest {
     }
 
     @Test
-    void yeni_format_key_AQ_bearer_kullanir() {
+    void yeni_format_key_AQ_da_query_param_kullanir() {
+        // Google AI Studio yeni format AQ.Ab8... key'leri için de generativelanguage endpoint
+        // ?key= bekliyor (Bearer reddediyor — 401). İki format aynı şekilde geçer.
         GeminiClient client = withKey("AQ.Ab8RN6test");
         when(restTemplate.exchange(any(String.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
                 .thenReturn(ResponseEntity.ok("""
@@ -71,8 +73,8 @@ class GeminiClientTest {
         ArgumentCaptor<HttpEntity<String>> entCap = ArgumentCaptor.forClass(HttpEntity.class);
         verify(restTemplate).exchange(urlCap.capture(), eq(HttpMethod.POST), entCap.capture(), eq(String.class));
 
-        assertFalse(urlCap.getValue().contains("?key="));
-        assertEquals("Bearer AQ.Ab8RN6test", entCap.getValue().getHeaders().getFirst("Authorization"));
+        assertTrue(urlCap.getValue().contains("?key=AQ.Ab8RN6test"));
+        assertNull(entCap.getValue().getHeaders().getFirst("Authorization"));
     }
 
     @Test
@@ -147,11 +149,4 @@ class GeminiClientTest {
         assertEquals("tool_calls", r.getFinishReason()); // normalized
     }
 
-    @Test
-    void apikey_legacy_format_detect() {
-        assertTrue(GeminiClient.isLegacyApiKey("AIza-something"));
-        assertFalse(GeminiClient.isLegacyApiKey("AQ.Ab8..."));
-        assertFalse(GeminiClient.isLegacyApiKey(""));
-        assertFalse(GeminiClient.isLegacyApiKey(null));
-    }
 }
