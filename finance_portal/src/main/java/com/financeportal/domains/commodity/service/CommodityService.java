@@ -114,7 +114,10 @@ public class CommodityService {
         return dto;
     }
 
-    private CommodityDto mapToCommodity(MarketAssetDto m) {
+    // public: CommoditySyncService de aynı küratörlü isimlendirmeyi (ONS etiketleri vb.)
+    // kullansın diye tek kaynak. Daha önce sync ayrı bir kopyada ham Yahoo ismini yazıp
+    // cache:commodities'i 5dk'da bir eski haline döndürüyordu.
+    public CommodityDto mapToCommodity(MarketAssetDto m) {
         CommodityDto c = new CommodityDto();
         c.setSymbol(m.getSymbol()); c.setName(resolveCommodityName(m.getSymbol(), m.getName())); c.setAssetType(m.getAssetType());
         c.setPrice(m.getPrice()); c.setBuyPrice(m.getBuyPrice()); c.setChangePercent(m.getChangePercent());

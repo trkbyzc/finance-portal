@@ -17,10 +17,12 @@ import java.util.List;
 @Slf4j
 public class CommoditySyncService {
 
-    // ŞUNA DÖNÜŞTÜRÜN:
-    private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
+    private final YahooQuoteClient yahooFinanceClient;
     private final TruncgilIntegrationClient truncgilIntegrationClient;
     private final CacheService cacheService;
+    // İsimlendirme (küratörlü Türkçe / ONS etiketleri) tek kaynaktan: CommodityService.
+    // Aksi halde burada ham Yahoo ismi yazılıp cache 5dk'da bir eski haline dönüyordu.
+    private final CommodityService commodityService;
 
     private static final String[] COMMODITY_SYMBOLS = { "GC=F", "SI=F", "PL=F", "PA=F", "CL=F", "BZ=F", "NG=F", "HG=F", "ZW=F", "ZC=F", "KC=F", "CC=F", "CT=F" };
 
@@ -28,7 +30,7 @@ public class CommoditySyncService {
     public void fetchCommodities() {
         List<MarketAssetDto> rawList = yahooFinanceClient.fetchQuotes(COMMODITY_SYMBOLS, "EMTİA");
         if (rawList != null && !rawList.isEmpty()) {
-            List<CommodityDto> list = rawList.stream().map(this::mapToCommodity).toList();
+            List<CommodityDto> list = rawList.stream().map(commodityService::mapToCommodity).toList();
             cacheService.save("cache:commodities", list, 5);
         }
     }
@@ -37,14 +39,5 @@ public class CommoditySyncService {
     public void fetchTurkishGoldData() {
         List<CommodityDto> goldList = truncgilIntegrationClient.fetchLiveTurkishGold();
         if (goldList != null && !goldList.isEmpty()) cacheService.save("cache:turkish_gold", goldList, 5);
-    }
-
-    private CommodityDto mapToCommodity(MarketAssetDto m) {
-        CommodityDto c = new CommodityDto();
-        c.setSymbol(m.getSymbol()); c.setName(m.getName()); c.setAssetType(m.getAssetType());
-        c.setPrice(m.getPrice()); c.setBuyPrice(m.getBuyPrice()); c.setChangePercent(m.getChangePercent());
-        c.setVolume(m.getVolume()); c.setYahooSymbol(m.getYahooSymbol()); c.setChartType(m.getChartType());
-        c.setAssetCategory(m.getAssetCategory());
-        return c;
     }
 }

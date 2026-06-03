@@ -85,9 +85,10 @@ export default function Navbar() {
             >
                 <div className="min-h-16 max-w-container mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between gap-2 md:gap-6">
 
-                    {/* SOL: Logo + nav links. md+ gap-6 (gap-8'di) — logo büyüdüğü
-                        için FINANSPORTAL wordmark BORSA dropdown'ıyla çakışmasın. */}
-                    <div className="flex items-center gap-3 md:gap-5 lg:gap-6 min-w-0">
+                    {/* SOL: Logo + nav links. Boşluklar sıkılaştırıldı (md:gap-4 lg:gap-5)
+                        ki nav linkleri sağdaki aksiyon grubunun (CANLI PİYASA) üstüne binmesin.
+                        NOT: burada overflow-hidden KULLANMA — dropdown flyout'ları kırpar. */}
+                    <div className="flex items-center gap-3 md:gap-4 lg:gap-5 min-w-0">
                         {/* Hamburger — sadece mobile/tablet */}
                         <button
                             type="button"
@@ -100,37 +101,37 @@ export default function Navbar() {
 
                         <NavLogo />
 
-                        <div className="hidden md:flex items-center gap-0 mr-3">
+                        <div className="hidden md:flex items-center gap-0 mr-1">
                             {navConfig.map((nav, idx) => (
                                 <NavDropdown key={idx} title={nav.title} items={nav.items} />
                             ))}
 
                             <Link
                                 to="/news"
-                                className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
+                                className="px-1.5 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
                             >
                                 {t('navbar:news')}
                             </Link>
                             <Link
                                 to="/markets/economy"
-                                className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
+                                className="px-1.5 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors whitespace-nowrap"
                             >
                                 {t('navbar:economy')}
                             </Link>
                             <Link
                                 to="/economic-calendar"
-                                className="px-2 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors text-center leading-tight max-w-27.5"
+                                className="px-1.5 py-2 text-[12px] font-bold uppercase tracking-wider text-nav-text/70 hover:text-nav-text transition-colors text-center leading-tight max-w-27.5"
                             >
                                 {t('navbar:economicCalendar')}
                             </Link>
                         </div>
                     </div>
 
-                    {/* SAĞ: Live + Theme + Lang + User */}
+                    {/* SAĞ: Live + Theme + Lang + User.
+                        NavActions kendi `hidden 2xl:flex` gating'ini taşır; ayrı sarmalayıcı
+                        div KOYMA — gizliyken bile flex `gap` payı tüketen hayalet öğe olur. */}
                     <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
-                        <div className="hidden sm:block">
-                            <NavActions />
-                        </div>
+                        <NavActions />
                         <LanguageToggle compact />
                         <ThemeToggle compact />
 
