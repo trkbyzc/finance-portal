@@ -19,15 +19,22 @@ export const PRESET_AVATARS = [
     { id: 'crown',   emoji: '👑', gradient: 'linear-gradient(135deg, #ca8a04 0%, #fde047 100%)' }
 ];
 
-const STORAGE_KEY = 'profile_avatar_id';
+const STORAGE_KEY_PREFIX = 'profile_avatar_id__';
+
+/** localStorage anahtarı kullanıcıya bağlı — aksi halde superadmin'in avatar'ı her hesapta görünür. */
+export function storageKeyFor(username) {
+    return username ? `${STORAGE_KEY_PREFIX}${username}` : null;
+}
 
 /**
  * `null` → kullanıcının seçimi yok, çağıran kod initials fallback'ine düşmeli.
  * Cross-tab senkronu için `storage` event dispatch edilir (Navbar dinler).
  */
-export function getStoredAvatarId() {
+export function getStoredAvatarId(username) {
+    const key = storageKeyFor(username);
+    if (!key) return null;
     try {
-        const v = localStorage.getItem(STORAGE_KEY);
+        const v = localStorage.getItem(key);
         if (!v) return null;
         return PRESET_AVATARS.some(a => a.id === v) ? v : null;
     } catch {
@@ -35,15 +42,17 @@ export function getStoredAvatarId() {
     }
 }
 
-export function setStoredAvatarId(id) {
+export function setStoredAvatarId(username, id) {
+    const key = storageKeyFor(username);
+    if (!key) return;
     try {
         if (id == null) {
-            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(key);
         } else {
-            localStorage.setItem(STORAGE_KEY, id);
+            localStorage.setItem(key, id);
         }
-        // Aynı tab'da listener'ları tetikle (storage event sadece OTHER tab'larda fire eder)
-        window.dispatchEvent(new CustomEvent('profile-avatar-changed', { detail: { id } }));
+        // Aynı tab'da listener'ları tetikle — username de payload'a koy ki başka user'ın eventi yanlış güncelleme yapmasın
+        window.dispatchEvent(new CustomEvent('profile-avatar-changed', { detail: { id, username } }));
     } catch {
         // localStorage erişilemiyorsa sessiz geç (incognito vb.)
     }

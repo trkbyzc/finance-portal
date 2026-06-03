@@ -26,7 +26,9 @@ export default function AuthenticatedDashboard() {
         calculatedResult, usdRate
     } = useDashboardData();
 
-    const displayName = user?.username || user?.name || '';
+    // Karşılama için "isim" tercih — JWT name "Ad Soyad" composite, ilk kelime = ad.
+    // Keycloak'ta first name boşsa name = username olur, o da bir tek kelime → fallback chain doğal.
+    const displayName = user?.name?.trim().split(/\s+/)[0] || user?.username || '';
     const [editing, setEditing] = useState(false);
     const [dragKey, setDragKey] = useState(null);
 

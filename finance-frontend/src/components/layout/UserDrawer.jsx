@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, User, Briefcase, ShieldCheck, LogOut, Bell, Settings, Star, LineChart as LineChartIcon, GitCompare, CandlestickChart } from 'lucide-react';
+import { X, User, Briefcase, ShieldCheck, LogOut, Bell, BellRing, Settings, Star, LineChart as LineChartIcon, GitCompare, CandlestickChart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -129,6 +129,13 @@ export default function UserDrawer({ open, onClose }) {
                         accent="primary"
                         badge={unreadCount > 0 ? unreadCount : null}
                         onClick={() => setNotifOpen(true)}
+                    />
+                    <DrawerItem
+                        icon={BellRing}
+                        label={t('drawer.alarms')}
+                        sub={t('drawer.alarmsSub')}
+                        accent="primary"
+                        onClick={() => go('/alarms')}
                     />
                     <DrawerItem
                         icon={Settings}

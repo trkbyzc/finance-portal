@@ -40,6 +40,18 @@ public class EvdsClient {
      * için {@link #fetchSeriesPaginated} kullan.
      */
     public List<JsonNode> fetchSeries(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, String formulas) {
+        return fetchSeries(seriesCodes, startDate, endDate, formulas, null);
+    }
+
+    /**
+     * EVDS frequency parametresi gerektiren seriler için overload.
+     * Kabul edilen değerler (EVDS standardı): 1=Günlük, 2=İş günü, 3=Haftalık, 4=Çift haftalık,
+     * 5=Aylık, 6=Üç aylık (çeyreklik), 7=Altı aylık, 8=Yıllık.
+     *
+     * Çoğu seri default frekansı doğru çıkarır; ama çeyreklik (GSYİH) ve yıllık (GDP per capita)
+     * gibi düşük frekanslı serilerde EVDS bazen frequency olmadan boş dönüyor.
+     */
+    public List<JsonNode> fetchSeries(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, String formulas, Integer frequency) {
         String start = startDate.format(EVDS_DATE_FMT);
         String end = endDate.format(EVDS_DATE_FMT);
         String seriesParam = String.join("-", seriesCodes); // Birden fazla kod varsa araya tire koyar
@@ -47,6 +59,9 @@ public class EvdsClient {
         String url = baseUrl.stripTrailing() + "/series=" + seriesParam + "&startDate=" + start + "&endDate=" + end + "&type=json";
         if (formulas != null && !formulas.isEmpty()) {
             url += "&formulas=" + formulas;
+        }
+        if (frequency != null) {
+            url += "&frequency=" + frequency;
         }
 
         HttpHeaders headers = new HttpHeaders();
@@ -90,6 +105,11 @@ public class EvdsClient {
      * @param chunkYears Chunk uzunluğu (yıl). Günlük seri için 3, haftalık için 12 vb.
      */
     public List<JsonNode> fetchSeriesPaginated(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, int chunkYears) {
+        return fetchSeriesPaginated(seriesCodes, startDate, endDate, chunkYears, null);
+    }
+
+    /** {@link #fetchSeries(List, LocalDate, LocalDate, String, Integer)}'in paginated overload'ı. */
+    public List<JsonNode> fetchSeriesPaginated(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, int chunkYears, Integer frequency) {
         if (chunkYears < 1) chunkYears = 3;
         List<JsonNode> all = new ArrayList<>();
         java.util.Set<String> seenDates = new java.util.HashSet<>();
@@ -100,7 +120,7 @@ public class EvdsClient {
             LocalDate chunkEnd = cursor.plusYears(chunkYears).minusDays(1);
             if (chunkEnd.isAfter(endDate)) chunkEnd = endDate;
 
-            List<JsonNode> chunk = fetchSeries(seriesCodes, cursor, chunkEnd, null);
+            List<JsonNode> chunk = fetchSeries(seriesCodes, cursor, chunkEnd, null, frequency);
             int added = 0;
             for (JsonNode node : chunk) {
                 String date = node.path("Tarih").asText(null);

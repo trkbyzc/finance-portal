@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Camera, User, Mail, Shield, KeyRound, CheckCircle2, IdCard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -10,11 +10,15 @@ const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL;
 const REALM = import.meta.env.VITE_KEYCLOAK_REALM;
 
 /**
- * Keycloak account console — kullanıcı şifresini buradan değiştirir.
+ * Keycloak Account Console — kullanıcı şifresini buradan değiştirir.
  * Yeni sekmede aç ki ana uygulamadan oturum kopmasın.
+ *
+ * NOT: Keycloak 25+ Account Console v3 path-based route'lar kullanır
+ * (eski hash route `#/security/signing-in` 26'da 404 dönüyor).
+ * `/realms/{realm}/account/account-security/signing-in` aktif yöntem.
  */
 const passwordChangeUrl = () =>
-    `${KEYCLOAK_URL}/realms/${REALM}/account/#/security/signing-in`;
+    `${KEYCLOAK_URL}/realms/${REALM}/account/account-security/signing-in`;
 
 const InfoCard = ({ icon: Icon, label, value, accent }) => (
     <div className="bg-surface border border-border rounded-xl p-4 flex items-start gap-3 transition hover:border-border-strong">

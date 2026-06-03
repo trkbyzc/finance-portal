@@ -1,28 +1,35 @@
-import { useEffect, useState } from 'react';
-import { getStoredAvatarId } from '../components/profile/Avatar';
+import { useSyncExternalStore } from 'react';
+import { getStoredAvatarId, storageKeyFor } from '../components/profile/Avatar';
+import { useAuth } from '../context/AuthContext';
 
 /**
- * localStorage-backed avatar id hook.
- * - Aynı tab'da Avatar.setStoredAvatarId() çağrılırsa `profile-avatar-changed` event ile güncellenir.
- * - Diğer tab'larda native `storage` event ile sync.
+ * Aktif kullanıcının avatar id'sini döner. Storage user-prefixed'tir
+ * (`profile_avatar_id__<username>`); başka kullanıcılar birbirinin avatar'ını görmez.
+ *
+ * useSyncExternalStore + iki kanal:
+ *  - aynı tab'da `profile-avatar-changed` custom event (Avatar.setStoredAvatarId tetikler)
+ *  - başka tab'larda native `storage` event
+ *
+ * username değişince (login/logout) snapshot otomatik yeniden çekilir (storageKeyFor değişir).
  */
-export default function useProfileAvatar() {
-    const [avatarId, setAvatarId] = useState(() => getStoredAvatarId());
-
-    useEffect(() => {
-        const handleCustom = (e) => setAvatarId(e.detail?.id ?? null);
-        const handleStorage = (e) => {
-            if (e.key === 'profile_avatar_id') {
-                setAvatarId(e.newValue || null);
-            }
-        };
-        window.addEventListener('profile-avatar-changed', handleCustom);
-        window.addEventListener('storage', handleStorage);
-        return () => {
-            window.removeEventListener('profile-avatar-changed', handleCustom);
-            window.removeEventListener('storage', handleStorage);
-        };
-    }, []);
-
-    return avatarId;
+function subscribe(callback) {
+    window.addEventListener('profile-avatar-changed', callback);
+    window.addEventListener('storage', callback);
+    return () => {
+        window.removeEventListener('profile-avatar-changed', callback);
+        window.removeEventListener('storage', callback);
+    };
 }
+
+export default function useProfileAvatar() {
+    const { user } = useAuth();
+    const username = user?.username || null;
+    return useSyncExternalStore(
+        subscribe,
+        () => getStoredAvatarId(username),
+        () => null
+    );
+}
+
+// storageKeyFor sadece dolaylı kullanılıyor — diğer dosyalar import edebilsin diye re-export
+export { storageKeyFor };

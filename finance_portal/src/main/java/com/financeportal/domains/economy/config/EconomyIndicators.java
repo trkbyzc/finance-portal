@@ -20,7 +20,15 @@ public final class EconomyIndicators {
     private static final String CAT_EXTERNAL = "external";
     private static final String UNIT_PCT = "%";
 
-    public record Indicator(String key, String code, String formula, String category, String unit) {}
+    /**
+     * frequency: EVDS frequency parametresi (1=Günlük, 5=Aylık, 6=Çeyreklik, 8=Yıllık).
+     * Çoğu seri için null (default frekansta çekilir); çeyreklik/yıllık seriler null'da boş döner.
+     */
+    public record Indicator(String key, String code, String formula, String category, String unit, Integer frequency) {
+        public Indicator(String key, String code, String formula, String category, String unit) {
+            this(key, code, formula, category, unit, null);
+        }
+    }
 
     public static final List<Indicator> ALL = List.of(
             // Enflasyon (yıllık % — formula 3)
@@ -31,9 +39,9 @@ public final class EconomyIndicators {
             new Indicator("interestRate", "TP.APIFON4", null, CAT_RATES, UNIT_PCT),
             new Indicator("depositRate", "TP.TRY.MT02", null, CAT_RATES, UNIT_PCT),
             new Indicator("loanRate", "TP.KTF10", null, CAT_RATES, UNIT_PCT),
-            // Büyüme & Gelir
-            new Indicator("gdp", "TP.GSYIH26.HY.ZH", null, "growth", ""),
-            new Indicator("gdpPerCapita", "TP.IMFGDPUSDPC.TUR", null, "growth", "$"),
+            // Büyüme & Gelir — explicit frekans (EVDS default'ta boş dönüyordu)
+            new Indicator("gdp", "TP.GSYIH26.HY.ZH", null, "growth", "", 6),         // 6 = çeyreklik
+            new Indicator("gdpPerCapita", "TP.IMFGDPUSDPC.TUR", null, "growth", "$", 8), // 8 = yıllık
             // Dış denge & rezerv
             new Indicator("currentAccount", "TP.ODANA6.Q01", null, CAT_EXTERNAL, "M$"),
             new Indicator("reserves", "TP.AB.B6", null, CAT_EXTERNAL, "M$"),

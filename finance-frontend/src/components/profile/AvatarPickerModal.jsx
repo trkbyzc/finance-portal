@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Avatar, { PRESET_AVATARS, setStoredAvatarId } from './Avatar';
+import { useAuth } from '../../context/AuthContext';
 
-export default function AvatarPickerModal({ open, currentId, fallbackInitials, onClose }) {
+export default function AvatarPickerModal({ open, currentId, onClose }) {
     const { t } = useTranslation(['profile', 'common']);
+    const { user } = useAuth();
     const [selectedId, setSelectedId] = useState(currentId);
 
     if (!open) return null;
 
     const handleSave = () => {
-        setStoredAvatarId(selectedId);
+        setStoredAvatarId(user?.username, selectedId);
         onClose();
     };
 
     const handleClear = () => {
-        setStoredAvatarId(null);
+        setStoredAvatarId(user?.username, null);
         setSelectedId(null);
         onClose();
     };

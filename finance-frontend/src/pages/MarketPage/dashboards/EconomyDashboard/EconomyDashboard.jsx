@@ -12,7 +12,6 @@ import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
 // Kategori sırası (frontend gruplaması) — backend indicator.category ile eşleşir
 const CATEGORY_ORDER = ['inflation', 'rates', 'growth', 'external', 'fx', 'labor', 'budget', 'activity', 'market', 'global'];
 const RANGES = ['1y', '5y', '10y'];
-const ACCENT = '#2962ff';
 
 // US enflasyonu EVDS değil FRED — sidebar'a ekstra olarak eklenir
 const US_INFLATION = { key: 'usInflation', category: 'global', unit: '' };
@@ -148,15 +147,36 @@ export default function EconomyDashboard() {
                         ) : (
                             <ResponsiveContainer width="100%" height="100%" minHeight={420}>
                                 <LineChart data={series} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
-                                    <XAxis dataKey="date" stroke="#787b86" tick={{ fontSize: 11 }} minTickGap={48} tickFormatter={formatChartDate} />
-                                    <YAxis stroke="#787b86" orientation="right" tick={{ fontSize: 11 }} domain={['auto', 'auto']} tickFormatter={(v) => fmtVal(v)} width={70} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                                    <XAxis
+                                        dataKey="date"
+                                        stroke="var(--color-text-muted)"
+                                        tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                                        minTickGap={48}
+                                        tickFormatter={formatChartDate}
+                                    />
+                                    <YAxis
+                                        stroke="var(--color-text-muted)"
+                                        tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                                        orientation="right"
+                                        domain={['auto', 'auto']}
+                                        tickFormatter={(v) => fmtVal(v)}
+                                        width={70}
+                                    />
                                     <Tooltip
-                                        contentStyle={{ background: '#1e222d', border: '1px solid #2a2e39', borderRadius: 8, fontSize: 12 }}
+                                        contentStyle={{
+                                            background: 'var(--color-surface)',
+                                            border: '1px solid var(--color-border)',
+                                            borderRadius: 8,
+                                            fontSize: 12,
+                                            color: 'var(--color-text)'
+                                        }}
+                                        labelStyle={{ color: 'var(--color-text-muted)' }}
+                                        itemStyle={{ color: 'var(--color-text)' }}
                                         labelFormatter={(d) => formatChartDate(d)}
                                         formatter={(v) => [fmtVal(v), t(`markets:economyDash.metrics.${selected}`)]}
                                     />
-                                    <Line type="monotone" dataKey="value" stroke={ACCENT} strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} isAnimationActive={false} />
+                                    <Line type="monotone" dataKey="value" stroke="var(--color-primary)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} isAnimationActive={false} />
                                 </LineChart>
                             </ResponsiveContainer>
                         )}

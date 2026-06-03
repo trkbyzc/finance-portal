@@ -69,10 +69,10 @@ public class EconomySyncService {
         // 2. 10 YILLIK GRAFİK GEÇMİŞİ — gösterge kayıt defterindeki tüm EVDS serileri
         LocalDate tenYearsAgo = today.minusDays(3650);
         for (EconomyIndicators.Indicator ind : EconomyIndicators.ALL) {
-            saveHistory(ind.code(), ind.key(), tenYearsAgo, today, ind.formula());
+            saveHistory(ind.code(), ind.key(), tenYearsAgo, today, ind.formula(), ind.frequency());
         }
         // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer (ayrı key)
-        saveHistory(CPI_SERIES_CODE, "cumulativeInflationRate", tenYearsAgo, today, null);
+        saveHistory(CPI_SERIES_CODE, "cumulativeInflationRate", tenYearsAgo, today, null, null);
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
         }
@@ -92,10 +92,10 @@ public class EconomySyncService {
      * Formula (yıllık %değişim) gerektirenlerde tekli fetch (aylık seri, <1000 nokta);
      * seviye serilerinde paginated (günlük 10y > 1000 nokta sınırını aşar) → tam geçmiş.
      */
-    private void saveHistory(String code, String metricName, LocalDate start, LocalDate end, String formula) {
+    private void saveHistory(String code, String metricName, LocalDate start, LocalDate end, String formula, Integer frequency) {
         List<JsonNode> nodes = (formula != null)
-                ? evdsClient.fetchSeries(List.of(code), start, end, formula)
-                : evdsClient.fetchSeriesPaginated(List.of(code), start, end, 3);
+                ? evdsClient.fetchSeries(List.of(code), start, end, formula, frequency)
+                : evdsClient.fetchSeriesPaginated(List.of(code), start, end, 3, frequency);
         List<Map<String, Object>> historyList = new ArrayList<>();
 
         for (JsonNode node : nodes) {
