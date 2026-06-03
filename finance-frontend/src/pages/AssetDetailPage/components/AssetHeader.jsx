@@ -1,11 +1,13 @@
-import React from 'react';
-import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { useAuth } from '../../../context/AuthContext';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
+import AlarmModal from '../../../components/alarm/AlarmModal';
 
 export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
+    const [alarmOpen, setAlarmOpen] = useState(false);
     const { currency, toggleCurrency, formatPrice } = useCurrency();
     const { isAuthenticated } = useAuth();
     const { t } = useTranslation(['asset', 'common']);
@@ -120,15 +122,31 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
                     )}
 
                     {isAuthenticated && (
-                        <button
-                            onClick={onAddPortfolioClick}
-                            className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-fg px-5 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all"
-                        >
-                            <Plus size={20} /> {t('asset:addToPortfolio')}
-                        </button>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                                onClick={onAddPortfolioClick}
+                                className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-fg px-5 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all"
+                            >
+                                <Plus size={20} /> {t('asset:addToPortfolio')}
+                            </button>
+                            <button
+                                onClick={() => setAlarmOpen(true)}
+                                title={t('asset:setAlarm', 'Fiyat alarmı kur')}
+                                className="flex items-center gap-2 bg-surface-2 hover:bg-surface-hover border border-border hover:border-primary text-text px-4 py-3 rounded-2xl font-bold transition-all"
+                            >
+                                <Bell size={18} className="text-primary" />
+                                <span className="hidden sm:inline">{t('asset:setAlarm', 'Alarm Kur')}</span>
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
+
+            <AlarmModal
+                open={alarmOpen}
+                onClose={() => setAlarmOpen(false)}
+                asset={asset}
+            />
         </>
     );
 }

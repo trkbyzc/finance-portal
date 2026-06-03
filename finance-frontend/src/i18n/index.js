@@ -19,6 +19,7 @@ import trSimulation from './locales/tr/simulation.json';
 import trWhatIf from './locales/tr/whatIf.json';
 import trEconomicCalendar from './locales/tr/economicCalendar.json';
 import trPreferences from './locales/tr/preferences.json';
+import trAlarm from './locales/tr/alarm.json';
 import trFooter from './locales/tr/footer.json';
 
 import enCommon from './locales/en/common.json';
@@ -39,6 +40,7 @@ import enSimulation from './locales/en/simulation.json';
 import enWhatIf from './locales/en/whatIf.json';
 import enEconomicCalendar from './locales/en/economicCalendar.json';
 import enPreferences from './locales/en/preferences.json';
+import enAlarm from './locales/en/alarm.json';
 import enFooter from './locales/en/footer.json';
 
 const STORAGE_KEY = 'finansportal-language';
@@ -63,7 +65,7 @@ i18n
             'common', 'navbar', 'dashboard', 'markets', 'portfolio',
             'admin', 'auth', 'profile', 'asset', 'news', 'interest',
             'charts', 'errors', 'watchlist', 'simulation', 'whatIf',
-            'economicCalendar', 'preferences', 'footer'
+            'economicCalendar', 'preferences', 'alarm', 'footer'
         ],
         resources: {
             tr: {
@@ -85,6 +87,7 @@ i18n
                 whatIf: trWhatIf,
                 economicCalendar: trEconomicCalendar,
                 preferences: trPreferences,
+                alarm: trAlarm,
                 footer: trFooter
             },
             en: {
@@ -106,6 +109,7 @@ i18n
                 whatIf: enWhatIf,
                 economicCalendar: enEconomicCalendar,
                 preferences: enPreferences,
+                alarm: enAlarm,
                 footer: enFooter
             }
         },

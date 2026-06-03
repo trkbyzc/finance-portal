@@ -18,6 +18,16 @@
     "homeOnly": "Yalnızca Ana Sayfada",
     "homeOnlyDesc": "Ticker bar sadece dashboard (ana sayfa) açıkken görünür."
   },
+  "notifications": {
+    "title": "Bildirimler",
+    "subtitle": "Fiyat alarmları tetiklendiğinde e-posta bildirimi alın.",
+    "emailAlarm": "Alarm E-posta Bildirimleri",
+    "emailEnabledDesc": "Aktif — fiyat alarmları tetiklendiğinde kayıtlı e-postanıza bildirim gider.",
+    "emailDisabledDesc": "Devre dışı — alarm tetiklense de e-posta gönderilmez.",
+    "enabledTitle": "E-posta bildirimleri açık",
+    "disabledTitle": "E-posta bildirimleri kapalı",
+    "error": "Bildirim ayarı değiştirilemedi"
+  },
   "security": {
     "title": "Güvenlik",
     "subtitle": "İki adımlı doğrulama (2FA) ayarları.",

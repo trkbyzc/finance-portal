@@ -18,6 +18,16 @@
     "homeOnly": "Home Only",
     "homeOnlyDesc": "The ticker bar appears only when the dashboard (home) is open."
   },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Get an email when a price alarm triggers.",
+    "emailAlarm": "Alarm Email Notifications",
+    "emailEnabledDesc": "Active — when alarms trigger, you'll receive an email at your registered address.",
+    "emailDisabledDesc": "Disabled — alarms still trigger but no email is sent.",
+    "enabledTitle": "Email notifications on",
+    "disabledTitle": "Email notifications off",
+    "error": "Couldn't change notification setting"
+  },
   "security": {
     "title": "Security",
     "subtitle": "Two-factor authentication (2FA) settings.",

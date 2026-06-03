@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${subject}">Fiyat Alarmı</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111827">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f3f4f6;padding:24px 0">
+    <tr>
+        <td align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb">
+                <!-- Header -->
+                <tr>
+                    <td style="background:#2962ff;padding:24px;color:#ffffff">
+                        <div style="font-size:13px;letter-spacing:1px;opacity:.85;text-transform:uppercase">FinansPortal</div>
+                        <div style="font-size:22px;font-weight:700;margin-top:4px"
+                             th:text="${lang == 'en'} ? 'Price Alarm Triggered' : 'Fiyat Alarmı Tetiklendi'">
+                            Fiyat Alarmı Tetiklendi
+                        </div>
+                    </td>
+                </tr>
+                <!-- Body -->
+                <tr>
+                    <td style="padding:24px">
+                        <p style="margin:0 0 12px;font-size:15px"
+                           th:text="${lang == 'en'} ? ('Hi ' + ${userName} + ',') : ('Merhaba ' + ${userName} + ',')">
+                            Merhaba kullanıcı,
+                        </p>
+                        <p style="margin:0 0 16px;font-size:14px;color:#374151"
+                           th:text="${lang == 'en'} ? 'One of your price alarms has just triggered:' : 'Kurduğunuz fiyat alarmlarından biri tetiklendi:'">
+                            Kurduğunuz fiyat alarmlarından biri tetiklendi.
+                        </p>
+
+                        <!-- Symbol + condition card -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px">
+                            <tr>
+                                <td style="padding:16px">
+                                    <div style="font-size:20px;font-weight:700;color:#111827" th:text="${symbol}">SYMBOL</div>
+                                    <div style="font-size:12px;color:#6b7280;margin-top:2px" th:text="${assetType}">TYPE</div>
+                                    <hr style="border:none;border-top:1px solid #e5e7eb;margin:12px 0"/>
+                                    <div style="display:table;width:100%">
+                                        <div style="display:table-row">
+                                            <div style="display:table-cell;padding:4px 0;color:#6b7280;font-size:12px;width:50%"
+                                                 th:text="${lang == 'en'} ? 'Condition' : 'Koşul'">Koşul</div>
+                                            <div style="display:table-cell;padding:4px 0;color:#111827;font-weight:600;font-size:13px;text-align:right" th:text="${conditionLabel}">Koşul</div>
+                                        </div>
+                                        <div style="display:table-row">
+                                            <div style="display:table-cell;padding:4px 0;color:#6b7280;font-size:12px"
+                                                 th:text="${lang == 'en'} ? 'Threshold' : 'Hedef Değer'">Hedef</div>
+                                            <div style="display:table-cell;padding:4px 0;color:#111827;font-weight:600;font-size:13px;text-align:right" th:text="${threshold}">100</div>
+                                        </div>
+                                        <div style="display:table-row">
+                                            <div style="display:table-cell;padding:4px 0;color:#6b7280;font-size:12px"
+                                                 th:text="${lang == 'en'} ? 'Current Price' : 'Anlık Fiyat'">Anlık</div>
+                                            <div style="display:table-cell;padding:4px 0;color:#2962ff;font-weight:700;font-size:14px;text-align:right" th:text="${currentPrice}">120</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div th:if="${note != null and !#strings.isEmpty(note)}"
+                             style="background:#fef3c7;border-left:3px solid #f59e0b;border-radius:6px;padding:10px 12px;margin-bottom:16px">
+                            <div style="font-size:11px;color:#92400e;text-transform:uppercase;letter-spacing:.5px;font-weight:700"
+                                 th:text="${lang == 'en'} ? 'Note' : 'Not'">Not</div>
+                            <div style="font-size:13px;color:#78350f;margin-top:4px" th:text="${note}">Not içeriği</div>
+                        </div>
+
+                        <p style="margin:0 0 8px;font-size:12px;color:#6b7280"
+                           th:text="${lang == 'en'} ? 'You can manage your alarms from your account preferences page.' : 'Alarmlarınızı tercihler sayfasından yönetebilirsiniz.'">
+                            Alarmlarınızı tercihler sayfasından yönetebilirsiniz.
+                        </p>
+                    </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                    <td style="background:#f9fafb;padding:14px 24px;text-align:center;color:#9ca3af;font-size:11px;border-top:1px solid #e5e7eb">
+                        <span th:text="${lang == 'en'} ? 'This is an automated notification from FinansPortal.' : 'Bu, FinansPortal sisteminden otomatik bir bildirimdir.'">FinansPortal</span>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

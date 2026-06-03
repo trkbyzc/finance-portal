@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Settings, Save, Loader2, BarChart3, Eye, Home, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Settings, Save, Loader2, BarChart3, Eye, Home, ShieldCheck, ShieldOff, Mail, MailX } from 'lucide-react';
 import { preferencesApi } from '../../services/api/preferencesApi';
 import { aggregateApi } from '../../services/api/aggregateApi';
 import { userApi } from '../../services/api/userApi';
@@ -77,6 +77,34 @@ export default function PreferencesPage() {
             notify({
                 type: 'error',
                 title: t('preferences:security.error', '2FA değiştirilemedi'),
+                message: err?.response?.data?.message || ''
+            });
+        }
+    });
+
+    // E-posta bildirimleri durumu
+    const { data: emailNotifStatus, isLoading: emailNotifLoading } = useQuery({
+        queryKey: ['user-email-notifications'],
+        queryFn: userApi.getEmailNotifications,
+        staleTime: 30_000
+    });
+    const emailNotifEnabled = !!emailNotifStatus?.enabled;
+
+    const toggleEmailMutation = useMutation({
+        mutationFn: (enabled) => userApi.setEmailNotifications(enabled),
+        onSuccess: (res, enabled) => {
+            queryClient.invalidateQueries({ queryKey: ['user-email-notifications'] });
+            notify({
+                type: enabled ? 'success' : 'warning',
+                title: enabled
+                    ? t('preferences:notifications.enabledTitle', 'E-posta bildirimleri açık')
+                    : t('preferences:notifications.disabledTitle', 'E-posta bildirimleri kapalı'),
+            });
+        },
+        onError: (err) => {
+            notify({
+                type: 'error',
+                title: t('preferences:notifications.error', 'Bildirim ayarı değiştirilemedi'),
                 message: err?.response?.data?.message || ''
             });
         }
@@ -265,6 +293,57 @@ export default function PreferencesPage() {
                                     </p>
                                 )
                             }
+                        </section>
+
+                        {/* Section: Bildirimler (E-posta) */}
+                        <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">
+                            <div className="flex items-center gap-2 mb-1">
+                                {emailNotifEnabled
+                                    ? <Mail size={18} className="text-buy" />
+                                    : <MailX size={18} className="text-warning" />}
+                                <h2 className="text-lg sm:text-xl font-bold">
+                                    {t('preferences:notifications.title', 'Bildirimler')}
+                                </h2>
+                            </div>
+                            <p className="text-xs sm:text-sm text-text-muted mb-4">
+                                {t('preferences:notifications.subtitle', 'Fiyat alarmları tetiklendiğinde e-posta bildirimi alın.')}
+                            </p>
+
+                            <div className="flex items-center justify-between gap-4 bg-surface border border-border rounded-xl p-4">
+                                <div className="min-w-0">
+                                    <div className="font-semibold text-sm">
+                                        {t('preferences:notifications.emailAlarm', 'Alarm E-posta Bildirimleri')}
+                                    </div>
+                                    <div className="text-xs text-text-muted mt-0.5">
+                                        {emailNotifLoading
+                                            ? t('common:status.loading')
+                                            : emailNotifEnabled
+                                                ? t('preferences:notifications.emailEnabledDesc', 'Aktif — fiyat alarmları tetiklendiğinde kayıtlı e-postanıza bildirim gider.')
+                                                : t('preferences:notifications.emailDisabledDesc', 'Devre dışı — alarm tetiklense de e-posta gönderilmez.')
+                                        }
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={emailNotifEnabled}
+                                    disabled={emailNotifLoading || toggleEmailMutation.isPending}
+                                    onClick={() => toggleEmailMutation.mutate(!emailNotifEnabled)}
+                                    className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                        emailNotifEnabled ? 'bg-buy' : 'bg-surface-hover'
+                                    }`}
+                                >
+                                    {toggleEmailMutation.isPending ? (
+                                        <Loader2 className="animate-spin absolute inset-0 m-auto text-text" size={14} />
+                                    ) : (
+                                        <span
+                                            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition-transform ${
+                                                emailNotifEnabled ? 'translate-x-5' : 'translate-x-0'
+                                            }`}
+                                        />
+                                    )}
+                                </button>
+                            </div>
                         </section>
 
                         {/* Save button */}

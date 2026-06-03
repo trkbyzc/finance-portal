@@ -37,6 +37,30 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  # Mail (price alarm bildirimleri). Credentials application-local.yml'de.
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+    default-encoding: UTF-8
+
+  # Thymeleaf — e-posta template'leri için (web view değil)
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: true
+    check-template-location: true
+
   # Kafka Konfigürasyonu
   kafka:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -152,3 +176,12 @@ external-api:
   libretranslate:
     url: ${LIBRETRANSLATE_URL:http://localhost:5050}
     timeout-ms: ${LIBRETRANSLATE_TIMEOUT_MS:8000}
+
+# Uygulama özelinde ayarlar
+app:
+  mail:
+    enabled: ${APP_MAIL_ENABLED:false}
+    from: ${APP_MAIL_FROM:noreply@finansportal.local}
+    from-name: ${APP_MAIL_FROM_NAME:FinansPortal}
+  alarm:
+    eval-rate-ms: ${ALARM_EVAL_RATE_MS:120000}    # 2dk'da bir alarm değerlendirme

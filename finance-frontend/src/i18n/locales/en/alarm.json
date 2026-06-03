@@ -1,0 +1,32 @@
+{
+  "modal": {
+    "title": "Alarm for {{name}}",
+    "condition": "Condition",
+    "above": "Rises Above",
+    "below": "Falls Below",
+    "value": "Value",
+    "frequency": "Frequency",
+    "once": "One-time",
+    "continuous": "Continuous",
+    "onceHint": "Triggers once when the condition is met and stops.",
+    "continuousHint": "Notifies every time the condition is met (30min cooldown).",
+    "note": "Note",
+    "optional": "optional",
+    "notePlaceholder": "e.g. My target sell price — appended to the alarm email",
+    "create": "Create",
+    "manageAlarms": "Manage My Alarms",
+    "created": "Alarm created",
+    "createFailed": "Couldn't create alarm"
+  },
+  "list": {
+    "title": "My Price Alarms",
+    "subtitle": "Your active alarms, last trigger info and state controls.",
+    "empty": "No alarms yet. Use the \"Set Alarm\" button on any asset detail page.",
+    "inactive": "inactive",
+    "createdAt": "Created",
+    "triggered": "Triggered",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "deleted": "Alarm deleted"
+  }
+}

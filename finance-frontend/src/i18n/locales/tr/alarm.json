@@ -1,0 +1,32 @@
+{
+  "modal": {
+    "title": "{{name}} İçin Alarm",
+    "condition": "Koşul",
+    "above": "Üzerine Çıkarsa",
+    "below": "Altına İnerse",
+    "value": "Değer",
+    "frequency": "Sıklık",
+    "once": "Tek Seferlik",
+    "continuous": "Sürekli",
+    "onceHint": "Koşul bir kez sağlandığında tetiklenir ve durur.",
+    "continuousHint": "Koşul her sağlandığında bildirim atar (30dk cooldown).",
+    "note": "Not",
+    "optional": "isteğe bağlı",
+    "notePlaceholder": "ör. Hedef satış fiyatım — alarm e-postasına eklenir",
+    "create": "Oluştur",
+    "manageAlarms": "Alarmlarımı Düzenle",
+    "created": "Alarm oluşturuldu",
+    "createFailed": "Alarm kurulamadı"
+  },
+  "list": {
+    "title": "Fiyat Alarmlarım",
+    "subtitle": "Aktif alarmlarınız, son tetiklenme bilgisi ve durum kontrolü.",
+    "empty": "Henüz alarm kurmadın. Varlık detayında \"Alarm Kur\" butonunu kullanabilirsin.",
+    "inactive": "pasif",
+    "createdAt": "Oluşturma",
+    "triggered": "Tetiklenme",
+    "deactivate": "Pasife al",
+    "activate": "Etkinleştir",
+    "deleted": "Alarm silindi"
+  }
+}

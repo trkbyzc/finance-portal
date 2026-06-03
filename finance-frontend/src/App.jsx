@@ -29,6 +29,7 @@ import SimulationPage from './pages/SimulationPage/SimulationPage';
 import WhatIfPage from './pages/WhatIfPage/WhatIfPage';
 import EconomicCalendarPage from './pages/EconomicCalendarPage/EconomicCalendarPage';
 import PreferencesPage from './pages/PreferencesPage/PreferencesPage';
+import AlarmsPage from './pages/AlarmsPage/AlarmsPage';
 import SavedChartsPage from './pages/SavedChartsPage/SavedChartsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
@@ -72,6 +73,7 @@ function App() {
                                 <Route path="/what-if" element={<ProtectedRoute><WhatIfPage /></ProtectedRoute>} />
                                 <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                                 <Route path="/preferences" element={<ProtectedRoute><PreferencesPage /></ProtectedRoute>} />
+                                <Route path="/alarms" element={<ProtectedRoute><AlarmsPage /></ProtectedRoute>} />
                                 <Route path="/saved-charts" element={<ProtectedRoute><SavedChartsPage /></ProtectedRoute>} />
                             </Routes>
                         </main>

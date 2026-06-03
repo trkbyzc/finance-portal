@@ -74,6 +74,22 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    /** Kullanıcının e-posta bildirim tercihi (default true). */
+    public boolean isEmailNotificationsEnabled(UUID userId) {
+        return userRepository.findById(userId)
+                .map(User::isEmailNotificationsEnabled)
+                .orElse(false);
+    }
+
+    /** Tercihler sayfasından çağrılır — e-posta bildirimini aç/kapat. */
+    @Transactional
+    public void setEmailNotificationsEnabled(UUID userId, boolean enabled) {
+        User user = findUserEntityById(userId);
+        user.setEmailNotificationsEnabled(enabled);
+        userRepository.save(user);
+        log.info("[USER] {} e-posta bildirimi {} olarak güncellendi.", user.getUsername(), enabled);
+    }
+
     private User findUserEntityById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı."));

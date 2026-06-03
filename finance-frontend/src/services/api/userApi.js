@@ -9,5 +9,9 @@ export const userApi = {
 
     // 2FA
     get2FAStatus: () => apiClient.get('/users/me/2fa'),
-    set2FA: (enabled) => apiClient.put('/users/me/2fa', null, { params: { enabled } })
+    set2FA: (enabled) => apiClient.put('/users/me/2fa', null, { params: { enabled } }),
+
+    // E-posta bildirimleri
+    getEmailNotifications: () => apiClient.get('/users/me/email-notifications'),
+    setEmailNotifications: (enabled) => apiClient.put('/users/me/email-notifications', null, { params: { enabled } })
 };

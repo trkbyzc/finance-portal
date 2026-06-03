@@ -68,4 +68,22 @@ public class UserController {
                         : "2FA devre dışı bırakıldı."
         ));
     }
+
+    // -------- E-posta Bildirimi --------
+
+    @GetMapping("/me/email-notifications")
+    @Operation(summary = "E-posta Bildirim Durumum")
+    public ResponseEntity<Map<String, Boolean>> getEmailNotifications() {
+        UUID userId = securityUtils.getCurrentUserId();
+        boolean enabled = userService.isEmailNotificationsEnabled(userId);
+        return ResponseEntity.ok(Map.of("enabled", enabled));
+    }
+
+    @PutMapping("/me/email-notifications")
+    @Operation(summary = "E-posta Bildirimini Aç/Kapat")
+    public ResponseEntity<Map<String, Boolean>> setEmailNotifications(@RequestParam boolean enabled) {
+        UUID userId = securityUtils.getCurrentUserId();
+        userService.setEmailNotificationsEnabled(userId, enabled);
+        return ResponseEntity.ok(Map.of("enabled", enabled));
+    }
 }

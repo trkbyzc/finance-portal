@@ -53,6 +53,13 @@ public class User {
     @Column(name = "ticker_scope", nullable = false)
     private TickerScope tickerScope;
 
+    /**
+     * E-posta bildirimleri aktif mi? Default true (alarm tetiklendiğinde mail gider).
+     * Tercihler sayfasından kapatılabilir.
+     */
+    @Column(name = "email_notifications_enabled", nullable = false)
+    private boolean emailNotificationsEnabled;
+
     // 🚀 2FA ALANLARI TAMAMEN SİLİNDİ! (Artık Keycloak ilgileniyor)
 
     // 🚀 RICH DOMAIN MODEL: Kendi kendini başlatan "Zengin" metod
@@ -66,6 +73,7 @@ public class User {
         user.setBannedUntil(null);
         user.setBanPermanent(false);
         user.setTickerScope(TickerScope.HOME_ONLY);
+        user.setEmailNotificationsEnabled(true);
         user.setCreatedAt(LocalDateTime.now());
         return user;
     }

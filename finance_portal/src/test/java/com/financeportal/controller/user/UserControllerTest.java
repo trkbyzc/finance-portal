@@ -75,4 +75,21 @@ class UserControllerTest {
         verify(keycloakAdminService).disable2FA(userId.toString());
         assertEquals(Boolean.FALSE, resp.getBody().get("enabled"));
     }
+
+    @Test
+    void getEmailNotifications_returnsServiceFlag() {
+        when(userService.isEmailNotificationsEnabled(userId)).thenReturn(true);
+
+        ResponseEntity<Map<String, Boolean>> resp = controller.getEmailNotifications();
+
+        assertEquals(Boolean.TRUE, resp.getBody().get("enabled"));
+    }
+
+    @Test
+    void setEmailNotifications_passesFlagToService() {
+        ResponseEntity<Map<String, Boolean>> resp = controller.setEmailNotifications(false);
+
+        verify(userService).setEmailNotificationsEnabled(userId, false);
+        assertEquals(Boolean.FALSE, resp.getBody().get("enabled"));
+    }
 }
