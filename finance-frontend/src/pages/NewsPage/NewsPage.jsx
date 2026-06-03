@@ -18,30 +18,40 @@ const validateImage = (url) => {
     });
 };
 
-// Backend NewsCategoryClassifier sabitleri ile birebir eşleşmek zorunda.
+// Backend NewsCategoryClassifier kanonik (TR) ile EN değerleri.
+// Frontend aktif dile göre value'yu seçer; backend hem TR hem EN'i tanır (canonicalTr map).
 const CATEGORIES = [
-    { value: 'Tümü', tKey: 'categories.all' },
-    { value: 'Genel Ekonomi', tKey: 'categories.general' },
-    { value: 'Borsa', tKey: 'categories.stock' },
-    { value: 'Döviz & Forex', tKey: 'categories.currency' },
-    { value: 'Kripto', tKey: 'categories.crypto' },
-    { value: 'Emtialar', tKey: 'categories.commodity' },
-    { value: 'Tahvil & Faiz', tKey: 'categories.bond' },
-    { value: 'Yatırım Fonları', tKey: 'categories.fund' }
+    { tr: 'Tümü',            en: 'All',          tKey: 'categories.all' },
+    { tr: 'Genel Ekonomi',   en: 'Economy',      tKey: 'categories.general' },
+    { tr: 'Borsa',           en: 'Stocks',       tKey: 'categories.stock' },
+    { tr: 'Döviz & Forex',   en: 'Forex',        tKey: 'categories.currency' },
+    { tr: 'Kripto',          en: 'Crypto',       tKey: 'categories.crypto' },
+    { tr: 'Emtialar',        en: 'Commodities',  tKey: 'categories.commodity' },
+    { tr: 'Tahvil & Faiz',   en: 'Bonds & Rates',tKey: 'categories.bond' },
+    { tr: 'Yatırım Fonları', en: 'Funds',        tKey: 'categories.fund' }
 ];
 
 export default function NewsPage() {
     const navigate = useNavigate();
-    const { t } = useTranslation(['news', 'common']);
+    const { t, i18n } = useTranslation(['news', 'common']);
+    const lang = i18n.language?.startsWith('en') ? 'en' : 'tr';
 
-    const [activeCategory, setActiveCategory] = useState('Tümü');
+    // Kategori value aktif dile göre üretilir; dil değişince activeCategory karşılığına çevrilir.
+    const categories = CATEGORIES.map(c => ({ value: c[lang], tKey: c.tKey, _tr: c.tr }));
+    const [activeCategoryTr, setActiveCategoryTr] = useState('Tümü');
+    const activeCategory = (CATEGORIES.find(c => c.tr === activeCategoryTr) || CATEGORIES[0])[lang];
+    const setActiveCategory = (value) => {
+        const found = CATEGORIES.find(c => c.tr === value || c.en === value);
+        setActiveCategoryTr(found ? found.tr : 'Tümü');
+    };
+
     const [page, setPage] = useState(0);
     const [accumulatedNews, setAccumulatedNews] = useState([]);
     const [verifiedImages, setVerifiedImages] = useState({});
 
     const { data: responseData, isLoading: loading, isFetching: loadingMore } = useQuery({
-        queryKey: ['newsPage', activeCategory, page],
-        queryFn: () => newsApi.getNewsPage(activeCategory, page),
+        queryKey: ['newsPage', activeCategoryTr, page, lang],
+        queryFn: () => newsApi.getNewsPage(activeCategory, page, 12, lang),
         staleTime: 60 * 1000,
         keepPreviousData: true
     });
@@ -49,7 +59,7 @@ export default function NewsPage() {
     useEffect(() => {
         setPage(0);
         setAccumulatedNews([]);
-    }, [activeCategory]);
+    }, [activeCategoryTr, lang]);
 
     useEffect(() => {
         if (!responseData || !responseData.content) return;
@@ -81,7 +91,7 @@ export default function NewsPage() {
                 </header>
 
                 <NewsCategoryTabs
-                    categories={CATEGORIES}
+                    categories={categories}
                     activeCategory={activeCategory}
                     setActiveCategory={setActiveCategory}
                 />

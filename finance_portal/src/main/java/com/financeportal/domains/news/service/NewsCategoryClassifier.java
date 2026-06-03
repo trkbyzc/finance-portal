@@ -19,6 +19,26 @@ public class NewsCategoryClassifier {
     public static final String FONLAR = "Yatırım Fonları";
     public static final String GENEL = "Genel Ekonomi";
 
+    // EN karşılıkları — frontend'in i18n key'lerine ihtiyaç duymadan doğrudan yazılabilir.
+    private static final java.util.Map<String, String> TR_TO_EN = java.util.Map.of(
+            KRIPTO, "Crypto",
+            BORSA, "Stocks",
+            DOVIZ, "Forex",
+            EMTIALAR, "Commodities",
+            TAHVIL, "Bonds & Rates",
+            FONLAR, "Funds",
+            GENEL, "Economy"
+    );
+
+    /** Kanonik TR kategori adını locale'e çevirir; bilinmiyorsa olduğu gibi döner. */
+    public static String localize(String trCategory, String lang) {
+        if (trCategory == null) return null;
+        if ("en".equalsIgnoreCase(lang)) {
+            return TR_TO_EN.getOrDefault(trCategory, trCategory);
+        }
+        return trCategory;
+    }
+
     private static final List<String> KRIPTO_KEYWORDS = List.of(
             "bitcoin", "kripto", "ethereum", "blockchain", "btc", "eth",
             "stablecoin", "defi", "nft", "binance", "altcoin", "memecoin",
@@ -64,7 +84,7 @@ public class NewsCategoryClassifier {
         if (title == null) title = "";
         if (desc == null) desc = "";
 
-        String text = (title + " " + desc).toLowerCase(new Locale("tr", "TR"));
+        String text = (title + " " + desc).toLowerCase(Locale.of("tr", "TR"));
 
         if (matchesAny(text, KRIPTO_KEYWORDS)) return KRIPTO;
         if (matchesAny(text, FON_KEYWORDS)) return FONLAR;

@@ -22,6 +22,8 @@ class NewsServiceTest {
 
     @Mock private NewsSyncService syncService;
     @Mock private NewsScraperClient scraperClient;
+    @Mock private com.financeportal.domains.news.client.TranslationClient translationClient;
+    @Mock private org.springframework.data.redis.core.StringRedisTemplate stringRedisTemplate;
 
     @InjectMocks private NewsService service;
 
@@ -124,5 +126,152 @@ class NewsServiceTest {
         List<Map<String, String>> result = service.getEconomicCalendar();
         assertEquals(1, result.size());
         assertEquals("US", result.get(0).get("country"));
+    }
+
+    // -------- EN-mode (lang=en) --------
+
+    @Test
+    void getPagedNews_en_swapsTitleDescriptionCategoryFromCache() {
+        NewsDto n = news("Borsa yükseldi", "Borsa");
+        n.setDescription("BIST 100 endeksi rekor kırdı");
+        n.setTitleEn("Stock market rose");
+        n.setDescriptionEn("BIST 100 index hit record");
+        n.setCategoryEn("Stocks");
+        when(syncService.getCachedNews()).thenReturn(List.of(n));
+
+        Map<String, Object> result = service.getPagedNews("Tümü", 0, 10, "en");
+
+        List<?> content = (List<?>) result.get("content");
+        assertEquals(1, content.size());
+        NewsDto dto = (NewsDto) content.get(0);
+        assertEquals("Stock market rose", dto.getTitle());
+        assertEquals("BIST 100 index hit record", dto.getDescription());
+        assertEquals("Stocks", dto.getCategory());
+    }
+
+    @Test
+    void getPagedNews_en_titleEnNull_fallsBackToOriginalTitle() {
+        NewsDto n = news("Borsa yükseldi", "Borsa");
+        n.setDescription("desc");
+        // titleEn null — fallback original
+        when(syncService.getCachedNews()).thenReturn(List.of(n));
+
+        Map<String, Object> result = service.getPagedNews("Tümü", 0, 10, "en");
+
+        NewsDto dto = (NewsDto) ((List<?>) result.get("content")).get(0);
+        assertEquals("Borsa yükseldi", dto.getTitle());
+        assertEquals("desc", dto.getDescription());
+        // Category from classifier mapping (Borsa → Stocks) since categoryEn null
+        assertEquals("Stocks", dto.getCategory());
+    }
+
+    @Test
+    void getPagedNews_en_AllCategoryWorks() {
+        when(syncService.getCachedNews()).thenReturn(List.of(
+                news("T1", "Kripto"), news("T2", "Borsa")));
+        Map<String, Object> result = service.getPagedNews("All", 0, 10, "en");
+        assertEquals(2, ((List<?>) result.get("content")).size());
+    }
+
+    @Test
+    void getPagedNews_en_filterByEnglishCategory_matchesTrCache() {
+        NewsDto n = news("Bitcoin", "Kripto");
+        n.setTitleEn("Bitcoin");
+        when(syncService.getCachedNews()).thenReturn(List.of(n, news("Borsa", "Borsa")));
+
+        Map<String, Object> result = service.getPagedNews("Crypto", 0, 10, "en");
+
+        assertEquals(1, ((List<?>) result.get("content")).size());
+    }
+
+    @Test
+    void getPagedNews_en_originalDtoUnmodified() {
+        // EN response cache'teki TR DTO'yu mutate etmemeli (clone yapılmalı).
+        NewsDto cached = news("Tr başlık", "Kripto");
+        cached.setTitleEn("EN title");
+        when(syncService.getCachedNews()).thenReturn(List.of(cached));
+
+        service.getPagedNews("Tümü", 0, 10, "en");
+
+        // Original cached DTO hala TR title'a sahip
+        assertEquals("Tr başlık", cached.getTitle());
+    }
+
+    @Test
+    void getArticleContent_en_translatedSuccess_cachesAndReturns() {
+        org.springframework.data.redis.core.ValueOperations<String, String> ops =
+                org.mockito.Mockito.mock(org.springframework.data.redis.core.ValueOperations.class);
+        when(stringRedisTemplate.opsForValue()).thenReturn(ops);
+        when(ops.get(org.mockito.ArgumentMatchers.anyString())).thenReturn(null);
+        when(scraperClient.scrapeArticleContent("http://x")).thenReturn("Türkçe içerik");
+        when(translationClient.translate(org.mockito.ArgumentMatchers.eq("Türkçe içerik"),
+                org.mockito.ArgumentMatchers.eq("tr"), org.mockito.ArgumentMatchers.eq("en")))
+                .thenReturn("English content");
+
+        String result = service.getArticleContent("http://x", "en");
+
+        assertEquals("English content", result);
+        org.mockito.Mockito.verify(ops).set(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.eq("English content"),
+                org.mockito.ArgumentMatchers.any(java.time.Duration.class));
+    }
+
+    @Test
+    void getArticleContent_en_cacheHit_returnsCachedWithoutTranslate() {
+        org.springframework.data.redis.core.ValueOperations<String, String> ops =
+                org.mockito.Mockito.mock(org.springframework.data.redis.core.ValueOperations.class);
+        when(stringRedisTemplate.opsForValue()).thenReturn(ops);
+        when(scraperClient.scrapeArticleContent("http://x")).thenReturn("Türkçe");
+        when(ops.get(org.mockito.ArgumentMatchers.anyString())).thenReturn("Cached EN content");
+
+        String result = service.getArticleContent("http://x", "en");
+
+        assertEquals("Cached EN content", result);
+        org.mockito.Mockito.verify(translationClient, org.mockito.Mockito.never())
+                .translate(org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void getArticleContent_en_translateFails_returnsTrFallback() {
+        org.springframework.data.redis.core.ValueOperations<String, String> ops =
+                org.mockito.Mockito.mock(org.springframework.data.redis.core.ValueOperations.class);
+        when(stringRedisTemplate.opsForValue()).thenReturn(ops);
+        when(ops.get(org.mockito.ArgumentMatchers.anyString())).thenReturn(null);
+        when(scraperClient.scrapeArticleContent("http://x")).thenReturn("Türkçe içerik");
+        when(translationClient.translate(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString()))
+                .thenReturn(null);
+
+        String result = service.getArticleContent("http://x", "en");
+
+        assertEquals("Türkçe içerik", result);
+    }
+
+    @Test
+    void getArticleContent_en_trContentBlank_skipsTranslate() {
+        when(scraperClient.scrapeArticleContent("http://x")).thenReturn("");
+
+        String result = service.getArticleContent("http://x", "en");
+
+        assertEquals("", result);
+        org.mockito.Mockito.verify(translationClient, org.mockito.Mockito.never())
+                .translate(org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void getArticleContent_trLang_skipsTranslateEntirely() {
+        when(scraperClient.scrapeArticleContent("http://x")).thenReturn("Türkçe");
+
+        String result = service.getArticleContent("http://x", "tr");
+
+        assertEquals("Türkçe", result);
+        org.mockito.Mockito.verify(translationClient, org.mockito.Mockito.never())
+                .translate(org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString());
     }
 }

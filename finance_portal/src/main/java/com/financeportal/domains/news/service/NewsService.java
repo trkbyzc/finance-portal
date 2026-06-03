@@ -1,11 +1,16 @@
 package com.financeportal.domains.news.service;
 
 import com.financeportal.domains.news.client.NewsScraperClient;
+import com.financeportal.domains.news.client.TranslationClient;
 import com.financeportal.domains.news.dto.NewsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.security.MessageDigest;
+import java.time.Duration;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -16,14 +21,27 @@ public class NewsService {
 
     private final NewsSyncService newsSyncService;
     private final NewsScraperClient newsScraperClient;
+    private final TranslationClient translationClient;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    public Map<String, Object> getPagedNews(String category, int page, int size) {
+    private static final String CONTENT_EN_CACHE_PREFIX = "cache:news:content:en:";
+    private static final Duration CONTENT_EN_TTL = Duration.ofDays(7);
+    private static final String CATEGORY_ALL_TR = "Tümü";
+    private static final String CATEGORY_ALL_EN = "All";
+
+    /** Aktif dile göre haberleri filtreler. EN talep edildiğinde DTO clone'unda title/description/category EN'e swap'lanır. */
+    public Map<String, Object> getPagedNews(String category, int page, int size, String lang) {
         long startTime = System.currentTimeMillis();
 
         List<NewsDto> allNews = newsSyncService.getCachedNews();
+        boolean en = "en".equalsIgnoreCase(lang);
+
+        // Tüm / All hem TR hem EN çağrılarda aynı filter'ı geçer.
+        boolean isAll = CATEGORY_ALL_TR.equalsIgnoreCase(category) || CATEGORY_ALL_EN.equalsIgnoreCase(category);
 
         List<NewsDto> filtered = allNews.stream()
-                .filter(n -> "Tümü".equals(category) || n.getCategory().equalsIgnoreCase(category))
+                .filter(n -> isAll || matchesCategory(n.getCategory(), category))
+                .map(n -> en ? localizeForResponse(n) : n)
                 .toList();
 
         int start = page * size;
@@ -31,7 +49,8 @@ public class NewsService {
 
         List<NewsDto> content = start < filtered.size() ? filtered.subList(start, end) : List.of();
 
-        log.debug("[NEWS_SERVICE] Served {} news items for category '{}' (Page: {}) in {} ms.", content.size(), category, page, (System.currentTimeMillis() - startTime));
+        log.debug("[NEWS_SERVICE] Served {} news items for category '{}' lang={} (Page: {}) in {} ms.",
+                content.size(), category, lang, page, (System.currentTimeMillis() - startTime));
 
         return Map.of(
                 "content", content,
@@ -39,13 +58,122 @@ public class NewsService {
         );
     }
 
+    /** Geriye dönük: lang vermeden çağrılırsa TR davranışı. */
+    public Map<String, Object> getPagedNews(String category, int page, int size) {
+        return getPagedNews(category, page, size, "tr");
+    }
+
+    /**
+     * Detay sayfası içeriği. EN'de çeviri Redis'te 7 gün cache'lenir (URL hash ile).
+     * Translation API kapalıysa fallback Türkçe içerik döner.
+     */
+    public String getArticleContent(String url, String lang) {
+        String trContent = newsScraperClient.scrapeArticleContent(url);
+        if (!"en".equalsIgnoreCase(lang) || trContent == null || trContent.isBlank()) {
+            return trContent;
+        }
+
+        String cacheKey = CONTENT_EN_CACHE_PREFIX + sha1(url);
+        String cached = stringRedisTemplate.opsForValue().get(cacheKey);
+        if (cached != null && !cached.isEmpty()) return cached;
+
+        String translated = translateLongText(trContent);
+        if (translated != null && !translated.isBlank()) {
+            try {
+                stringRedisTemplate.opsForValue().set(cacheKey, translated, CONTENT_EN_TTL);
+            } catch (Exception e) {
+                log.warn("[NEWS_SERVICE] EN content cache yazılamadı: {}", e.getMessage());
+            }
+            return translated;
+        }
+        return trContent;
+    }
+
     public String getArticleContent(String url) {
-        log.debug("[NEWS_SERVICE] Requesting full article content for URL: {}", url);
-        return newsScraperClient.scrapeArticleContent(url);
+        return getArticleContent(url, "tr");
     }
 
     public List<Map<String, String>> getEconomicCalendar() {
         log.debug("[NEWS_SERVICE] Requesting economic calendar data.");
         return newsScraperClient.scrapeEconomicCalendar();
+    }
+
+    /**
+     * Uzun metni 4500 karakterlik parçalara bölerek çevirir. LibreTranslate her POST için
+     * ~10000 limit verir; güvenli marj için 4500'lük chunks. Paragraf sınırlarında böleriz.
+     */
+    private String translateLongText(String text) {
+        if (text == null) return null;
+        if (text.length() <= 4500) {
+            return translationClient.translate(text, "tr", "en");
+        }
+        StringBuilder out = new StringBuilder(text.length());
+        int idx = 0;
+        while (idx < text.length()) {
+            int end = Math.min(idx + 4500, text.length());
+            if (end < text.length()) {
+                int lastBreak = text.lastIndexOf("\n\n", end);
+                if (lastBreak > idx) end = lastBreak;
+            }
+            String chunk = text.substring(idx, end);
+            String translated = translationClient.translate(chunk, "tr", "en");
+            if (translated == null) return null;
+            out.append(translated);
+            if (end < text.length()) out.append("\n\n");
+            idx = end;
+        }
+        return out.toString();
+    }
+
+    private NewsDto localizeForResponse(NewsDto original) {
+        NewsDto copy = new NewsDto(
+                original.getTitle(),
+                original.getDescription(),
+                original.getLink(),
+                original.getPubDate(),
+                original.getSource(),
+                original.getImageUrl(),
+                original.getCategory()
+        );
+        if (original.getTitleEn() != null) copy.setTitle(original.getTitleEn());
+        if (original.getDescriptionEn() != null) copy.setDescription(original.getDescriptionEn());
+        String catEn = original.getCategoryEn() != null
+                ? original.getCategoryEn()
+                : NewsCategoryClassifier.localize(original.getCategory(), "en");
+        if (catEn != null) copy.setCategory(catEn);
+        return copy;
+    }
+
+    /** Frontend "Stocks" gönderse de TR cache'te "Borsa" → ikisine de eşle. */
+    private boolean matchesCategory(String newsCategory, String requested) {
+        if (newsCategory == null || requested == null) return false;
+        if (newsCategory.equalsIgnoreCase(requested)) return true;
+        String requestedTr = canonicalTr(requested);
+        return requestedTr != null && newsCategory.equalsIgnoreCase(requestedTr);
+    }
+
+    /** EN kategori adını TR canonical'a çevirir. */
+    private String canonicalTr(String value) {
+        if (value == null) return null;
+        return switch (value.toLowerCase()) {
+            case "crypto" -> NewsCategoryClassifier.KRIPTO;
+            case "stocks" -> NewsCategoryClassifier.BORSA;
+            case "forex" -> NewsCategoryClassifier.DOVIZ;
+            case "commodities" -> NewsCategoryClassifier.EMTIALAR;
+            case "bonds & rates" -> NewsCategoryClassifier.TAHVIL;
+            case "funds" -> NewsCategoryClassifier.FONLAR;
+            case "economy" -> NewsCategoryClassifier.GENEL;
+            default -> null;
+        };
+    }
+
+    private String sha1(String input) {
+        try {
+            byte[] hash = MessageDigest.getInstance("SHA-1").digest(input.getBytes());
+            return HexFormat.of().formatHex(hash);
+        } catch (Exception e) {
+            // Fallback: hashCode (collision riski var ama URL bazlı, low-risk)
+            return Integer.toHexString(input.hashCode());
+        }
     }
 }

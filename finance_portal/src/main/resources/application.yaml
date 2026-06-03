@@ -149,3 +149,6 @@ external-api:
   finnhub:
     base-url: ${FINNHUB_BASE_URL:https://finnhub.io}
     api-key: ${FINNHUB_API_KEY:}
+  libretranslate:
+    url: ${LIBRETRANSLATE_URL:http://localhost:5050}
+    timeout-ms: ${LIBRETRANSLATE_TIMEOUT_MS:8000}

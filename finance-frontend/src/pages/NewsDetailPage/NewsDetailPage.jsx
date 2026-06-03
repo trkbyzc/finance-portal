@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { newsApi } from '../../services/api';
 
 import NewsArticle from './components/NewsArticle';
@@ -9,6 +10,8 @@ import NewsSidebar from './components/NewsSidebar';
 export default function NewsDetailPage() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { i18n, t } = useTranslation('news');
+    const lang = i18n.language?.startsWith('en') ? 'en' : 'tr';
     const newsItem = location.state?.newsItem;
 
     // Sayfa açıldığında hep en üste kaydır ve data yoksa genel haberlere at
@@ -18,26 +21,25 @@ export default function NewsDetailPage() {
     }, [newsItem, navigate]);
 
     // 1. Ana Haber Metni Query'si (Sadece url varsa çalışır)
+    // queryKey'e lang ekli: dil değişince content yeniden çekilir (EN için backend çeviri yapar).
     const { data: contentData, isLoading: contentLoading } = useQuery({
-        queryKey: ['newsContent', newsItem?.link],
+        queryKey: ['newsContent', newsItem?.link, lang],
         queryFn: async () => {
             try {
-                // Merkezi servisimizi kullanarak haberi scrape ediyoruz
-                const res = await newsApi.getNewsContent(newsItem.link);
-                return res?.content || "Gerçek içerik okunamadı veya site engelledi. Orijinal kaynağa gidebilirsiniz.";
+                const res = await newsApi.getNewsContent(newsItem.link, lang);
+                return res?.content || t('detail.notFound');
             } catch (err) {
-                return "Haber metni çekilirken bir sorun oluştu. Orijinal kaynağa giderek okuyabilirsiniz.";
+                return t('detail.notFound');
             }
         },
-        enabled: !!newsItem // Yalnızca valid bir URL varsa çek (Bomba patlamaması için)
+        enabled: !!newsItem
     });
 
-    // 2. Sidebar (Popüler) Haberler Query'si
+    // 2. Sidebar (Popüler) Haberler Query'si — sidebar da aktif dile göre.
     const { data: sidebarData = [] } = useQuery({
-        queryKey: ['sidebarNews'],
+        queryKey: ['sidebarNews', lang],
         queryFn: async () => {
-            // Merkezi servisten 'Tümü' kategorisini ve ilk sayfasını istiyoruz
-            const res = await newsApi.getNewsPage('Tümü', 0, 6);
+            const res = await newsApi.getNewsPage(lang === 'en' ? 'All' : 'Tümü', 0, 6, lang);
             return res?.content || [];
         },
         enabled: !!newsItem

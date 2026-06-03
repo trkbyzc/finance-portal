@@ -49,6 +49,28 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
+  # LibreTranslate — self-hosted TR<->EN çevirici. İlk açılışta language model'leri
+  # indirir (~500MB tr+en). LOAD_ONLY ile sadece TR ve EN modelleri yüklenir, RAM tasarrufu.
+  # API: POST http://localhost:5050/translate  body: {q, source, target}
+  # NewsSyncService TR haberlerin title/description'ını EN'e çeviriyor (sync sırasında).
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: finance-libretranslate
+    # Modeller container'ın kendi dizininde kalsın — named volume permission sorunu
+    # (Errno 13) çıkarıyor. docker rm yapılmadığı sürece modeller kalıcı.
+    environment:
+      LT_LOAD_ONLY: "tr,en"
+      LT_DISABLE_WEB_UI: "false"
+      LT_UPDATE_MODELS: "false"
+    ports:
+      - "5050:5000"
+    healthcheck:
+      test: ["CMD-SHELL", "./venv/bin/python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/languages')\" || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
   openldap:
     image: osixia/openldap:1.5.0
     container_name: finance-openldap
