@@ -99,25 +99,64 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
         <form onSubmit={handleSubmit}>
             <h3 className="text-lg font-semibold mb-4">{t('portfolio:modal.editTitle')}</h3>
 
-            <div className="bg-bg border border-border rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <div className="font-semibold text-lg">{selectedAsset.symbol || selectedAsset.currencyCode}</div>
-                        <div className="text-sm text-text-muted">{selectedAsset.name || selectedAsset.currencyName}</div>
+            {/* Asset summary card — başlık/isim solda, güncel fiyat ayrı vurgulanmış chip'te sağda */}
+            <div className="bg-bg border border-border rounded-xl p-4 mb-5">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                        <div className="font-semibold text-lg truncate">{selectedAsset.symbol || selectedAsset.currencyCode}</div>
+                        <div className="text-sm text-text-muted truncate">{selectedAsset.name || selectedAsset.currencyName}</div>
                     </div>
-                    <div className="text-right">
-                        <div className="text-sm text-text-muted">{t('common:labels.price')}</div>
-                        {currentPrice > 0 ? (
-                            <div className="font-semibold">{formatPrice(currentPrice, native)}</div>
-                        ) : (
-                            <div className="text-sm text-text-muted">-</div>
-                        )}
+                    <div className="shrink-0 bg-surface border border-border rounded-lg px-3 py-2 text-right">
+                        <div className="text-[10px] uppercase tracking-wider text-text-muted">{t('common:labels.price')}</div>
+                        <div className="font-semibold text-base mt-0.5">
+                            {currentPrice > 0 ? formatPrice(currentPrice, native) : '—'}
+                        </div>
                     </div>
                 </div>
             </div>
 
+            {/* Alış Tarihi — Fiyat (yan yana, her biri tam %50; sıkışmaz, label'lar yukarıda ayrı satırda) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                <div>
+                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
+                    <div className="relative">
+                        <input
+                            type="date"
+                            value={purchaseDate}
+                            max={todayStr}
+                            onChange={(e) => handleDate(e.target.value)}
+                            className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                        />
+                        {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />}
+                    </div>
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchasePrice')}</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        value={averagePrice}
+                        onChange={(e) => handlePrice(e.target.value)}
+                        placeholder="45.50"
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                        required
+                    />
+                </div>
+            </div>
+            {/* Date hint — tarih ile fiyat'ın altında, ikiline sığar (full-width) */}
+            <div className="min-h-[18px] mb-4">
+                {datePriceInfo?.ok && (
+                    <p className="text-[11px] text-buy">
+                        {t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}
+                    </p>
+                )}
+                {datePriceInfo && !datePriceInfo.ok && (
+                    <p className="text-[11px] text-text-muted">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</p>
+                )}
+            </div>
+
             {/* Adet ↔ Tutar (çift yönlü; biri girilince diğeri fiyattan hesaplanır) */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                 <div>
                     <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.quantity')}</label>
                     <input
@@ -142,42 +181,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                         className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                     />
                 </div>
-            </div>
-
-            {/* Alış tarihi → o tarihteki fiyatı çek */}
-            <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
-                <div className="relative">
-                    <input
-                        type="date"
-                        value={purchaseDate}
-                        max={todayStr}
-                        onChange={(e) => handleDate(e.target.value)}
-                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                    />
-                    {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />}
-                </div>
-                {datePriceInfo?.ok && (
-                    <p className="text-[11px] text-buy mt-1">
-                        {t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}
-                    </p>
-                )}
-                {datePriceInfo && !datePriceInfo.ok && (
-                    <p className="text-[11px] text-text-muted mt-1">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</p>
-                )}
-            </div>
-
-            <div className="mb-6">
-                <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchasePrice')}</label>
-                <input
-                    type="number"
-                    step="0.01"
-                    value={averagePrice}
-                    onChange={(e) => handlePrice(e.target.value)}
-                    placeholder="45.50"
-                    className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                    required
-                />
             </div>
 
             {isViop && (

@@ -179,7 +179,7 @@ const PortfolioPage = () => {
         const { rows, summary, meta } = buildExportData();
         if (!rows.length) return;
         const logo = await loadLogoDataUrl();
-        exportPortfolioPdf(rows, summary, meta, logo);
+        await exportPortfolioPdf(rows, summary, meta, logo);
     };
 
     const addAssetMutation = useMutation({
