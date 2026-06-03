@@ -113,6 +113,44 @@ class PortfolioPriceServiceTest {
                 priceService.getCurrentPrice("BTC", AssetType.CRYPTO));
     }
 
+    /**
+     * Portföye eklerken bazen Yahoo sembolü ("XRP-USD") kaydedilmiş. CryptoService bare format
+     * ("XRP") ile saklar — `-USD` suffix'i strip edilmeli, yoksa fiyat 0 döner.
+     */
+    @Test
+    void crypto_yahooFormatSembol_USDsuffixStripEdilirVePriceDoner() {
+        CryptoDto xrp = new CryptoDto();
+        xrp.setCurrencyCode("XRP");
+        xrp.setForexSelling(new BigDecimal("1.24"));
+        when(cryptoService.getCryptoRates()).thenReturn(List.of(xrp));
+
+        assertEquals(new BigDecimal("1.24"),
+                priceService.getCurrentPrice("XRP-USD", AssetType.CRYPTO));
+    }
+
+    @Test
+    void crypto_bareSembol_dogrudan_eslesir() {
+        CryptoDto btc = new CryptoDto();
+        btc.setCurrencyCode("BTC");
+        btc.setForexSelling(new BigDecimal("65000"));
+        when(cryptoService.getCryptoRates()).thenReturn(List.of(btc));
+
+        assertEquals(new BigDecimal("65000"),
+                priceService.getCurrentPrice("BTC", AssetType.CRYPTO));
+    }
+
+    @Test
+    void crypto_nullSymbol_returnsZero() {
+        assertEquals(BigDecimal.ZERO,
+                priceService.getCurrentPrice(null, AssetType.CRYPTO));
+    }
+
+    @Test
+    void crypto_emptySymbol_returnsZero() {
+        assertEquals(BigDecimal.ZERO,
+                priceService.getCurrentPrice("", AssetType.CRYPTO));
+    }
+
     // -------- CURRENCY --------
 
     @Test

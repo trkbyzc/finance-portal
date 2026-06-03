@@ -5,6 +5,7 @@ import com.financeportal.model.dto.user.UserResponseDto;
 import com.financeportal.model.entity.User;
 import com.financeportal.model.enums.Role;
 import com.financeportal.repository.UserRepository;
+import com.financeportal.service.auth.KeycloakAdminService;
 import com.financeportal.service.mapper.user.UserMapper;
 import com.financeportal.service.messaging.KafkaProducerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ class UserServiceTest {
     @Mock private UserRepository userRepo;
     @Mock private KafkaProducerService kafkaProducer;
     @Mock private UserMapper userMapper;
+    @Mock private KeycloakAdminService keycloakAdminService;
 
     @InjectMocks private UserService service;
 
@@ -164,5 +166,64 @@ class UserServiceTest {
         service.deleteUser(userId);
 
         verify(userRepo).delete(user);
+    }
+
+    // ============================================================
+    // changePassword
+    // ============================================================
+
+    @Test
+    void changePassword_basarili_durumda_Keycloak_setPassword_cagrilir() {
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(keycloakAdminService.verifyPassword(user.getUsername(), "oldpass1")).thenReturn(true);
+
+        service.changePassword(userId, "oldpass1", "newpass123");
+
+        verify(keycloakAdminService).verifyPassword(user.getUsername(), "oldpass1");
+        verify(keycloakAdminService).setPassword(userId.toString(), "newpass123");
+    }
+
+    @Test
+    void changePassword_yanlis_eski_sifre_IllegalArgument() {
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(keycloakAdminService.verifyPassword(any(), any())).thenReturn(false);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword(userId, "wrongold", "newpass123"));
+        assertTrue(ex.getMessage().toLowerCase().contains("mevcut"));
+        verify(keycloakAdminService, never()).setPassword(any(), any());
+    }
+
+    @Test
+    void changePassword_yeni_sifre_kisaysa_IllegalArgument() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword(userId, "oldpass1", "kisa1"));
+        assertTrue(ex.getMessage().contains("8"));
+        verify(keycloakAdminService, never()).verifyPassword(any(), any());
+        verify(keycloakAdminService, never()).setPassword(any(), any());
+    }
+
+    @Test
+    void changePassword_eski_bos_IllegalArgument() {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword(userId, "  ", "newpass123"));
+        verify(keycloakAdminService, never()).verifyPassword(any(), any());
+    }
+
+    @Test
+    void changePassword_yeni_eski_ile_ayni_IllegalArgument() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword(userId, "samepass1", "samepass1"));
+        assertTrue(ex.getMessage().toLowerCase().contains("ayn"));
+        verify(keycloakAdminService, never()).verifyPassword(any(), any());
+    }
+
+    @Test
+    void changePassword_kullanici_yoksa_ResourceNotFound() {
+        when(userRepo.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> service.changePassword(userId, "oldpass1", "newpass123"));
+        verify(keycloakAdminService, never()).verifyPassword(any(), any());
     }
 }
