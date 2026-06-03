@@ -64,7 +64,7 @@
     "savedCharts": "Kayıtlı Grafiklerim",
     "savedChartsSub": "Çizimlerini kaydettiğin grafikler",
     "notifications": "Bildirimler & Alarmlar",
-    "notificationsSub": "Yakında",
+    "notificationsSub": "Grafik & portföy bildirimlerin",
     "preferences": "Tercihler",
     "preferencesSub": "Yakında",
     "adminPanel": "Yönetim Paneli",
@@ -76,5 +76,17 @@
     "body": "Finansal verilerinizin güvenliği için oturumunuzu sonlandırmak üzeresiniz. Dilerseniz çıkış yapabilir veya işlemlere geri dönebilirsiniz.",
     "confirm": "Güvenli Çıkış Yap",
     "cancel": "İşlemlere Geri Dön"
+  },
+  "notifications": {
+    "title": "Bildirimler & Alarmlar",
+    "tabNotifications": "Bildirimler",
+    "tabAlarms": "Alarmlar",
+    "soon": "Yakında",
+    "empty": "Henüz bildirim yok",
+    "emptySub": "Grafik kaydetme, portföy işlemleri ve diğer olaylar burada görünür.",
+    "alarmsSoon": "Alarmlar yakında",
+    "alarmsSoonSub": "Fiyat alarmları yakında bu sekmeye eklenecek.",
+    "markAllRead": "Tümünü okundu yap",
+    "clearAll": "Tümünü temizle"
   }
 }

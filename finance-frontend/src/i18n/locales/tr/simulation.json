@@ -48,6 +48,8 @@
     "datePriceFound": "O tarihteki fiyat",
     "datePriceMissing": "Bu tarih için fiyat bulunamadı",
     "amount": "Tutar (TRY)",
+    "quantity": "Miktar",
+    "quantityHint": "Önce tarih seçin; miktar o tarihteki fiyattan hesaplanır.",
     "notes": "Notlar (opsiyonel)",
     "notesPlaceholder": "Örn: 'Erken emeklilik için biriktirme senaryosu'"
   },

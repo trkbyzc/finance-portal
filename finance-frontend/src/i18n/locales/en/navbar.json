@@ -64,7 +64,7 @@
     "savedCharts": "My Saved Charts",
     "savedChartsSub": "Charts where you saved drawings",
     "notifications": "Notifications & Alerts",
-    "notificationsSub": "Coming Soon",
+    "notificationsSub": "Your chart & portfolio alerts",
     "preferences": "Preferences",
     "preferencesSub": "Coming Soon",
     "adminPanel": "Admin Panel",
@@ -76,5 +76,17 @@
     "body": "For the security of your financial data, you're about to end your session. You can log out or go back to the app.",
     "confirm": "Securely Log Out",
     "cancel": "Back to App"
+  },
+  "notifications": {
+    "title": "Notifications & Alerts",
+    "tabNotifications": "Notifications",
+    "tabAlarms": "Alerts",
+    "soon": "Soon",
+    "empty": "No notifications yet",
+    "emptySub": "Chart saves, portfolio actions and other events show up here.",
+    "alarmsSoon": "Alerts coming soon",
+    "alarmsSoonSub": "Price alerts will be added to this tab soon.",
+    "markAllRead": "Mark all as read",
+    "clearAll": "Clear all"
   }
 }

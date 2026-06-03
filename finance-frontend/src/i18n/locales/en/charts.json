@@ -50,7 +50,10 @@
     "removeAll": "Clear All Drawings",
     "saveChart": "Save Chart",
     "saveSuccess": "Chart saved to your \"My Account\" page.",
-    "saveError": "Could not save chart."
+    "saveSuccessTitle": "Chart saved",
+    "saveSuccessMsg": "{{name}} chart saved to your \"My Account\" page.",
+    "saveError": "Could not save chart.",
+    "saveErrorTitle": "Could not save chart"
   },
   "saved": {
     "title": "My Saved Charts",
@@ -61,7 +64,8 @@
     "rename": "Rename",
     "delete": "Delete",
     "renamePrompt": "New name:",
-    "deleteConfirm": "Delete the \"{{name}}\" chart?"
+    "deleteConfirm": "Delete the \"{{name}}\" chart?",
+    "deletedToast": "Chart deleted"
   },
   "sidebar": {
     "openInterest": "Open Interest",

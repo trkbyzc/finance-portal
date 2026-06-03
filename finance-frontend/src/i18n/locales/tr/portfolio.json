@@ -6,11 +6,24 @@
   "switcher": {
     "create": "Yeni Portföy",
     "createPrompt": "Yeni portföy adı:",
+    "namePlaceholder": "Örn. Uzun Vade",
     "rename": "Yeniden adlandır",
     "renamePrompt": "Yeni ad:",
     "delete": "Sil",
-    "deleteConfirm": "Bu portföy ve içindeki varlıklar silinecek. Emin misiniz?",
+    "deleteConfirm": "\"{{name}}\" portföyü ve içindeki varlıklar silinecek. Emin misiniz?",
     "assets": "varlık"
+  },
+  "notify": {
+    "created": "Portföy oluşturuldu",
+    "renamed": "Portföy yeniden adlandırıldı",
+    "deleted": "Portföy silindi",
+    "assetAdded": "Portföye eklendi",
+    "assetAddedMsg": "{{symbol}} portföyünüze eklendi.",
+    "assetAddError": "Eklenemedi",
+    "assetSold": "Satış kaydedildi",
+    "assetSoldMsg": "{{symbol}} pozisyonu güncellendi.",
+    "updated": "Güncellendi",
+    "updateError": "Güncellenemedi"
   },
   "export": {
     "subtitle": "FinansPortal Portföy Raporu",

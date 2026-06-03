@@ -50,7 +50,10 @@
     "removeAll": "Tüm Çizimleri Sil",
     "saveChart": "Grafiği Kaydet",
     "saveSuccess": "Grafik \"Hesabım\" sayfasına kaydedildi.",
-    "saveError": "Grafik kaydedilemedi."
+    "saveSuccessTitle": "Grafik kaydedildi",
+    "saveSuccessMsg": "{{name}} grafiği \"Hesabım\" sayfasına kaydedildi.",
+    "saveError": "Grafik kaydedilemedi.",
+    "saveErrorTitle": "Grafik kaydedilemedi"
   },
   "saved": {
     "title": "Kayıtlı Grafiklerim",
@@ -61,7 +64,8 @@
     "rename": "Yeniden adlandır",
     "delete": "Sil",
     "renamePrompt": "Yeni ad:",
-    "deleteConfirm": "\"{{name}}\" grafiği silinsin mi?"
+    "deleteConfirm": "\"{{name}}\" grafiği silinsin mi?",
+    "deletedToast": "Grafik silindi"
   },
   "sidebar": {
     "openInterest": "Açık Pozisyon",

@@ -5,11 +5,24 @@
   "switcher": {
     "create": "New Portfolio",
     "createPrompt": "New portfolio name:",
+    "namePlaceholder": "e.g. Long Term",
     "rename": "Rename",
     "renamePrompt": "New name:",
     "delete": "Delete",
-    "deleteConfirm": "This portfolio and its holdings will be deleted. Are you sure?",
+    "deleteConfirm": "\"{{name}}\" portfolio and its holdings will be deleted. Are you sure?",
     "assets": "assets"
+  },
+  "notify": {
+    "created": "Portfolio created",
+    "renamed": "Portfolio renamed",
+    "deleted": "Portfolio deleted",
+    "assetAdded": "Added to portfolio",
+    "assetAddedMsg": "{{symbol}} was added to your portfolio.",
+    "assetAddError": "Could not add",
+    "assetSold": "Sale recorded",
+    "assetSoldMsg": "{{symbol}} position updated.",
+    "updated": "Updated",
+    "updateError": "Update failed"
   },
   "pageSubtitle": "Live value, P/L and distribution of your investments",
   "export": {

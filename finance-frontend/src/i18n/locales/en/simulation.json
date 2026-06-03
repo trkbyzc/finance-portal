@@ -48,6 +48,8 @@
     "datePriceFound": "Price on that date",
     "datePriceMissing": "No price found for this date",
     "amount": "Amount (TRY)",
+    "quantity": "Quantity",
+    "quantityHint": "Pick a date first; quantity is derived from that day's price.",
     "notes": "Notes (optional)",
     "notesPlaceholder": "e.g. 'Early-retirement savings scenario'"
   },
