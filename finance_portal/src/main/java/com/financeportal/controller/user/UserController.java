@@ -1,6 +1,5 @@
 package com.financeportal.controller.user;
 
-import com.financeportal.model.dto.user.UserRegistrationDto;
 import com.financeportal.model.dto.user.UserResponseDto;
 import com.financeportal.service.auth.KeycloakAdminService;
 import com.financeportal.service.user.UserService;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@Tag(name = "Kullanıcı Yönetimi", description = "Profil, KYC ve Üyelik İşlemleri")
+@Tag(name = "Kullanıcı Yönetimi", description = "Profil, üyelik ve 2FA işlemleri")
 public class UserController {
 
     private final UserService userService;
@@ -30,14 +29,6 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getMyProfile() {
         UUID userId = securityUtils.getCurrentUserId();
         return ResponseEntity.ok(userService.getUserById(userId));
-    }
-
-    @PostMapping("/kyc")
-    @Operation(summary = "Yatırımcı Profilini Belirle (KYC)", description = "Anket sonuçlarına göre risk profilini hesaplar ve kaydeder.")
-    public ResponseEntity<Map<String, String>> submitKyc(@RequestBody UserRegistrationDto registrationDto) {
-        UUID userId = securityUtils.getCurrentUserId();
-        String profileName = userService.processKyc(userId, registrationDto);
-        return ResponseEntity.ok(Map.of("message", "Anket tamamlandı. Profiliniz: " + profileName));
     }
 
     // Admin için listeleme
