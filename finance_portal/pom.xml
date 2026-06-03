@@ -25,9 +25,12 @@
 		<jacoco.it.exec>${user.home}/.jacoco/finance-portal-it.exec</jacoco.it.exec>
 
 		<!-- SonarQube — sonar:sonar hedefi için varsayılan ayarlar.
-		     URL ve token CLI'dan geçilir (docs/sonar.md). -->
+		     Token CLI'dan veya .mvn/maven.config'den gelir (docs/sonar.md). -->
 		<sonar.projectKey>finance-portal-backend</sonar.projectKey>
 		<sonar.projectName>Finance Portal Backend</sonar.projectName>
+		<!-- Lokal SonarQube docker container'ı (docker compose --profile sonar up -d sonarqube).
+		     CLI'dan override: -Dsonar.host.url=https://my-sonar.example -->
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
 		<sonar.java.source>21</sonar.java.source>
 		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
