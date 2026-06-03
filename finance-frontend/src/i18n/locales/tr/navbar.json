@@ -80,14 +80,9 @@
     "cancel": "İşlemlere Geri Dön"
   },
   "notifications": {
-    "title": "Bildirimler & Alarmlar",
-    "tabNotifications": "Bildirimler",
-    "tabAlarms": "Alarmlar",
-    "soon": "Yakında",
+    "title": "Bildirimler",
     "empty": "Henüz bildirim yok",
     "emptySub": "Grafik kaydetme, portföy işlemleri ve diğer olaylar burada görünür.",
-    "alarmsSoon": "Alarmlar yakında",
-    "alarmsSoonSub": "Fiyat alarmları yakında bu sekmeye eklenecek.",
     "markAllRead": "Tümünü okundu yap",
     "clearAll": "Tümünü temizle"
   }

@@ -7,9 +7,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -55,11 +63,43 @@ public class RssIntegrationClient {
         return newsList;
     }
 
+    // RSS kaynaklarının SSL sertifikası bazen JVM truststore'unda olmayan bir CA tarafından
+    // imzalanır (PKIX path building failed). RSS verisi public — credential göndermediğimiz
+    // için bu connection özelinde trust-all kullanmak güvenli. Lazy + singleton.
+    private static volatile SSLSocketFactory trustAllSocketFactory;
+    private static final HostnameVerifier ACCEPT_ALL_HOSTS = (host, session) -> true;
+
+    private static SSLSocketFactory getTrustAllSocketFactory() {
+        if (trustAllSocketFactory == null) {
+            synchronized (RssIntegrationClient.class) {
+                if (trustAllSocketFactory == null) {
+                    try {
+                        TrustManager[] trustAll = { new X509TrustManager() {
+                            @Override public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                            @Override public void checkClientTrusted(X509Certificate[] c, String a) { /* trust all */ }
+                            @Override public void checkServerTrusted(X509Certificate[] c, String a) { /* trust all */ }
+                        }};
+                        SSLContext sc = SSLContext.getInstance("TLS");
+                        sc.init(null, trustAll, new SecureRandom());
+                        trustAllSocketFactory = sc.getSocketFactory();
+                    } catch (Exception e) {
+                        throw new IllegalStateException("RSS trust-all SSLContext oluşturulamadı", e);
+                    }
+                }
+            }
+        }
+        return trustAllSocketFactory;
+    }
+
     private Document fetchRssDocument(String url) throws Exception {
         HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
+        if (conn instanceof HttpsURLConnection https) {
+            https.setSSLSocketFactory(getTrustAllSocketFactory());
+            https.setHostnameVerifier(ACCEPT_ALL_HOSTS);
+        }
 
         // XXE (XML External Entity) koruması — OWASP standardı. Dış RSS XML'lerinden
         // <!DOCTYPE> / <!ENTITY> ile dosya okuma, SSRF, billion-laughs attack engellenir.

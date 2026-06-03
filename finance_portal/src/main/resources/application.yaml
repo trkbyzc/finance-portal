@@ -151,6 +151,10 @@ server:
   port: ${SERVER_PORT:8081}
 
 evds:
+  # `evds3.tcmb.gov.tr/igmevdsms-dis` İnteraktif Grafik Modülü endpoint'i — projedeki
+  # çoğu indicator bu URL üzerinden stabil dönüyor. Resmi public REST (`evds2/service/evds`)
+  # bizim setup'ta diğer serileri bozdu, geri çevrildi. Kullanılamayan seriler (GSYİH vb.)
+  # EconomyIndicators'tan kaldırıldı.
   base-url: ${EVDS_BASE_URL:https://evds3.tcmb.gov.tr/igmevdsms-dis}
   api-key: ${EVDS_API_KEY:}
 

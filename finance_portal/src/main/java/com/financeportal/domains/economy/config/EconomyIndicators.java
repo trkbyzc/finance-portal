@@ -39,9 +39,9 @@ public final class EconomyIndicators {
             new Indicator("interestRate", "TP.APIFON4", null, CAT_RATES, UNIT_PCT),
             new Indicator("depositRate", "TP.TRY.MT02", null, CAT_RATES, UNIT_PCT),
             new Indicator("loanRate", "TP.KTF10", null, CAT_RATES, UNIT_PCT),
-            // Büyüme & Gelir — explicit frekans (EVDS default'ta boş dönüyordu)
-            new Indicator("gdp", "TP.GSYIH26.HY.ZH", null, "growth", "", 6),         // 6 = çeyreklik
-            new Indicator("gdpPerCapita", "TP.IMFGDPUSDPC.TUR", null, "growth", "$", 8), // 8 = yıllık
+            // Büyüme & Gelir — TP.GSYIH26.HY.ZH ve TP.IMFGDPUSDPC.TUR kullandığımız EVDS endpoint'i
+            // (igmevdsms-dis İnteraktif Grafik Modülü) tarafından sürekli boş döndü; başka serilerle
+            // ya da resmi public endpoint ile düzeltme denendi ama yan etkili. Kapsam dışı bırakıldı.
             // Dış denge & rezerv
             new Indicator("currentAccount", "TP.ODANA6.Q01", null, CAT_EXTERNAL, "M$"),
             new Indicator("reserves", "TP.AB.B6", null, CAT_EXTERNAL, "M$"),

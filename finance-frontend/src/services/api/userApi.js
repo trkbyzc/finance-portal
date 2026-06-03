@@ -13,5 +13,9 @@ export const userApi = {
 
     // E-posta bildirimleri
     getEmailNotifications: () => apiClient.get('/users/me/email-notifications'),
-    setEmailNotifications: (enabled) => apiClient.put('/users/me/email-notifications', null, { params: { enabled } })
+    setEmailNotifications: (enabled) => apiClient.put('/users/me/email-notifications', null, { params: { enabled } }),
+
+    // Şifre değiştir (in-app modal)
+    changePassword: (oldPassword, newPassword) =>
+        apiClient.post('/users/me/password', { oldPassword, newPassword })
 };

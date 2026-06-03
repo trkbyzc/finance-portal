@@ -4,21 +4,8 @@ import { Camera, User, Mail, Shield, KeyRound, CheckCircle2, IdCard } from 'luci
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../../components/profile/Avatar';
 import AvatarPickerModal from '../../components/profile/AvatarPickerModal';
+import ChangePasswordModal from '../../components/profile/ChangePasswordModal';
 import useProfileAvatar from '../../hooks/useProfileAvatar';
-
-const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL;
-const REALM = import.meta.env.VITE_KEYCLOAK_REALM;
-
-/**
- * Keycloak Account Console — kullanıcı şifresini buradan değiştirir.
- * Yeni sekmede aç ki ana uygulamadan oturum kopmasın.
- *
- * NOT: Keycloak 25+ Account Console v3 path-based route'lar kullanır
- * (eski hash route `#/security/signing-in` 26'da 404 dönüyor).
- * `/realms/{realm}/account/account-security/signing-in` aktif yöntem.
- */
-const passwordChangeUrl = () =>
-    `${KEYCLOAK_URL}/realms/${REALM}/account/account-security/signing-in`;
 
 const InfoCard = ({ icon: Icon, label, value, accent }) => (
     <div className="bg-surface border border-border rounded-xl p-4 flex items-start gap-3 transition hover:border-border-strong">
@@ -40,6 +27,7 @@ const ProfilePage = () => {
     const { t } = useTranslation(['profile', 'common']);
     const avatarId = useProfileAvatar();
     const [pickerOpen, setPickerOpen] = useState(false);
+    const [passwordOpen, setPasswordOpen] = useState(false);
 
     const displayName = user?.name || user?.username || '—';
     const initials = (user?.username || user?.name || '?');
@@ -134,15 +122,14 @@ const ProfilePage = () => {
                             <div className="text-sm text-text-muted mb-3">
                                 {t('profile:security.passwordHint', 'Şifreni güvenli bir şekilde değiştirmek için yeni sekmede Keycloak hesap konsolu açılır.')}
                             </div>
-                            <a
-                                href={passwordChangeUrl()}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                type="button"
+                                onClick={() => setPasswordOpen(true)}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-primary-fg rounded-lg text-sm font-semibold transition"
                             >
                                 <KeyRound size={14} />
                                 {t('profile:actions.changePassword')}
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -151,8 +138,11 @@ const ProfilePage = () => {
             <AvatarPickerModal
                 open={pickerOpen}
                 currentId={avatarId}
-                fallbackInitials={initials}
                 onClose={() => setPickerOpen(false)}
+            />
+            <ChangePasswordModal
+                open={passwordOpen}
+                onClose={() => setPasswordOpen(false)}
             />
         </div>
     );

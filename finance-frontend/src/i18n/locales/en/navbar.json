@@ -80,14 +80,9 @@
     "cancel": "Back to App"
   },
   "notifications": {
-    "title": "Notifications & Alerts",
-    "tabNotifications": "Notifications",
-    "tabAlarms": "Alerts",
-    "soon": "Soon",
+    "title": "Notifications",
     "empty": "No notifications yet",
     "emptySub": "Chart saves, portfolio actions and other events show up here.",
-    "alarmsSoon": "Alerts coming soon",
-    "alarmsSoonSub": "Price alerts will be added to this tab soon.",
     "markAllRead": "Mark all as read",
     "clearAll": "Clear all"
   }

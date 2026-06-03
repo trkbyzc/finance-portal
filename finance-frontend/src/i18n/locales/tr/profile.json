@@ -30,7 +30,21 @@
     "useInitials": "İlk harf kullan"
   },
   "security": {
-    "passwordHint": "Şifreni güvenli bir şekilde değiştirmek için yeni sekmede Keycloak hesap konsolu açılır."
+    "passwordHint": "Mevcut şifreni girerek yeni bir şifre belirleyebilirsin. Şifre en az 8 karakter olmalı."
+  },
+  "passwordModal": {
+    "title": "Şifre Değiştir",
+    "oldPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "newPasswordConfirm": "Yeni Şifre (Tekrar)",
+    "rules": "En az 8 karakter olmalı, eskisiyle aynı olamaz.",
+    "submit": "Güncelle",
+    "cancel": "Vazgeç",
+    "success": "Şifre güncellendi",
+    "error": "Şifre güncellenemedi",
+    "mismatch": "Yeni şifreler eşleşmiyor",
+    "tooShort": "Yeni şifre en az 8 karakter olmalı",
+    "sameAsOld": "Yeni şifre eskisiyle aynı olamaz"
   },
   "roles": {
     "admin": "Yönetici",

@@ -30,7 +30,21 @@
     "useInitials": "Use initial letter"
   },
   "security": {
-    "passwordHint": "Opens the Keycloak account console in a new tab so you can change your password securely."
+    "passwordHint": "Enter your current password and choose a new one. Minimum 8 characters."
+  },
+  "passwordModal": {
+    "title": "Change Password",
+    "oldPassword": "Current Password",
+    "newPassword": "New Password",
+    "newPasswordConfirm": "New Password (Confirm)",
+    "rules": "Min 8 characters, must differ from current.",
+    "submit": "Update",
+    "cancel": "Cancel",
+    "success": "Password updated",
+    "error": "Couldn't update password",
+    "mismatch": "New passwords don't match",
+    "tooShort": "New password must be at least 8 characters",
+    "sameAsOld": "New password can't be the same as the current one"
   },
   "roles": {
     "admin": "Admin",

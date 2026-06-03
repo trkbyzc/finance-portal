@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { X, Bell, AlarmClock, CheckCheck, Trash2, Inbox } from 'lucide-react';
+import { useEffect } from 'react';
+import { X, CheckCheck, Trash2, Inbox } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNotifications, notificationTypeMeta } from '../../context/NotificationContext';
 import { formatDateTime } from '../../utils/formatters/dateFormatter';
 
 /**
- * "Hesabım → Bildirimler" paneli. Üstte 2 tab: Bildirimler (aktif) ve Alarmlar (yakında).
- * Bildirimler sekmesi grafik kaydetme, portföye ekleme gibi olayların geçmişini listeler.
+ * "Hesabım → Bildirimler" paneli — sistem bildirimleri (grafik kaydetme, portföy
+ * işlemleri, asistan hataları vb.) listesi. Fiyat alarmları ayrı bir route'ta (/alarms).
  */
 export default function NotificationsPanel({ open, onClose }) {
     const { t } = useTranslation(['navbar', 'common']);
-    const { notifications, unreadCount, markAllRead, removeNotification, clearNotifications } = useNotifications();
-    const [tab, setTab] = useState('notifications');
+    const { notifications, markAllRead, removeNotification, clearNotifications } = useNotifications();
 
     // Panel açılınca okunmamışları okundu işaretle
     useEffect(() => {
@@ -30,10 +29,10 @@ export default function NotificationsPanel({ open, onClose }) {
     return (
         <div className="fixed inset-0 z-105 flex items-start justify-center sm:items-center bg-black/70 backdrop-blur-md p-4">
             <div className="bg-surface border border-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in flex flex-col max-h-[85vh]">
-                {/* Başlık + tablar */}
+                {/* Başlık */}
                 <div className="border-b border-border">
-                    <div className="flex items-center justify-between px-5 pt-4">
-                        <h3 className="text-lg font-bold text-text">{t('navbar:notifications.title', 'Bildirimler & Alarmlar')}</h3>
+                    <div className="flex items-center justify-between px-5 py-4">
+                        <h3 className="text-lg font-bold text-text">{t('navbar:notifications.title', 'Bildirimler')}</h3>
                         <button
                             onClick={onClose}
                             className="w-8 h-8 flex items-center justify-center rounded-lg text-text-muted hover:text-text hover:bg-surface-hover transition-colors -mr-1"
@@ -42,52 +41,27 @@ export default function NotificationsPanel({ open, onClose }) {
                             <X size={18} />
                         </button>
                     </div>
-                    <div className="flex gap-1 px-3 mt-3">
-                        <TabButton
-                            active={tab === 'notifications'}
-                            onClick={() => setTab('notifications')}
-                            icon={Bell}
-                            label={t('navbar:notifications.tabNotifications', 'Bildirimler')}
-                            badge={unreadCount > 0 ? unreadCount : null}
-                        />
-                        <TabButton
-                            active={tab === 'alarms'}
-                            onClick={() => {}}
-                            icon={AlarmClock}
-                            label={t('navbar:notifications.tabAlarms', 'Alarmlar')}
-                            disabled
-                            soon={t('navbar:notifications.soon', 'Yakında')}
-                        />
-                    </div>
                 </div>
 
                 {/* İçerik */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    {tab === 'notifications' ? (
-                        notifications.length === 0 ? (
-                            <EmptyState
-                                icon={Inbox}
-                                title={t('navbar:notifications.empty', 'Henüz bildirim yok')}
-                                sub={t('navbar:notifications.emptySub', 'Grafik kaydetme, portföy işlemleri ve diğer olaylar burada görünür.')}
-                            />
-                        ) : (
-                            <ul className="divide-y divide-border">
-                                {notifications.map((n) => (
-                                    <NotificationRow key={n.id} item={n} onRemove={() => removeNotification(n.id)} />
-                                ))}
-                            </ul>
-                        )
-                    ) : (
+                    {notifications.length === 0 ? (
                         <EmptyState
-                            icon={AlarmClock}
-                            title={t('navbar:notifications.alarmsSoon', 'Alarmlar yakında')}
-                            sub={t('navbar:notifications.alarmsSoonSub', 'Fiyat alarmları yakında bu sekmeye eklenecek.')}
+                            icon={Inbox}
+                            title={t('navbar:notifications.empty', 'Henüz bildirim yok')}
+                            sub={t('navbar:notifications.emptySub', 'Grafik kaydetme, portföy işlemleri ve diğer olaylar burada görünür.')}
                         />
+                    ) : (
+                        <ul className="divide-y divide-border">
+                            {notifications.map((n) => (
+                                <NotificationRow key={n.id} item={n} onRemove={() => removeNotification(n.id)} />
+                            ))}
+                        </ul>
                     )}
                 </div>
 
                 {/* Alt aksiyonlar */}
-                {tab === 'notifications' && notifications.length > 0 && (
+                {notifications.length > 0 && (
                     <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-border bg-surface-2/40">
                         <button
                             onClick={markAllRead}
@@ -105,30 +79,6 @@ export default function NotificationsPanel({ open, onClose }) {
                 )}
             </div>
         </div>
-    );
-}
-
-function TabButton({ active, onClick, icon: Icon, label, badge, disabled, soon }) {
-    return (
-        <button
-            onClick={disabled ? undefined : onClick}
-            disabled={disabled}
-            className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-t-lg transition-colors border-b-2 -mb-px ${
-                active
-                    ? 'text-primary border-primary'
-                    : disabled
-                        ? 'text-text-muted/50 border-transparent cursor-not-allowed'
-                        : 'text-text-muted border-transparent hover:text-text'
-            }`}
-        >
-            <Icon size={16} /> {label}
-            {badge != null && (
-                <span className="ml-0.5 min-w-4.5 h-4.5 px-1 rounded-full bg-primary text-primary-fg text-[10px] font-black flex items-center justify-center">{badge}</span>
-            )}
-            {soon && (
-                <span className="ml-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-surface-2 text-text-muted border border-border">{soon}</span>
-            )}
-        </button>
     );
 }
 

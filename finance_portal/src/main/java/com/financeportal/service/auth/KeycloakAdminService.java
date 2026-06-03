@@ -10,7 +10,15 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.apache.commons.codec.binary.Base32;
 
 
@@ -42,7 +50,17 @@ public class KeycloakAdminService {
     @Value("${keycloak.admin-client-id:admin-cli}")
     private String adminClientId;
 
+    /**
+     * Şifre doğrulaması için kullanılacak public client. finance-client için Keycloak'ta
+     * "Direct Access Grants" (Resource Owner Password Credentials) açık olmalı.
+     */
+    @Value("${keycloak.user-client-id:finance-client}")
+    private String userClientId;
+
     private Keycloak keycloak;
+
+    /** Token endpoint REST çağrıları için (verifyPassword). */
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @PostConstruct
     public void init() {
@@ -298,6 +316,65 @@ public class KeycloakAdminService {
             log.warn("[KC-ADMIN] {} için realm roller çekilemedi (yetki/403 olabilir): {}",
                     keycloakUserId, e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    // ============================================================
+    // ŞİFRE DEĞİŞİMİ
+    // ============================================================
+
+    /**
+     * Kullanıcının mevcut şifresini Keycloak token endpoint'inde doğrular.
+     * Direct Access Grants (Resource Owner Password) gerektirir — finance-client'ta açık olmalı.
+     *
+     * @return true: şifre doğru; false: yanlış / client config sorunu / network hatası
+     */
+    public boolean verifyPassword(String username, String password) {
+        if (keycloak == null || username == null || password == null) return false;
+        String url = keycloakServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", "password");
+        form.add("client_id", userClientId);
+        form.add("username", username);
+        form.add("password", password);
+
+        try {
+            ResponseEntity<String> resp = restTemplate.postForEntity(
+                    url, new HttpEntity<>(form, headers), String.class);
+            return resp.getStatusCode().is2xxSuccessful();
+        } catch (HttpClientErrorException e) {
+            // 401 = şifre yanlış (invalid_grant). 400 = client config / grant disabled.
+            if (e.getStatusCode().value() != 401) {
+                log.warn("[KC-PWD] verifyPassword {} → HTTP {}: {}",
+                        username, e.getStatusCode().value(), e.getResponseBodyAsString());
+            }
+            return false;
+        } catch (Exception e) {
+            log.warn("[KC-PWD] verifyPassword {} network hatası: {}", username, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Kullanıcının şifresini Admin API ile günceller. Eski şifre kontrolü YAPMAZ —
+     * caller önce verifyPassword ile doğrulamalı.
+     */
+    public void setPassword(String keycloakUserId, String newPassword) {
+        if (keycloak == null) throw new IllegalStateException("Keycloak Admin Client başlatılmamış");
+        try {
+            CredentialRepresentation cred = new CredentialRepresentation();
+            cred.setType(CredentialRepresentation.PASSWORD);
+            cred.setValue(newPassword);
+            cred.setTemporary(false);
+            keycloak.realm(realm).users().get(keycloakUserId).resetPassword(cred);
+            log.info("[KC-PWD] {} için şifre güncellendi.", keycloakUserId);
+        } catch (Exception e) {
+            log.error("[KC-PWD] setPassword başarısız ({}): {}", keycloakUserId, e.getMessage(), e);
+            throw new RuntimeException("Şifre güncellenemedi: " + e.getMessage(), e);
         }
     }
 

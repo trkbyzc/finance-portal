@@ -1,5 +1,6 @@
 package com.financeportal.controller.user;
 
+import com.financeportal.model.dto.user.ChangePasswordRequestDto;
 import com.financeportal.model.dto.user.UserResponseDto;
 import com.financeportal.service.auth.KeycloakAdminService;
 import com.financeportal.service.user.UserService;
@@ -85,5 +86,16 @@ public class UserController {
         UUID userId = securityUtils.getCurrentUserId();
         userService.setEmailNotificationsEnabled(userId, enabled);
         return ResponseEntity.ok(Map.of("enabled", enabled));
+    }
+
+    // -------- Şifre Değiştir (self-service) --------
+
+    @PostMapping("/me/password")
+    @Operation(summary = "Şifremi Değiştir",
+            description = "Mevcut şifre doğrulanır, doğruysa yeni şifre Keycloak'ta set edilir.")
+    public ResponseEntity<Map<String, String>> changePassword(@RequestBody ChangePasswordRequestDto req) {
+        UUID userId = securityUtils.getCurrentUserId();
+        userService.changePassword(userId, req.getOldPassword(), req.getNewPassword());
+        return ResponseEntity.ok(Map.of("message", "Şifre güncellendi."));
     }
 }
