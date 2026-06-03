@@ -1,6 +1,7 @@
 import { Plus, Loader2, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import WhatIfAssetChip from './WhatIfAssetChip';
+import DatePicker from '../../../components/common/DatePicker';
 
 /**
  * Karşılaştırma formu: mode toggle (Tutar/Miktar), tarih, tutar (sadece amount mode),
@@ -49,12 +50,10 @@ export default function WhatIfForm({
                     <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
                         {t('whatIf:form.investmentDate')}
                     </label>
-                    <input
-                        type="date"
+                    <DatePicker
                         value={investmentDate}
-                        onChange={(e) => setInvestmentDate(e.target.value)}
+                        onChange={setInvestmentDate}
                         max={todayStr}
-                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
                     />
                 </div>
                 {inputMode === 'amount' && (

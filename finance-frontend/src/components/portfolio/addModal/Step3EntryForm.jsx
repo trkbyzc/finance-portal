@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
+import DatePicker from '../../common/DatePicker';
 
 /**
  * AddToPortfolioModal step 3 — adet + tutar (çift yönlü) + alış fiyatı + tarih.
@@ -120,14 +121,12 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 <div>
                     <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
                     <div className="relative">
-                        <input
-                            type="date"
+                        <DatePicker
                             value={purchaseDate}
+                            onChange={handleDate}
                             max={todayStr}
-                            onChange={(e) => handleDate(e.target.value)}
-                            className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                         />
-                        {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />}
+                        {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={18} />}
                     </div>
                 </div>
                 <div>

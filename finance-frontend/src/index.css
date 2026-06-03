@@ -232,3 +232,58 @@ body {
 [data-theme="hybrid"] .table-zebra tbody tr:nth-child(even) {
     background-color: rgba(15, 23, 42, 0.02);
 }
+
+/* ============================================================
+   react-day-picker tema override (DatePicker.jsx)
+   Default RDP CSS değişkenlerini bizim --color-* değişkenlerimize bağla.
+   ============================================================ */
+.fp-datepicker-popover .rdp-root {
+    --rdp-accent-color: var(--color-primary);
+    --rdp-accent-background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+    --rdp-day-height: 36px;
+    --rdp-day-width: 36px;
+    --rdp-day_button-height: 32px;
+    --rdp-day_button-width: 32px;
+    --rdp-day_button-border-radius: 8px;
+    --rdp-selected-border: 2px solid var(--color-primary);
+    --rdp-disabled-opacity: 0.35;
+    --rdp-outside-opacity: 0.45;
+    --rdp-today-color: var(--color-primary);
+    --rdp-nav_button-height: 28px;
+    --rdp-nav_button-width: 28px;
+    --rdp-weekday-opacity: 0.7;
+    --rdp-weekday-padding: 6px 0;
+    --rdp-month_caption-font: 600 14px/1.2 inherit;
+    font-family: inherit;
+    color: var(--color-text);
+    background: transparent;
+}
+.fp-datepicker-popover .rdp-day_button:hover:not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+.fp-datepicker-popover .rdp-day_selected .rdp-day_button,
+.fp-datepicker-popover .rdp-selected .rdp-day_button {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    font-weight: 700;
+}
+.fp-datepicker-popover .rdp-day_today .rdp-day_button,
+.fp-datepicker-popover .rdp-today .rdp-day_button {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+.fp-datepicker-popover .rdp-weekday {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.fp-datepicker-popover .rdp-nav button {
+    color: var(--color-text-muted);
+    border-radius: 6px;
+}
+.fp-datepicker-popover .rdp-nav button:hover {
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    color: var(--color-text);
+}

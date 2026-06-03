@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { getFlagUrl } from '../../../utils/currencyUtils.js';
 import { IMPACT_LEVELS, MAJOR_COUNTRIES, todayIso } from '../calendarHelpers';
+import DatePicker from '../../../components/common/DatePicker';
 
 /**
  * Tarih aralığı + impact + ülke chip filtreleri. State parent'ta; bu component yalnız UI.
@@ -22,23 +23,19 @@ export default function CalendarFilters({
                     <label className="block text-[10px] font-bold text-text-muted mb-1 uppercase tracking-wider">
                         {t('filter.from')}
                     </label>
-                    <input
-                        type="date"
+                    <DatePicker
                         value={fromDate}
-                        onChange={(e) => setFromDate(e.target.value)}
+                        onChange={setFromDate}
                         max={todayIso()}
-                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary text-sm"
                     />
                 </div>
                 <div>
                     <label className="block text-[10px] font-bold text-text-muted mb-1 uppercase tracking-wider">
                         {t('filter.to')}
                     </label>
-                    <input
-                        type="date"
+                    <DatePicker
                         value={toDate}
-                        onChange={(e) => setToDate(e.target.value)}
-                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary text-sm"
+                        onChange={setToDate}
                     />
                 </div>
                 <div>

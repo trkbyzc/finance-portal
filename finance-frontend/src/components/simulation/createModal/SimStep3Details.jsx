@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { simulationApi } from '../../../services/api/simulationApi';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 import { useNotify } from '../../../context/NotificationContext';
+import DatePicker from '../../common/DatePicker';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -144,13 +145,11 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
             {/* Yatırım Tarihi + altta info chip'leri (her biri ayrı badge, iç içe geçmez) */}
             <div>
                 <label className="block text-sm font-semibold mb-1">{t('simulation:modal.investmentDate')}</label>
-                <input
-                    type="date"
+                <DatePicker
                     value={investmentDate}
-                    onChange={(e) => handleDateChange(e.target.value)}
+                    onChange={handleDateChange}
                     min={earliestDate || undefined}
                     max={todayIso()}
-                    className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                 />
                 <p className="text-xs text-text-muted mt-1">{t('simulation:modal.investmentDateHint')}</p>
 

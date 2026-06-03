@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { BarChart2, Activity, Mountain, SlidersHorizontal, Calendar, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DatePicker from '../../../common/DatePicker';
 
 export default function ChartHeader({
                                         displayName, isTrBond, activeRange, setActiveRange,
@@ -155,13 +156,11 @@ export default function ChartHeader({
                                         <label className="block text-[10px] font-bold uppercase tracking-wider text-text-muted mb-1.5">
                                             {t('common:time.today')}
                                         </label>
-                                        <input
-                                            type="date"
+                                        <DatePicker
                                             value={customStartDate}
+                                            onChange={setCustomStartDate}
                                             min={minDate}
                                             max={maxDate}
-                                            onChange={e => setCustomStartDate(e.target.value)}
-                                            className="w-full bg-surface border border-border hover:border-primary focus:border-primary focus:ring-1 focus:ring-[#2962ff] text-text text-sm font-mono px-3 py-2 rounded-lg outline-none transition cursor-pointer "
                                         />
                                     </div>
 
@@ -169,13 +168,11 @@ export default function ChartHeader({
                                         <label className="block text-[10px] font-bold uppercase tracking-wider text-text-muted mb-1.5">
                                             {t('common:labels.date')}
                                         </label>
-                                        <input
-                                            type="date"
+                                        <DatePicker
                                             value={customEndDate}
+                                            onChange={setCustomEndDate}
                                             min={customStartDate || minDate}
                                             max={maxDate}
-                                            onChange={e => setCustomEndDate(e.target.value)}
-                                            className="w-full bg-surface border border-border hover:border-primary focus:border-primary focus:ring-1 focus:ring-[#2962ff] text-text text-sm font-mono px-3 py-2 rounded-lg outline-none transition cursor-pointer "
                                         />
                                     </div>
 

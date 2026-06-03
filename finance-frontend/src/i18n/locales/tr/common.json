@@ -20,6 +20,7 @@
     "create": "Oluştur",
     "edit": "Düzenle",
     "add": "Ekle",
+    "clear": "Temizle",
     "search": "Ara",
     "loading": "Yükleniyor",
     "loadingDots": "Yükleniyor...",
@@ -46,6 +47,7 @@
   "labels": {
     "name": "İsim",
     "selectAsset": "Varlık Seç",
+    "selectDate": "Tarih seç",
     "alreadyAdded": "Ekli",
     "symbol": "Sembol",
     "price": "Fiyat",

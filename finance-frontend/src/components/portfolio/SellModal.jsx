@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import { fetchPriceOnDate } from '../../utils/historicalPrice';
+import DatePicker from '../common/DatePicker';
 
 /**
  * Mevcut holding'den satış yapma modal'ı.
@@ -197,14 +198,12 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                                 {t('portfolio:trade.sellDate', 'Satış Tarihi')}
                             </label>
                             <div className="relative">
-                                <input
-                                    type="date"
+                                <DatePicker
                                     value={sellDate}
+                                    onChange={handleDate}
                                     max={todayStr}
-                                    onChange={(e) => handleDate(e.target.value)}
-                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-sell"
                                 />
-                                {priceLoading && <Loader2 className="animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />}
+                                {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />}
                             </div>
                             {datePriceInfo?.ok && (
                                 <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}</p>

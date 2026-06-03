@@ -30,20 +30,11 @@ export default function ViopControls({ range, handleRangeChange, fromDate, toDat
                 })}
             </div>
 
-            <div className="flex items-center gap-3">
-                <input
-                    type="date"
-                    value={fromDate}
-                    readOnly
-                    className="bg-surface-2 border border-border rounded-lg px-3 py-2 text-xs text-text font-mono focus:outline-none opacity-70 cursor-not-allowed"
-                />
+            {/* Vade aralığı sadece görsel — VIOP kontratının vade tarihleri statik. */}
+            <div className="flex items-center gap-2 text-xs text-text font-mono bg-surface-2 border border-border rounded-lg px-3 py-2 opacity-80">
+                <span>{fromDate}</span>
                 <span className="text-text-muted">→</span>
-                <input
-                    type="date"
-                    value={toDate}
-                    readOnly
-                    className="bg-surface-2 border border-border rounded-lg px-3 py-2 text-xs text-text font-mono focus:outline-none opacity-70 cursor-not-allowed"
-                />
+                <span>{toDate}</span>
             </div>
         </div>
     );

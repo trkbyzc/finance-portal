@@ -20,6 +20,7 @@
     "create": "Create",
     "edit": "Edit",
     "add": "Add",
+    "clear": "Clear",
     "search": "Search",
     "loading": "Loading",
     "loadingDots": "Loading...",
@@ -46,6 +47,7 @@
   "labels": {
     "name": "Name",
     "selectAsset": "Select Asset",
+    "selectDate": "Select date",
     "alreadyAdded": "Added",
     "symbol": "Symbol",
     "price": "Price",
