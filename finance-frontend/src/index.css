@@ -287,3 +287,49 @@ body {
     background: color-mix(in srgb, var(--color-primary) 12%, transparent);
     color: var(--color-text);
 }
+
+/* DatePicker caption dropdown (ay + yıl) — tema-uyumlu select */
+.fp-datepicker-popover .rdp-dropdowns {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+}
+.fp-datepicker-popover .rdp-dropdown_root {
+    position: relative;
+}
+.fp-datepicker-popover .rdp-dropdown {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--color-surface-2, var(--color-surface));
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 4px 22px 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 120ms, background-color 120ms;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+}
+.fp-datepicker-popover .rdp-dropdown:hover {
+    border-color: var(--color-primary);
+}
+.fp-datepicker-popover .rdp-dropdown:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+.fp-datepicker-popover .rdp-dropdown option {
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+.fp-datepicker-popover .rdp-caption_label,
+.fp-datepicker-popover .rdp-month_caption span:not(.rdp-dropdown_root) {
+    /* Native label gizle (dropdown'lar varken hem label hem dropdown çift görünmesin) */
+    display: none;
+}

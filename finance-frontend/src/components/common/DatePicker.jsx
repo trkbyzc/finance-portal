@@ -120,6 +120,9 @@ export default function DatePicker({
                         showOutsideDays
                         weekStartsOn={1}
                         defaultMonth={selected || maxDate || new Date()}
+                        captionLayout="dropdown"
+                        startMonth={minDate || new Date(2000, 0)}
+                        endMonth={maxDate || new Date(new Date().getFullYear() + 5, 11)}
                     />
                     <div className="flex items-center justify-between border-t border-border pt-2 mt-1 px-1">
                         <button
