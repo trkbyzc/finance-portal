@@ -3,6 +3,7 @@ import { ChevronLeft, Loader2, Calendar, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { simulationApi } from '../../../services/api/simulationApi';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
+import { useNotify } from '../../../context/NotificationContext';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -14,8 +15,10 @@ const todayIso = () => new Date().toISOString().slice(0, 10);
  */
 export default function SimStep3Details({ selectedAsset, backendType, onPreview, onSave, onBack }) {
     const { t } = useTranslation(['simulation', 'common']);
+    const notify = useNotify();
     const [investmentDate, setInvestmentDate] = useState('');
     const [amountTry, setAmountTry] = useState('');
+    const [quantity, setQuantity] = useState('');
     const [notes, setNotes] = useState('');
     const [previewResult, setPreviewResult] = useState(null);
     const [previewing, setPreviewing] = useState(false);
@@ -24,6 +27,21 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
     const [earliestLoading, setEarliestLoading] = useState(false);
     const [datePrice, setDatePrice] = useState(null);
     const [datePriceLoading, setDatePriceLoading] = useState(false);
+
+    // Geçerli birim fiyat (tutar ↔ miktar dönüşümü için). Tarih seçilmeden bilinmez.
+    const priceNum = (typeof datePrice === 'number' && datePrice > 0) ? datePrice : 0;
+
+    // Tutar girilince miktarı, miktar girilince tutarı fiyattan hesapla (çift yönlü).
+    const handleAmount = (v) => {
+        setAmountTry(v);
+        setPreviewResult(null);
+        setQuantity(priceNum > 0 && v !== '' ? String(+(parseFloat(v) / priceNum).toFixed(8)) : '');
+    };
+    const handleQuantity = (v) => {
+        setQuantity(v);
+        setPreviewResult(null);
+        setAmountTry(priceNum > 0 && v !== '' ? String(+(parseFloat(v) * priceNum).toFixed(2)) : '');
+    };
 
     const handleDateChange = async (v) => {
         setInvestmentDate(v);
@@ -34,7 +52,13 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
         setDatePriceLoading(true);
         try {
             const p = await fetchPriceOnDate(sym, backendType, v);
-            setDatePrice(p != null && p > 0 ? p : false);
+            const valid = p != null && p > 0;
+            setDatePrice(valid ? p : false);
+            // Fiyat gelince mevcut alanlardan diğerini güncelle (önce tutar, yoksa miktar baz alınır).
+            if (valid) {
+                if (amountTry !== '') setQuantity(String(+(parseFloat(amountTry) / p).toFixed(8)));
+                else if (quantity !== '') setAmountTry(String(+(parseFloat(quantity) * p).toFixed(2)));
+            }
         } finally {
             setDatePriceLoading(false);
         }
@@ -75,7 +99,7 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
             setPreviewResult(result);
         } catch (e) {
             console.error(e);
-            alert(t('simulation:toast.previewError'));
+            notify({ type: 'error', title: t('simulation:toast.previewError') });
         } finally {
             setPreviewing(false);
         }
@@ -86,9 +110,14 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
         setSaving(true);
         try {
             await onSave(buildBody());
+            notify({
+                type: 'success',
+                title: t('simulation:toast.saved', 'Simülasyon kaydedildi'),
+                message: selectedAsset.symbol || selectedAsset.currencyCode || ''
+            });
         } catch (e) {
             console.error(e);
-            alert(e.response?.data?.message || t('simulation:toast.error'));
+            notify({ type: 'error', title: t('simulation:toast.error'), message: e.response?.data?.message || '' });
         } finally {
             setSaving(false);
         }
@@ -147,18 +176,38 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
                 </div>
             </div>
 
-            <div>
-                <label className="block text-sm font-semibold mb-1">{t('simulation:modal.amount')}</label>
-                <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={amountTry}
-                    onChange={(e) => { setAmountTry(e.target.value); setPreviewResult(null); }}
-                    placeholder="10000"
-                    className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                />
+            {/* Tutar ↔ Miktar (çift yönlü; o tarihteki fiyattan hesaplanır) */}
+            <div className="grid grid-cols-2 gap-3">
+                <div>
+                    <label className="block text-sm font-semibold mb-1">{t('simulation:modal.amount')}</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={amountTry}
+                        onChange={(e) => handleAmount(e.target.value)}
+                        placeholder="10000"
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold mb-1">{t('simulation:modal.quantity', 'Miktar')}</label>
+                    <input
+                        type="number"
+                        step="0.00000001"
+                        min="0"
+                        value={quantity}
+                        onChange={(e) => handleQuantity(e.target.value)}
+                        disabled={priceNum <= 0}
+                        placeholder={priceNum > 0 ? '1' : '—'}
+                        title={priceNum <= 0 ? t('simulation:modal.quantityHint', 'Önce tarih seçin; miktar o tarihteki fiyattan hesaplanır.') : undefined}
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                </div>
             </div>
+            {priceNum <= 0 && (
+                <p className="-mt-2 text-[11px] text-text-muted">{t('simulation:modal.quantityHint', 'Önce tarih seçin; miktar o tarihteki fiyattan hesaplanır.')}</p>
+            )}
 
             <div>
                 <label className="block text-sm font-semibold mb-1">{t('simulation:modal.notes')}</label>
