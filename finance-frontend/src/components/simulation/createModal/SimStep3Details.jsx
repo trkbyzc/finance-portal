@@ -123,17 +123,25 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
         }
     };
 
+    const datePriceFmt = (typeof datePrice === 'number')
+        ? Number(datePrice).toLocaleString('tr-TR', { maximumFractionDigits: 4 })
+        : null;
+
     return (
         <div className="space-y-4">
-            <div className="bg-bg border border-border rounded-lg p-3">
-                <div className="font-semibold">
-                    {selectedAsset.name || selectedAsset.currencyName || selectedAsset.symbol || selectedAsset.currencyCode}
+            {/* Asset card — symbol+name solda, sembol kodu mono chip olarak sağda */}
+            <div className="bg-bg border border-border rounded-lg p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                    <div className="font-semibold truncate">
+                        {selectedAsset.name || selectedAsset.currencyName || selectedAsset.symbol || selectedAsset.currencyCode}
+                    </div>
                 </div>
-                <div className="text-xs text-text-muted font-mono mt-0.5">
+                <div className="shrink-0 px-2 py-1 bg-surface border border-border rounded-md font-mono text-xs text-text-muted">
                     {selectedAsset.symbol || selectedAsset.currencyCode}
                 </div>
             </div>
 
+            {/* Yatırım Tarihi + altta info chip'leri (her biri ayrı badge, iç içe geçmez) */}
             <div>
                 <label className="block text-sm font-semibold mb-1">{t('simulation:modal.investmentDate')}</label>
                 <input
@@ -145,30 +153,41 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
                     className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
                 />
                 <p className="text-xs text-text-muted mt-1">{t('simulation:modal.investmentDateHint')}</p>
-                {(datePriceLoading || datePrice !== null) && (
-                    <div className="text-xs mt-1 inline-flex items-center gap-1">
-                        {datePriceLoading ? (
-                            <span className="text-text-muted inline-flex items-center gap-1"><Loader2 className="animate-spin" size={12} />{t('simulation:modal.datePriceLoading', 'Fiyat alınıyor…')}</span>
-                        ) : datePrice ? (
-                            <span className="text-primary inline-flex items-center gap-1"><Tag size={12} />{t('simulation:modal.datePriceFound', 'O tarihteki fiyat')}: {Number(datePrice).toLocaleString('tr-TR', { maximumFractionDigits: 4 })}</span>
-                        ) : (
-                            <span className="text-warning inline-flex items-center gap-1"><Tag size={12} />{t('simulation:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı')}</span>
-                        )}
-                    </div>
-                )}
-                <div className="text-xs mt-1 inline-flex items-center gap-1">
-                    {earliestLoading ? (
-                        <span className="text-text-muted inline-flex items-center gap-1">
+
+                {/* Bilgi rozetleri — her biri bağımsız chip, flex-wrap ile ikiniciye iner */}
+                <div className="flex flex-wrap items-center gap-2 mt-2 text-xs">
+                    {datePriceLoading && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface border border-border text-text-muted">
+                            <Loader2 className="animate-spin" size={12} />
+                            {t('simulation:modal.datePriceLoading', 'Fiyat alınıyor…')}
+                        </span>
+                    )}
+                    {!datePriceLoading && datePriceFmt && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 border border-primary/30 text-primary">
+                            <Tag size={12} />
+                            {t('simulation:modal.datePriceFound', 'O tarihteki fiyat')}: <span className="font-semibold">{datePriceFmt}</span>
+                        </span>
+                    )}
+                    {!datePriceLoading && datePrice === false && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-warning/10 border border-warning/30 text-warning">
+                            <Tag size={12} />
+                            {t('simulation:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı')}
+                        </span>
+                    )}
+                    {earliestLoading && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface border border-border text-text-muted">
                             <Loader2 className="animate-spin" size={12} />
                             {t('simulation:modal.earliestLoading')}
                         </span>
-                    ) : earliestDate ? (
-                        <span className="text-primary inline-flex items-center gap-1">
+                    )}
+                    {!earliestLoading && earliestDate && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface border border-border text-text-muted">
                             <Calendar size={12} />
                             {t('simulation:modal.earliestAvailable', { date: earliestDate })}
                         </span>
-                    ) : (
-                        <span className="text-warning inline-flex items-center gap-1">
+                    )}
+                    {!earliestLoading && !earliestDate && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-warning/10 border border-warning/30 text-warning">
                             <Calendar size={12} />
                             {t('simulation:modal.earliestUnavailable')}
                         </span>
@@ -177,7 +196,7 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
             </div>
 
             {/* Tutar ↔ Miktar (çift yönlü; o tarihteki fiyattan hesaplanır) */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                     <label className="block text-sm font-semibold mb-1">{t('simulation:modal.amount')}</label>
                     <input
