@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, X, Loader2, ArrowUp, ArrowDown, Zap, Repeat } from 'lucide-react';
 import { alarmApi } from '../../services/api/alarmApi';
 import { useNotify } from '../../context/NotificationContext';
+import { toBackendAssetType } from '../../utils/assetTypeMapper';
 
 /**
  * Bir varlık için fiyat alarmı kurma modal'ı.
@@ -60,7 +61,7 @@ export default function AlarmModal({ open, onClose, asset }) {
         if (!canSubmit()) return;
         createMutation.mutate({
             symbol: asset.symbol || asset.currencyCode,
-            assetType: asset.assetType,
+            assetType: toBackendAssetType(asset.assetCategory),
             condition,
             threshold: parseFloat(threshold),
             frequency,

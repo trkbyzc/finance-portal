@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAssetDetails } from '../../hooks/useAssetDetails';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { useNotify } from '../../context/NotificationContext';
+import { toBackendAssetType } from '../../utils/assetTypeMapper';
 
 import AssetHeader from './components/AssetHeader';
 import AssetChartArea from './components/AssetChartArea';
@@ -39,14 +40,6 @@ export default function AssetDetailPage() {
             price: asset?.displayPrice || ''
         });
         setIsAddModalOpen(true);
-    };
-
-    // Frontend assetCategory → backend AssetType enum (VIOP→FUTURE, TR_BOND/EUROBOND→BOND, TR_FUND→FUND)
-    const toBackendAssetType = (category) => {
-        const map = {
-            VIOP: 'FUTURE', TR_BOND: 'BOND', EUROBOND: 'BOND', TR_FUND: 'FUND', INDEX: 'STOCK'
-        };
-        return map[category] || category || 'STOCK';
     };
 
     const handleSubmit = async (e) => {
