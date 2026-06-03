@@ -132,6 +132,62 @@ public class KeycloakAdminService {
         }
     }
 
+    /**
+     * Kullanıcının 2FA'sını kapatır:
+     * 1. Tüm OTP credential'ları (otp tipinde) siler — varsa kayıtlı authenticator kalmasın
+     * 2. CONFIGURE_TOTP required action'ı kaldırır — bir sonraki login'de istemez
+     * Sonuçta kullanıcı sadece şifreyle girer.
+     */
+    public void disable2FA(String userId) {
+        try {
+            UserResource userResource = keycloak.realm(realm).users().get(userId);
+
+            // 1) Tüm OTP credential'larını sil
+            var creds = userResource.credentials();
+            if (creds != null) {
+                creds.stream()
+                        .filter(c -> "otp".equalsIgnoreCase(c.getType()))
+                        .forEach(c -> {
+                            try {
+                                userResource.removeCredential(c.getId());
+                            } catch (Exception e) {
+                                log.warn("[KC-2FA] OTP credential silinemedi (id={}): {}", c.getId(), e.getMessage());
+                            }
+                        });
+            }
+
+            // 2) CONFIGURE_TOTP required action'ı listeden çıkar
+            UserRepresentation user = userResource.toRepresentation();
+            List<String> actions = user.getRequiredActions();
+            if (actions != null && actions.contains("CONFIGURE_TOTP")) {
+                List<String> filtered = new ArrayList<>(actions);
+                filtered.remove("CONFIGURE_TOTP");
+                user.setRequiredActions(filtered);
+                userResource.update(user);
+            }
+            log.info("✅ 2FA devre dışı bırakıldı: {}", userId);
+        } catch (Exception e) {
+            log.error("❌ 2FA devre dışı bırakma hatası: {}", e.getMessage(), e);
+            throw new RuntimeException("2FA devre dışı bırakılamadı: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Kullanıcı için 2FA "aktif" mi? Aktif = en az 1 OTP credential kayıtlı.
+     * CONFIGURE_TOTP required action sadece "kullanıcıdan kurmasını iste" demektir; gerçek
+     * aktivasyon credential kaydedilince olur.
+     */
+    public boolean is2FAEnabled(String userId) {
+        if (keycloak == null || userId == null) return false;
+        try {
+            var creds = keycloak.realm(realm).users().get(userId).credentials();
+            return creds != null && creds.stream().anyMatch(c -> "otp".equalsIgnoreCase(c.getType()));
+        } catch (Exception e) {
+            log.warn("[KC-2FA] {} için 2FA status kontrolü başarısız: {}", userId, e.getMessage());
+            return false;
+        }
+    }
+
     public void deleteUser(String userId) {
         try {
             RealmResource realmResource = keycloak.realm(realm);

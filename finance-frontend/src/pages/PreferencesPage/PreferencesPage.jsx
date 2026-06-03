@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Settings, Save, Loader2, BarChart3, Eye, Home } from 'lucide-react';
+import { Settings, Save, Loader2, BarChart3, Eye, Home, ShieldCheck, ShieldOff } from 'lucide-react';
 import { preferencesApi } from '../../services/api/preferencesApi';
 import { aggregateApi } from '../../services/api/aggregateApi';
+import { userApi } from '../../services/api/userApi';
 import TickerPicker from '../../components/preferences/TickerPicker';
+import { useNotify } from '../../context/NotificationContext';
 
 /**
  * Aggregate market response'unu TickerPicker'ın beklediği pools formatına çevirir.
@@ -45,10 +47,40 @@ function buildPools(all) {
 export default function PreferencesPage() {
     const { t } = useTranslation(['preferences', 'common']);
     const queryClient = useQueryClient();
+    const notify = useNotify();
 
     const [tickers, setTickers] = useState([]);
     const [scope, setScope] = useState('ALL_PAGES');
     const [dirty, setDirty] = useState(false);
+
+    // 2FA durumu — Keycloak'tan canlı çekilir
+    const { data: twoFaStatus, isLoading: twoFaLoading } = useQuery({
+        queryKey: ['user-2fa-status'],
+        queryFn: userApi.get2FAStatus,
+        staleTime: 30_000
+    });
+    const twoFaEnabled = !!twoFaStatus?.enabled;
+
+    const toggle2FaMutation = useMutation({
+        mutationFn: (enabled) => userApi.set2FA(enabled),
+        onSuccess: (res, enabled) => {
+            queryClient.invalidateQueries({ queryKey: ['user-2fa-status'] });
+            notify({
+                type: enabled ? 'success' : 'warning',
+                title: enabled
+                    ? t('preferences:security.enabledTitle', '2FA etkinleştirildi')
+                    : t('preferences:security.disabledTitle', '2FA devre dışı'),
+                message: res?.message || ''
+            });
+        },
+        onError: (err) => {
+            notify({
+                type: 'error',
+                title: t('preferences:security.error', '2FA değiştirilemedi'),
+                message: err?.response?.data?.message || ''
+            });
+        }
+    });
 
     // Mevcut tercihler
     const { data: prefs, isLoading: prefsLoading } = useQuery({
@@ -169,6 +201,70 @@ export default function PreferencesPage() {
                                     desc={t('preferences:scope.homeOnlyDesc', 'Ticker bar sadece dashboard (ana sayfa) açıkken görünür.')}
                                 />
                             </div>
+                        </section>
+
+                        {/* Section: Güvenlik (2FA) */}
+                        <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">
+                            <div className="flex items-center gap-2 mb-1">
+                                {twoFaEnabled
+                                    ? <ShieldCheck size={18} className="text-buy" />
+                                    : <ShieldOff size={18} className="text-warning" />
+                                }
+                                <h2 className="text-lg sm:text-xl font-bold">
+                                    {t('preferences:security.title', 'Güvenlik')}
+                                </h2>
+                            </div>
+                            <p className="text-xs sm:text-sm text-text-muted mb-4">
+                                {t('preferences:security.subtitle', 'İki adımlı doğrulama (2FA) ayarları.')}
+                            </p>
+
+                            <div className="flex items-center justify-between gap-4 bg-surface border border-border rounded-xl p-4">
+                                <div className="min-w-0">
+                                    <div className="font-semibold text-sm">
+                                        {t('preferences:security.twoFactor', 'İki Adımlı Doğrulama (2FA)')}
+                                    </div>
+                                    <div className="text-xs text-text-muted mt-0.5">
+                                        {twoFaLoading
+                                            ? t('common:status.loading')
+                                            : twoFaEnabled
+                                                ? t('preferences:security.enabledDesc', 'Aktif — girişte ek doğrulama kodu istenir.')
+                                                : t('preferences:security.disabledDesc', 'Devre dışı — sadece şifre ile giriş yapılır.')
+                                        }
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={twoFaEnabled}
+                                    disabled={twoFaLoading || toggle2FaMutation.isPending}
+                                    onClick={() => toggle2FaMutation.mutate(!twoFaEnabled)}
+                                    className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                        twoFaEnabled ? 'bg-buy' : 'bg-surface-hover'
+                                    }`}
+                                    title={twoFaEnabled
+                                        ? t('preferences:security.disable', 'Devre dışı bırak')
+                                        : t('preferences:security.enable', 'Etkinleştir')}
+                                >
+                                    {toggle2FaMutation.isPending ? (
+                                        <Loader2 className="animate-spin absolute inset-0 m-auto text-text" size={14} />
+                                    ) : (
+                                        <span
+                                            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition-transform ${
+                                                twoFaEnabled ? 'translate-x-5' : 'translate-x-0'
+                                            }`}
+                                        />
+                                    )}
+                                </button>
+                            </div>
+
+                            {twoFaEnabled
+                                ? null
+                                : (
+                                    <p className="text-[11px] text-text-muted mt-3 italic">
+                                        {t('preferences:security.enableHint', 'Etkinleştirdikten sonra bir sonraki girişte Authenticator uygulamasıyla kurulum istenir.')}
+                                    </p>
+                                )
+                            }
                         </section>
 
                         {/* Save button */}

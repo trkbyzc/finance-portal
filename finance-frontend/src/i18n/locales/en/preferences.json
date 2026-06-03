@@ -18,6 +18,19 @@
     "homeOnly": "Home Only",
     "homeOnlyDesc": "The ticker bar appears only when the dashboard (home) is open."
   },
+  "security": {
+    "title": "Security",
+    "subtitle": "Two-factor authentication (2FA) settings.",
+    "twoFactor": "Two-Factor Authentication (2FA)",
+    "enabledDesc": "Active — login asks for an additional verification code.",
+    "disabledDesc": "Disabled — sign in with password only.",
+    "enable": "Enable",
+    "disable": "Disable",
+    "enableHint": "Once enabled, your next sign-in will prompt setup via an Authenticator app.",
+    "enabledTitle": "2FA enabled",
+    "disabledTitle": "2FA disabled",
+    "error": "Couldn't change 2FA"
+  },
   "saved": "Saved",
   "saveError": "Save failed"
 }

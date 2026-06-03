@@ -18,6 +18,19 @@
     "homeOnly": "Yalnızca Ana Sayfada",
     "homeOnlyDesc": "Ticker bar sadece dashboard (ana sayfa) açıkken görünür."
   },
+  "security": {
+    "title": "Güvenlik",
+    "subtitle": "İki adımlı doğrulama (2FA) ayarları.",
+    "twoFactor": "İki Adımlı Doğrulama (2FA)",
+    "enabledDesc": "Aktif — girişte ek doğrulama kodu istenir.",
+    "disabledDesc": "Devre dışı — sadece şifre ile giriş yapılır.",
+    "enable": "Etkinleştir",
+    "disable": "Devre dışı bırak",
+    "enableHint": "Etkinleştirdikten sonra bir sonraki girişte Authenticator uygulamasıyla kurulum istenir.",
+    "enabledTitle": "2FA etkinleştirildi",
+    "disabledTitle": "2FA devre dışı",
+    "error": "2FA değiştirilemedi"
+  },
   "saved": "Kaydedildi",
   "saveError": "Kaydedilemedi"
 }

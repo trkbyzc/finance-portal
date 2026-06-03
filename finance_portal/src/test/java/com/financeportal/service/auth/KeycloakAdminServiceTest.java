@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -131,6 +132,83 @@ class KeycloakAdminServiceTest {
         when(usersResource.get("uid")).thenThrow(new RuntimeException("kc down"));
 
         assertThrows(RuntimeException.class, () -> service.enable2FA("uid"));
+    }
+
+    // -------- disable2FA + is2FAEnabled --------
+
+    @Test
+    void disable2FA_removesOtpCredentialsAndRequiredAction() {
+        org.keycloak.admin.client.resource.UserResource ur = userResource;
+        when(usersResource.get("uid")).thenReturn(ur);
+        org.keycloak.representations.idm.CredentialRepresentation otp = new org.keycloak.representations.idm.CredentialRepresentation();
+        otp.setId("c1"); otp.setType("otp");
+        org.keycloak.representations.idm.CredentialRepresentation pwd = new org.keycloak.representations.idm.CredentialRepresentation();
+        pwd.setId("c2"); pwd.setType("password");
+        when(ur.credentials()).thenReturn(java.util.List.of(otp, pwd));
+        UserRepresentation kcUser = new UserRepresentation();
+        kcUser.setRequiredActions(new java.util.ArrayList<>(java.util.List.of("CONFIGURE_TOTP", "VERIFY_EMAIL")));
+        when(ur.toRepresentation()).thenReturn(kcUser);
+
+        service.disable2FA("uid");
+
+        verify(ur).removeCredential("c1");
+        verify(ur, org.mockito.Mockito.never()).removeCredential("c2");
+        verify(ur).update(kcUser);
+        assertEquals(List.of("VERIFY_EMAIL"), kcUser.getRequiredActions());
+    }
+
+    @Test
+    void disable2FA_noOtp_noRequiredAction_passesQuietly() {
+        when(usersResource.get("uid")).thenReturn(userResource);
+        when(userResource.credentials()).thenReturn(java.util.List.of());
+        UserRepresentation kcUser = new UserRepresentation();
+        when(userResource.toRepresentation()).thenReturn(kcUser);
+
+        service.disable2FA("uid");
+
+        verify(userResource, org.mockito.Mockito.never()).removeCredential(org.mockito.ArgumentMatchers.anyString());
+        verify(userResource, org.mockito.Mockito.never()).update(any(UserRepresentation.class));
+    }
+
+    @Test
+    void disable2FA_throws_wraps() {
+        when(usersResource.get("uid")).thenThrow(new RuntimeException("kc down"));
+        assertThrows(RuntimeException.class, () -> service.disable2FA("uid"));
+    }
+
+    @Test
+    void is2FAEnabled_otpCredentialPresent_returnsTrue() {
+        when(usersResource.get("uid")).thenReturn(userResource);
+        org.keycloak.representations.idm.CredentialRepresentation otp = new org.keycloak.representations.idm.CredentialRepresentation();
+        otp.setType("otp");
+        when(userResource.credentials()).thenReturn(java.util.List.of(otp));
+        assertTrue(service.is2FAEnabled("uid"));
+    }
+
+    @Test
+    void is2FAEnabled_noOtp_returnsFalse() {
+        when(usersResource.get("uid")).thenReturn(userResource);
+        org.keycloak.representations.idm.CredentialRepresentation pwd = new org.keycloak.representations.idm.CredentialRepresentation();
+        pwd.setType("password");
+        when(userResource.credentials()).thenReturn(java.util.List.of(pwd));
+        assertFalse(service.is2FAEnabled("uid"));
+    }
+
+    @Test
+    void is2FAEnabled_keycloakNull_returnsFalse() {
+        ReflectionTestUtils.setField(service, "keycloak", null);
+        assertFalse(service.is2FAEnabled("uid"));
+    }
+
+    @Test
+    void is2FAEnabled_userIdNull_returnsFalse() {
+        assertFalse(service.is2FAEnabled(null));
+    }
+
+    @Test
+    void is2FAEnabled_throws_returnsFalse() {
+        when(usersResource.get("uid")).thenThrow(new RuntimeException("403"));
+        assertFalse(service.is2FAEnabled("uid"));
     }
 
     @Test
