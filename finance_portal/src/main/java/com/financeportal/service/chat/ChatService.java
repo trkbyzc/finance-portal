@@ -17,6 +17,9 @@ import com.financeportal.service.chat.llm.LlmGateway;
 import com.financeportal.service.chat.llm.LlmMessage;
 import com.financeportal.service.chat.llm.LlmRequest;
 import com.financeportal.service.chat.llm.LlmResponse;
+import com.financeportal.service.chat.llm.LlmToolCall;
+import com.financeportal.service.chat.tools.ChatToolRegistry;
+import com.financeportal.service.chat.tools.ToolExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,9 +51,14 @@ public class ChatService {
     private final SecurityUtils securityUtils;
     private final LlmGateway llmGateway;
     private final SystemPromptBuilder systemPromptBuilder;
+    private final ChatToolRegistry toolRegistry;
+    private final ToolExecutor toolExecutor;
 
     @Value("${app.chat.history-max:20}")
     private int historyMax;
+
+    /** Bir kullanıcı mesajı için izin verilen maksimum LLM turu (her tur = bir tool execution batch). */
+    private static final int MAX_TOOL_ITERATIONS = 5;
 
     @Transactional(readOnly = true)
     public List<ConversationDto> listMyConversations() {
@@ -64,7 +72,8 @@ public class ChatService {
     public List<ChatMessageDto> getMessages(UUID conversationId) {
         ChatConversation c = requireOwned(conversationId);
         return msgRepo.findByConversation_IdOrderByCreatedAtAsc(c.getId()).stream()
-                .filter(m -> m.getRole() != ChatRole.SYSTEM) // sistem prompt'unu UI'ye sızdırma
+                .filter(m -> m.getRole() == ChatRole.USER || m.getRole() == ChatRole.ASSISTANT)
+                .filter(m -> m.getContent() != null && !m.getContent().isBlank())
                 .map(this::toMsgDto)
                 .toList();
     }
@@ -101,24 +110,64 @@ public class ChatService {
                 .build();
         msgRepo.save(userMsg);
 
-        // 2) Geçmişten LLM context'ini kur
-        List<LlmMessage> history = buildContext(conv, req.getLocale());
+        // 2) Geçmişten LLM context'ini kur — buna multi-turn'de tool sonuçları da eklenir
+        List<LlmMessage> context = buildContext(conv, req.getLocale());
 
-        // 3) LLM'e gönder
-        LlmResponse llm;
-        try {
-            llm = llmGateway.generate(LlmRequest.builder()
-                    .messages(history)
-                    .tools(Collections.emptyList())   // Phase 2'de doldurulacak
-                    .temperature(0.7)
-                    .maxTokens(1024)
+        // 3) Multi-turn tool execution loop:
+        //    LLM çağrısı yap → tool_calls varsa execute et, sonuçları context'e ekle ve tekrar çağır.
+        //    Final assistant text yanıtı gelene kadar veya MAX_TOOL_ITERATIONS dolana kadar.
+        LlmResponse llm = null;
+        for (int iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
+            try {
+                llm = llmGateway.generate(LlmRequest.builder()
+                        .messages(context)
+                        .tools(toolRegistry.asLlmTools())
+                        .temperature(0.5)
+                        .maxTokens(1024)
+                        .build());
+            } catch (RuntimeException e) {
+                log.error("[CHAT] LLM çağrısı tamamen başarısız: {}", e.getMessage());
+                throw e;
+            }
+
+            List<LlmToolCall> calls = llm.getToolCalls();
+            if (calls == null || calls.isEmpty()) {
+                break; // assistant text yanıtı verdi, döngüden çık
+            }
+
+            // Assistant'ın tool-call mesajını context'e ekle (LLM bunu bekler)
+            context.add(LlmMessage.builder()
+                    .role(ChatRole.ASSISTANT)
+                    .content(llm.getContent() != null ? llm.getContent() : "")
+                    .toolCalls(calls)
                     .build());
-        } catch (RuntimeException e) {
-            log.error("[CHAT] LLM çağrısı tamamen başarısız: {}", e.getMessage());
-            throw e;
+
+            // Her tool çağrısını execute et ve sonucu hem context'e hem DB'ye ekle
+            for (LlmToolCall call : calls) {
+                String resultJson = toolExecutor.execute(call);
+                LocalDateTime ts = LocalDateTime.now();
+                msgRepo.save(ChatMessage.builder()
+                        .conversation(conv)
+                        .role(ChatRole.TOOL)
+                        .content(resultJson)
+                        .toolName(call.getName())
+                        .createdAt(ts)
+                        .build());
+                context.add(LlmMessage.builder()
+                        .role(ChatRole.TOOL)
+                        .content(resultJson)
+                        .toolName(call.getName())
+                        .toolCallId(call.getId())
+                        .build());
+            }
+            log.debug("[CHAT] iter {}: {} tool call executed", iter, calls.size());
         }
 
-        // 4) Assistant yanıtını persist
+        if (llm == null) {
+            throw new IllegalStateException("LLM yanıt vermedi");
+        }
+
+        // 4) Final assistant yanıtını persist
         String content = llm.getContent() != null ? llm.getContent() : "";
         ChatMessage asstMsg = ChatMessage.builder()
                 .conversation(conv)
@@ -170,15 +219,18 @@ public class ChatService {
         int from = Math.max(0, recent.size() - historyMax);
         List<ChatMessage> windowed = recent.subList(from, recent.size());
 
+        // Persist edilmiş history'den sadece USER + final ASSISTANT text'lerini bağlama koy.
+        // Önceki turdaki TOOL sonuçları ve toolCalls'lı intermediate ASSISTANT'lar burada
+        // dahil edilmez — tool call'lar SADECE bu turda yeniden yapılır.
         for (ChatMessage m : windowed) {
-            if (m.getRole() == ChatRole.SYSTEM) continue;
+            if (m.getRole() != ChatRole.USER && m.getRole() != ChatRole.ASSISTANT) continue;
+            if (m.getContent() == null || m.getContent().isBlank()) continue;
             ctx.add(LlmMessage.builder()
                     .role(m.getRole())
                     .content(m.getContent())
-                    .toolName(m.getToolName())
                     .build());
         }
-        return ctx;
+        return new ArrayList<>(ctx); // mutable — multi-turn loop'unda eklemeler yapılacak
     }
 
     private ChatConversation requireOwned(UUID conversationId) {

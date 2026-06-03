@@ -15,6 +15,9 @@ import com.financeportal.security.SecurityUtils;
 import com.financeportal.service.chat.llm.LlmGateway;
 import com.financeportal.service.chat.llm.LlmRequest;
 import com.financeportal.service.chat.llm.LlmResponse;
+import com.financeportal.service.chat.llm.LlmToolCall;
+import com.financeportal.service.chat.tools.ChatToolRegistry;
+import com.financeportal.service.chat.tools.ToolExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +50,8 @@ class ChatServiceTest {
     @Mock private SecurityUtils securityUtils;
     @Mock private LlmGateway llmGateway;
     @Mock private SystemPromptBuilder systemPromptBuilder;
+    @Mock private ChatToolRegistry toolRegistry;
+    @Mock private ToolExecutor toolExecutor;
 
     @InjectMocks private ChatService chatService;
 
@@ -75,6 +80,7 @@ class ChatServiceTest {
         });
         when(msgRepo.findTop20ByConversation_IdOrderByCreatedAtDesc(any()))
                 .thenReturn(new ArrayList<>());
+        when(toolRegistry.asLlmTools()).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -179,6 +185,77 @@ class ChatServiceTest {
         when(convRepo.findById(convId)).thenReturn(Optional.of(foreign));
 
         assertThrows(ResourceNotFoundException.class, () -> chatService.getMessages(convId));
+    }
+
+    @Test
+    void tool_call_geldiyse_executor_calistirilir_ve_ikinci_LLM_turu_yapilir() {
+        when(toolRegistry.asLlmTools()).thenReturn(Collections.emptyList());
+        when(toolExecutor.execute(any())).thenReturn("{\"count\":3}");
+
+        // Tur 1: tool_calls dön, Tur 2: text yanıt
+        when(llmGateway.generate(any()))
+                .thenReturn(LlmResponse.builder()
+                        .toolCalls(List.of(LlmToolCall.builder()
+                                .id("tc1").name("get_my_portfolio").argumentsJson("{}").build()))
+                        .finishReason("tool_calls")
+                        .provider("groq").model("m")
+                        .build())
+                .thenReturn(LlmResponse.builder()
+                        .content("Portföyünde 3 varlık var.")
+                        .toolCalls(Collections.emptyList())
+                        .finishReason("stop")
+                        .provider("groq").model("m")
+                        .build());
+
+        ChatResponseDto r = chatService.sendMessage(
+                ChatRequestDto.builder().message("portföyüm").locale("tr").build());
+
+        assertEquals("Portföyünde 3 varlık var.", r.getMessage().getContent());
+        verify(llmGateway, times(2)).generate(any());
+        verify(toolExecutor, times(1)).execute(any());
+        // USER + TOOL + final ASSISTANT = 3 persist
+        verify(msgRepo, times(3)).save(any());
+    }
+
+    @Test
+    void max_iter_dolarsa_sonsuz_loop_olmaz() {
+        when(toolRegistry.asLlmTools()).thenReturn(Collections.emptyList());
+        when(toolExecutor.execute(any())).thenReturn("{}");
+
+        // Her seferinde tool_call dön — sonsuza kadar değil, max iter ile sınırlı kal
+        when(llmGateway.generate(any())).thenReturn(LlmResponse.builder()
+                .toolCalls(List.of(LlmToolCall.builder()
+                        .id("x").name("get_my_portfolio").argumentsJson("{}").build()))
+                .finishReason("tool_calls")
+                .provider("groq").model("m")
+                .content("")
+                .build());
+
+        // Hata fırlatmaz, son içeriği boş da olsa kullanır
+        chatService.sendMessage(ChatRequestDto.builder().message("loop").locale("tr").build());
+
+        // MAX_TOOL_ITERATIONS=5 → 5 LLM çağrısı + 5 tool execution
+        verify(llmGateway, times(5)).generate(any());
+        verify(toolExecutor, times(5)).execute(any());
+    }
+
+    @Test
+    void getMessages_TOOL_mesajlarini_listede_gostermez() {
+        UUID convId = UUID.randomUUID();
+        ChatConversation conv = ChatConversation.builder()
+                .id(convId).user(user).title("x").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
+                .build();
+        when(convRepo.findById(convId)).thenReturn(Optional.of(conv));
+        when(msgRepo.findByConversation_IdOrderByCreatedAtAsc(convId)).thenReturn(List.of(
+                ChatMessage.builder().id(UUID.randomUUID()).conversation(conv).role(ChatRole.USER).content("portfoyum").createdAt(LocalDateTime.now()).build(),
+                ChatMessage.builder().id(UUID.randomUUID()).conversation(conv).role(ChatRole.TOOL).content("{\"count\":3}").toolName("get_my_portfolio").createdAt(LocalDateTime.now()).build(),
+                ChatMessage.builder().id(UUID.randomUUID()).conversation(conv).role(ChatRole.ASSISTANT).content("3 varlık var").createdAt(LocalDateTime.now()).build()
+        ));
+
+        List<ChatMessageDto> out = chatService.getMessages(convId);
+        assertEquals(2, out.size());
+        assertEquals(ChatRole.USER, out.get(0).getRole());
+        assertEquals(ChatRole.ASSISTANT, out.get(1).getRole());
     }
 
     @Test
