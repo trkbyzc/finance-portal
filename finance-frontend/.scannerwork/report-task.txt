@@ -1,6 +1,0 @@
-projectKey=finance-portal-frontend
-serverUrl=http://localhost:9000
-serverVersion=26.5.0.122743
-dashboardUrl=http://localhost:9000/dashboard?id=finance-portal-frontend
-ceTaskId=02fa2ef1-7326-44e7-8028-4922d840a7dc
-ceTaskUrl=http://localhost:9000/api/ce/task?id=02fa2ef1-7326-44e7-8028-4922d840a7dc

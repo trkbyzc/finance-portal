@@ -15,6 +15,9 @@ dist-ssr
 # Vitest coverage report — gitignored, CI artifact'a / lokal HTML'e bakılır
 coverage
 
+# Sonar Scanner temp/state — her koşumda yenilenir
+.scannerwork
+
 # Local env
 .env
 .env.local
