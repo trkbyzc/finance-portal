@@ -113,10 +113,9 @@ export default function DistributionDonut({ portfolio, calculateProfitLoss, grou
                                 ))}
                             </Pie>
                             <Tooltip
-                                formatter={(value) => [fmt(value), '']}
-                                labelFormatter={labelFor}
+                                formatter={(value, name) => [fmt(value), labelFor(name)]}
                                 contentStyle={tooltipStyle}
-                                separator=""
+                                separator=": "
                             />
                         </PieChart>
                     </ResponsiveContainer>

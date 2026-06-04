@@ -3,6 +3,8 @@ import {
     BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { formatCurrency } from '../../../utils/formatters/currencyFormatter';
 import { fmtTry, tooltipStyle } from './portfolioChartColors';
 
 const COST_COLOR = '#64748b';   // maliyet — gri
@@ -16,33 +18,49 @@ const UP = '#22c55e', DOWN = '#ef4444', FLAT = '#94a3b8', NODATA = '#facc15';
  */
 export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss, getDailyChange }) {
     const { t } = useTranslation('portfolio');
+    const { currency, convertPrice } = useCurrency();
 
     const costVsValue = useMemo(() => (portfolio || []).map(item => {
         const calc = calculateProfitLoss(item);
+        // TRY bazlı maliyet/değer seçili para birimine çevrilir (eksen/tooltip toggle ile tutarlı)
         return {
             name: item.symbol,
-            // cost ve value ortak TRY bazında (calculateProfitLoss) — karışık para biriminde tutarlı
-            cost: Number(calc.costValue || 0),
-            value: Number(calc.currentValue || 0)
+            cost: Number(convertPrice(Number(calc.costValue || 0), 'TRY')),
+            value: Number(convertPrice(Number(calc.currentValue || 0), 'TRY'))
         };
-    }), [portfolio, calculateProfitLoss]);
+    }), [portfolio, calculateProfitLoss, convertPrice]);
 
     const dailyStatus = useMemo(() => {
-        let up = 0, down = 0, flat = 0, noData = 0;
+        const buckets = { up: [], down: [], flat: [], noData: [] };
         for (const item of portfolio || []) {
+            const sym = item.symbol || item.currencyCode;
             const dc = getDailyChange ? getDailyChange(item.symbol, item.assetType) : null;
-            if (dc == null || Number.isNaN(Number(dc))) noData++;
-            else if (Number(dc) > 0.05) up++;
-            else if (Number(dc) < -0.05) down++;
-            else flat++;
+            if (dc == null || Number.isNaN(Number(dc))) buckets.noData.push(sym);
+            else if (Number(dc) > 0.05) buckets.up.push(sym);
+            else if (Number(dc) < -0.05) buckets.down.push(sym);
+            else buckets.flat.push(sym);
         }
         return [
-            { key: 'up', label: t('charts.status.up', 'Yükselen'), count: up, color: UP },
-            { key: 'down', label: t('charts.status.down', 'Düşen'), count: down, color: DOWN },
-            { key: 'flat', label: t('charts.status.flat', 'Yatay'), count: flat, color: FLAT },
-            { key: 'noData', label: t('charts.status.noData', 'Veri Yok'), count: noData, color: NODATA }
+            { key: 'up', label: t('charts.status.up', 'Yükselen'), count: buckets.up.length, color: UP, symbols: buckets.up },
+            { key: 'down', label: t('charts.status.down', 'Düşen'), count: buckets.down.length, color: DOWN, symbols: buckets.down },
+            { key: 'flat', label: t('charts.status.flat', 'Yatay'), count: buckets.flat.length, color: FLAT, symbols: buckets.flat },
+            { key: 'noData', label: t('charts.status.noData', 'Veri Yok'), count: buckets.noData.length, color: NODATA, symbols: buckets.noData }
         ];
     }, [portfolio, getDailyChange, t]);
+
+    // Günlük Durum tooltip'i — kova etiketi + içindeki varlık sembolleri
+    const StatusTooltip = ({ active, payload }) => {
+        if (!active || !payload?.length) return null;
+        const d = payload[0].payload;
+        return (
+            <div style={tooltipStyle}>
+                <div className="font-bold text-text">{d.label} · {d.count}</div>
+                {d.symbols?.length > 0
+                    ? <div className="text-xs text-text-muted mt-1 max-w-55">{d.symbols.join(', ')}</div>
+                    : <div className="text-xs text-text-muted mt-1">{t('holdings.noHoldings', '—')}</div>}
+            </div>
+        );
+    };
 
     if (!portfolio || portfolio.length === 0) return null;
 
@@ -58,7 +76,7 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
                         <XAxis dataKey="name" stroke="var(--color-text-muted)" tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={{ stroke: 'var(--color-border)' }} />
                         <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={{ stroke: 'var(--color-border)' }} tickFormatter={(v) => fmtTry(v)} width={70} />
                         <Tooltip
-                            formatter={(value, key) => [`${fmtTry(value)} ₺`, key === 'cost' ? t('charts.cost', 'Maliyet') : t('charts.marketValue', 'Piyasa Değeri')]}
+                            formatter={(value, key) => [formatCurrency(value, currency, 2, 2), key === 'cost' ? t('charts.cost', 'Maliyet') : t('charts.marketValue', 'Piyasa Değeri')]}
                             contentStyle={tooltipStyle}
                             cursor={{ fill: 'var(--color-text-muted)', fillOpacity: 0.08 }}
                         />
@@ -79,8 +97,7 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
                         <XAxis dataKey="label" stroke="var(--color-text-muted)" tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }} axisLine={{ stroke: 'var(--color-border)' }} />
                         <YAxis allowDecimals={false} stroke="var(--color-text-muted)" tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }} axisLine={{ stroke: 'var(--color-border)' }} />
                         <Tooltip
-                            formatter={(value) => [value, t('charts.positionCount', 'Pozisyon')]}
-                            contentStyle={tooltipStyle}
+                            content={<StatusTooltip />}
                             cursor={{ fill: 'var(--color-text-muted)', fillOpacity: 0.08 }}
                         />
                         <Bar dataKey="count" radius={[6, 6, 0, 0]}>
