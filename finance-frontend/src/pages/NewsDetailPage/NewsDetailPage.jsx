@@ -54,7 +54,7 @@ export default function NewsDetailPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-bg">
-            <div className="max-w-[1200px] mx-auto p-4 md:p-8 text-text flex flex-col lg:flex-row gap-10 w-full mt-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-8 text-text flex flex-col lg:flex-row gap-6 lg:gap-10 w-full mt-4">
                 <NewsArticle
                     newsItem={newsItem}
                     content={contentData || ''}

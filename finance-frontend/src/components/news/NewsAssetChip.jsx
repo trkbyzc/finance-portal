@@ -28,15 +28,15 @@ export default function NewsAssetChip({ item, className = '' }) {
             type="button"
             onClick={handleClick}
             title={isAsset ? link.label : undefined}
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors max-w-[140px] ${
+            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors max-w-35 sm:max-w-40 min-h-7 ${
                 isAsset
                     ? 'text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20'
                     : 'text-text-muted bg-surface-2 border border-border hover:text-text hover:border-border-strong'
             } ${className}`}
         >
-            {isAsset ? <TrendingUp size={11} className="shrink-0" /> : null}
+            {isAsset ? <TrendingUp size={12} className="shrink-0" /> : null}
             <span className="truncate">{link.label}</span>
-            <ArrowUpRight size={11} className="shrink-0 opacity-70" />
+            <ArrowUpRight size={12} className="shrink-0 opacity-70" />
         </button>
     );
 }

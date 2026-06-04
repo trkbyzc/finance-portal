@@ -160,7 +160,7 @@ export default function Navbar() {
                                             'response_type=code&' +
                                             'scope=openid';
                                     }}
-                                    className="hidden sm:inline-flex px-3.5 py-1.5 text-xs font-bold rounded-lg border border-nav-border text-nav-text hover:bg-nav-text/10 transition-all"
+                                    className="hidden sm:inline-flex px-3.5 py-2 text-xs font-bold rounded-lg border border-nav-border text-nav-text hover:bg-nav-text/10 transition-all min-h-9"
                                 >
                                     {t('navbar:register')}
                                 </button>
@@ -172,7 +172,7 @@ export default function Navbar() {
                                             'response_type=code&' +
                                             'scope=openid';
                                     }}
-                                    className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-primary hover:bg-primary-hover text-primary-fg shadow-sm shadow-primary/30 transition-all"
+                                    className="px-3.5 py-2 text-xs font-bold rounded-lg bg-primary hover:bg-primary-hover text-primary-fg shadow-sm shadow-primary/30 transition-all min-h-9"
                                 >
                                     {t('navbar:login')}
                                 </button>

@@ -43,7 +43,7 @@ export default function AvatarPickerModal({ open, currentId, onClose }) {
                     {t('profile:avatar.modalSubtitle', 'Profilini temsil eden bir avatar seç. İstediğin zaman değiştirebilirsin.')}
                 </p>
 
-                <div className="grid grid-cols-4 gap-3 mb-5">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
                     {PRESET_AVATARS.map((a) => {
                         const active = selectedId === a.id;
                         return (

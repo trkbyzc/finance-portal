@@ -5,7 +5,7 @@ import { formatDateTime } from '../../../utils/formatters/dateFormatter';
 export default function NewsSidebar({ sidebarNews, navigate }) {
     const { t } = useTranslation('news');
     return (
-        <div className="w-full lg:w-[350px] shrink-0">
+        <div className="w-full lg:w-80 xl:w-96 shrink-0">
             <div className="sticky top-24">
                 <h3 className="text-xl font-bold mb-6 border-b border-border pb-3 flex items-center gap-2">
                     <Newspaper className="text-primary" size={20} /> {t('detail.relatedNews')}
