@@ -1,20 +1,25 @@
 import React from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
-import { fmtTry, tooltipStyle } from './portfolioChartColors';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { formatCurrency } from '../../../utils/formatters/currencyFormatter';
+import { tooltipStyle } from './portfolioChartColors';
 
 /**
  * Sembol bazlı P/L bar grafiği — pozitif yeşil gradient, negatif kırmızı gradient.
+ * Tutarlar üstteki TL/$ toggle'ına göre gösterilir (TRY bazlı değer seçili para birimine çevrilir).
  */
 export default function PnlBarChart({ portfolio, calculateProfitLoss }) {
     const { t } = useTranslation('portfolio');
+    const { currency, convertPrice } = useCurrency();
 
     const assetProfitLoss = (portfolio || []).map(item => {
         const calc = calculateProfitLoss(item);
         return {
             name: item.symbol,
             assetType: item.assetType,
-            pnl: Number(calc.profitLoss ?? 0)
+            // TRY bazlı K/Z'yi seçili para birimine çevir — eksen, barlar ve tooltip tutarlı olsun
+            pnl: Number(convertPrice(Number(calc.profitLoss ?? 0), 'TRY'))
         };
     });
 
@@ -53,7 +58,7 @@ export default function PnlBarChart({ portfolio, calculateProfitLoss }) {
                             axisLine={{ stroke: 'var(--color-border)' }}
                         />
                         <Tooltip
-                            formatter={(value) => [`${fmtTry(value)} ₺`, t('stats.totalPnl')]}
+                            formatter={(value) => [formatCurrency(value, currency, 2, 2), t('stats.totalPnl')]}
                             contentStyle={tooltipStyle}
                             cursor={{ fill: 'var(--color-text-muted)', fillOpacity: 0.08 }}
                         />

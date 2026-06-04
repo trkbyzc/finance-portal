@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
-import { ASSET_COLORS, DEFAULT_COLOR, buildSymbolShades, fmtTry, tooltipStyle } from './portfolioChartColors';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { ASSET_COLORS, DEFAULT_COLOR, buildSymbolShades, tooltipStyle } from './portfolioChartColors';
 
 /**
  * Donut chart — varlık tipine veya sembole göre dağılım (groupBy prop).
- * Ortada toplam değer; altında legend chip'leri.
+ * Ortada toplam değer; altında legend chip'leri. Tutarlar üstteki TL/$ toggle'ına göre gösterilir.
  */
 export default function DistributionDonut({ portfolio, calculateProfitLoss, groupBy, parentAssetType }) {
     const { t } = useTranslation(['portfolio', 'markets', 'common']);
+    const { formatPrice } = useCurrency();
+    const [hovered, setHovered] = useState(false); // hover'da merkez etiketini gizle (tooltip ile çakışmasın)
+    const fmt = (v) => formatPrice(v, 'TRY', 2, 2); // TRY bazlı değer -> seçili para birimine çevrilir
 
     const distribution = (portfolio || []).reduce((acc, item) => {
         const calc = calculateProfitLoss(item);
@@ -101,27 +105,32 @@ export default function DistributionDonut({ portfolio, calculateProfitLoss, grou
                                 label={renderPieLabel}
                                 stroke="var(--color-surface)"
                                 strokeWidth={3}
+                                onMouseEnter={() => setHovered(true)}
+                                onMouseLeave={() => setHovered(false)}
                             >
                                 {distribution.map((entry) => (
                                     <Cell key={`cell-${entry.name}`} fill={`url(#grad-${groupBy}-${entry.name})`} />
                                 ))}
                             </Pie>
                             <Tooltip
-                                formatter={(value) => `${fmtTry(value)} ₺`}
+                                formatter={(value) => [fmt(value), '']}
                                 labelFormatter={labelFor}
                                 contentStyle={tooltipStyle}
+                                separator=""
                             />
                         </PieChart>
                     </ResponsiveContainer>
 
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <div className="text-[10px] uppercase tracking-wider text-text-muted">
-                            {t('portfolio:stats.totalValue', 'Toplam Değer')}
+                    {!hovered && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <div className="text-[10px] uppercase tracking-wider text-text-muted">
+                                {t('portfolio:stats.totalValue', 'Toplam Değer')}
+                            </div>
+                            <div className="text-xl font-bold text-text mt-0.5">
+                                {fmt(totalValue)}
+                            </div>
                         </div>
-                        <div className="text-xl font-bold text-text mt-0.5">
-                            {fmtTry(totalValue)} ₺
-                        </div>
-                    </div>
+                    )}
 
                     <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-2">
                         {distribution.map((entry, idx) => {
