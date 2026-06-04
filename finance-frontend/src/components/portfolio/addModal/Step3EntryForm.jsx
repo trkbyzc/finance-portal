@@ -10,7 +10,7 @@ import DatePicker from '../../common/DatePicker';
  * AddToPortfolioModal step 3 — adet + tutar (çift yönlü) + alış fiyatı + tarih.
  * Tarih seçilince o tarihteki fiyat çekilip alış fiyatı doldurulur. Submit → parent.onSubmit.
  */
-export default function Step3EntryForm({ selectedAsset, selectedType, selectedBackendValue, onSubmit, onBack }) {
+export default function Step3EntryForm({ selectedAsset, selectedType, selectedBackendValue, onSubmit, onBack, portfolios = [], activePortfolioId = null }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatNative } = useCurrency();
     const [quantity, setQuantity] = useState('');
@@ -20,6 +20,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const [priceLoading, setPriceLoading] = useState(false);
     const [datePriceInfo, setDatePriceInfo] = useState(null);
     const [loading, setLoading] = useState(false);
+    // Hedef portföy — varsayılan aktif portföy; birden fazla portföy varsa kullanıcı seçebilir.
+    const [targetPortfolioId, setTargetPortfolioId] = useState(activePortfolioId || (portfolios[0]?.id ?? ''));
 
     // VİOP'ta 1 sözleşme = çarpan kadar dayanak; nominal = fiyat × çarpan × adet
     const isViop = selectedType === 'VIOP' || selectedBackendValue === 'FUTURE';
@@ -77,6 +79,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 assetType: selectedBackendValue || selectedType,
                 quantity: parseFloat(quantity),
                 averagePrice: parseFloat(averagePrice),
+                // Seçilen hedef portföy (yoksa parent aktif portföye ekler)
+                ...(targetPortfolioId ? { portfolioId: targetPortfolioId } : {}),
                 // Alış tarihi seçildiyse gönder — reel getiri/enflasyon işlem tarihinden hesaplanır
                 ...(purchaseDate ? { purchaseDate } : {}),
                 ...(isViop ? { contractSize } : {})
@@ -117,6 +121,22 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     </div>
                 </div>
             </div>
+
+            {/* Hedef portföy seçici — birden fazla portföy varsa kullanıcı hangisine ekleyeceğini seçer */}
+            {portfolios.length > 1 && (
+                <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.targetPortfolio', 'Hangi portföye?')}</label>
+                    <select
+                        value={targetPortfolioId}
+                        onChange={(e) => setTargetPortfolioId(e.target.value)}
+                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                    >
+                        {portfolios.map((p) => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             {/* Alış Tarihi — Fiyat (yan yana, her biri tam %50; sıkışmaz, label'lar yukarıda ayrı satırda) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">

@@ -141,7 +141,8 @@ const PortfolioPage = () => {
                 currency: nativeCurrencyForType(item.assetType, item.symbol)
             };
         });
-        const totalCost = list.reduce((s, i) => s + i.averagePrice * i.quantity * (Number(i.contractSize) || 1), 0);
+        // Maliyet de TRY bazlı (calculateProfitLoss.costValue) — değer/K-Z ile tutarlı olsun
+        const totalCost = list.reduce((s, i) => s + (calculateProfitLoss(i).costValue || 0), 0);
         const totalValue = rows.reduce((s, r) => s + (r.currentValue || 0), 0);
         const totalPnl = totalValue - totalCost;
         const returnRate = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
@@ -197,15 +198,22 @@ const PortfolioPage = () => {
     };
 
     const addAssetMutation = useMutation({
-        mutationFn: (data) => portfolioApi.addManualEntry({ ...data, portfolioId: activePortfolioId }),
+        // Hedef portföy modal'dan gelebilir (portföy seçici); yoksa aktif portföy.
+        mutationFn: (data) => portfolioApi.addManualEntry({ ...data, portfolioId: data.portfolioId || activePortfolioId }),
         onSuccess: (res, vars) => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            const pid = vars?.portfolioId || activePortfolioId;
+            const pname = portfolios.find(p => p.id === pid)?.name;
             notify({
                 type: 'success',
                 title: t('portfolio:notify.assetAdded', 'Portföye eklendi'),
-                message: vars?.symbol ? t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: vars.symbol }) : ''
+                message: vars?.symbol
+                    ? (pname
+                        ? t('portfolio:notify.assetAddedToMsg', '{{symbol}} → {{portfolio}} portföyüne eklendi.', { symbol: vars.symbol, portfolio: pname })
+                        : t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: vars.symbol }))
+                    : ''
             });
         },
         onError: (err) => notify({
@@ -366,6 +374,8 @@ const PortfolioPage = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={(data) => addAssetMutation.mutateAsync(data)}
+                portfolios={portfolios}
+                activePortfolioId={activePortfolioId}
             />
 
             <BuyMoreModal

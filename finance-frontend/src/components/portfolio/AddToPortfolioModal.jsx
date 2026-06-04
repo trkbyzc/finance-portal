@@ -14,7 +14,7 @@ import Step3EntryForm from './addModal/Step3EntryForm';
  * her step ayrı component'te (addModal/ klasörü). FUND seçilince step 2'den 3'e geçerken
  * fiyat 0 dönüyorsa burada historical endpoint'inden son fiyatı çekip enrich ediyoruz.
  */
-const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
+const AddToPortfolioModal = ({ isOpen, onClose, onSubmit, portfolios = [], activePortfolioId = null }) => {
     const { t } = useTranslation('portfolio');
     const { currency: displayCurrency, toggleCurrency } = useCurrency();
     const [step, setStep] = useState(1);
@@ -123,6 +123,8 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
                             selectedBackendValue={selectedBackendValue}
                             onSubmit={handleSubmit}
                             onBack={handleBack}
+                            portfolios={portfolios}
+                            activePortfolioId={activePortfolioId}
                         />
                     )}
                 </div>
