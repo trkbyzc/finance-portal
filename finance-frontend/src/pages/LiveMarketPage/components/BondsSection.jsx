@@ -1,5 +1,5 @@
 import React from 'react';
-import { Landmark, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { translateBondLabel, translateBondName, translateBondDate } from '../../../utils/bondLabelTranslator';
@@ -9,7 +9,7 @@ export default function BondsSection({ trBonds }) {
     return (
         <div className="mb-16">
             <h2 className="text-2xl font-bold text-text flex items-center gap-2 mb-6">
-                {t('markets:live.bonds')} <Landmark className="text-text-muted" size={24} />
+                {t('markets:live.bonds')} <ChevronRight className="text-text-muted" size={24} />
             </h2>
             <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-lg p-6">
                 <h3 className="text-sm font-bold text-text-muted uppercase tracking-wider mb-4 flex items-center gap-2">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getFlagUrl, getHeatmapClass } from '../LiveMarketUtils';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
@@ -10,7 +10,7 @@ export default function ForexSection({ sortedForexList, onSelect, isLoading }) {
         return (
             <div className="mb-16">
                 <h2 className="text-2xl font-bold mb-6 text-text flex items-center gap-2">
-                    {t('markets:live.forex')} <Globe className="text-text-muted" size={24} />
+                    {t('markets:live.forex')} <ChevronRight className="text-text-muted" size={24} />
                 </h2>
                 <div className="bg-surface border border-border rounded-2xl flex items-center justify-center py-16 text-text-muted">
                     <Loader2 className="animate-spin mr-3" size={20} />
@@ -21,7 +21,7 @@ export default function ForexSection({ sortedForexList, onSelect, isLoading }) {
     return (
         <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 text-text flex items-center gap-2">
-                {t('markets:live.forex')} <Globe className="text-text-muted" size={24} />
+                {t('markets:live.forex')} <ChevronRight className="text-text-muted" size={24} />
             </h2>
             <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-lg">
                 <div className="overflow-x-auto">

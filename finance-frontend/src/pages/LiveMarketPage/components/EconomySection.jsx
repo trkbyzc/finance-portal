@@ -82,7 +82,7 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
                     )}
                 </div>
 
-                <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
+                <div className="mt-8 flex items-center border-t border-border pt-6">
                     <div className="flex items-center gap-1 bg-bg p-1.5 rounded-xl border border-border">
                         {ranges.map((r) => {
                             const isActive = economyRange === r.value;
@@ -90,10 +90,6 @@ export default function EconomySection({ economyMacro, economyMetric, setEconomy
                                 <button key={r.value} onClick={() => setEconomyRange(r.value)} className={`px-5 py-2 text-[11px] font-bold rounded-lg transition-all ${isActive ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text hover:bg-surface-2'}`}>{t(`common:ranges.${r.key}`)}</button>
                             );
                         })}
-                    </div>
-                    <div className="flex flex-col items-end">
-                        <span className="text-[11px] text-text-muted font-bold uppercase tracking-widest">{t('markets:live.dataSource')}</span>
-                        <span className="text-[11px] text-primary font-bold tracking-wide">TCMB EVDS</span>
                     </div>
                 </div>
             </div>

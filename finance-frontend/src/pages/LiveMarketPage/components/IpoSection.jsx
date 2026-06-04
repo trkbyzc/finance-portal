@@ -1,5 +1,5 @@
 import React from 'react';
-import { Rocket, CalendarCheck, Info } from 'lucide-react';
+import { ChevronRight, CalendarCheck, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function IpoSection({ ipos }) {
@@ -7,7 +7,7 @@ export default function IpoSection({ ipos }) {
     return (
         <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6 text-text flex items-center gap-2">
-                {t('live.ipoCalendar')} <Rocket className="text-text-muted" size={24} />
+                {t('live.ipoCalendar')} <ChevronRight className="text-text-muted" size={24} />
             </h2>
             {ipos && ipos.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatIndexName } from '../LiveMarketUtils';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
@@ -7,7 +8,7 @@ export default function IndicesSection({ indices, selectedSymbol, setSelectedSym
     const { t } = useTranslation('markets');
     return (
         <div className="mb-10">
-            <h2 className="text-xl font-bold mb-4 text-text">{t('live.indices')}</h2>
+            <h2 className="text-xl font-bold mb-4 text-text flex items-center gap-2">{t('live.indices')} <ChevronRight className="text-text-muted" size={22} /></h2>
             <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
                 {indices.map((idx, i) => (
                     <button
