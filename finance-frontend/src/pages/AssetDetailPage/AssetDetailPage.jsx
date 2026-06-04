@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, X } from 'lucide-react';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { useAssetDetails } from '../../hooks/useAssetDetails';
 import { portfolioApi } from '../../services/api/portfolioApi';
@@ -39,8 +40,34 @@ export default function AssetDetailPage() {
     });
 
     if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-bg">
-            <Loader2 className="animate-spin text-primary" size={48} />
+        <div className="min-h-screen bg-bg">
+            <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
+                {/* Başlık satırı: geri + sembol/fiyat */}
+                <div className="flex items-center gap-4 mb-8">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <Skeleton className="h-12 w-12 rounded-xl" />
+                    <div className="flex flex-col gap-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-3 w-20 opacity-70" />
+                    </div>
+                    <div className="ml-auto flex flex-col items-end gap-2">
+                        <Skeleton className="h-7 w-28" />
+                        <Skeleton className="h-3 w-16 opacity-70" />
+                    </div>
+                </div>
+                {/* Temel veriler kartı */}
+                <div className="bg-surface border border-border rounded-3xl p-6 mb-8">
+                    <Skeleton className="h-4 w-40 mb-4" />
+                    <Skeleton className="h-2 w-full mb-5 rounded-full" />
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <Skeleton key={i} className="h-14 rounded-xl" />
+                        ))}
+                    </div>
+                </div>
+                {/* Grafik bloğu */}
+                <Skeleton className="h-[650px] w-full rounded-3xl" />
+            </div>
         </div>
     );
 

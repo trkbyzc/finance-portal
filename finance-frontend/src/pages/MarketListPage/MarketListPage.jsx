@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2, Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
+import { Skeleton, MarketTableSkeleton } from '../../components/ui/Skeleton';
 import { aggregateApi } from '../../services/api';
 
 export default function MarketListPage() {
@@ -94,8 +95,17 @@ export default function MarketListPage() {
     });
 
     if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-bg">
-            <Loader2 className="animate-spin text-primary" size={48} />
+        <div className="min-h-screen bg-bg text-text">
+            <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
+                <div className="flex items-center gap-4 mb-8">
+                    <Skeleton className="h-10 w-10 rounded-lg" />
+                    <Skeleton className="h-8 w-48" />
+                </div>
+                <Skeleton className="h-11 w-full max-w-md mb-6 rounded-xl" />
+                <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+                    <MarketTableSkeleton rows={12} />
+                </div>
+            </div>
         </div>
     );
 

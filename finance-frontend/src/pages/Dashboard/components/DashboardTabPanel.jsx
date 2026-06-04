@@ -5,6 +5,7 @@ import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';
 import { formatPercent } from '../../../utils/formatters/numberFormatter';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';
 import { useNewsData } from '../../../hooks/useNewsData';
+import { MarketTableSkeleton } from '../../../components/ui/Skeleton';
 
 const TAB_TO_CATEGORY = {
     stocks: 'STOCK',
@@ -65,9 +66,7 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
 
                 <div className="flex-1 overflow-y-auto hide-scrollbar">
                     {showLoading ? (
-                        <div className="h-full flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-border border-t-primary"></div>
-                        </div>
+                        <MarketTableSkeleton rows={6} />
                     ) : isNewsTab ? (
                         /* HABERLER sekmesi — ayrı haber listesi */
                         <div className="divide-y divide-border/40">
