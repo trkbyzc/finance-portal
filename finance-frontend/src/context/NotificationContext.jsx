@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, AlertTriangle, XCircle, Info, X, Bell } from 'lucide-react';
 import { useAuth } from './AuthContext';
 

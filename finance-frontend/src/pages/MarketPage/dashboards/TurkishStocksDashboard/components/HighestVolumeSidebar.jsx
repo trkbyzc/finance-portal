@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../../hooks/useMarketData.js';

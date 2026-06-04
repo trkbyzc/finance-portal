@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight, Coins, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight, Clock, ImageOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';

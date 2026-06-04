@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -9,7 +8,7 @@ const LANGUAGES = [
     { code: 'en', label: 'EN', tooltip: 'English' }
 ];
 
-export default function LanguageToggle({ compact = false }) {
+export default function LanguageToggle() {
     const { i18n } = useTranslation();
     const current = i18n.language?.startsWith('en') ? 'en' : 'tr';
 

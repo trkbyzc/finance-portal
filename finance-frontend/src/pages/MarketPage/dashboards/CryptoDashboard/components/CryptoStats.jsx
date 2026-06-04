@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Activity, Zap, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

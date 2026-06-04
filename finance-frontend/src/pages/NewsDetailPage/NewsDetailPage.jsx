@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,7 @@ export default function NewsDetailPage() {
             try {
                 const res = await newsApi.getNewsContent(newsItem.link, lang);
                 return res?.content || t('detail.notFound');
-            } catch (err) {
+            } catch {
                 return t('detail.notFound');
             }
         },

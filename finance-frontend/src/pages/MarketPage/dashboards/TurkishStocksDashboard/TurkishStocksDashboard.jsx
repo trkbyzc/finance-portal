@@ -1,4 +1,3 @@
-import React from 'react';
 import TopMoversSidebar from './components/TopMoversSidebar.jsx';
 import HighestVolumeSidebar from './components/HighestVolumeSidebar.jsx';
 import StockListTable from './components/StockListTable.jsx';

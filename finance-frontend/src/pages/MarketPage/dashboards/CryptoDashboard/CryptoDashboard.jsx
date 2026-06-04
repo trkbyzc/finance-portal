@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNewsData } from '../../../../hooks/useNewsData';
 import CryptoHeader from './components/CryptoHeader';

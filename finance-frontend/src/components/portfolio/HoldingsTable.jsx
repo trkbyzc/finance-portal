@@ -1,4 +1,3 @@
-import React from 'react';
 import { Clock, Plus, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';

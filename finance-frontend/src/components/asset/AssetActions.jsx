@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Bell, X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

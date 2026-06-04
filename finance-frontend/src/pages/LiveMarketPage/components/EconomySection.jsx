@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight, Loader2, TrendingUp, Users, Percent } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';

@@ -17,11 +17,7 @@ const portfolio = [
     { symbol: 'B', quantity: 5, averagePrice: 200 },
 ];
 
-const calcFn = vi.fn((item) => {
-    // currentValue toplam 3000, cost toplam 2000 → kâr 1000
-    if (item.symbol === 'A') return { costValue: 1000, currentValue: 1500 };
-    return { costValue: 1000, currentValue: 1500 };
-});
+const calcFn = vi.fn(() => ({ costValue: 1000, currentValue: 1500 }));
 
 describe('PortfolioStats', () => {
     it('toplam değerler hesaplanır + kâr durumu (pnlUp)', () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function Modal({ isOpen, title, message, type = 'error', onClose, confirmText, showCancel = false, onCancel }) {

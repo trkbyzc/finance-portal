@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

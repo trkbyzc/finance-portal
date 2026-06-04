@@ -1,4 +1,3 @@
-import React from 'react';
 import { Clock, Globe } from 'lucide-react';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';
 import NewsAssetChip from '../../../components/news/NewsAssetChip';

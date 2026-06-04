@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLocation } from 'react-router-dom';
 import MarketTicker from './MarketTicker';
 import useUserPreferences from '../../../hooks/useUserPreferences';

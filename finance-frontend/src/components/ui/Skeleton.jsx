@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * Tema-aware shimmer skeleton primitive.

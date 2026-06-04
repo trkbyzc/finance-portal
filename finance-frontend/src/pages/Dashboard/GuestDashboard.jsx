@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Landmark, Ship, Coins, Newspaper, UserPlus, Star, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

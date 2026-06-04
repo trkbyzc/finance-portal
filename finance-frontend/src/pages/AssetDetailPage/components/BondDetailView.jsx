@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import TradingChart from '../../../components/charts/TradingChart/TradingChart.jsx';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Activity, TrendingDown, Gauge, ShieldCheck, Loader2, Sigma, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useRiskAnalytics from '../../pages/PortfolioPage/hooks/useRiskAnalytics';

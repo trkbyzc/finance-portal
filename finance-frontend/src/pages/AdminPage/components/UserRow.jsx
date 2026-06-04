@@ -1,4 +1,3 @@
-import React from 'react';
 import { Ban, ShieldOff, LogOut, Trash2, ShieldCheck } from 'lucide-react';
 import { formatDate } from '../../../utils/formatters/dateFormatter';
 

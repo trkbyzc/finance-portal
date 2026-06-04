@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useComparisonData } from '../../../hooks/useComparisonData.js';
 import { useCurrency } from '../../../context/CurrencyContext';
 import ComparisonChipBar from './comparison/ComparisonChipBar';

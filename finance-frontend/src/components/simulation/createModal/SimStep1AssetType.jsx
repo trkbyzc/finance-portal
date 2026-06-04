@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SIM_ASSET_TYPES } from './simAssetTypes';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { getFlagUrl } from '../../../utils/currencyUtils.js';
 import { IMPACT_LEVELS, MAJOR_COUNTRIES, todayIso } from '../calendarHelpers';

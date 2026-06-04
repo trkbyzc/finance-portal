@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 /**
  * Tema sistemi: 3 tema arasında geçiş + localStorage'a persist.
@@ -23,7 +23,7 @@ const getInitialTheme = () => {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored && VALID_THEMES.includes(stored)) return stored;
-    } catch (_) { /* localStorage erişimi yoksa default'a düş */ }
+    } catch { /* localStorage erişimi yoksa default'a düş */ }
     return DEFAULT_THEME;
 };
 
@@ -34,7 +34,7 @@ export const ThemeProvider = ({ children }) => {
         document.documentElement.setAttribute('data-theme', theme);
         try {
             localStorage.setItem(STORAGE_KEY, theme);
-        } catch (_) { /* ignore */ }
+        } catch { /* ignore */ }
     }, [theme]);
 
     const setTheme = (next) => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { LayoutGrid, Coins, Droplets, Wheat, Construction } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

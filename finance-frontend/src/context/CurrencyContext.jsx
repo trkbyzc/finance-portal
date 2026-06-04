@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { currencyApi } from '../services/api';

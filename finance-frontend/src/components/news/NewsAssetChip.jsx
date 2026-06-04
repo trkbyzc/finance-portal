@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, ArrowUpRight } from 'lucide-react';
 import { newsAssetLink } from '../../utils/newsAssetLink';

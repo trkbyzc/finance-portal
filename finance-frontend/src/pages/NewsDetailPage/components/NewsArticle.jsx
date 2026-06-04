@@ -1,4 +1,3 @@
-import React from 'react';
 import { Clock, Globe, ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';

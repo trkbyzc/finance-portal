@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { detectCategoryFromSymbol } from '../../../utils/categoryUtils';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';

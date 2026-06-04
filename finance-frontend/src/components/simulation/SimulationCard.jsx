@@ -1,4 +1,3 @@
-import React from 'react';
 import { Trash2, TrendingUp, TrendingDown, Info } from 'lucide-react';
 
 const fmtTry = (v) => Number(v ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

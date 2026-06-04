@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { getFlagUrl } from '../../../utils/currencyUtils.js';
 import { fmtDateHeader, fmtTime, fmtNum, impactDotClass } from '../calendarHelpers';

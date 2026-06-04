@@ -1,4 +1,3 @@
-import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

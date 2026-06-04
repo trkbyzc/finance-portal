@@ -1,4 +1,4 @@
-import React from 'react';
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export default function NavDropdown({ title, items }) {
             <div className="absolute top-full left-0 w-64 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-150 z-50 pt-1">
                 <div className="bg-surface border border-border rounded-xl shadow-2xl shadow-black/20 py-1.5 flex flex-col overflow-hidden">
                     {items.map((item, idx) => (
-                        <React.Fragment key={idx}>
+                        <Fragment key={idx}>
                             {item.type === 'divider' ? (
                                 <div className="h-px bg-border my-1 mx-3" />
                             ) : item.submenu ? (
@@ -53,7 +53,7 @@ export default function NavDropdown({ title, items }) {
                                     </span>
                                 </Link>
                             )}
-                        </React.Fragment>
+                        </Fragment>
                     ))}
                 </div>
             </div>

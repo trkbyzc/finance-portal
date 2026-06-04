@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * 8 preset avatar — emoji + gradient. localStorage'da `profile_avatar_id` olarak id saklanır.

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../config/apiClient';
 import tokenManager from '../utils/tokenManager';
 import authApi from '../services/api/authApi';
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         try {
-            console.log('🔄 Token yenileniyor...');
+            console.warn('🔄 Token yenileniyor...');
             const response = await authApi.refreshAccessToken(storedRefreshToken);
 
             const tokenData = typeof response === 'string' ? JSON.parse(response) : response;
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             setToken(tokenData.access_token);
-            console.log('✅ Token başarıyla yenilendi');
+            console.warn('✅ Token başarıyla yenilendi');
 
             setupTokenRefresh(tokenData.access_token);
 
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
         if (expiresIn > 0) {
             const refreshTime = expiresIn * TOKEN_REFRESH_THRESHOLD * 1000;
-            console.log(`⏰ Token ${Math.round(refreshTime / 1000)} saniye sonra yenilenecek`);
+            console.warn(`⏰ Token ${Math.round(refreshTime / 1000)} saniye sonra yenilenecek`);
 
             const timer = setTimeout(() => {
                 refreshToken();
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('logout') === 'true') {
-            console.log('🚪 Keycloak üzerinden çıkış onaylandı, tamamen temizleniyor...');
+            console.warn('🚪 Keycloak üzerinden çıkış onaylandı, tamamen temizleniyor...');
             forceLocalLogout();
 
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -101,17 +101,17 @@ export const AuthProvider = ({ children }) => {
         const storedToken = tokenManager.getAccessToken();
 
         if (storedToken) {
-            console.log('🔍 Kaydedilmiş token bulundu, doğrulanıyor...');
+            console.warn('🔍 Kaydedilmiş token bulundu, doğrulanıyor...');
 
             if (tokenManager.isTokenExpired(storedToken)) {
-                console.log('⚠️ Token süresi dolmuş, yenileniyor...');
+                console.warn('⚠️ Token süresi dolmuş, yenileniyor...');
                 refreshToken().finally(() => setLoading(false));
             } else {
                 validateToken(storedToken);
                 setupTokenRefresh(storedToken);
             }
         } else {
-            console.log('ℹ️ Token bulunamadı, kullanıcı giriş yapmamış');
+            console.warn('ℹ️ Token bulunamadı, kullanıcı giriş yapmamış');
             setLoading(false);
         }
 
@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error("Token süresi dolmuş (Expired)");
             }
 
-            console.log('✅ Token geçerli (JWT Decode), kullanıcı:', tokenData.preferred_username);
+            console.warn('✅ Token geçerli (JWT Decode), kullanıcı:', tokenData.preferred_username);
 
             const roles = tokenData.realm_access?.roles || [];
             const isAdmin = roles.includes('ADMIN');
@@ -160,13 +160,13 @@ export const AuthProvider = ({ children }) => {
 
     const login = () => {
         const authUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid profile email`;
-        console.log('🔐 Keycloak login sayfasına yönlendiriliyor...');
+        console.warn('🔐 Keycloak login sayfasına yönlendiriliyor...');
         window.location.href = authUrl;
     };
 
     const register = () => {
         const registerUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/registrations?client_id=${CLIENT_ID}&response_type=code&scope=openid profile email&redirect_uri=${REDIRECT_URI}`;
-        console.log('📝 Keycloak register sayfasına yönlendiriliyor...');
+        console.warn('📝 Keycloak register sayfasına yönlendiriliyor...');
         window.location.href = registerUrl;
     };
 
@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }) => {
 
     // 🚀 ÇIKIŞ METODU (GARANTİ SESSION TEMİZLEYİCİ)
     const logout = async () => {
-        console.log('🚪 Çıkış yapılıyor, oturum tamamen kapatılıyor...');
+        console.warn('🚪 Çıkış yapılıyor, oturum tamamen kapatılıyor...');
 
         if (refreshTimer) {
             clearTimeout(refreshTimer);
@@ -222,7 +222,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const handleCallback = async (code) => {
-        console.log('🔄 Token alınıyor, code:', code.substring(0, 20) + '...');
+        console.warn('🔄 Token alınıyor, code:', code.substring(0, 20) + '...');
 
         try {
             const response = await fetch(`${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/token`, {
@@ -245,7 +245,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            console.log('✅ Token alındı');
+            console.warn('✅ Token alındı');
 
             tokenManager.setTokens(data.access_token, data.refresh_token);
             if(data.id_token) {
@@ -261,14 +261,14 @@ export const AuthProvider = ({ children }) => {
             }
 
             const userData = await userInfoResponse.json();
-            console.log('✅ Kullanıcı bilgileri alındı:', userData);
+            console.warn('✅ Kullanıcı bilgileri alındı:', userData);
 
             setToken(data.access_token);
             setUser(userData);
 
             setupTokenRefresh(data.access_token);
 
-            console.log('✅ Giriş başarılı, ana sayfaya yönlendiriliyor...');
+            console.warn('✅ Giriş başarılı, ana sayfaya yönlendiriliyor...');
             setTimeout(() => {
                 window.location.href = '/';
             }, 500);

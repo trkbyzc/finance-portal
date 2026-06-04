@@ -1,4 +1,4 @@
-import React from 'react';
+import { Fragment } from 'react';
 
 /**
  * 1-2-3 progress dots. step prop'una göre dolu/boş gösterir.
@@ -9,7 +9,7 @@ export default function StepIndicator({ step, total = 3 }) {
     return (
         <div className="flex items-center justify-center mb-8">
             {dots.map((n, idx) => (
-                <React.Fragment key={n}>
+                <Fragment key={n}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         step >= n ? 'bg-primary' : 'bg-surface-hover'
                     }`}>
@@ -18,7 +18,7 @@ export default function StepIndicator({ step, total = 3 }) {
                     {idx < dots.length - 1 && (
                         <div className={`w-16 h-1 ${step > n ? 'bg-primary' : 'bg-surface-hover'}`} />
                     )}
-                </React.Fragment>
+                </Fragment>
             ))}
         </div>
     );

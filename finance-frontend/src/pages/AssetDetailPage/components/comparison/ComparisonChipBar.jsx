@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, BarChart2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { COMPARISON_COLORS } from './comparisonHelpers';

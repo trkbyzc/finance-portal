@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layers, Briefcase, Bitcoin, DollarSign, Gem, Landmark, PieChart, GitCompare } from 'lucide-react';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Activity, ArrowRight, UserPlus, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { goToRegister } from '../../../utils/keycloak';

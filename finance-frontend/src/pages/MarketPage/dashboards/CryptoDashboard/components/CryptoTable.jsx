@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Coins } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

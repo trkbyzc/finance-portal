@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useFundChartData } from '../../../hooks/charts/useFundChartData';
 import FundHeader from './components/FundHeader';
 import FundRangeSelector from './components/FundRangeSelector';

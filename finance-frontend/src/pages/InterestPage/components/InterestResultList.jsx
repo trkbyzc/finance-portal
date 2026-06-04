@@ -1,5 +1,4 @@
-import React from 'react';
-import { Building, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
+import { Building, ShieldCheck, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 

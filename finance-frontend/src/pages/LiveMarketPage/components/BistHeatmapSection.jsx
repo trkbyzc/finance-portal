@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Treemap, ResponsiveContainer } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

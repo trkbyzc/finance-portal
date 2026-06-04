@@ -1,4 +1,3 @@
-import React from 'react';
 import { Loader2, GitCompare } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import { useTranslation } from 'react-i18next';

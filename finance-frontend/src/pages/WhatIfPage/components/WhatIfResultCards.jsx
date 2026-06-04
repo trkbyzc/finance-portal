@@ -1,4 +1,3 @@
-import React from 'react';
 import { TrendingUp, TrendingDown, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PALETTE, fmtTry } from '../whatIfHelpers';

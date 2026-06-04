@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SIM_ASSET_TYPES } from './createModal/simAssetTypes';
@@ -62,12 +62,12 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
 
                     <div className="flex items-center justify-center mb-6 gap-1">
                         {[1, 2, 3].map(n => (
-                            <React.Fragment key={n}>
+                            <Fragment key={n}>
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                                     step >= n ? 'bg-primary text-primary-fg' : 'bg-surface-hover text-text-muted'
                                 }`}>{n}</div>
                                 {n < 3 && <div className={`w-12 h-1 ${step > n ? 'bg-primary' : 'bg-surface-hover'}`} />}
-                            </React.Fragment>
+                            </Fragment>
                         ))}
                     </div>
 

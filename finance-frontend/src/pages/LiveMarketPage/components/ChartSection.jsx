@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { apiClient } from '../../../config/apiClient';
 import { AreaChart, CandlestickChart, ExternalLink } from 'lucide-react';
 import { init, dispose } from 'klinecharts';

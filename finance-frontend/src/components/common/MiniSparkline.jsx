@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { historicalApi } from '../../services/api';

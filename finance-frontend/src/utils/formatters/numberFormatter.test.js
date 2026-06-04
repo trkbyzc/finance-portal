@@ -15,7 +15,7 @@ describe('numberFormatter', () => {
         it('NaN → "-"', () => expect(formatNumber(NaN)).toBe('-'));
 
         it('TR locale → ondalık , ayraçı', () => {
-            expect(formatNumber(1234.5)).toMatch(/1\.234,50|1 234,50/);
+            expect(formatNumber(1234.5)).toMatch(/1\.234,50|1 234,50/);
         });
 
         it('EN locale → ondalık . ayraçı', () => {

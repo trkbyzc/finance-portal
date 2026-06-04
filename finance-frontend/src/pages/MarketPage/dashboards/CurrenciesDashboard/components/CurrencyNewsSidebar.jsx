@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Newspaper, Clock, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

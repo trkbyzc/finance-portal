@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight, CalendarCheck, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

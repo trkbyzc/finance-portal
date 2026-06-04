@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';

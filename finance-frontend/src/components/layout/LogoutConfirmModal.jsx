@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { LogOut, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

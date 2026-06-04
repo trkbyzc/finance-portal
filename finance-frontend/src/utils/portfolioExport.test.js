@@ -118,16 +118,16 @@ describe('exportPortfolioPdf', () => {
 
 describe('loadLogoDataUrl', () => {
     it('fetch başarısız → null döner', async () => {
-        global.fetch = vi.fn(() => Promise.reject(new Error('fail')));
+        globalThis.fetch = vi.fn(() => Promise.reject(new Error('fail')));
         const url = await loadLogoDataUrl();
         expect(url).toBeNull();
     });
 
     it('fetch + blob + FileReader → dataURL döner', async () => {
         const fakeBlob = new Blob(['x'], { type: 'image/png' });
-        global.fetch = vi.fn(() => Promise.resolve({ blob: () => Promise.resolve(fakeBlob) }));
-        const OriginalReader = global.FileReader;
-        global.FileReader = class {
+        globalThis.fetch = vi.fn(() => Promise.resolve({ blob: () => Promise.resolve(fakeBlob) }));
+        const OriginalReader = globalThis.FileReader;
+        globalThis.FileReader = class {
             constructor() {
                 this.result = 'data:image/png;base64,ABC';
             }
@@ -137,6 +137,6 @@ describe('loadLogoDataUrl', () => {
         };
         const url = await loadLogoDataUrl();
         expect(url).toBe('data:image/png;base64,ABC');
-        global.FileReader = OriginalReader;
+        globalThis.FileReader = OriginalReader;
     });
 });

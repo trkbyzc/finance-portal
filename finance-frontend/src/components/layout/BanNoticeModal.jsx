@@ -1,4 +1,3 @@
-import React from 'react';
 import { Ban, CalendarClock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../utils/formatters/dateFormatter';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { PieChart, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../../../utils/formatters/numberFormatter';

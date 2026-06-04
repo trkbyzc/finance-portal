@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { BarChart2, Activity, Mountain, SlidersHorizontal, Calendar, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

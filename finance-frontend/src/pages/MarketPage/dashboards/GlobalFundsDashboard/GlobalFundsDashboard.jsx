@@ -1,4 +1,3 @@
-import React from 'react';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +6,7 @@ import { formatNumber } from '../../../../utils/formatters/numberFormatter';
 
 export default function GlobalFundsDashboard() {
     const navigate = useNavigate();
-    const { data: etfs, loading } = useMarketData('global-funds');
+    const { data: etfs } = useMarketData('global-funds');
     const { t } = useTranslation(['markets', 'common']);
 
     return (

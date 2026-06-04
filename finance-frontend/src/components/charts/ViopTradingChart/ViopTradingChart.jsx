@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { init, dispose } from 'klinecharts';
 import { useViopChartData, getPastDate } from '../../../hooks/charts/useViopChartData';
 import { useCurrency } from '../../../context/CurrencyContext';
@@ -21,7 +21,7 @@ export default function ViopTradingChart({ asset }) {
     }), []);
 
     const [customFromDate, setCustomFromDate] = useState(fromDate);
-    const [customToDate, setCustomToDate] = useState(toDate);
+    const [customToDate] = useState(toDate);
 
     const handleRangeChange = (newRange) => {
         setRange(newRange);

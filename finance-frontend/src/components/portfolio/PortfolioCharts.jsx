@@ -1,4 +1,3 @@
-import React from 'react';
 import DistributionDonut from './charts/DistributionDonut';
 import PnlBarChart from './charts/PnlBarChart';
 

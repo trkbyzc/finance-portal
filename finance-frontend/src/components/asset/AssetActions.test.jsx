@@ -26,7 +26,7 @@ vi.mock('../alarm/AlarmModal', () => ({
 
 import AssetActions from './AssetActions';
 
-const wrap = (overrides = {}) => {
+const wrap = () => {
     const c = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     return ({ children }) => <QueryClientProvider client={c}>{children}</QueryClientProvider>;
 };

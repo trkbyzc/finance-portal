@@ -1,4 +1,3 @@
-import React from 'react';
 import { getFlagUrl } from '../../../utils/currencyUtils';
 
 /**

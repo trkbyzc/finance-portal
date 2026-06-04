@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Bell, Loader2, Trash2, ArrowUp, ArrowDown, Power, Zap, Repeat } from 'lucide-react';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import TradingChart from '../../../../../components/charts/TradingChart/TradingChart.jsx';
 import ViopTradingChart from '../../../../../components/charts/ViopTradingChart/ViopTradingChart.jsx';

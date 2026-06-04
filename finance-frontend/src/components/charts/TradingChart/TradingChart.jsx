@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, memo, useMemo, useCallback } from 'react';
+import { useEffect, useRef, useState, memo, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { registerCustomOverlays } from '../../../config/customOverlays.js';

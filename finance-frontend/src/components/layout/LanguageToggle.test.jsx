@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/react';
 
-const changeLanguage = vi.fn();
 const { i18nMock } = vi.hoisted(() => ({ i18nMock: { language: 'tr', changeLanguage: vi.fn() } }));
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ i18n: i18nMock })
