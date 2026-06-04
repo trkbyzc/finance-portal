@@ -31,6 +31,16 @@ public class NewsController {
         return ResponseEntity.ok(newsService.getPagedNews(category, page, size, lang));
     }
 
+    @GetMapping("/by-symbol")
+    @Operation(summary = "Bir Varlığı Etkileyen Haberler",
+               description = "relatedSymbol etiketi verilen sembolle eşleşen haberleri döner (varlık detayındaki 'İlgili Haberler').")
+    public ResponseEntity<List<com.financeportal.domains.news.dto.NewsDto>> getNewsBySymbol(
+            @RequestParam String symbol,
+            @RequestParam(defaultValue = "6") int limit,
+            @RequestParam(defaultValue = "tr") String lang) {
+        return ResponseEntity.ok(newsService.getNewsBySymbol(symbol, limit, lang));
+    }
+
     @GetMapping("/content")
     @Operation(summary = "Haberin Tam Metnini Çek (Scraping)",
                description = "lang=en için scraped content LibreTranslate ile çevrilir ve 7 gün cache'lenir.")

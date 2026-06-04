@@ -1,5 +1,8 @@
 {
   "back": "Back",
+  "relatedNews": {
+    "title": "Related News"
+  },
   "fundamentals": {
     "title": "Fundamentals",
     "week52": "52-Week Range",

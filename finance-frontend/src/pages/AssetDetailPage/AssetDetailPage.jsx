@@ -15,6 +15,7 @@ import AssetChartArea from './components/AssetChartArea';
 import BondDetailView from './components/BondDetailView';
 import ComparisonSection from './components/ComparisonSection';
 import StockFundamentals from './components/StockFundamentals';
+import RelatedNews from './components/RelatedNews';
 
 const CUR_SYMBOL = { TRY: '₺', USD: '$' };
 
@@ -140,6 +141,7 @@ export default function AssetDetailPage() {
                 )}
                 <AssetChartArea asset={asset} isViop={isViop} />
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
+                <RelatedNews symbol={asset?.yahooSymbol || asset?.symbol} />
             </div>
 
             {isAddModalOpen && (

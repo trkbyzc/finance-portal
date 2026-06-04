@@ -6,6 +6,7 @@ import { formatPercent } from '../../../utils/formatters/numberFormatter';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';
 import { useNewsData } from '../../../hooks/useNewsData';
 import { MarketTableSkeleton } from '../../../components/ui/Skeleton';
+import NewsAssetChip from '../../../components/news/NewsAssetChip';
 
 const TAB_TO_CATEGORY = {
     stocks: 'STOCK',
@@ -97,6 +98,7 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
                                             <span className="flex items-center gap-1 shrink-0">
                                                 <Clock size={10} /> {formatDateTime(item.pubDate)}
                                             </span>
+                                            <NewsAssetChip item={item} className="ml-auto" />
                                         </div>
                                     </div>
                                     <ChevronRight size={16} className="shrink-0 text-border group-hover/row:text-primary transition-colors" />

@@ -25,12 +25,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NewsSyncService {
 
-    // Bumped to v15 — Dünya Gazetesi (genel feed) kaldırıldı, yerine AA Ekonomi (kategori-spesifik) geldi.
-    protected static final String REDIS_KEY = "cache:news:v15";
+    // Bumped to v16 — NewsEntityTagger ilgili-varlık etiketleri eklendi; cache yeniden kurulup
+    // tüm haberler etiketlensin diye key bump'landı.
+    protected static final String REDIS_KEY = "cache:news:v16";
     private final RedisTemplate<String, Object> redisTemplate;
     private final RssIntegrationClient rssIntegrationClient;
     private final ObjectMapper objectMapper;
     private final NewsCategoryClassifier categoryClassifier;
+    private final NewsEntityTagger newsEntityTagger;
     private final BootstrapReadinessTracker bootstrapTracker;
     private final TranslationClient translationClient;
 
@@ -124,6 +126,7 @@ public class NewsSyncService {
             for (NewsDto news : fetched) {
                 if (acceptArticle(news, processedLinks)) {
                     news.setCategory(categoryClassifier.assignCategory(news.getTitle(), news.getDescription()));
+                    newsEntityTagger.tag(news); // ilgili varlık etiketi (relatedSymbol/name/category)
                     masterList.add(news);
                     processedLinks.add(news.getLink());
                     added++;

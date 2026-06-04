@@ -1,5 +1,8 @@
 {
   "back": "Geri",
+  "relatedNews": {
+    "title": "İlgili Haberler"
+  },
   "fundamentals": {
     "title": "Temel Veriler",
     "week52": "52 Hafta Aralığı",

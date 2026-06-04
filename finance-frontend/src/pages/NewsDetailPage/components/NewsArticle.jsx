@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock, Globe, ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';
+import NewsAssetChip from '../../../components/news/NewsAssetChip';
 
 export default function NewsArticle({ newsItem, content, loading, navigate }) {
     const { t } = useTranslation('news');
@@ -19,6 +20,7 @@ export default function NewsArticle({ newsItem, content, loading, navigate }) {
                 <span className="text-text-muted text-sm flex items-center gap-1">
                     <Globe size={14} /> {newsItem.source}
                 </span>
+                <NewsAssetChip item={newsItem} />
             </div>
 
             <h1 className="text-3xl md:text-5xl font-bold mb-8 leading-tight">{newsItem.title}</h1>

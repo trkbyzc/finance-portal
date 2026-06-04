@@ -4,6 +4,7 @@ import { Clock, ExternalLink, Newspaper, ImageOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNewsData } from '../../hooks/useNewsData';
 import { formatDateTime } from '../../utils/formatters/dateFormatter';
+import NewsAssetChip from './NewsAssetChip';
 
 const ACCENT_CLASSES = {
     primary: { icon: 'text-primary', border: 'hover:border-primary', btnHover: 'hover:bg-primary', bg: 'bg-primary/10' },
@@ -91,6 +92,7 @@ export default function NewsSection({
                                 <h3 className="text-sm font-bold text-text group-hover:text-text line-clamp-3 leading-snug">
                                     {item.title}
                                 </h3>
+                                <div className="mt-2"><NewsAssetChip item={item} /></div>
                                 <div className="flex items-center justify-between text-[10px] text-text-muted font-bold uppercase tracking-tight mt-2">
                                     <span className={`${styles.icon} truncate max-w-[100px]`}>{item.source}</span>
                                     <span className="flex items-center gap-1 shrink-0">

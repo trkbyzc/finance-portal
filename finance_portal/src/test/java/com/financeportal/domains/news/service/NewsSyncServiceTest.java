@@ -47,7 +47,7 @@ class NewsSyncServiceTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        service = new NewsSyncService(redisTemplate, rssClient, objectMapper, categoryClassifier, bootstrapTracker, translationClient);
+        service = new NewsSyncService(redisTemplate, rssClient, objectMapper, categoryClassifier, new NewsEntityTagger(), bootstrapTracker, translationClient);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
         // Translation kapalı varsayılıyor — testler eski davranışı koruyor (sadece RSS path).
         when(translationClient.isAvailable()).thenReturn(false);
@@ -68,7 +68,7 @@ class NewsSyncServiceTest {
 
     @Test
     void fetch_emptyCache_fetchesAllSourcesAndCaches() {
-        when(valueOps.get("cache:news:v15")).thenReturn(null);
+        when(valueOps.get("cache:news:v16")).thenReturn(null);
         when(rssClient.fetchNewsFromSource(anyString(), anyString()))
                 .thenReturn(List.of(news("http://link1", "Title1", "Desc1", "2026-06-01")));
         when(categoryClassifier.assignCategory(anyString(), anyString())).thenReturn("Genel");
@@ -76,7 +76,7 @@ class NewsSyncServiceTest {
         service.fetchAndCacheNews();
 
         verify(rssClient, atLeastOnce()).fetchNewsFromSource(anyString(), anyString());
-        verify(valueOps).set(eq("cache:news:v15"), any(), eq(Duration.ofDays(7)));
+        verify(valueOps).set(eq("cache:news:v16"), any(), eq(Duration.ofDays(7)));
         verify(bootstrapTracker).markComplete("News");
     }
 
@@ -85,7 +85,7 @@ class NewsSyncServiceTest {
         // Cache already has 1 article
         NewsDto existing = news("http://existing", "Existing", "desc", "2026-06-01");
         String cachedJson = objectMapper.writeValueAsString(List.of(existing));
-        when(valueOps.get("cache:news:v15")).thenReturn(cachedJson);
+        when(valueOps.get("cache:news:v16")).thenReturn(cachedJson);
 
         // RSS returns 2 articles: 1 duplicate + 1 new
         NewsDto duplicate = news("http://existing", "Existing dup", "desc", "2026-06-01");
@@ -97,7 +97,7 @@ class NewsSyncServiceTest {
         service.fetchAndCacheNews();
 
         ArgumentCaptor<Object> cap = ArgumentCaptor.forClass(Object.class);
-        verify(valueOps).set(eq("cache:news:v15"), cap.capture(), any(Duration.class));
+        verify(valueOps).set(eq("cache:news:v16"), cap.capture(), any(Duration.class));
         String savedJson = (String) cap.getValue();
         // Both existing and new article saved, deduped
         assertTrue(savedJson.contains("http://existing"));
@@ -109,7 +109,7 @@ class NewsSyncServiceTest {
         // Cache has same article RSS returns
         NewsDto existing = news("http://link1", "T", "D", "2026-06-01");
         String cachedJson = objectMapper.writeValueAsString(List.of(existing));
-        when(valueOps.get("cache:news:v15")).thenReturn(cachedJson);
+        when(valueOps.get("cache:news:v16")).thenReturn(cachedJson);
 
         // RSS returns same article
         when(rssClient.fetchNewsFromSource(anyString(), anyString()))
@@ -123,7 +123,7 @@ class NewsSyncServiceTest {
 
     @Test
     void fetch_sourceThrows_continuesToNext() {
-        when(valueOps.get("cache:news:v15")).thenReturn(null);
+        when(valueOps.get("cache:news:v16")).thenReturn(null);
         when(rssClient.fetchNewsFromSource(anyString(), anyString()))
                 .thenThrow(new RuntimeException("bloomberg down"))
                 .thenReturn(List.of(news("http://link", "T", "D", "2026-06-01")));
@@ -132,13 +132,13 @@ class NewsSyncServiceTest {
         service.fetchAndCacheNews();
 
         // Failure on first source, second succeeds → cache still updated
-        verify(valueOps).set(eq("cache:news:v15"), any(), any(Duration.class));
+        verify(valueOps).set(eq("cache:news:v16"), any(), any(Duration.class));
         verify(bootstrapTracker).markComplete("News");
     }
 
     @Test
     void fetch_articleCategoryAssigned_byClassifier() {
-        when(valueOps.get("cache:news:v15")).thenReturn(null);
+        when(valueOps.get("cache:news:v16")).thenReturn(null);
         NewsDto article = news("http://link1", "Bitcoin rise", "BTC up", "2026-06-01");
         when(rssClient.fetchNewsFromSource(anyString(), anyString()))
                 .thenReturn(List.of(article));
@@ -152,7 +152,7 @@ class NewsSyncServiceTest {
 
     @Test
     void fetch_sortedByPubDateDescending() {
-        when(valueOps.get("cache:news:v15")).thenReturn(null);
+        when(valueOps.get("cache:news:v16")).thenReturn(null);
         NewsDto older = news("http://older", "Older", "D", "2026-06-01T08:00:00+03:00");
         NewsDto newer = news("http://newer", "Newer", "D", "2026-06-01T20:00:00+03:00");
         // Return both in arbitrary order
@@ -163,7 +163,7 @@ class NewsSyncServiceTest {
         service.fetchAndCacheNews();
 
         ArgumentCaptor<Object> cap = ArgumentCaptor.forClass(Object.class);
-        verify(valueOps).set(eq("cache:news:v15"), cap.capture(), any(Duration.class));
+        verify(valueOps).set(eq("cache:news:v16"), cap.capture(), any(Duration.class));
         String savedJson = (String) cap.getValue();
         // newer should come first
         int newerIdx = savedJson.indexOf("http://newer");
@@ -173,7 +173,7 @@ class NewsSyncServiceTest {
 
     @Test
     void fetch_alwaysMarksBootstrapComplete_evenOnFailure() {
-        when(valueOps.get("cache:news:v15")).thenThrow(new RuntimeException("redis down"));
+        when(valueOps.get("cache:news:v16")).thenThrow(new RuntimeException("redis down"));
 
         // Should not throw
         service.fetchAndCacheNews();
@@ -183,7 +183,7 @@ class NewsSyncServiceTest {
 
     @Test
     void getCachedNews_invalidJson_returnsEmpty() {
-        when(valueOps.get("cache:news:v15")).thenReturn("garbage");
+        when(valueOps.get("cache:news:v16")).thenReturn("garbage");
 
         when(rssClient.fetchNewsFromSource(anyString(), anyString())).thenReturn(List.of());
         service.fetchAndCacheNews();
@@ -195,7 +195,7 @@ class NewsSyncServiceTest {
     @Test
     void getCachedNews_nonStringCached_returnsEmpty() {
         // Cache has wrong type (e.g., List)
-        when(valueOps.get("cache:news:v15")).thenReturn(List.of("not a json string"));
+        when(valueOps.get("cache:news:v16")).thenReturn(List.of("not a json string"));
 
         when(rssClient.fetchNewsFromSource(anyString(), anyString())).thenReturn(List.of());
         service.fetchAndCacheNews();
@@ -291,18 +291,18 @@ class NewsSyncServiceTest {
         trtAllowed.setSource("TRT Haber Ekonomi");
 
         String cachedJson = objectMapper.writeValueAsString(List.of(bloomberg, trtAllowed));
-        when(valueOps.get("cache:news:v15")).thenReturn(cachedJson);
+        when(valueOps.get("cache:news:v16")).thenReturn(cachedJson);
         when(rssClient.fetchNewsFromSource(anyString(), anyString())).thenReturn(List.of());
 
         service.fetchAndCacheNews();
 
         // Bloomberg purge edildi → cache yeniden yazılmalı (purgedCount > 0 → changed = true)
-        verify(valueOps).set(eq("cache:news:v15"), any(), eq(Duration.ofDays(7)));
+        verify(valueOps).set(eq("cache:news:v16"), any(), eq(Duration.ofDays(7)));
     }
 
     @Test
     void fetch_emptyDescriptionItems_filteredOut() {
-        when(valueOps.get("cache:news:v15")).thenReturn(null);
+        when(valueOps.get("cache:news:v16")).thenReturn(null);
         NewsDto good = news("http://good", "Good Title", "Real content here", "2026-06-01");
         NewsDto emptyDesc = news("http://empty", "Empty Title", "", "2026-06-01");
         NewsDto bracketDesc = news("http://bracket", "Bracket Title", "[]", "2026-06-01");
@@ -325,7 +325,7 @@ class NewsSyncServiceTest {
     @Test
     void startup_translationReady_triggersInitialSync() {
         when(translationClient.isAvailable()).thenReturn(true);
-        when(valueOps.get("cache:news:v15")).thenReturn(null);
+        when(valueOps.get("cache:news:v16")).thenReturn(null);
         when(rssClient.fetchNewsFromSource(anyString(), anyString()))
                 .thenReturn(List.of(news("http://x", "T", "D", "2026-06-01")));
         when(categoryClassifier.assignCategory(anyString(), anyString())).thenReturn("Genel");
@@ -334,7 +334,7 @@ class NewsSyncServiceTest {
         // CompletableFuture.runAsync arka planda çalışır → Mockito'nun timeout()'ı ile bekle.
         // Thread.sleep yerine verify(timeout) kullanılır (S2925: testlerde Thread.sleep yok).
         verify(valueOps, org.mockito.Mockito.timeout(5000))
-                .set(eq("cache:news:v15"), any(), eq(Duration.ofDays(7)));
+                .set(eq("cache:news:v16"), any(), eq(Duration.ofDays(7)));
     }
 
     @Test

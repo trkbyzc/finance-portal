@@ -141,7 +141,32 @@ public class NewsService {
                 ? original.getCategoryEn()
                 : NewsCategoryClassifier.localize(original.getCategory(), "en");
         if (catEn != null) copy.setCategory(catEn);
+        // İlgili varlık etiketi dilden bağımsız → EN kopyaya da taşı.
+        copy.setRelatedSymbol(original.getRelatedSymbol());
+        copy.setRelatedName(original.getRelatedName());
+        copy.setRelatedCategory(original.getRelatedCategory());
         return copy;
+    }
+
+    /**
+     * Belirli bir varlığı (sembol) etkileyen haberleri döner — varlık detay sayfasındaki
+     * "İlgili Haberler" bölümü için. Eşleşme .IS son ekinden ve büyük/küçük harften bağımsızdır
+     * (ASELS, ASELS.IS aynı sayılır).
+     */
+    public List<NewsDto> getNewsBySymbol(String symbol, int limit, String lang) {
+        if (symbol == null || symbol.isBlank()) return List.of();
+        String base = normalizeSymbol(symbol);
+        boolean en = "en".equalsIgnoreCase(lang);
+        return newsSyncService.getCachedNews().stream()
+                .filter(n -> n.getRelatedSymbol() != null
+                        && normalizeSymbol(n.getRelatedSymbol()).equals(base))
+                .map(n -> en ? localizeForResponse(n) : n)
+                .limit(limit > 0 ? limit : 6)
+                .toList();
+    }
+
+    private String normalizeSymbol(String symbol) {
+        return symbol.trim().toUpperCase().replace(".IS", "");
     }
 
     /** Frontend "Stocks" gönderse de TR cache'te "Borsa" → ikisine de eşle. */

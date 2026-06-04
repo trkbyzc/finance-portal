@@ -7,5 +7,8 @@ export const newsApi = {
     getNewsPage: (category, page, size = 10, lang) =>
         apiClient.get('/news', { params: { category, page, size, lang } }),
     getNewsContent: (url, lang) =>
-        apiClient.get('/news/content', { params: { url, lang } })
+        apiClient.get('/news/content', { params: { url, lang } }),
+    // Bir varlığı etkileyen haberler — varlık detayındaki "İlgili Haberler" bölümü için
+    getNewsBySymbol: (symbol, limit = 6, lang) =>
+        apiClient.get('/news/by-symbol', { params: { symbol, limit, lang } })
 };

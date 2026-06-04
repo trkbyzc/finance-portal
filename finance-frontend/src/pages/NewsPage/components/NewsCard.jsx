@@ -1,6 +1,7 @@
 import React from 'react';
 import { Clock, Globe } from 'lucide-react';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';
+import NewsAssetChip from '../../../components/news/NewsAssetChip';
 
 export default function NewsCard({ item, isVerified, onClick }) {
     return (
@@ -36,6 +37,7 @@ export default function NewsCard({ item, isVerified, onClick }) {
                 <div className="mt-4 flex items-center gap-2 text-text-muted text-xs font-semibold">
                     <Globe size={14} className="text-primary" />
                     <span>{item.source}</span>
+                    <NewsAssetChip item={item} className="ml-auto" />
                 </div>
             </div>
         </div>
