@@ -75,6 +75,8 @@ public class CoinGeckoClient {
 
             Number currentPrice = (Number) coinData.get("current_price");
             Number changePct24h = (Number) coinData.get("price_change_percentage_24h");
+            Number marketCap = (Number) coinData.get("market_cap");
+            Number totalVolume = (Number) coinData.get("total_volume");
 
             if (currentPrice != null) {
                 BigDecimal p = BigDecimal.valueOf(currentPrice.doubleValue());
@@ -94,6 +96,10 @@ public class CoinGeckoClient {
                 // CoinGecko'nun verdiği gerçek logo URL'i + coin id (grafik OHLC fallback'i için)
                 dto.setImage((String) coinData.get("image"));
                 dto.setGeckoId((String) coinData.get("id"));
+
+                // Piyasa değeri + 24s hacim (gerçek istatistikler için)
+                if (marketCap != null) dto.setMarketCap(BigDecimal.valueOf(marketCap.doubleValue()));
+                if (totalVolume != null) dto.setVolume24h(BigDecimal.valueOf(totalVolume.doubleValue()));
 
                 targetList.add(dto);
             }

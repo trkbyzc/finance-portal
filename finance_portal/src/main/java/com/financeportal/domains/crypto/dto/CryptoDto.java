@@ -22,4 +22,7 @@ public class CryptoDto {
 
     private String image;         // CoinGecko coin logo URL'i (gerçek ikon — CDN tahmini yerine)
     private String geckoId;       // CoinGecko coin id'si (örn. "bitcoin") — OHLC grafik fallback'i için
+
+    private BigDecimal marketCap; // CoinGecko market_cap (USD) — piyasa hakimiyeti hesabı için
+    private BigDecimal volume24h; // CoinGecko total_volume (24s, USD) — toplam hacim hesabı için
 }
