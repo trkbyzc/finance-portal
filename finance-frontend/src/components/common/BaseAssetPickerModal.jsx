@@ -46,7 +46,7 @@ export default function BaseAssetPickerModal({
     showPrices = true
 }) {
     const { t } = useTranslation(['common', 'navbar']);
-    const { formatPrice } = useCurrency();
+    const { formatNative } = useCurrency();
     const [step, setStep] = useState(1);
     const [selectedUiKey, setSelectedUiKey] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -201,7 +201,7 @@ export default function BaseAssetPickerModal({
                                                     ) : isExcluded ? (
                                                         <div className="text-xs text-text-muted">{t('common:labels.alreadyAdded', 'Ekli')}</div>
                                                     ) : showPrices && price > 0 ? (
-                                                        <div className="font-semibold">{formatPrice(price, native)}</div>
+                                                        <div className="font-semibold">{formatNative(price, native)}</div>
                                                     ) : showPrices ? (
                                                         <div className="text-xs text-text-muted">—</div>
                                                     ) : null}

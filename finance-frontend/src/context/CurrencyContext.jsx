@@ -48,8 +48,16 @@ export const CurrencyProvider = ({ children }) => {
         return formatCurrency(converted, currency, minDecimals, maxDecimals);
     };
 
+    // Varlığı KENDİ para biriminde gösterir (TRY/USD toggle'ından bağımsız).
+    // Varlık listeleri/ekleme akışlarında her varlık kendi biriminde görünsün diye:
+    // Türk varlıkları ₺, küresel (kripto, ABD hissesi vb.) $ kalır.
+    const formatNative = (price, nativeCurrency = 'TRY', minDecimals = 2, maxDecimals = 4) => {
+        if (price === null || price === undefined) return '-';
+        return formatCurrency(price, nativeCurrency, minDecimals, maxDecimals);
+    };
+
     return (
-        <CurrencyContext.Provider value={{ currency, setCurrency, toggleCurrency, usdRate, convertPrice, formatPrice }}>
+        <CurrencyContext.Provider value={{ currency, setCurrency, toggleCurrency, usdRate, convertPrice, formatPrice, formatNative }}>
             {children}
         </CurrencyContext.Provider>
     );

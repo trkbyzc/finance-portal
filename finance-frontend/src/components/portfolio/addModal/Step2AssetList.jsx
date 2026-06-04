@@ -13,7 +13,7 @@ import { PORTFOLIO_ASSET_TYPES } from './portfolioAssetTypes';
  */
 export default function Step2AssetList({ selectedType, onSelect, onBack, fetchingPrice }) {
     const { t } = useTranslation(['portfolio', 'common']);
-    const { formatPrice } = useCurrency();
+    const { formatNative } = useCurrency();
     const [searchTerm, setSearchTerm] = useState('');
 
     const { data: assets, isLoading } = useQuery({
@@ -87,7 +87,7 @@ export default function Step2AssetList({ selectedType, onSelect, onBack, fetchin
                                     {isFund && !hasPriceData ? (
                                         <div className="text-xs text-primary">{t('common:actions.select')} →</div>
                                     ) : hasPriceData ? (
-                                        <div className="font-semibold">{formatPrice(price, native)}</div>
+                                        <div className="font-semibold">{formatNative(price, native)}</div>
                                     ) : (
                                         <div className="text-xs text-text-muted">-</div>
                                     )}

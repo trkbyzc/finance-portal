@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { simulationApi } from '../../../services/api/simulationApi';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 import { useNotify } from '../../../context/NotificationContext';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { nativeCurrencyForType } from '../../../utils/currencyConversion';
 import DatePicker from '../../common/DatePicker';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -17,6 +19,9 @@ const todayIso = () => new Date().toISOString().slice(0, 10);
 export default function SimStep3Details({ selectedAsset, backendType, onPreview, onSave, onBack }) {
     const { t } = useTranslation(['simulation', 'common']);
     const notify = useNotify();
+    const { formatNative } = useCurrency();
+    // Varlığın kendi para birimi (BTC → $, BIST → ₺) — "o tarihteki fiyat" etiketinde gösterilir
+    const nativeCurrency = nativeCurrencyForType(backendType, selectedAsset?.symbol || selectedAsset?.currencyCode);
     const [investmentDate, setInvestmentDate] = useState('');
     const [amountTry, setAmountTry] = useState('');
     const [quantity, setQuantity] = useState('');
@@ -125,7 +130,7 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
     };
 
     const datePriceFmt = (typeof datePrice === 'number')
-        ? Number(datePrice).toLocaleString('tr-TR', { maximumFractionDigits: 4 })
+        ? formatNative(datePrice, nativeCurrency)
         : null;
 
     return (

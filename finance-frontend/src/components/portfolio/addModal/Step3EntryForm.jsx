@@ -12,7 +12,7 @@ import DatePicker from '../../common/DatePicker';
  */
 export default function Step3EntryForm({ selectedAsset, selectedType, selectedBackendValue, onSubmit, onBack }) {
     const { t } = useTranslation(['portfolio', 'common']);
-    const { formatPrice } = useCurrency();
+    const { formatNative } = useCurrency();
     const [quantity, setQuantity] = useState('');
     const [amount, setAmount] = useState('');
     const [averagePrice, setAveragePrice] = useState('');
@@ -77,6 +77,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 assetType: selectedBackendValue || selectedType,
                 quantity: parseFloat(quantity),
                 averagePrice: parseFloat(averagePrice),
+                // Alış tarihi seçildiyse gönder — reel getiri/enflasyon işlem tarihinden hesaplanır
+                ...(purchaseDate ? { purchaseDate } : {}),
                 ...(isViop ? { contractSize } : {})
             });
         } catch (error) {
@@ -110,7 +112,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     <div className="shrink-0 bg-surface border border-border rounded-lg px-3 py-2 text-right">
                         <div className="text-[10px] uppercase tracking-wider text-text-muted">{t('common:labels.price')}</div>
                         <div className="font-semibold text-base mt-0.5">
-                            {currentPrice > 0 ? formatPrice(currentPrice, native) : '—'}
+                            {currentPrice > 0 ? formatNative(currentPrice, native) : '—'}
                         </div>
                     </div>
                 </div>
@@ -146,7 +148,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
             <div className="min-h-[18px] mb-4">
                 {datePriceInfo?.ok && (
                     <p className="text-[11px] text-buy">
-                        {t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}
+                        {t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatNative(datePriceInfo.price, native)}
                     </p>
                 )}
                 {datePriceInfo && !datePriceInfo.ok && (
@@ -191,7 +193,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     <div className="flex justify-between items-center mt-2">
                         <span className="text-text-muted">{t('portfolio:modal.notional', 'Nominal Değer')}</span>
                         <span className="font-semibold text-primary">
-                            {notional != null ? formatPrice(notional, native) : '—'}
+                            {notional != null ? formatNative(notional, native) : '—'}
                         </span>
                     </div>
                     <p className="text-[11px] text-text-muted mt-2">
