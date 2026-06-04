@@ -3,6 +3,25 @@ import { useQuery } from '@tanstack/react-query';
 import { historicalApi } from '../../../../services/api';
 import { BIST_OPTIONS, CRYPTO_OPTIONS } from '../tradingChartConstants';
 
+// Ana grafikle AYNI range→interval eşlemesi (useChartData ile uyumlu) — aksi halde benchmark
+// her zaman günlük ('1d') çekilip 1G/1H gibi intraday aralıklarda düz 2-nokta çizgi oluyordu.
+const getIntervalForRange = (range) => {
+    const r = (range || '').toLowerCase();
+    if (r === '1d' || r === '1g') return '15m';
+    if (r === '5d' || r === '1w' || r === '1h') return '60m';
+    if (r === '5y') return '1wk';
+    return '1d';
+};
+const normalizeRange = (range) => {
+    const r = (range || '').toLowerCase();
+    if (r === '1g') return '1d';
+    if (r === '1h') return '1mo';
+    if (r === '1a') return '1mo';
+    if (r === '3a') return '3mo';
+    if (r === '6a') return '6mo';
+    return r;
+};
+
 /**
  * BIST ve Crypto benchmark overlay'lerini yöneten tek hook.
  *
@@ -48,7 +67,7 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
                 try {
                     const params = activeRange === 'custom'
                         ? { symbol: sym, category: 'TR_INDEX', range: 'custom', interval: '1d', startDate: customStartDate, endDate: customEndDate }
-                        : { symbol: sym, category: 'TR_INDEX', range: activeRange, interval: '1d' };
+                        : { symbol: sym, category: 'TR_INDEX', range: normalizeRange(activeRange), interval: getIntervalForRange(activeRange) };
                     const res = await historicalApi.getData(params);
                     results[sym] = Array.isArray(res) ? res : (res?.priceData || res || []);
                 } catch (e) {
@@ -75,7 +94,7 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
                 try {
                     const params = activeRange === 'custom'
                         ? { symbol: sym, category: 'INDEX', range: 'custom', interval: '1d', startDate: customStartDate, endDate: customEndDate }
-                        : { symbol: sym, category: 'INDEX', range: activeRange, interval: '1d' };
+                        : { symbol: sym, category: 'INDEX', range: normalizeRange(activeRange), interval: getIntervalForRange(activeRange) };
                     const res = await historicalApi.getData(params);
                     results[sym] = Array.isArray(res) ? res : (res?.priceData || res || []);
                 } catch (e) {
@@ -89,20 +108,21 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
         staleTime: 5 * 60 * 1000
     });
 
-    // % normalize ve tarih bazlı merge
+    // % normalize ve TIMESTAMP bazlı merge.
+    // Eskiden gün bazlı (date.split('T')[0]) merge ediliyordu; bu, intraday (1G/1H) verileri tek
+    // güne çökertip düz çizgi oluşturuyordu. Artık timestamp anahtarıyla intraday noktalar korunur.
+    // x-ekseni `date` alanı timestamp (sayı) tutar — formatChartDate sayısal timestamp'i de işler.
     const buildNormalized = (options, activeMap, dataMap) => {
         if (!rawChartData?.length) return [];
         const out = {};
-        const allDates = new Set();
 
         const assetBase = rawChartData[0]?.close || 0;
         if (assetBase > 0) {
             rawChartData.forEach(p => {
-                const date = p.dateStr || p.date;
-                if (!date) return;
-                allDates.add(date);
-                if (!out[date]) out[date] = {};
-                out[date].asset = Number((((p.close - assetBase) / assetBase) * 100).toFixed(2));
+                const ts = p.timestamp;
+                if (ts == null) return;
+                if (!out[ts]) out[ts] = { date: ts };
+                out[ts].asset = Number((((p.close - assetBase) / assetBase) * 100).toFixed(2));
             });
         }
 
@@ -113,21 +133,15 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
             const base = points[0]?.close ?? points[0]?.price ?? 0;
             if (base <= 0) return;
             points.forEach(p => {
-                let date = p.date || p.timestamp;
-                if (Array.isArray(p.date)) {
-                    date = `${p.date[0]}-${String(p.date[1]).padStart(2, '0')}-${String(p.date[2]).padStart(2, '0')}`;
-                } else if (typeof date === 'string') {
-                    date = date.split('T')[0];
-                }
+                const ts = p.timestamp;
                 const close = p.close ?? p.price ?? 0;
-                if (!date || close <= 0) return;
-                allDates.add(date);
-                if (!out[date]) out[date] = {};
-                out[date][key] = Number((((close - base) / base) * 100).toFixed(2));
+                if (ts == null || close <= 0) return;
+                if (!out[ts]) out[ts] = { date: ts };
+                out[ts][key] = Number((((close - base) / base) * 100).toFixed(2));
             });
         });
 
-        return Array.from(allDates).sort().map(date => ({ date, ...out[date] }));
+        return Object.values(out).sort((a, b) => a.date - b.date);
     };
 
     const bistOverlayChartData = useMemo(
