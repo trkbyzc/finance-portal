@@ -71,8 +71,10 @@ public class PortfolioTradeService {
         portfolioItemRepository.save(item);
 
         // Audit trail: yeni varlık eklemek veya mevcuda üzerine eklemek her zaman BUY tarafıdır.
+        // Alış tarihi verilmişse işlem tarihi olarak kullanılır (reel getiri/enflasyon doğru hesaplansın).
+        LocalDateTime executedAt = request.getPurchaseDate() != null ? request.getPurchaseDate().atStartOfDay() : null;
         writeTx(user, request.getSymbol(), item.getAssetType(), TradeSide.BUY,
-                request.getQuantity(), request.getPrice(), null);
+                request.getQuantity(), request.getPrice(), null, executedAt);
     }
 
     public void executeUpdateManualEntry(Portfolio portfolio, TradeRequestDto request) {
@@ -123,9 +125,15 @@ public class PortfolioTradeService {
 
     private void writeTx(User user, String symbol, com.financeportal.model.enums.AssetType assetType,
                          TradeSide side, BigDecimal quantity, BigDecimal price, String notes) {
+        writeTx(user, symbol, assetType, side, quantity, price, notes, null);
+    }
+
+    private void writeTx(User user, String symbol, com.financeportal.model.enums.AssetType assetType,
+                         TradeSide side, BigDecimal quantity, BigDecimal price, String notes, LocalDateTime executedAt) {
         if (!transactionWriteEnabled) return; // feature flag kapalı, audit yazmıyoruz
         Transaction tx = new Transaction(
-                UUID.randomUUID(), user, symbol, assetType, side, quantity, price, LocalDateTime.now(), notes
+                UUID.randomUUID(), user, symbol, assetType, side, quantity, price,
+                executedAt != null ? executedAt : LocalDateTime.now(), notes
         );
         transactionRepository.save(tx);
     }

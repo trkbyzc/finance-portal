@@ -206,7 +206,7 @@ class PortfolioServiceTest {
     @Test
     void add_resolvesPortfolioAndDelegatesToTradeService() {
         TradeRequestDto req = new TradeRequestDto("BTC", AssetType.CRYPTO,
-                new BigDecimal("1"), new BigDecimal("50000"), null, defaultPortfolio.getId());
+                new BigDecimal("1"), new BigDecimal("50000"), null, defaultPortfolio.getId(), null);
         when(portfolioRepo.findById(defaultPortfolio.getId())).thenReturn(Optional.of(defaultPortfolio));
 
         service.addManualEntry(req);
@@ -217,7 +217,7 @@ class PortfolioServiceTest {
     @Test
     void add_nullPortfolioId_usesDefault() {
         TradeRequestDto req = new TradeRequestDto("BTC", AssetType.CRYPTO,
-                new BigDecimal("1"), new BigDecimal("50000"), null, null);
+                new BigDecimal("1"), new BigDecimal("50000"), null, null, null);
         when(portfolioRepo.findByUser_IdOrderByCreatedAtAsc(userId)).thenReturn(List.of(defaultPortfolio));
 
         service.addManualEntry(req);
@@ -228,7 +228,7 @@ class PortfolioServiceTest {
     @Test
     void update_delegatesToTradeService() {
         TradeRequestDto req = new TradeRequestDto("BTC", AssetType.CRYPTO,
-                new BigDecimal("2"), new BigDecimal("55000"), null, defaultPortfolio.getId());
+                new BigDecimal("2"), new BigDecimal("55000"), null, defaultPortfolio.getId(), null);
         when(portfolioRepo.findById(defaultPortfolio.getId())).thenReturn(Optional.of(defaultPortfolio));
 
         service.updateManualEntry(req);
@@ -238,7 +238,7 @@ class PortfolioServiceTest {
     @Test
     void remove_delegatesToTradeService() {
         TradeRequestDto req = new TradeRequestDto("BTC", AssetType.CRYPTO,
-                new BigDecimal("1"), null, null, defaultPortfolio.getId());
+                new BigDecimal("1"), null, null, defaultPortfolio.getId(), null);
         when(portfolioRepo.findById(defaultPortfolio.getId())).thenReturn(Optional.of(defaultPortfolio));
 
         service.removeFromPortfolio(req);

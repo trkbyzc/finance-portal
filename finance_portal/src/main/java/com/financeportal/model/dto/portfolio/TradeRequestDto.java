@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -18,4 +19,5 @@ public class TradeRequestDto {
     private BigDecimal price;    // Anlık alış fiyatı
     private BigDecimal contractSize; // VİOP sözleşme büyüklüğü (çarpan); opsiyonel, yoksa 1
     private UUID portfolioId;    // Hedef portföy; yoksa kullanıcının varsayılan portföyü
+    private LocalDate purchaseDate; // Alış tarihi (opsiyonel); reel getiri/enflasyon için işlem tarihi
 }

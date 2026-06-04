@@ -52,7 +52,9 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
     const pnlUp = totalProfitLoss >= 0;
 
     // Reel (enflasyon-düzeltilmiş) K/Z: maliyet bugünkü liraya çekilir (× CPI_now/CPI_alış).
-    const hasReal = inflationFactor != null && inflationFactor > 0 && totalInvestment > 0;
+    // Kart yalnızca anlamlı bir enflasyon farkı varsa gösterilir (faktör ~1 ise nominal ile aynı
+    // çıkar — bu da yakın tarihli/tarihi girilmemiş alımlarda olur, kafa karıştırmasın diye gizlenir).
+    const hasReal = inflationFactor != null && inflationFactor > 1.005 && totalInvestment > 0;
     const realCost = hasReal ? totalInvestment * inflationFactor : null;
     const realProfitLoss = hasReal ? totalValue - realCost : null;
     const realReturnRate = hasReal ? (realProfitLoss / realCost) * 100 : null;

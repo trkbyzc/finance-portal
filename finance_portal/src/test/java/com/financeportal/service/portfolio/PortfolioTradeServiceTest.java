@@ -289,7 +289,7 @@ class PortfolioTradeServiceTest {
                 qty != null ? new BigDecimal(qty) : null,
                 price != null ? new BigDecimal(price) : null,
                 contractSize != null ? new BigDecimal(contractSize) : null,
-                null);
+                null, null);
     }
 
     private PortfolioItem mkItem(String symbol, String qty, String avgPrice) {
