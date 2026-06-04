@@ -322,4 +322,110 @@ class KeycloakAdminServiceTest {
         ReflectionTestUtils.setField(service, "keycloak", null);
         assertDoesNotThrow(() -> service.cleanup());
     }
+
+    // ============================================================
+    // verifyPassword + setPassword (self-service şifre değiştirme)
+    // ============================================================
+
+    @Test
+    void verifyPassword_dogru_sifre_token_endpoint_200_donerse_true() {
+        org.springframework.web.client.RestTemplate rt = org.mockito.Mockito.mock(org.springframework.web.client.RestTemplate.class);
+        ReflectionTestUtils.setField(service, "restTemplate", rt);
+        ReflectionTestUtils.setField(service, "userClientId", "finance-client");
+
+        when(rt.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new org.springframework.http.ResponseEntity<>("{\"access_token\":\"x\"}",
+                        org.springframework.http.HttpStatus.OK));
+
+        assertTrue(service.verifyPassword("alice", "correctpass"));
+    }
+
+    @Test
+    void verifyPassword_yanlis_sifre_401_donerse_false() {
+        org.springframework.web.client.RestTemplate rt = org.mockito.Mockito.mock(org.springframework.web.client.RestTemplate.class);
+        ReflectionTestUtils.setField(service, "restTemplate", rt);
+        ReflectionTestUtils.setField(service, "userClientId", "finance-client");
+
+        when(rt.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(org.springframework.web.client.HttpClientErrorException.create(
+                        org.springframework.http.HttpStatus.UNAUTHORIZED,
+                        "invalid_grant", null, null, null));
+
+        assertFalse(service.verifyPassword("alice", "wrongpass"));
+    }
+
+    @Test
+    void verifyPassword_client_config_hatasi_400_donerse_false() {
+        org.springframework.web.client.RestTemplate rt = org.mockito.Mockito.mock(org.springframework.web.client.RestTemplate.class);
+        ReflectionTestUtils.setField(service, "restTemplate", rt);
+        ReflectionTestUtils.setField(service, "userClientId", "finance-client");
+
+        when(rt.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(org.springframework.web.client.HttpClientErrorException.create(
+                        org.springframework.http.HttpStatus.BAD_REQUEST,
+                        "client config", null,
+                        "{\"error\":\"invalid_client\"}".getBytes(), null));
+
+        // 400 ≠ 401 → log'a yazılır ama yine false döner
+        assertFalse(service.verifyPassword("alice", "pass"));
+    }
+
+    @Test
+    void verifyPassword_network_hatasi_false_doner() {
+        org.springframework.web.client.RestTemplate rt = org.mockito.Mockito.mock(org.springframework.web.client.RestTemplate.class);
+        ReflectionTestUtils.setField(service, "restTemplate", rt);
+        ReflectionTestUtils.setField(service, "userClientId", "finance-client");
+
+        when(rt.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new org.springframework.web.client.ResourceAccessException("timeout"));
+
+        assertFalse(service.verifyPassword("alice", "pass"));
+    }
+
+    @Test
+    void verifyPassword_keycloak_null_false_doner() {
+        ReflectionTestUtils.setField(service, "keycloak", null);
+        assertFalse(service.verifyPassword("alice", "pass"));
+    }
+
+    @Test
+    void verifyPassword_username_null_false_doner() {
+        assertFalse(service.verifyPassword(null, "pass"));
+    }
+
+    @Test
+    void verifyPassword_password_null_false_doner() {
+        assertFalse(service.verifyPassword("alice", null));
+    }
+
+    @Test
+    void setPassword_basarili_durumda_userResource_resetPassword_cagrilir() {
+        when(usersResource.get("uid-1")).thenReturn(userResource);
+
+        service.setPassword("uid-1", "newpass123");
+
+        org.mockito.ArgumentCaptor<org.keycloak.representations.idm.CredentialRepresentation> capt =
+                org.mockito.ArgumentCaptor.forClass(org.keycloak.representations.idm.CredentialRepresentation.class);
+        verify(userResource).resetPassword(capt.capture());
+        assertEquals(org.keycloak.representations.idm.CredentialRepresentation.PASSWORD, capt.getValue().getType());
+        assertEquals("newpass123", capt.getValue().getValue());
+        assertFalse(capt.getValue().isTemporary());
+    }
+
+    @Test
+    void setPassword_keycloak_null_IllegalStateException() {
+        ReflectionTestUtils.setField(service, "keycloak", null);
+        assertThrows(IllegalStateException.class, () -> service.setPassword("uid", "p"));
+    }
+
+    @Test
+    void setPassword_Keycloak_API_patlarsa_RuntimeException() {
+        when(usersResource.get("uid-bad")).thenReturn(userResource);
+        org.mockito.Mockito.doThrow(new RuntimeException("KC 500"))
+                .when(userResource).resetPassword(any());
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> service.setPassword("uid-bad", "newpass"));
+        assertTrue(ex.getMessage().toLowerCase().contains("şifre") || ex.getMessage().contains("KC 500"));
+    }
 }
