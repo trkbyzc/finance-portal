@@ -34,11 +34,6 @@ export default function UserRow({ user, isSelf, onBan, onUnban, onForceLogout, o
                             {user.role}
                         </span>
                     )}
-                    {hasRealmRoles ? realmRoles.slice(0, 4).map(r => (
-                        <span key={r} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                            {r}
-                        </span>
-                    )) : null}
                 </div>
             </td>
             <td className="p-4">
