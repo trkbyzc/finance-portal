@@ -60,6 +60,23 @@ class NewsEntityTaggerTest {
     }
 
     @Test
+    void tagsGoldToTurkishGoldPage() {
+        NewsDto n = news("Altın fiyatlarında son durum", "Gram altın yükselişte");
+        tagger.tag(n);
+        assertEquals("GAU", n.getRelatedSymbol());
+        assertEquals("GOLD", n.getRelatedCategory());
+    }
+
+    @Test
+    void kozaAltinStockWinsOverGenericGold() {
+        // "koza altın" (KOZAL hissesi) "altın"dan daha uzun → hisse kazanır, altın sayfasına gitmez.
+        NewsDto n = news("Koza Altın üçüncü çeyrek bilançosunu açıkladı", null);
+        tagger.tag(n);
+        assertEquals("KOZAL.IS", n.getRelatedSymbol());
+        assertEquals("STOCK", n.getRelatedCategory());
+    }
+
+    @Test
     void macroNewsStaysUntagged() {
         NewsDto n = news("Enflasyon beklentilerin üzerinde geldi", "TÜFE aylık bazda arttı");
         tagger.tag(n);

@@ -28,6 +28,8 @@ public class NewsEntityTagger {
     public static final String CRYPTO = "CRYPTO";
     public static final String CURRENCY = "CURRENCY";
     public static final String INDEX = "INDEX";
+    // GOLD: özel kategori — frontend bunu grafik yerine gram altın sayfasına (/markets/turkish-gold) yönlendirir.
+    public static final String GOLD = "GOLD";
 
     public record Related(String symbol, String name, String category) {}
 
@@ -40,6 +42,7 @@ public class NewsEntityTagger {
         buildIndices();
         buildCrypto();
         buildCurrencies();
+        buildGold();
         // En uzun alias önce denensin (örn. "türk hava yolları" > "türk") → en spesifik eşleşme kazanır.
         entries.sort((a, b) -> Integer.compare(b.length(), a.length()));
     }
@@ -185,5 +188,13 @@ public class NewsEntityTagger {
         add(CURRENCY, "USD", "Dolar", "amerikan doları", "dolar/tl", "dolar");
         add(CURRENCY, "EUR", "Euro", "euro/tl", "euro", "avro");
         add(CURRENCY, "GBP", "Sterlin", "ingiliz sterlini", "sterlin");
+    }
+
+    private void buildGold() {
+        // Altın haberleri gram altın sayfasına yönlendirilir (GOLD kategorisi, sembol GAU).
+        // "koza altın" (KOZAL hissesi) buildBistStocks'ta daha uzun alias → o öncelikli kalır.
+        add(GOLD, "GAU", "Gram Altın",
+                "gram altın", "ons altın", "çeyrek altın", "yarım altın", "tam altın",
+                "cumhuriyet altını", "ata altın", "ziynet altın", "altın fiyat", "altın");
     }
 }

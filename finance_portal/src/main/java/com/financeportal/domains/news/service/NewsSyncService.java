@@ -98,12 +98,13 @@ public class NewsSyncService {
             Set<String> processedLinks = masterList.stream().map(NewsDto::getLink).collect(Collectors.toSet());
 
             int newlyAddedCount = addFreshArticles(masterList, processedLinks);
+            int retaggedCount = retagUntaggedArticles(masterList);
             int purgedCount = purgeStaleArticles(masterList);
             if (newlyAddedCount > 0 || purgedCount > 0) {
                 masterList.sort((a, b) -> b.getPubDate().compareTo(a.getPubDate()));
             }
             int translatedCount = translatePendingNews(masterList);
-            persistIfChanged(masterList, newlyAddedCount, translatedCount, purgedCount, startTime);
+            persistIfChanged(masterList, newlyAddedCount + retaggedCount, translatedCount, purgedCount, startTime);
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
         }
@@ -137,6 +138,22 @@ public class NewsSyncService {
             log.error("[NEWS_SYNC] Error processing source {}: {}", sourceName, e.getMessage());
             return 0;
         }
+    }
+
+    /**
+     * relatedSymbol'ü olmayan (henüz bir varlığa bağlanmamış) haberleri yeniden etiketler.
+     * Alias listesi büyüdüğünde (örn. altın eklendiğinde) cache'i bump'lamadan eski haberler
+     * de yeni eşleşmeleri alır; çeviriler korunur. Zaten etiketli haberlere dokunulmaz.
+     */
+    private int retagUntaggedArticles(List<NewsDto> masterList) {
+        int retagged = 0;
+        for (NewsDto n : masterList) {
+            if (n.getRelatedSymbol() == null) {
+                newsEntityTagger.tag(n);
+                if (n.getRelatedSymbol() != null) retagged++;
+            }
+        }
+        return retagged;
     }
 
     /** Item kabul kriteri: kullanılabilir description + henüz işlenmemiş link. */

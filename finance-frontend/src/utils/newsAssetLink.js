@@ -37,6 +37,10 @@ export function newsAssetLink(item) {
     if (!item) return null;
 
     if (item.relatedSymbol) {
+        // Altın → grafik route'u yerine özel gram altın sayfası.
+        if (item.relatedCategory === 'GOLD') {
+            return { to: '/markets/turkish-gold', label: item.relatedName || 'Gram Altın', type: 'asset' };
+        }
         const cat = item.relatedCategory ? `?cat=${item.relatedCategory}` : '';
         return {
             to: `/chart/${encodeURIComponent(item.relatedSymbol)}${cat}`,
