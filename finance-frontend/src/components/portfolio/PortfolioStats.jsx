@@ -5,12 +5,38 @@ import { useCurrency } from '../../context/CurrencyContext';
 
 const MASK = '••••••';
 
+/**
+ * Tek bir özet kartı. Renk/ikon "tone"a göre belirlenir:
+ *   neutral → gri ikon çipi, nötr değer
+ *   pnl     → değere göre yeşil/kırmızı (kâr/zarar)
+ */
+function StatCard({ icon: Icon, label, value, sub, tone = 'neutral', positive = true, highlight = false }) {
+    const valueColor = tone === 'pnl' ? (positive ? 'text-buy' : 'text-sell') : 'text-text';
+    const chip = tone === 'pnl'
+        ? (positive ? 'bg-buy/10 text-buy border-buy/20' : 'bg-sell/10 text-sell border-sell/20')
+        : 'bg-primary/10 text-primary border-primary/20';
+    return (
+        <div className={`bg-surface border rounded-2xl p-5 shadow-sm transition-colors ${highlight ? 'border-primary/40' : 'border-border'}`}>
+            <div className="flex items-center gap-2.5 mb-3">
+                <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${chip}`}>
+                    <Icon size={18} />
+                </div>
+                <p className="text-text-muted text-[11px] font-bold uppercase tracking-wider leading-tight">{label}</p>
+            </div>
+            <p className={`text-2xl font-mono font-black tracking-tight ${valueColor}`}>{value}</p>
+            {sub && <div className="mt-1">{sub}</div>}
+        </div>
+    );
+}
+
 const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflationFactor = null }) => {
     const { t } = useTranslation('portfolio');
     const { formatPrice } = useCurrency();
 
-    // Toplamlar TRY bazlı tutulur; TRY/USD toggle formatPrice ile uygulanır.
-    const money = (v) => (hidden ? MASK : formatPrice(v, 'TRY'));
+    // Toplamlar TRY bazlı; büyük tutarlar 2 ondalıkla gösterilir (₺49.768,01)
+    const money = (v) => (hidden ? MASK : formatPrice(v, 'TRY', 2, 2));
+    const signed = (v) => (hidden ? MASK : `${v >= 0 ? '+' : ''}${formatPrice(v, 'TRY', 2, 2)}`);
+    const pct = (v) => (hidden ? MASK : `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`);
 
     const totalInvestment = portfolio?.reduce((sum, item) => {
         return sum + (item.averagePrice * item.quantity * (Number(item.contractSize) || 1));
@@ -22,85 +48,57 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
     }, 0) || 0;
 
     const totalProfitLoss = totalValue - totalInvestment;
-
-    const returnRate = totalInvestment > 0
-        ? ((totalProfitLoss / totalInvestment) * 100)
-        : 0;
+    const returnRate = totalInvestment > 0 ? ((totalProfitLoss / totalInvestment) * 100) : 0;
+    const pnlUp = totalProfitLoss >= 0;
 
     // Reel (enflasyon-düzeltilmiş) K/Z: maliyet bugünkü liraya çekilir (× CPI_now/CPI_alış).
     const hasReal = inflationFactor != null && inflationFactor > 0 && totalInvestment > 0;
     const realCost = hasReal ? totalInvestment * inflationFactor : null;
     const realProfitLoss = hasReal ? totalValue - realCost : null;
     const realReturnRate = hasReal ? (realProfitLoss / realCost) * 100 : null;
+    const realUp = hasReal && realProfitLoss >= 0;
 
-    // Reel kartı varsa 5 kolon (xl), yoksa 4 kolon
     const gridCols = hasReal ? 'md:grid-cols-2 xl:grid-cols-5' : 'md:grid-cols-2 xl:grid-cols-4';
 
     return (
         <div className={`grid grid-cols-1 ${gridCols} gap-4 mb-6`}>
-            <div className="bg-surface-2 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-2">
-                    <Wallet size={20} className="text-text-muted" />
-                    <p className="text-text-muted text-sm">{t('stats.totalCost')}</p>
-                </div>
-                <p className="text-2xl font-bold">{money(totalInvestment)}</p>
-            </div>
+            <StatCard icon={Wallet} label={t('stats.totalCost')} value={money(totalInvestment)} />
 
-            <div className="bg-surface-2 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-2">
-                    <PieChart size={20} className="text-text-muted" />
-                    <p className="text-text-muted text-sm">{t('stats.totalValue')}</p>
-                </div>
-                <p className="text-2xl font-bold">{money(totalValue)}</p>
-            </div>
+            <StatCard icon={PieChart} label={t('stats.totalValue')} value={money(totalValue)} />
 
-            <div className="bg-surface-2 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-2">
-                    {totalProfitLoss >= 0 ? (
-                        <TrendingUp size={20} className="text-buy" />
-                    ) : (
-                        <TrendingDown size={20} className="text-sell" />
-                    )}
-                    <p className="text-text-muted text-sm">{t('stats.totalPnl')}</p>
-                </div>
-                <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
-                    {hidden ? MASK : `${totalProfitLoss >= 0 ? '+' : ''}${formatPrice(totalProfitLoss, 'TRY')}`}
-                </p>
-            </div>
+            <StatCard
+                icon={pnlUp ? TrendingUp : TrendingDown}
+                label={t('stats.totalPnl')}
+                value={signed(totalProfitLoss)}
+                tone="pnl"
+                positive={pnlUp}
+            />
 
-            <div className="bg-surface-2 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-2">
-                    {returnRate >= 0 ? (
-                        <TrendingUp size={20} className="text-buy" />
-                    ) : (
-                        <TrendingDown size={20} className="text-sell" />
-                    )}
-                    <p className="text-text-muted text-sm">{t('stats.totalPnlPercent')}</p>
-                </div>
-                <p className={`text-2xl font-bold ${returnRate >= 0 ? 'text-buy' : 'text-sell'}`}>
-                    {hidden ? MASK : `${returnRate >= 0 ? '+' : ''}${returnRate.toFixed(2)}%`}
-                </p>
-            </div>
+            <StatCard
+                icon={pnlUp ? TrendingUp : TrendingDown}
+                label={t('stats.totalPnlPercent')}
+                value={pct(returnRate)}
+                tone="pnl"
+                positive={pnlUp}
+            />
 
             {hasReal && (
-                <div
-                    className="bg-surface-2 rounded-lg p-6 border border-primary/30"
-                    title={t('stats.realPnlTip', 'Enflasyona göre düzeltilmiş kâr/zarar')}
-                >
-                    <div className="flex items-center gap-3 mb-2">
-                        <Activity size={20} className={realProfitLoss >= 0 ? 'text-buy' : 'text-sell'} />
-                        <p className="text-text-muted text-sm">{t('stats.realPnl', 'Reel')} K/Z</p>
-                    </div>
-                    <p className={`text-2xl font-bold ${realProfitLoss >= 0 ? 'text-buy' : 'text-sell'}`}>
-                        {hidden ? MASK : `${realProfitLoss >= 0 ? '+' : ''}${formatPrice(realProfitLoss, 'TRY')}`}
-                    </p>
-                    <p className={`text-xs mt-1 ${realReturnRate >= 0 ? 'text-buy' : 'text-sell'}`}>
-                        {hidden ? MASK : `${realReturnRate >= 0 ? '+' : ''}${realReturnRate.toFixed(2)}%`}
-                        <span className="text-text-muted ml-1">
-                            ({t('stats.inflation', 'Enflasyon')}: ×{inflationFactor.toFixed(2)})
-                        </span>
-                    </p>
-                </div>
+                <StatCard
+                    icon={Activity}
+                    label={`${t('stats.realPnl', 'Reel')} K/Z`}
+                    value={signed(realProfitLoss)}
+                    tone="pnl"
+                    positive={realUp}
+                    highlight
+                    sub={
+                        <p className={`text-xs font-bold ${realUp ? 'text-buy' : 'text-sell'}`}>
+                            {pct(realReturnRate)}
+                            <span className="text-text-muted font-medium ml-1">
+                                ({t('stats.inflation', 'Enflasyon')} ×{inflationFactor.toFixed(2)})
+                            </span>
+                        </p>
+                    }
+                />
             )}
         </div>
     );

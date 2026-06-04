@@ -69,6 +69,8 @@ function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory,
     const positive = calc.profitLoss >= 0;
     const MASK = '••••';
     const money = (v) => (hidden ? MASK : formatPrice(v, native));
+    // Toplam tutarlar (değer / K-Z) 2 ondalıkla — birim fiyatlar daha hassas kalabilir
+    const money2 = (v) => (hidden ? MASK : formatPrice(v, native, 2, 2));
     // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
     const multiplier = Number(item.contractSize) || 1;
     const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;
@@ -89,7 +91,7 @@ function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory,
             </td>
             <td className="hidden lg:table-cell p-2 md:p-4 text-right whitespace-nowrap">{money(item.averagePrice)}</td>
             <td className="p-2 md:p-4 text-right text-sm md:text-base whitespace-nowrap">{money(calc.currentPrice)}</td>
-            <td className="hidden lg:table-cell p-2 md:p-4 text-right font-semibold whitespace-nowrap">{money(calc.currentValue)}</td>
+            <td className="hidden lg:table-cell p-2 md:p-4 text-right font-semibold whitespace-nowrap">{money2(calc.currentValue)}</td>
             <td className={`p-2 md:p-4 text-right font-semibold text-sm md:text-base whitespace-nowrap ${positive ? 'text-buy' : 'text-sell'}`}>
                 {/* Mobile: sadece yüzde; md+: hem tutar hem yüzde */}
                 <span className="md:hidden">
@@ -98,7 +100,7 @@ function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory,
                 <span className="hidden md:inline">
                     {hidden ? MASK : (
                         <>
-                            {positive ? '+' : '-'}{formatPrice(Math.abs(calc.profitLoss), native)}
+                            {positive ? '+' : '-'}{money2(Math.abs(calc.profitLoss))}
                             <span className="text-sm ml-1">
                                 ({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)
                             </span>

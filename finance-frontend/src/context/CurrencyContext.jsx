@@ -37,13 +37,15 @@ export const CurrencyProvider = ({ children }) => {
         return price;
     };
 
-    // Fiyatı Simgesiyle Birlikte Şık Formatlama
-    const formatPrice = (price, nativeCurrency = 'TRY') => {
+    // Fiyatı Simgesiyle Birlikte Şık Formatlama.
+    // minDecimals/maxDecimals opsiyonel — portföy toplamları gibi büyük tutarlarda 2 ondalık
+    // (₺49.768,01) istenir; varsayılan 2–4 birim fiyatlar için korunur.
+    const formatPrice = (price, nativeCurrency = 'TRY', minDecimals = 2, maxDecimals = 4) => {
         if (price === null || price === undefined) return '-';
         const converted = convertPrice(price, nativeCurrency);
 
         // 🚀 FAZ-4: Intl.NumberFormat kalabalığı gitti, merkezi formatlayıcı geldi!
-        return formatCurrency(converted, currency);
+        return formatCurrency(converted, currency, minDecimals, maxDecimals);
     };
 
     return (
