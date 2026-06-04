@@ -23,7 +23,7 @@
     "privacy": "Privacy & GDPR",
     "terms": "Terms of Use"
   },
-  "copyright": "© {{year}} FinansPortal — . All rights reserved.",
+  "copyright": "© {{year}} FinansPortal. All rights reserved.",
   "disclaimer": "Disclaimer: The data on this site is for informational purposes only, does not constitute investment advice and may be delayed. You are solely responsible for your investment decisions.",
   "dataSources": "Data sources: CBRT · Yahoo Finance · CoinGecko · TEFAS · FRED"
 }

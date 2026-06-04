@@ -115,9 +115,8 @@ export default function Footer() {
                 </div>
 
                 {/* Alt bar */}
-                <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="mt-8 pt-6 border-t border-border">
                     <p className="text-text-muted text-xs">{t('footer:copyright', { year })}</p>
-                    <p className="text-text-muted/70 text-[11px]">{t('footer:dataSources')}</p>
                 </div>
             </div>
         </footer>
