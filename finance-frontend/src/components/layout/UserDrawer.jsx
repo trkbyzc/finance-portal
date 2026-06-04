@@ -140,7 +140,6 @@ export default function UserDrawer({ open, onClose }) {
                     <DrawerItem
                         icon={Settings}
                         label={t('drawer.preferences')}
-                        sub={t('drawer.preferencesSub')}
                         onClick={() => go('/preferences')}
                     />
 
