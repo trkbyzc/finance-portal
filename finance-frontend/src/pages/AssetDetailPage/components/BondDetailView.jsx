@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import TradingChart from '../../../components/charts/TradingChart/TradingChart.jsx';
 import ComparisonSection from './ComparisonSection.jsx';
+import AssetActions from '../../../components/asset/AssetActions.jsx';
 import { translateBondName } from '../../../utils/bondLabelTranslator';
 
 export default function BondDetailView({ asset, navigate }) {
@@ -42,6 +43,7 @@ export default function BondDetailView({ asset, navigate }) {
                         </div>
                     </div>
                 </div>
+                <AssetActions asset={asset} assetCategory="BOND" className="md:ml-auto" />
             </div>
 
             <div className="bg-surface border border-border rounded-3xl p-1 h-150 shadow-2xl overflow-hidden flex flex-col">

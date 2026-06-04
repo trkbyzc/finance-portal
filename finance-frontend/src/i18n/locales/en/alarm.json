@@ -1,6 +1,11 @@
 {
   "modal": {
     "title": "Alarm for {{name}}",
+    "kicker": "Price Alarm",
+    "kickerYield": "Yield Alarm",
+    "current": "Now",
+    "targetPrice": "Target Price",
+    "targetYield": "Target Yield",
     "condition": "Condition",
     "above": "Rises Above",
     "below": "Falls Below",
@@ -13,7 +18,7 @@
     "note": "Note",
     "optional": "optional",
     "notePlaceholder": "e.g. My target sell price — appended to the alarm email",
-    "create": "Create",
+    "create": "Set Alarm",
     "manageAlarms": "Manage My Alarms",
     "created": "Alarm created",
     "createFailed": "Couldn't create alarm"

@@ -1,6 +1,11 @@
 {
   "modal": {
     "title": "{{name}} İçin Alarm",
+    "kicker": "Fiyat Alarmı",
+    "kickerYield": "Getiri Alarmı",
+    "current": "Şu an",
+    "targetPrice": "Hedef Fiyat",
+    "targetYield": "Hedef Getiri",
     "condition": "Koşul",
     "above": "Üzerine Çıkarsa",
     "below": "Altına İnerse",
@@ -13,7 +18,7 @@
     "note": "Not",
     "optional": "isteğe bağlı",
     "notePlaceholder": "ör. Hedef satış fiyatım — alarm e-postasına eklenir",
-    "create": "Oluştur",
+    "create": "Alarmı Kur",
     "manageAlarms": "Alarmlarımı Düzenle",
     "created": "Alarm oluşturuldu",
     "createFailed": "Alarm kurulamadı"

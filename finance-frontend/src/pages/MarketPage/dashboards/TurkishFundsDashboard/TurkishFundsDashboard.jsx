@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import FundTradingChart from '../../../../components/charts/FundTradingChart/FundTradingChart';
+import AssetActions from '../../../../components/asset/AssetActions';
 import NewsSection from '../../../../components/news/NewsSection.jsx';
 
 export default function TurkishFundsDashboard() {
@@ -56,7 +57,18 @@ export default function TurkishFundsDashboard() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <div className="xl:col-span-2 h-[650px] shadow-2xl">
                     {selectedAsset ? (
-                        <FundTradingChart asset={selectedAsset} />
+                        <div className="h-full flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-3 bg-surface border border-border rounded-2xl px-4 py-3 shrink-0">
+                                <div className="min-w-0">
+                                    <div className="font-bold text-text truncate">{selectedAsset.symbol || selectedAsset.currencyCode}</div>
+                                    <div className="text-xs text-text-muted truncate">{selectedAsset.name || selectedAsset.currencyName}</div>
+                                </div>
+                                <AssetActions asset={selectedAsset} assetCategory="TR_FUND" compact />
+                            </div>
+                            <div className="flex-1 min-h-0">
+                                <FundTradingChart asset={selectedAsset} />
+                            </div>
+                        </div>
                     ) : (
                         <div className="w-full h-full bg-surface rounded-2xl border border-border flex items-center justify-center text-text-muted">{t('common:actions.select')}</div>
                     )}

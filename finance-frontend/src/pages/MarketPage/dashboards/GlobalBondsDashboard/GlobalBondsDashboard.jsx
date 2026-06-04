@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import TradingChart from '../../../../components/charts/TradingChart/TradingChart';
+import AssetActions from '../../../../components/asset/AssetActions';
 
 export default function GlobalBondsDashboard() {
     const navigate = useNavigate();
@@ -47,6 +48,10 @@ export default function GlobalBondsDashboard() {
                                         <span className="text-text-muted text-[10px] ml-1">({t('asset:changeToday')})</span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="px-4 md:px-6 py-2.5 border-b border-border flex justify-end bg-surface">
+                                <AssetActions asset={selectedAsset} assetCategory="BOND" compact />
                             </div>
 
                             <div className="flex-1 relative">
