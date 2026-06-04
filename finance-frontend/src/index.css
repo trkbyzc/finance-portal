@@ -80,6 +80,12 @@
     --nav-bg: rgba(15, 23, 42, 0.85);   /* glassmorphic header */
     --nav-text: #f1f5f9;
     --nav-border: rgba(51, 65, 85, 0.6);
+
+    /* Koyu modda primary mavi = Polymarket "Poly Blue" #2E5CFF (resmi marka) */
+    --color-primary: #2e5cff;
+    --color-primary-hover: #1f49e6;
+    --color-primary-soft: rgba(46, 92, 255, 0.14);
+
     color-scheme: dark;
 }
 
