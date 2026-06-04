@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import authApi from '../../services/api/authApi';
@@ -9,8 +9,15 @@ const AuthCallbackPage = () => {
     const [searchParams] = useSearchParams();
     const { t } = useTranslation('auth');
     const [message, setMessage] = useState(t('callback.processing'));
+    // OAuth "code" tek kullanımlık. React StrictMode (dev) effect'i 2 kez çalıştırınca
+    // kod ikinci kez redeem edilmeye çalışılıp "code already used" hatası dönüyor ve
+    // ekranda başarısız→başarılı flaş'ı oluşuyordu. Tek seferlik guard ile engelliyoruz.
+    const processedRef = useRef(false);
 
     useEffect(() => {
+        if (processedRef.current) return;
+        processedRef.current = true;
+
         const processCallback = async () => {
             const code = searchParams.get('code');
             const error = searchParams.get('error');
