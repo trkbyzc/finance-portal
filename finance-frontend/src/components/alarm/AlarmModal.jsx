@@ -51,10 +51,12 @@ export default function AlarmModal({ open, onClose, asset }) {
         queryFn: async () => {
             const category = historicalCategory(backendType, symbol);
             if (!category) return null;
-            const res = await historicalApi.getData({ symbol, category, range: '1mo', interval: '1d' });
+            // range '1y' — TR_FUND historical kısa aralıklarda (1mo) bos donebiliyor; 1y guvenli
+            const res = await historicalApi.getData({ symbol, category, range: '1y', interval: '1d' });
             const arr = Array.isArray(res) ? res : (res?.priceData || res || []);
+            // Son geçerli noktanın fiyatı (close/price/value sırasıyla)
             for (let i = arr.length - 1; i >= 0; i--) {
-                const c = Number(arr[i]?.close ?? arr[i]?.price);
+                const c = Number(arr[i]?.close ?? arr[i]?.price ?? arr[i]?.value);
                 if (Number.isFinite(c) && c > 0) return c;
             }
             return null;
