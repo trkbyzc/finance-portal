@@ -18,7 +18,7 @@ export const useNewsData = (category = 'Tümü') => {
         queryKey: ['news', category, lang],
         queryFn: async () => {
             try {
-                const response = await newsApi.getNewsPage(category, 0, 20, lang);
+                const response = await newsApi.getNewsPage(category, 0, lang, 20);
                 if (Array.isArray(response)) return response;
                 return response?.content || response?.data || response?.items || [];
             } catch (err) {

@@ -51,7 +51,7 @@ export default function NewsPage() {
 
     const { data: responseData, isLoading: loading, isFetching: loadingMore } = useQuery({
         queryKey: ['newsPage', activeCategoryTr, page, lang],
-        queryFn: () => newsApi.getNewsPage(activeCategory, page, 12, lang),
+        queryFn: () => newsApi.getNewsPage(activeCategory, page, lang, 12),
         staleTime: 60 * 1000,
         keepPreviousData: true
     });

@@ -4,11 +4,11 @@ import { apiClient } from '../../config/apiClient';
 // geçmek isterse override edebilir — useNewsData / NewsPage gibi yerlerde geçilir.
 export const newsApi = {
     getAllNews: (lang) => apiClient.get('/news', { params: { lang } }),
-    getNewsPage: (category, page, size = 10, lang) =>
+    getNewsPage: (category, page, lang, size = 10) =>
         apiClient.get('/news', { params: { category, page, size, lang } }),
     getNewsContent: (url, lang) =>
         apiClient.get('/news/content', { params: { url, lang } }),
     // Bir varlığı etkileyen haberler — varlık detayındaki "İlgili Haberler" bölümü için
-    getNewsBySymbol: (symbol, limit = 6, lang) =>
+    getNewsBySymbol: (symbol, lang, limit = 6) =>
         apiClient.get('/news/by-symbol', { params: { symbol, limit, lang } })
 };

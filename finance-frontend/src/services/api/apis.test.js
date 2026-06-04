@@ -120,7 +120,7 @@ describe('newsApi', () => {
         expect(apiClient.get).toHaveBeenCalledWith('/news', { params: { lang: 'tr' } });
     });
     it('getNewsPage çoklu param', () => {
-        newsApi.getNewsPage('CRYPTO', 2, 20, 'en');
+        newsApi.getNewsPage('CRYPTO', 2, 'en', 20);
         expect(apiClient.get).toHaveBeenCalledWith('/news', {
             params: { category: 'CRYPTO', page: 2, size: 20, lang: 'en' }
         });

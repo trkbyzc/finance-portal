@@ -39,7 +39,7 @@ export default function NewsDetailPage() {
     const { data: sidebarData = [] } = useQuery({
         queryKey: ['sidebarNews', lang],
         queryFn: async () => {
-            const res = await newsApi.getNewsPage(lang === 'en' ? 'All' : 'Tümü', 0, 6, lang);
+            const res = await newsApi.getNewsPage(lang === 'en' ? 'All' : 'Tümü', 0, lang, 6);
             return res?.content || [];
         },
         enabled: !!newsItem

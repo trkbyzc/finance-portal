@@ -73,7 +73,10 @@ export default function PriceChart({
         let lo = Infinity, hi = -Infinity;
         for (const d of chartData || []) {
             const v = d?.close;
-            if (Number.isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+            if (Number.isFinite(v)) {
+                if (v < lo) lo = v;
+                if (v > hi) hi = v;
+            }
         }
         if (!Number.isFinite(lo) || !Number.isFinite(hi)) return ['auto', 'auto'];
         const center = (lo + hi) / 2;

@@ -18,7 +18,7 @@ export default function RelatedNews({ symbol }) {
     const { data = [] } = useQuery({
         queryKey: ['relatedNews', symbol, lang],
         queryFn: async () => {
-            const res = await newsApi.getNewsBySymbol(symbol, 6, lang);
+            const res = await newsApi.getNewsBySymbol(symbol, lang, 6);
             return Array.isArray(res) ? res : (res?.content || []);
         },
         enabled: !!symbol,

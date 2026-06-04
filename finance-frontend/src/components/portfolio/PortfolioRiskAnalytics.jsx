@@ -2,7 +2,7 @@ import { Activity, TrendingDown, Gauge, ShieldCheck, Loader2, Sigma, Layers } fr
 import { useTranslation } from 'react-i18next';
 import useRiskAnalytics from '../../pages/PortfolioPage/hooks/useRiskAnalytics';
 
-const pct = (v) => `${v >= 0 ? '' : ''}${(v * 100).toFixed(1)}%`;
+const pct = (v) => `${(v * 100).toFixed(1)}%`;
 const signedPct = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
 
 // Korelasyon hücre rengi — sistem tema token'larıyla (buy/sell/warning), 3 temada da uyumlu.
@@ -105,7 +105,7 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                 <RiskCard
                     icon={Gauge}
                     label={t('risk.beta', 'Beta (BIST 100)')}
-                    value={m.beta != null ? m.beta.toFixed(2) : '—'}
+                    value={m.beta == null ? '—' : m.beta.toFixed(2)}
                     tone="neutral"
                     hint={betaHint(t, m.beta)}
                 />

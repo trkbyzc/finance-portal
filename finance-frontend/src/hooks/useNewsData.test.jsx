@@ -34,7 +34,7 @@ describe('useNewsData', () => {
         await waitFor(() => expect(result.current.news).toHaveLength(10));
         expect(result.current.topNews).toHaveLength(5);
         expect(result.current.recentNews).toHaveLength(5);
-        expect(newsApiMock.getNewsPage).toHaveBeenCalledWith('Borsa', 0, 20, 'tr');
+        expect(newsApiMock.getNewsPage).toHaveBeenCalledWith('Borsa', 0, 'tr', 20);
     });
 
     it("nested response.content fallback", async () => {
@@ -70,12 +70,12 @@ describe('useNewsData', () => {
         i18nMock.language = 'en-US';
         newsApiMock.getNewsPage.mockResolvedValue([]);
         renderHook(() => useNewsData('Kripto'), { wrapper: makeWrap() });
-        await waitFor(() => expect(newsApiMock.getNewsPage).toHaveBeenCalledWith('Kripto', 0, 20, 'en'));
+        await waitFor(() => expect(newsApiMock.getNewsPage).toHaveBeenCalledWith('Kripto', 0, 'en', 20));
     });
 
     it("default category 'Tümü'", async () => {
         newsApiMock.getNewsPage.mockResolvedValue([]);
         renderHook(() => useNewsData(), { wrapper: makeWrap() });
-        await waitFor(() => expect(newsApiMock.getNewsPage).toHaveBeenCalledWith('Tümü', 0, 20, 'tr'));
+        await waitFor(() => expect(newsApiMock.getNewsPage).toHaveBeenCalledWith('Tümü', 0, 'tr', 20));
     });
 });
