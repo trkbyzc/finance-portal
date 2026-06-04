@@ -41,6 +41,10 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
         chart.setStyles(getChartStyles(chartType));
         chart.createIndicator('VOL', false, { id: 'pane_VOL', height: 100 });
 
+        // Fiyat ekseni (Y) üzerinde mouse scroll ile fiyat ölçeğini daralt/genişlet.
+        // klinecharts'ta default açık olsa da pane bazında açıkça garanti ediyoruz.
+        chart.setPaneOptions({ id: 'candle_pane', axisOptions: { scrollZoomEnabled: true } });
+
         // Crosshair hareketinde üstteki OHLCV kartlarını canlı güncellemek için
         if (onCrosshairChange) {
             chart.subscribeAction('onCrosshairChange', onCrosshairChange);

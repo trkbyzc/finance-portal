@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import {
     AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid,
     Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
+
+// Fiyat ekseni (sağ) bölge genişliği — wheel ile Y-zoom yalnız bu bölgede tetiklenir.
+const Y_AXIS_ZONE_PX = 72;
 
 /**
  * Karşılaştırma grafiğiyle aynı açık (beyaz) tooltip — siyah kutu yerine.
@@ -36,14 +39,49 @@ export default function PriceChart({
     chartData, useAreaChart, isYield, formatPriceLabel
 }) {
     const { t } = useTranslation('charts');
+    const wrapRef = useRef(null);
+    const [zoom, setZoom] = useState(1);
+
+    // Aralık/asset değişince (veri uzunluğu) zoom'u sıfırla — yeni fiyat aralığına otomatik otur.
+    useEffect(() => { setZoom(1); }, [chartData?.length]);
+
+    // Fiyat ekseni bölgesinde (sağ Y_AXIS_ZONE_PX) wheel ile Y-zoom. Non-passive listener —
+    // sayfayı kaydırmamak için preventDefault şart (React onWheel passive olabiliyor).
+    useEffect(() => {
+        const el = wrapRef.current;
+        if (!el) return;
+        const onWheel = (e) => {
+            const rect = el.getBoundingClientRect();
+            if (rect.right - e.clientX > Y_AXIS_ZONE_PX) return; // sadece fiyat ekseni üstünde
+            e.preventDefault();
+            setZoom(z => Math.min(12, Math.max(0.2, z * (e.deltaY < 0 ? 1.12 : 1 / 1.12))));
+        };
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, []);
 
     // Tüm area/line grafikler sistem laciverti (eurobond dahil)
     const stroke = '#2962ff';
     const yTickFormatter = (v) => isYield ? `%${v.toFixed(2)}` : formatPriceLabel(v);
     const tooltipEl = <PriceTooltip stroke={stroke} isYield={isYield} t={t} formatPriceLabel={formatPriceLabel} />;
 
+    // Zoom'a göre Y domain: merkez sabit, açıklık 1/zoom ile daralır/genişler.
+    // zoom=1 → veriye %8 pay; zoom>1 → daha dar aralık (yakınlaşma), zoom<1 → daha geniş.
+    const yDomain = useMemo(() => {
+        let lo = Infinity, hi = -Infinity;
+        for (const d of chartData || []) {
+            const v = d?.close;
+            if (Number.isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+        }
+        if (!Number.isFinite(lo) || !Number.isFinite(hi)) return ['auto', 'auto'];
+        const center = (lo + hi) / 2;
+        const half = ((hi - lo) / 2) || Math.abs(center * 0.01) || 1;
+        const padded = (half * 1.08) / zoom;
+        return [center - padded, center + padded];
+    }, [chartData, zoom]);
+
     return (
-        <div className="w-full h-full p-4">
+        <div ref={wrapRef} className="w-full h-full p-4">
             <ResponsiveContainer width="100%" height="100%">
                 {useAreaChart ? (
                     <AreaChart data={chartData}>
@@ -58,7 +96,8 @@ export default function PriceChart({
                         <YAxis
                             stroke="#787b86"
                             orientation="right"
-                            domain={['auto', 'auto']}
+                            domain={yDomain}
+                            allowDataOverflow
                             tickFormatter={yTickFormatter}
                         />
                         <RechartsTooltip content={tooltipEl} />
@@ -68,7 +107,7 @@ export default function PriceChart({
                     <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#2a2e39" vertical={false} />
                         <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} tickFormatter={formatChartDate} />
-                        <YAxis stroke="#787b86" orientation="right" tickFormatter={yTickFormatter} />
+                        <YAxis stroke="#787b86" orientation="right" domain={yDomain} allowDataOverflow tickFormatter={yTickFormatter} />
                         <RechartsTooltip content={tooltipEl} />
                         <Line type="monotone" dataKey="close" stroke="#2962ff" strokeWidth={3} dot={false} />
                     </LineChart>

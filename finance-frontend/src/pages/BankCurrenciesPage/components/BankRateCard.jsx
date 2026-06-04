@@ -8,7 +8,11 @@ export default function BankRateCard({ rate }) {
 
     const buy = rate.forexBuying || 0;
     const sell = rate.forexSelling || 0;
-    const spread = (sell - buy).toFixed(4);
+    const spreadVal = sell - buy;
+    const spread = spreadVal.toFixed(4);
+    // Makasın fiyata oranı — alış/satış ortalamasına (mid) göre %
+    const mid = (buy + sell) / 2;
+    const spreadPct = mid > 0 ? (spreadVal / mid) * 100 : 0;
 
     return (
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl hover:border-primary transition-all group hover:-translate-y-1">
@@ -48,8 +52,10 @@ export default function BankRateCard({ rate }) {
 
             <div className="mt-6 pt-4 border-t border-border/50 flex justify-between items-center bg-surface-2/30 -mx-6 -mb-6 px-6 py-4 rounded-b-2xl">
                 <span className="text-text-muted text-xs font-bold uppercase tracking-wider">{t('common:labels.spread')}</span>
-                <span className="font-mono text-sm font-bold text-warning bg-warning/10 px-2 py-1 rounded border border-warning/20">
-                    {spread} ₺
+                <span className="font-mono text-sm font-bold text-warning bg-warning/10 px-2 py-1 rounded border border-warning/20 flex items-center gap-1.5">
+                    <span>{spread} ₺</span>
+                    <span className="text-warning/60">·</span>
+                    <span>%{spreadPct.toFixed(2)}</span>
                 </span>
             </div>
         </div>
