@@ -22,9 +22,10 @@ export const CRYPTO_OPTIONS = [
  * Kapsam bilinçli olarak XBANK/XUSIN ile sınırlı: banka ise BIST Bankacılık, değilse BIST Sınai.
  * TR_INDEX kategorisiyle aynı Fintables UDF endpoint'inden çekilir (XU100 ile aynı aile).
  */
+// Renk varlık turuncusundan (#ff9800) ve XU100/50/30'dan (mavi/yeşil/kırmızı) ayrışsın diye mor.
 export const SECTOR_INDEXES = {
-    XBANK: { key: 'XBANK', symbol: 'XBANK', label: 'BIST Bankacılık', color: '#e0a800', category: 'TR_INDEX' },
-    XUSIN: { key: 'XUSIN', symbol: 'XUSIN', label: 'BIST Sınai',       color: '#e0a800', category: 'TR_INDEX' }
+    XBANK: { key: 'XBANK', symbol: 'XBANK', label: 'BIST Bankacılık', color: '#9c27b0', category: 'TR_INDEX' },
+    XUSIN: { key: 'XUSIN', symbol: 'XUSIN', label: 'BIST Sınai',       color: '#9c27b0', category: 'TR_INDEX' }
 };
 
 /** İş Yatırım sektör adından ilgili BIST sektör endeksini seç; sektör yoksa null (buton eklenmez). */

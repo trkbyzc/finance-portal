@@ -125,40 +125,51 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
         staleTime: 5 * 60 * 1000
     });
 
-    // % normalize ve TIMESTAMP bazlı merge.
-    // Eskiden gün bazlı (date.split('T')[0]) merge ediliyordu; bu, intraday (1G/1H) verileri tek
-    // güne çökertip düz çizgi oluşturuyordu. Artık timestamp anahtarıyla intraday noktalar korunur.
-    // x-ekseni `date` alanı timestamp (sayı) tutar — formatChartDate sayısal timestamp'i de işler.
+    // % normalize ve hizalama.
+    // x-ekseni VARLIĞIN kendi timestamp'leri olur (master). Benchmark'lar farklı timestamp/saniyede
+    // gelebildiği için (Fintables kapanış vs. Yahoo kapanış), her benchmark değeri varlık
+    // timestamp'lerine "forward-fill" ile taşınır: ts'i o ana kadarki en son benchmark değeri.
+    // Böylece HER noktada hem varlık hem benchmark dolu olur → tooltip ve çizgi boşluksuz.
     const buildNormalized = (options, activeMap, dataMap) => {
         if (!rawChartData?.length) return [];
-        const out = {};
 
         const assetBase = rawChartData[0]?.close || 0;
-        if (assetBase > 0) {
-            rawChartData.forEach(p => {
-                const ts = p.timestamp;
-                if (ts == null) return;
-                if (!out[ts]) out[ts] = { date: ts };
-                out[ts].asset = Number((((p.close - assetBase) / assetBase) * 100).toFixed(2));
-            });
-        }
+        const rows = [];
+        rawChartData.forEach(p => {
+            const ts = p.timestamp;
+            if (ts == null) return;
+            const row = { date: ts };
+            if (assetBase > 0) {
+                row.asset = Number((((p.close - assetBase) / assetBase) * 100).toFixed(2));
+            }
+            rows.push(row);
+        });
+        rows.sort((a, b) => a.date - b.date);
+        if (rows.length === 0) return [];
 
         options.forEach(({ key, symbol }) => {
             if (!activeMap[key]) return;
-            const points = dataMap[symbol] || [];
+            const points = (dataMap[symbol] || [])
+                .map(p => ({ ts: p.timestamp, close: p.close ?? p.price ?? 0 }))
+                .filter(p => p.ts != null && p.close > 0)
+                .sort((a, b) => a.ts - b.ts);
             if (points.length === 0) return;
-            const base = points[0]?.close ?? points[0]?.price ?? 0;
+            const base = points[0].close;
             if (base <= 0) return;
-            points.forEach(p => {
-                const ts = p.timestamp;
-                const close = p.close ?? p.price ?? 0;
-                if (ts == null || close <= 0) return;
-                if (!out[ts]) out[ts] = { date: ts };
-                out[ts][key] = Number((((close - base) / base) * 100).toFixed(2));
-            });
+
+            // İki-işaretçili forward-fill: varlık timestamp'ine, ts'i <= o an olan en son benchmark.
+            let i = 0;
+            let lastVal = null;
+            for (const row of rows) {
+                while (i < points.length && points[i].ts <= row.date) {
+                    lastVal = Number((((points[i].close - base) / base) * 100).toFixed(2));
+                    i++;
+                }
+                if (lastVal !== null) row[key] = lastVal;
+            }
         });
 
-        return Object.values(out).sort((a, b) => a.date - b.date);
+        return rows;
     };
 
     const bistOverlayChartData = useMemo(
