@@ -7,6 +7,7 @@
     "title": "Live Markets",
     "indices": "Indices",
     "heatmap": "BIST Heatmap",
+    "heatmapTopN": "top {{n}} by volume",
     "heatmapSub": "Box size by trading volume, color by daily change · ",
     "heatmapUp": "green up",
     "heatmapDown": "red down",

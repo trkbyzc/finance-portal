@@ -67,8 +67,13 @@ export default function BistHeatmapSection({ stocks, loading }) {
 
     return (
         <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-1 text-text flex items-center gap-2">
+            <h2 className="text-2xl font-bold mb-1 text-text flex items-center gap-2 flex-wrap">
                 {t('live.heatmap', 'BIST Isı Haritası')} <ChevronRight className="text-text-muted" size={24} />
+                {data.length > 0 && (
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 rounded-md px-2 py-0.5">
+                        {t('live.heatmapTopN', 'en yüksek hacimli {{n}}', { n: data.length })}
+                    </span>
+                )}
             </h2>
             <p className="text-xs text-text-muted mb-4">
                 {t('live.heatmapSub', 'Kutu boyutu işlem hacmine, renk günlük değişime göre · ')}

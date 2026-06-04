@@ -75,14 +75,14 @@ export default function LiveMarketPage() {
                     setSelectedSymbol={setSelectedSymbol}
                 />
 
-                {/* 1.5 BIST ISI HARİTASI — endekslerden sonra */}
-                <BistHeatmapSection stocks={turkishStocks} loading={stocksLoading} />
-
                 {/* 2. GRAFİK ALANI - 🚀 onNavigateToMarket özelliği eklendi */}
                 <ChartSection
                     selectedSymbol={selectedSymbol || defaultSymbol}
                     onNavigateToMarket={handleViewIndexStocks}
                 />
+
+                {/* 2.5 BIST ISI HARİTASI — grafiğin altında */}
+                <BistHeatmapSection stocks={turkishStocks} loading={stocksLoading} />
 
                 {/* 3. TÜRK HİSSELERİ */}
                 <TurkishStocksSection
