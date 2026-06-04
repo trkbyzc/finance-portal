@@ -37,6 +37,7 @@
     "realPnl": "Reel",
     "realPnlTip": "Enflasyona göre düzeltilmiş kâr/zarar",
     "inflation": "Enflasyon",
+    "recentBuy": "yakın tarihli alım",
     "totalPnlPercent": "K/Z (%)",
     "dailyPnl": "Günlük K/Z",
     "assetCount": "Varlık Sayısı"

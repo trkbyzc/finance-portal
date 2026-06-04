@@ -52,9 +52,10 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
     const pnlUp = totalProfitLoss >= 0;
 
     // Reel (enflasyon-düzeltilmiş) K/Z: maliyet bugünkü liraya çekilir (× CPI_now/CPI_alış).
-    // Kart yalnızca anlamlı bir enflasyon farkı varsa gösterilir (faktör ~1 ise nominal ile aynı
-    // çıkar — bu da yakın tarihli/tarihi girilmemiş alımlarda olur, kafa karıştırmasın diye gizlenir).
-    const hasReal = inflationFactor != null && inflationFactor > 1.005 && totalInvestment > 0;
+    // CPI verisi + alım tarihi varsa gösterilir. Faktör ~1 ise (yakın tarihli alım) reel ≈ nominal —
+    // bu durumda kartta "yakın alım" notu gösterilir ki kullanıcı neden aynı olduğunu anlasın.
+    const hasReal = inflationFactor != null && inflationFactor > 0 && totalInvestment > 0;
+    const realIsFlat = hasReal && inflationFactor <= 1.005; // enflasyon farkı yok denecek kadar küçük
     const realCost = hasReal ? totalInvestment * inflationFactor : null;
     const realProfitLoss = hasReal ? totalValue - realCost : null;
     const realReturnRate = hasReal ? (realProfitLoss / realCost) * 100 : null;
@@ -96,7 +97,9 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
                         <p className={`text-xs font-bold ${realUp ? 'text-buy' : 'text-sell'}`}>
                             {pct(realReturnRate)}
                             <span className="text-text-muted font-medium ml-1">
-                                ({t('stats.inflation', 'Enflasyon')} ×{inflationFactor.toFixed(2)})
+                                {realIsFlat
+                                    ? `(${t('stats.recentBuy', 'yakın tarihli alım')})`
+                                    : `(${t('stats.inflation', 'Enflasyon')} ×${inflationFactor.toFixed(2)})`}
                             </span>
                         </p>
                     }

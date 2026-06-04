@@ -37,6 +37,7 @@
     "realPnl": "Real",
     "realPnlTip": "Inflation-adjusted profit/loss",
     "inflation": "Inflation",
+    "recentBuy": "recent purchase",
     "totalPnlPercent": "P/L (%)",
     "dailyPnl": "Daily P/L",
     "assetCount": "Asset Count"
