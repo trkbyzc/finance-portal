@@ -56,13 +56,12 @@ export default function EconomicCalendarPage() {
     return (
         <div className="min-h-screen bg-bg text-text p-4 md:p-8">
             <div className="max-w-[1300px] mx-auto">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
                         <CalendarDays size={20} />
                     </div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t('economicCalendar:pageTitle')}</h1>
                 </div>
-                <p className="text-text-muted mb-6">{t('economicCalendar:pageSubtitle')}</p>
 
                 <CalendarFilters
                     fromDate={fromDate}

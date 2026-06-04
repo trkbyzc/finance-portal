@@ -86,7 +86,6 @@ export default function EconomyDashboard() {
                     <span className="w-2 h-8 bg-primary rounded-full"></span>
                     {t('markets:economyDash.headerTitle')}
                 </h1>
-                <p className="text-text-muted text-sm mt-2 ml-5">{t('markets:economyDash.headerSubtitle')}</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
