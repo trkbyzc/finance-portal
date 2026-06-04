@@ -48,6 +48,17 @@ export const CurrencyProvider = ({ children }) => {
         return formatCurrency(converted, currency, minDecimals, maxDecimals);
     };
 
+    // convertPrice'ın TERSİ: kullanıcının SEÇİLİ para biriminde girdiği değeri varlığın
+    // native birimine çevirir (backend native fiyat saklar). Örn. toggle=USD, native=TRY ise
+    // girilen $ değeri × usdRate ile TRY'ye çevrilir.
+    const toNative = (displayValue, nativeCurrency = 'TRY') => {
+        const v = Number(displayValue) || 0;
+        if (currency === nativeCurrency) return v;
+        if (nativeCurrency === 'TRY' && currency === 'USD') return v * usdRate; // girilen $ -> ₺
+        if (nativeCurrency === 'USD' && currency === 'TRY') return v / usdRate; // girilen ₺ -> $
+        return v;
+    };
+
     // Varlığı KENDİ para biriminde gösterir (TRY/USD toggle'ından bağımsız).
     // Varlık listeleri/ekleme akışlarında her varlık kendi biriminde görünsün diye:
     // Türk varlıkları ₺, küresel (kripto, ABD hissesi vb.) $ kalır.
@@ -57,7 +68,7 @@ export const CurrencyProvider = ({ children }) => {
     };
 
     return (
-        <CurrencyContext.Provider value={{ currency, setCurrency, toggleCurrency, usdRate, convertPrice, formatPrice, formatNative }}>
+        <CurrencyContext.Provider value={{ currency, setCurrency, toggleCurrency, usdRate, convertPrice, toNative, formatPrice, formatNative }}>
             {children}
         </CurrencyContext.Provider>
     );

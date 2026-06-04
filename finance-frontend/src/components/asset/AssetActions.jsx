@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Plus, Bell, X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useNotify } from '../../context/NotificationContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { toBackendAssetType } from '../../utils/assetTypeMapper';
+import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import AlarmModal from '../alarm/AlarmModal';
+
+const CUR_SYMBOL = { TRY: '₺', USD: '$' };
+const YIELD_CATS = ['BOND', 'TR_BOND', 'EUROBOND'];
 
 const derivePrice = (asset) =>
     asset?.displayPrice ?? asset?.price ?? asset?.currentPrice ??
@@ -25,20 +31,35 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
     const { isAuthenticated } = useAuth();
     const { t } = useTranslation(['asset', 'common', 'portfolio']);
     const notify = useNotify();
+    const { currency, convertPrice, toNative } = useCurrency();
 
     const [addOpen, setAddOpen] = useState(false);
     const [alarmOpen, setAlarmOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({ quantity: '1', price: '' });
+    const [targetPortfolioId, setTargetPortfolioId] = useState('');
+
+    const { data: portfolios = [] } = useQuery({
+        queryKey: ['portfolios'],
+        queryFn: portfolioApi.getPortfolios,
+        enabled: isAuthenticated && addOpen
+    });
 
     if (!isAuthenticated || !asset) return null;
 
     const cat = assetCategory || asset.assetCategory;
     const symbol = asset.symbol || asset.currencyCode;
     const effectiveAsset = { ...asset, assetCategory: cat, currentPrice: derivePrice(asset) };
+    // Tahvil/bono getiri (%) bazlı — para birimi/çevrim uygulanmaz. Diğerlerinde native birim.
+    const isYield = YIELD_CATS.includes((cat || '').toUpperCase());
+    const native = nativeCurrencyForType(cat, symbol);
 
     const openAdd = () => {
-        setForm({ quantity: '1', price: derivePrice(asset) !== '' ? String(derivePrice(asset)) : '' });
+        const raw = derivePrice(asset);
+        // Getiri değilse fiyatı seçili para birimine çevirip ön-doldur
+        const shown = raw === '' ? '' : (isYield ? raw : convertPrice(Number(raw), native));
+        setForm({ quantity: '1', price: shown === '' ? '' : String(+Number(shown).toFixed(6)) });
+        setTargetPortfolioId('');
         setAddOpen(true);
     };
 
@@ -46,17 +67,23 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
         e.preventDefault();
         setSubmitting(true);
         try {
+            const pid = targetPortfolioId || portfolios[0]?.id;
             await portfolioApi.addManualEntry({
                 symbol,
                 assetType: toBackendAssetType(cat),
                 quantity: parseFloat(form.quantity),
-                averagePrice: parseFloat(form.price)
+                // Getiri ise olduğu gibi; değilse girilen (seçili birim) fiyat native'e çevrilir
+                averagePrice: isYield ? parseFloat(form.price) : toNative(parseFloat(form.price), native),
+                ...(pid ? { portfolioId: pid } : {})
             });
             setAddOpen(false);
+            const pname = portfolios.find(p => p.id === pid)?.name;
             notify({
                 type: 'success',
                 title: t('portfolio:notify.assetAdded', 'Portföye eklendi'),
-                message: t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol })
+                message: pname
+                    ? t('portfolio:notify.assetAddedToMsg', '{{symbol}} → {{portfolio}} portföyüne eklendi.', { symbol, portfolio: pname })
+                    : t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol })
             });
         } catch (error) {
             notify({
@@ -108,6 +135,21 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
                                 <div className="text-text-muted text-[11px] truncate">{asset.name || asset.currencyName || ''}</div>
                             </div>
 
+                            {portfolios.length > 1 && (
+                                <div>
+                                    <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.targetPortfolio', 'Hangi portföye?')}</label>
+                                    <select
+                                        value={targetPortfolioId || portfolios[0]?.id || ''}
+                                        onChange={(e) => setTargetPortfolioId(e.target.value)}
+                                        className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all appearance-none cursor-pointer"
+                                    >
+                                        {portfolios.map((p) => (
+                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.quantity')}</label>
                                 <input
@@ -120,7 +162,9 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
                             </div>
 
                             <div>
-                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.purchasePrice')}</label>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">
+                                    {t('portfolio:modal.purchasePrice')}{!isYield ? ` (${CUR_SYMBOL[currency] || currency})` : ''}
+                                </label>
                                 <input
                                     type="number" step="any" required min="0.000001"
                                     value={form.price}

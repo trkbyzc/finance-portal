@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Loader2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAssetDetails } from '../../hooks/useAssetDetails';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { useNotify } from '../../context/NotificationContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { toBackendAssetType } from '../../utils/assetTypeMapper';
 
 import AssetHeader from './components/AssetHeader';
@@ -12,17 +14,28 @@ import AssetChartArea from './components/AssetChartArea';
 import BondDetailView from './components/BondDetailView';
 import ComparisonSection from './components/ComparisonSection';
 
+const CUR_SYMBOL = { TRY: '₺', USD: '$' };
+
 export default function AssetDetailPage() {
     const { symbol } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation(['asset', 'common', 'portfolio']);
     const notify = useNotify();
+    const { currency, convertPrice, toNative } = useCurrency();
 
     const { asset, loading, isTrBond, isViop, decodedSymbol } = useAssetDetails(symbol);
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [formData, setFormData] = useState({ quantity: '', price: '' });
+    const [targetPortfolioId, setTargetPortfolioId] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Hedef portföy seçici için portföyler (modal açıkken çekilir; detay sayfası public olabilir)
+    const { data: portfolios = [] } = useQuery({
+        queryKey: ['portfolios'],
+        queryFn: portfolioApi.getPortfolios,
+        enabled: isAddModalOpen
+    });
 
     if (loading) return (
         <div className="h-screen flex items-center justify-center bg-bg">
@@ -34,11 +47,17 @@ export default function AssetDetailPage() {
         return <BondDetailView asset={asset} navigate={navigate} />;
     }
 
+    // Varlığın native birimi; alış fiyatı seçili para biriminde gösterilir, kayıtta native'e çevrilir.
+    const nativeCur = asset?.nativeCurrency || 'TRY';
+
     const handleOpenModal = () => {
+        // Fiyatı seçili para birimine çevirip ön-doldur (header'da görünen fiyatla aynı)
+        const displayVal = asset?.displayPrice ? convertPrice(asset.displayPrice, nativeCur) : '';
         setFormData({
             quantity: '1',
-            price: asset?.displayPrice || ''
+            price: displayVal ? String(+Number(displayVal).toFixed(6)) : ''
         });
+        setTargetPortfolioId('');
         setIsAddModalOpen(true);
     };
 
@@ -47,11 +66,14 @@ export default function AssetDetailPage() {
         setIsSubmitting(true);
         try {
             const isViop = asset?.assetCategory === 'VIOP';
+            const pid = targetPortfolioId || portfolios[0]?.id;
             const payload = {
                 symbol: asset?.symbol || decodedSymbol,
                 assetType: toBackendAssetType(asset?.assetCategory),
                 quantity: parseFloat(formData.quantity),
-                averagePrice: parseFloat(formData.price),
+                // Girilen fiyat seçili para biriminde → native'e çevrilip saklanır
+                averagePrice: toNative(parseFloat(formData.price), nativeCur),
+                ...(pid ? { portfolioId: pid } : {}),
                 // VİOP'ta sözleşme büyüklüğü (çarpan) holding'e snapshot'lanır
                 ...(isViop ? { contractSize: Number(asset?.contractSize) || 1 } : {})
             };
@@ -60,10 +82,13 @@ export default function AssetDetailPage() {
 
             setIsAddModalOpen(false);
 
+            const pname = portfolios.find(p => p.id === pid)?.name;
             notify({
                 type: 'success',
                 title: t('portfolio:notify.assetAdded', 'Portföye eklendi'),
-                message: t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: payload.symbol })
+                message: pname
+                    ? t('portfolio:notify.assetAddedToMsg', '{{symbol}} → {{portfolio}} portföyüne eklendi.', { symbol: payload.symbol, portfolio: pname })
+                    : t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: payload.symbol })
             });
 
         } catch (error) {
@@ -122,6 +147,21 @@ export default function AssetDetailPage() {
                                 </div>
                             </div>
 
+                            {portfolios.length > 1 && (
+                                <div>
+                                    <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.targetPortfolio', 'Hangi portföye?')}</label>
+                                    <select
+                                        value={targetPortfolioId || portfolios[0]?.id || ''}
+                                        onChange={(e) => setTargetPortfolioId(e.target.value)}
+                                        className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all appearance-none cursor-pointer"
+                                    >
+                                        {portfolios.map((p) => (
+                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.quantity')}</label>
                                 <input
@@ -137,7 +177,7 @@ export default function AssetDetailPage() {
                             </div>
 
                             <div>
-                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.purchasePrice')}</label>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.purchasePrice')} ({CUR_SYMBOL[currency] || currency})</label>
                                 <input
                                     type="number"
                                     step="any"
