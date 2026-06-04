@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @Slf4j
@@ -63,32 +64,58 @@ public class RssIntegrationClient {
         return newsList;
     }
 
-    // RSS kaynaklarının SSL sertifikası bazen JVM truststore'unda olmayan bir CA tarafından
-    // imzalanır (PKIX path building failed). RSS verisi public — credential göndermediğimiz
-    // için bu connection özelinde trust-all kullanmak güvenli. Lazy + singleton.
-    private static volatile SSLSocketFactory trustAllSocketFactory;
+    // =====================================================================
+    // RSS feed'ler için trust-all SSL — BİLİNÇLİ GÜVENLİK KARARI
+    // =====================================================================
+    // SORUN: Habertürk gibi bazı RSS kaynakları JVM truststore'unda olmayan
+    // CA'lar tarafından imzalanmış sertifika kullanır → 'PKIX path building failed'.
+    //
+    // KABUL EDİLEN RİSK: MITM saldırgan RSS içeriğini değiştirebilir
+    // → görüntülenen haber başlığı/açıklaması manipüle edilebilir.
+    //
+    // RİSK SAVUNMASI:
+    //  - Bu connection'da KİMLİK BİLGİSİ gönderilmiyor (token, cookie, basic auth yok).
+    //  - RSS verisi sadece okunur (haber listesi). Tıklanan link'ler ayrı bir browser
+    //    sekmesinde açılır — orada tarayıcı kendi cert validation'ını yapar.
+    //  - JSoup ile HTML stripping (XSS guard) ve DocumentBuilderFactory XXE guard
+    //    zaten devrede.
+    //
+    // ALTERNATİFLER REDDEDİLDİ:
+    //  - JVM truststore'a manuel CA ekleme: her deploy ortamında manuel adım.
+    //  - Self-signed CA whitelist: kaynak siteler periyodik olarak değişiyor.
+    //  - RSS proxy servis: ekstra altyapı, demo için orantısız maliyet.
+    //
+    // KAPSAM: Sadece bu RssIntegrationClient instance'ı. Sistemin diğer HTTP
+    // çağrıları (Keycloak, EVDS, LLM, mail, vb.) JVM default truststore'a sadık.
+    @SuppressWarnings({
+        "java:S4830", // Server certificate validation disabled — açıklama yukarıda
+        "java:S5527"  // Hostname verification disabled    — açıklama yukarıda
+    })
     private static final HostnameVerifier ACCEPT_ALL_HOSTS = (host, session) -> true;
 
+    // AtomicReference: volatile + double-check kombinasyonu lint'çe weak çıkıyor
+    // (S3077). Atomic ile compare-and-set semantics → tek seferlik init garantili.
+    private static final AtomicReference<SSLSocketFactory> trustAllSocketFactoryRef = new AtomicReference<>();
+
+    @SuppressWarnings({"java:S4830", "java:S5527"}) // X509TrustManager intentionally trust-all
     private static SSLSocketFactory getTrustAllSocketFactory() {
-        if (trustAllSocketFactory == null) {
-            synchronized (RssIntegrationClient.class) {
-                if (trustAllSocketFactory == null) {
-                    try {
-                        TrustManager[] trustAll = { new X509TrustManager() {
-                            @Override public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                            @Override public void checkClientTrusted(X509Certificate[] c, String a) { /* trust all */ }
-                            @Override public void checkServerTrusted(X509Certificate[] c, String a) { /* trust all */ }
-                        }};
-                        SSLContext sc = SSLContext.getInstance("TLS");
-                        sc.init(null, trustAll, new SecureRandom());
-                        trustAllSocketFactory = sc.getSocketFactory();
-                    } catch (Exception e) {
-                        throw new IllegalStateException("RSS trust-all SSLContext oluşturulamadı", e);
-                    }
-                }
-            }
+        SSLSocketFactory existing = trustAllSocketFactoryRef.get();
+        if (existing != null) return existing;
+        try {
+            TrustManager[] trustAll = { new X509TrustManager() {
+                @Override public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                @Override public void checkClientTrusted(X509Certificate[] c, String a) { /* trust all — RSS public data */ }
+                @Override public void checkServerTrusted(X509Certificate[] c, String a) { /* trust all — RSS public data */ }
+            }};
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAll, new SecureRandom());
+            SSLSocketFactory built = sc.getSocketFactory();
+            // compareAndSet → başka thread bizden önce init ettiyse onun instance'ı kullanılır
+            trustAllSocketFactoryRef.compareAndSet(null, built);
+            return trustAllSocketFactoryRef.get();
+        } catch (Exception e) {
+            throw new IllegalStateException("RSS trust-all SSLContext oluşturulamadı", e);
         }
-        return trustAllSocketFactory;
     }
 
     private Document fetchRssDocument(String url) throws Exception {

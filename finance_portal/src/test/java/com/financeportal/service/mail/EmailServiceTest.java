@@ -5,6 +5,7 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.thymeleaf.TemplateEngine;
@@ -27,12 +28,18 @@ class EmailServiceTest {
     private TemplateEngine templateEngine;
     private EmailService service;
 
+    @SuppressWarnings("unchecked")
+    private EmailService newService(JavaMailSender sender) {
+        ObjectProvider<JavaMailSender> provider = mock(ObjectProvider.class);
+        when(provider.getIfAvailable()).thenReturn(sender);
+        return new EmailService(templateEngine, provider);
+    }
+
     @BeforeEach
     void setUp() {
         mailSender = mock(JavaMailSender.class);
         templateEngine = mock(TemplateEngine.class);
-        service = new EmailService(templateEngine);
-        ReflectionTestUtils.setField(service, "mailSender", mailSender);
+        service = newService(mailSender);
         ReflectionTestUtils.setField(service, "enabled", true);
         ReflectionTestUtils.setField(service, "fromAddress", "noreply@finansportal.local");
         ReflectionTestUtils.setField(service, "fromName", "FinansPortal");
@@ -58,8 +65,10 @@ class EmailServiceTest {
 
     @Test
     void isEnabled_false_when_mailSender_null() {
-        ReflectionTestUtils.setField(service, "mailSender", null);
-        assertFalse(service.isEnabled());
+        // ObjectProvider.getIfAvailable() null dönerse mailSender null'a fix'lenir (spring-boot-starter-mail yok scenario)
+        EmailService noMailService = newService(null);
+        ReflectionTestUtils.setField(noMailService, "enabled", true);
+        assertFalse(noMailService.isEnabled());
     }
 
     @Test

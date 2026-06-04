@@ -3,10 +3,9 @@ package com.financeportal.service.mail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -21,16 +20,16 @@ import java.util.Map;
  * E-posta gönderimi — Thymeleaf template + JavaMailSender üzerinden.
  * SMTP kapalıysa (app.mail.enabled=false veya credential yok) sessizce skip eder,
  * log'a yazıp false döner. Caller "gönderemedik ama akış kırılmasın" davranışını gösterir.
+ *
+ * JavaMailSender constructor injection ile geliyor (Sonar S6813). spring-boot-starter-mail
+ * classpath'te değilse Spring otomatik ObjectProvider'a null değer atar → isEnabled() false.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class EmailService {
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
-
     private final TemplateEngine templateEngine;
+    private final JavaMailSender mailSender; // optional — null olabilir
 
     @Value("${app.mail.enabled:false}")
     private boolean enabled;
@@ -40,6 +39,12 @@ public class EmailService {
 
     @Value("${app.mail.from-name:FinansPortal}")
     private String fromName;
+
+    public EmailService(TemplateEngine templateEngine, ObjectProvider<JavaMailSender> mailSenderProvider) {
+        this.templateEngine = templateEngine;
+        // ObjectProvider.getIfAvailable() → bean yoksa null (eski @Autowired required=false ile aynı)
+        this.mailSender = mailSenderProvider.getIfAvailable();
+    }
 
     /** Mail gönderim altyapısı şu an aktif mi? */
     public boolean isEnabled() {
