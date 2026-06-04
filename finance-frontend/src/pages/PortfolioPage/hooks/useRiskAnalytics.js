@@ -148,13 +148,25 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
             if (dd < maxDD) maxDD = dd;
         }
 
-        // Beta vs BIST100 (ortak tarihlerde)
+        // Beta vs BIST100 — portföy ve BIST'in ORTAK tarihlerinde hizalı getiriler.
+        // (Önceden "tüm ortak tarihler BIST'te olmalı" katı kontrolü tek gün farkında bile başarısızdı.)
         let beta = null;
-        const bistCloses = commonDates.map(d => bist?.[d]).filter(c => Number.isFinite(c) && c > 0);
-        if (bistCloses.length === commonDates.length && commonDates.length > 1) {
-            const bistRet = returnsFromCloses(commonDates.map(d => bist[d]));
-            const vBist = stdev(bistRet) ** 2;
-            if (vBist > 0) beta = cov(portRet, bistRet) / vBist;
+        const betaDates = commonDates.filter(d => Number.isFinite(bist?.[d]) && bist[d] > 0);
+        if (betaDates.length >= 21) {
+            const portRetB = [];
+            const bistRetB = [];
+            for (let i = 1; i < betaDates.length; i++) {
+                const d0 = betaDates[i - 1], d1 = betaDates[i];
+                let rp = 0;
+                symbols.forEach(s => {
+                    const c0 = series[s][d0], c1 = series[s][d1];
+                    if (c0 > 0 && c1 > 0) rp += (wMap[s] || 0) * (c1 / c0 - 1);
+                });
+                portRetB.push(rp);
+                bistRetB.push(bist[d1] / bist[d0] - 1);
+            }
+            const vBist = stdev(bistRetB) ** 2;
+            if (vBist > 0) beta = cov(portRetB, bistRetB) / vBist;
         }
 
         // Konsantrasyon — HHI, etkin varlık sayısı, en büyük ağırlık
