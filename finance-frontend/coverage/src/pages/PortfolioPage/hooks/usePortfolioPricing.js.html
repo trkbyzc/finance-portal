@@ -1,0 +1,415 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/pages/PortfolioPage/hooks/usePortfolioPricing.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">src/pages/PortfolioPage/hooks</a> usePortfolioPricing.js</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/75</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/35</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/29</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/58</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../../../config/apiClient';
+&nbsp;
+/**
+ * Portföydeki holdings için canlı fiyat hesaplama altyapısı.
+ *
+ * 3 ayrı query var:
+ *   1. marketData       — sembol→fiyat lookup için 6 ayrı market endpoint'ini paralel çeker
+ *   2. fundPrices       — TR fonlar için historical'dan son fiyatı tek tek çeker
+ *                          (TR_FUND category lazım, aggregate listede 0 dönebiliyor)
+ *
+ * `getCurrentPrice(symbol, assetType)` → number | null
+ * `calculateProfitLoss(item)` → { currentPrice, profitLoss, profitLossPercent, currentValue }
+ *
+ * PortfolioPage 30+ satır boilerplate'i bu hook'a taşıdı.
+ */
+export default function <span class="fstat-no" title="function not covered" >usePortfolioPricing(p</span>ortfolio) {
+    const { data: <span class="cstat-no" title="statement not covered" >marketData } = useQuery({</span>
+        queryKey: ['allMarketData'],
+        queryFn: <span class="fstat-no" title="function not covered" >async () =&gt; {</span>
+            const [stocks, cryptos, currencies, commodities, bonds, funds, viop] = <span class="cstat-no" title="statement not covered" >await Promise.all([</span>
+                apiClient.get('/market-data/stocks').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>,
+                apiClient.get('/market-data/crypto-currencies').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>,
+                apiClient.get('/market-data/currencies').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>,
+                apiClient.get('/market-data/commodities').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>,
+                apiClient.get('/market-data/bonds').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>,
+                apiClient.get('/market-data/tr-funds').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>,
+                apiClient.get('/market-data/viop').<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >[</span>])</span>
+            ]);
+<span class="cstat-no" title="statement not covered" >            return { stocks, cryptos, currencies, commodities, bonds, funds, viop };</span>
+        },
+        staleTime: 30_000
+    });
+&nbsp;
+    const { data: <span class="cstat-no" title="statement not covered" >fundPrices } = useQuery({</span>
+        queryKey: ['fundPrices', portfolio],
+        queryFn: <span class="fstat-no" title="function not covered" >async () =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            if (!portfolio) <span class="cstat-no" title="statement not covered" >return {};</span></span>
+            const funds = <span class="cstat-no" title="statement not covered" >portfolio.<span class="fstat-no" title="function not covered" >filter(i</span>tem =&gt; <span class="cstat-no" title="statement not covered" >item.assetType === 'FUND');</span></span>
+<span class="cstat-no" title="statement not covered" >            if (funds.length === 0) <span class="cstat-no" title="statement not covered" >return {};</span></span>
+            const pricePromises = <span class="cstat-no" title="statement not covered" >funds.map(<span class="fstat-no" title="function not covered" >async (f</span>und) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                try {</span>
+                    const chartData = <span class="cstat-no" title="statement not covered" >await apiClient.get('/market-data/historical', {</span>
+                        params: { symbol: fund.symbol, category: 'TR_FUND', range: '1d', interval: '1d' }
+                    });
+<span class="cstat-no" title="statement not covered" >                    if (chartData &amp;&amp; chartData.length &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >                        return { symbol: fund.symbol, price: chartData[chartData.length - 1].price };</span>
+                    }
+                } catch (error) {
+<span class="cstat-no" title="statement not covered" >                    console.warn(`Fund price fetch failed: ${fund.symbol}`, error);</span>
+                }
+<span class="cstat-no" title="statement not covered" >                return { symbol: fund.symbol, price: 0 };</span>
+            });
+            const prices = <span class="cstat-no" title="statement not covered" >await Promise.all(pricePromises);</span>
+<span class="cstat-no" title="statement not covered" >            return prices.<span class="fstat-no" title="function not covered" >reduce((a</span>cc, item) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                acc[item.symbol] = item.price;</span>
+<span class="cstat-no" title="statement not covered" >                return acc;</span>
+            }, {});
+        },
+        enabled: !!portfolio &amp;&amp; portfolio.<span class="fstat-no" title="function not covered" >some(i</span>tem =&gt; <span class="cstat-no" title="statement not covered" >item.assetType === 'FUND'),</span>
+        staleTime: 30_000
+    });
+&nbsp;
+    const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >getCurrentPrice = (s</span>ymbol, assetType) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (!marketData) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+<span class="cstat-no" title="statement not covered" >            switch (assetType) {</span>
+                case 'STOCK':     <span class="cstat-no" title="statement not covered" >return marketData.stocks?.<span class="fstat-no" title="function not covered" >find(s</span> =&gt; <span class="cstat-no" title="statement not covered" >s.symbol === symbol)?</span>.price;</span>
+                case 'CRYPTO':    <span class="cstat-no" title="statement not covered" >return marketData.cryptos?.<span class="fstat-no" title="function not covered" >find(c</span> =&gt; <span class="cstat-no" title="statement not covered" >c.currencyCode === symbol)?</span>.forexSelling;</span>
+                case 'CURRENCY':  <span class="cstat-no" title="statement not covered" >return marketData.currencies?.<span class="fstat-no" title="function not covered" >find(c</span> =&gt; <span class="cstat-no" title="statement not covered" >c.currencyCode === symbol)?</span>.forexSelling;</span>
+                case 'COMMODITY': <span class="cstat-no" title="statement not covered" >return marketData.commodities?.<span class="fstat-no" title="function not covered" >find(c</span> =&gt; <span class="cstat-no" title="statement not covered" >c.symbol === symbol)?</span>.price;</span>
+                case 'BOND':      <span class="cstat-no" title="statement not covered" >return marketData.bonds?.<span class="fstat-no" title="function not covered" >find(b</span> =&gt; <span class="cstat-no" title="statement not covered" >b.symbol === symbol)?</span>.price;</span>
+                case 'FUND':      <span class="cstat-no" title="statement not covered" >return fundPrices?.[symbol] || null;</span>
+                case 'FUTURE':    <span class="cstat-no" title="statement not covered" >return marketData.viop?.<span class="fstat-no" title="function not covered" >find(v</span> =&gt; <span class="cstat-no" title="statement not covered" >v.symbol === symbol)?</span>.price;</span>
+                default:          <span class="cstat-no" title="statement not covered" >return null;</span>
+            }
+        } catch {
+<span class="cstat-no" title="statement not covered" >            return null;</span>
+        }
+    };
+&nbsp;
+    // Varlığın GÜNLÜK değişim % — piyasa verisinden (günlük durum grafiği için)
+    const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >getDailyChange = (s</span>ymbol, assetType) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (!marketData) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+<span class="cstat-no" title="statement not covered" >            switch (assetType) {</span>
+                case 'STOCK':     <span class="cstat-no" title="statement not covered" >return marketData.stocks?.<span class="fstat-no" title="function not covered" >find(s</span> =&gt; <span class="cstat-no" title="statement not covered" >s.symbol === symbol)?</span>.changePercent;</span>
+                case 'CRYPTO':    <span class="cstat-no" title="statement not covered" >return marketData.cryptos?.<span class="fstat-no" title="function not covered" >find(c</span> =&gt; <span class="cstat-no" title="statement not covered" >c.currencyCode === symbol)?</span>.changePercent;</span>
+                case 'CURRENCY':  <span class="cstat-no" title="statement not covered" >return marketData.currencies?.<span class="fstat-no" title="function not covered" >find(c</span> =&gt; <span class="cstat-no" title="statement not covered" >c.currencyCode === symbol)?</span>.changePercent;</span>
+                case 'COMMODITY': <span class="cstat-no" title="statement not covered" >return marketData.commodities?.<span class="fstat-no" title="function not covered" >find(c</span> =&gt; <span class="cstat-no" title="statement not covered" >c.symbol === symbol)?</span>.changePercent;</span>
+                case 'BOND':      <span class="cstat-no" title="statement not covered" >return marketData.bonds?.<span class="fstat-no" title="function not covered" >find(b</span> =&gt; <span class="cstat-no" title="statement not covered" >b.symbol === symbol)?</span>.changePercent;</span>
+                case 'FUTURE':    <span class="cstat-no" title="statement not covered" >return marketData.viop?.<span class="fstat-no" title="function not covered" >find(v</span> =&gt; <span class="cstat-no" title="statement not covered" >v.symbol === symbol)?</span>.changePercent;</span>
+                default:          <span class="cstat-no" title="statement not covered" >return null;</span>
+            }
+        } catch {
+<span class="cstat-no" title="statement not covered" >            return null;</span>
+        }
+    };
+&nbsp;
+    const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >calculateProfitLoss = (i</span>tem) =&gt; {</span>
+        const currentPrice = <span class="cstat-no" title="statement not covered" >getCurrentPrice(item.symbol, item.assetType) || item.currentPrice;</span>
+        // VİOP sözleşme büyüklüğü (çarpan); diğer varlıklarda 1. Nominal = fiyat × çarpan × adet.
+        const multiplier = <span class="cstat-no" title="statement not covered" >Number(item.contractSize) || 1;</span>
+        const <span class="cstat-no" title="statement not covered" >profitLoss = (currentPrice - item.averagePrice) * item.quantity * multiplier;</span>
+        const <span class="cstat-no" title="statement not covered" >profitLossPercent = ((currentPrice - item.averagePrice) / item.averagePrice) * 100;</span>
+<span class="cstat-no" title="statement not covered" >        return { currentPrice, profitLoss, profitLossPercent, currentValue: currentPrice * item.quantity * multiplier };</span>
+    };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return { getCurrentPrice, getDailyChange, calculateProfitLoss };</span>
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-06-04T08:34:09.094Z
+            </div>
+        <script src="../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
+    </body>
+</html>
+    
