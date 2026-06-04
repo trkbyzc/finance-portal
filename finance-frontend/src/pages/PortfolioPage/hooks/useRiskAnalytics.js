@@ -17,9 +17,12 @@ import { historicalCategory } from '../../../utils/historicalPrice';
 
 const ANNUAL = 252;
 
-const toIso = (p) => Array.isArray(p.date)
-    ? `${p.date[0]}-${String(p.date[1]).padStart(2, '0')}-${String(p.date[2]).padStart(2, '0')}`
-    : (typeof p.date === 'string' ? p.date.split('T')[0] : p.date);
+const toIso = (p) => {
+    if (Array.isArray(p.date)) {
+        return `${p.date[0]}-${String(p.date[1]).padStart(2, '0')}-${String(p.date[2]).padStart(2, '0')}`;
+    }
+    return typeof p.date === 'string' ? p.date.split('T')[0] : p.date;
+};
 
 /** Ham historical array → { isoDate: close } map (geçerli kapanışlar). */
 const toCloseMap = (arr) => {
@@ -56,6 +59,38 @@ const returnsFromCloses = (closes) => {
     const r = [];
     for (let i = 1; i < closes.length; i++) r.push(closes[i] / closes[i - 1] - 1);
     return r;
+};
+
+/** Beta vs benchmark. Tarihler benchmark ile hizalanır. Veri azsa null döner. */
+const computeBeta = (commonDates, bist, series, symbols, wMap) => {
+    const betaDates = commonDates.filter(d => Number.isFinite(bist?.[d]) && bist[d] > 0);
+    if (betaDates.length < 21) return null;
+    const portRetB = [];
+    const bistRetB = [];
+    for (let i = 1; i < betaDates.length; i++) {
+        const d0 = betaDates[i - 1], d1 = betaDates[i];
+        let rp = 0;
+        symbols.forEach(s => {
+            const c0 = series[s][d0], c1 = series[s][d1];
+            if (c0 > 0 && c1 > 0) rp += (wMap[s] || 0) * (c1 / c0 - 1);
+        });
+        portRetB.push(rp);
+        bistRetB.push(bist[d1] / bist[d0] - 1);
+    }
+    const vBist = stdev(bistRetB) ** 2;
+    return vBist > 0 ? cov(portRetB, bistRetB) / vBist : null;
+};
+
+/** Portföy getiri serisinden equity curve üzerinden maks. drawdown. */
+const computeMaxDrawdown = (portRet) => {
+    let eq = 1, peak = 1, maxDD = 0;
+    for (const r of portRet) {
+        eq *= (1 + r);
+        if (eq > peak) peak = eq;
+        const dd = (eq - peak) / peak;
+        if (dd < maxDD) maxDD = dd;
+    }
+    return maxDD;
 };
 
 export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled = true) {
@@ -111,7 +146,7 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
         const dateSets = symbols.map(s => new Set(Object.keys(series[s] || {})));
         let commonDates = dateSets.length ? [...dateSets[0]] : [];
         for (let i = 1; i < dateSets.length; i++) commonDates = commonDates.filter(d => dateSets[i].has(d));
-        commonDates.sort();
+        commonDates.sort((a, b) => a.localeCompare(b));
 
         // En az ~20 getiri noktası gerekir
         if (commonDates.length < 21) {
@@ -140,34 +175,10 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
         const sharpe = annVol > 0 ? annReturn / annVol : 0;
 
         // Maks. düşüş — getiriden equity curve
-        let eq = 1, peak = 1, maxDD = 0;
-        for (const r of portRet) {
-            eq *= (1 + r);
-            if (eq > peak) peak = eq;
-            const dd = (eq - peak) / peak;
-            if (dd < maxDD) maxDD = dd;
-        }
+        const maxDD = computeMaxDrawdown(portRet);
 
         // Beta vs BIST100 — portföy ve BIST'in ORTAK tarihlerinde hizalı getiriler.
-        // (Önceden "tüm ortak tarihler BIST'te olmalı" katı kontrolü tek gün farkında bile başarısızdı.)
-        let beta = null;
-        const betaDates = commonDates.filter(d => Number.isFinite(bist?.[d]) && bist[d] > 0);
-        if (betaDates.length >= 21) {
-            const portRetB = [];
-            const bistRetB = [];
-            for (let i = 1; i < betaDates.length; i++) {
-                const d0 = betaDates[i - 1], d1 = betaDates[i];
-                let rp = 0;
-                symbols.forEach(s => {
-                    const c0 = series[s][d0], c1 = series[s][d1];
-                    if (c0 > 0 && c1 > 0) rp += (wMap[s] || 0) * (c1 / c0 - 1);
-                });
-                portRetB.push(rp);
-                bistRetB.push(bist[d1] / bist[d0] - 1);
-            }
-            const vBist = stdev(bistRetB) ** 2;
-            if (vBist > 0) beta = cov(portRetB, bistRetB) / vBist;
-        }
+        const beta = computeBeta(commonDates, bist, series, symbols, wMap);
 
         // Konsantrasyon — HHI, etkin varlık sayısı, en büyük ağırlık
         const hhi = weights.reduce((s, x) => s + x.w * x.w, 0);

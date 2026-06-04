@@ -9,7 +9,7 @@ import { historicalCategory } from '../../utils/historicalPrice';
 import { useNotify } from '../../context/NotificationContext';
 import { toBackendAssetType } from '../../utils/assetTypeMapper';
 
-const YIELD_CATS = ['BOND', 'TR_BOND', 'EUROBOND'];
+const YIELD_CATS = new Set(['BOND', 'TR_BOND', 'EUROBOND']);
 
 const deriveCurrent = (asset) => {
     const v = asset?.currentPrice ?? asset?.displayPrice ?? asset?.price ??
@@ -25,6 +25,18 @@ const fmtPrice = (n) => {
 
 // Hızlı hedef ön-ayarları — güncel fiyata göre yüzde sapma
 const PRESETS = [-10, -5, 5, 10];
+
+async function fetchLatestPrice(symbol, backendType) {
+    const category = historicalCategory(backendType, symbol);
+    if (!category) return null;
+    const res = await historicalApi.getData({ symbol, category, range: '1y', interval: '1d' });
+    const arr = Array.isArray(res) ? res : (res?.priceData || res || []);
+    for (let i = arr.length - 1; i >= 0; i--) {
+        const c = Number(arr[i]?.close ?? arr[i]?.price ?? arr[i]?.value);
+        if (Number.isFinite(c) && c > 0) return c;
+    }
+    return null;
+}
 
 /**
  * Bir varlık için fiyat alarmı kurma modal'ı.
@@ -43,24 +55,12 @@ export default function AlarmModal({ open, onClose, asset }) {
     const symbol = asset?.symbol || asset?.currencyCode;
     const backendType = asset ? toBackendAssetType(asset.assetCategory) : null;
     // Getiri-bazlı varlık (tahvil/bono/eurobond) — "fiyat" yerine "getiri" gösterilir
-    const isYield = !!asset?.isYieldBased || YIELD_CATS.includes((asset?.assetCategory || '').toUpperCase());
+    const isYield = !!asset?.isYieldBased || YIELD_CATS.has((asset?.assetCategory || '').toUpperCase());
 
     // Fon gibi anlık fiyatı 0/eksik gelen varlıklarda gerçek son fiyatı historical'dan çek.
     const { data: fetchedPrice } = useQuery({
         queryKey: ['alarm-latest-price', symbol, backendType],
-        queryFn: async () => {
-            const category = historicalCategory(backendType, symbol);
-            if (!category) return null;
-            // range '1y' — TR_FUND historical kısa aralıklarda (1mo) bos donebiliyor; 1y guvenli
-            const res = await historicalApi.getData({ symbol, category, range: '1y', interval: '1d' });
-            const arr = Array.isArray(res) ? res : (res?.priceData || res || []);
-            // Son geçerli noktanın fiyatı (close/price/value sırasıyla)
-            for (let i = arr.length - 1; i >= 0; i--) {
-                const c = Number(arr[i]?.close ?? arr[i]?.price ?? arr[i]?.value);
-                if (Number.isFinite(c) && c > 0) return c;
-            }
-            return null;
-        },
+        queryFn: () => fetchLatestPrice(symbol, backendType),
         enabled: !!(open && asset && symbol && propPrice == null),
         staleTime: 60 * 1000
     });
@@ -69,7 +69,7 @@ export default function AlarmModal({ open, onClose, asset }) {
 
     const [condition, setCondition] = useState('ABOVE'); // ABOVE | BELOW
     const [frequency, setFrequency] = useState('ONCE'); // ONCE | CONTINUOUS
-    const [threshold, setThreshold] = useState(propPrice != null ? String(propPrice) : '');
+    const [threshold, setThreshold] = useState(propPrice == null ? '' : String(propPrice));
     const [note, setNote] = useState('');
 
     // Fiyat sonradan (fetch ile) gelirse ve kullanıcı henüz değer girmediyse hedefi doldur.
@@ -186,7 +186,7 @@ export default function AlarmModal({ open, onClose, asset }) {
                                 type="button"
                                 onClick={() => setCondition('BELOW')}
                                 className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all ${
-                                    !isAbove ? 'border-sell bg-sell/10 text-sell' : 'border-border text-text-muted hover:border-sell/40'
+                                    isAbove ? 'border-border text-text-muted hover:border-sell/40' : 'border-sell bg-sell/10 text-sell'
                                 }`}
                             >
                                 <ArrowDown size={20} />
@@ -286,7 +286,10 @@ export default function AlarmModal({ open, onClose, asset }) {
                             isAbove ? 'bg-buy hover:opacity-90' : 'bg-sell hover:opacity-90'
                         }`}
                     >
-                        {createMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : (isAbove ? <ArrowUp size={15} /> : <ArrowDown size={15} />)}
+                        {(() => {
+                            if (createMutation.isPending) return <Loader2 className="animate-spin" size={16} />;
+                            return isAbove ? <ArrowUp size={15} /> : <ArrowDown size={15} />;
+                        })()}
                         {t('alarm:modal.create', 'Alarmı Kur')}
                     </button>
 

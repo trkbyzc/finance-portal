@@ -37,10 +37,11 @@ export default function RelatedNews({ symbol }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.map((item, i) => (
-                    <div
+                    <button
+                        type="button"
                         key={`${item.link || i}-${i}`}
                         onClick={() => navigate('/news/detail', { state: { newsItem: item } })}
-                        className="group flex items-center gap-3 p-3 rounded-xl bg-surface-2 border border-border hover:border-primary/40 hover:bg-surface-hover cursor-pointer transition-all"
+                        className="group flex items-center gap-3 p-3 rounded-xl bg-surface-2 border border-border hover:border-primary/40 hover:bg-surface-hover cursor-pointer transition-all text-left w-full"
                     >
                         <div className="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-border bg-bg flex items-center justify-center">
                             {item.imageUrl ? (
@@ -66,7 +67,7 @@ export default function RelatedNews({ symbol }) {
                             </div>
                         </div>
                         <ChevronRight size={16} className="shrink-0 text-border group-hover:text-primary transition-colors" />
-                    </div>
+                    </button>
                 ))}
             </div>
         </div>

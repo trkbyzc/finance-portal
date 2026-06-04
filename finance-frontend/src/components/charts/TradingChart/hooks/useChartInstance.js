@@ -58,7 +58,7 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
             const endY = startY + (e.deltaY < 0 ? -step : step);
             const root = (yAxisDom.ownerDocument || document).documentElement;
             const mk = (type, y) => new MouseEvent(type, {
-                clientX: cx, clientY: y, bubbles: true, cancelable: true, view: window
+                clientX: cx, clientY: y, bubbles: true, cancelable: true, view: globalThis
             });
             const downTarget = document.elementFromPoint(cx, startY) || yAxisDom;
             downTarget.dispatchEvent(mk('mousedown', startY));

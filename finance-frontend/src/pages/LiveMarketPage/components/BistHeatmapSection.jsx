@@ -82,15 +82,17 @@ export default function BistHeatmapSection({ stocks, loading }) {
                 <span className="text-sell font-semibold">{t('live.heatmapDown', 'kırmızı düşen')}</span>
             </p>
 
-            {loading ? (
+            {loading && (
                 <div className="h-105 flex items-center justify-center text-text-muted bg-surface border border-border rounded-2xl">
                     <Loader2 className="animate-spin" size={26} />
                 </div>
-            ) : data.length === 0 ? (
+            )}
+            {!loading && data.length === 0 && (
                 <div className="h-105 flex items-center justify-center text-text-muted bg-surface border border-border rounded-2xl">
                     {t('common:status.noData', 'Veri yok')}
                 </div>
-            ) : (
+            )}
+            {!loading && data.length > 0 && (
                 <div className="bg-surface border border-border rounded-2xl p-2 shadow-lg">
                     <ResponsiveContainer width="100%" height={420}>
                         <Treemap

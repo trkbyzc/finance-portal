@@ -207,14 +207,16 @@ const PortfolioPage = () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             const pid = vars?.portfolioId || activePortfolioId;
             const pname = portfolios.find(p => p.id === pid)?.name;
+            const buildMsg = () => {
+                if (!vars?.symbol) return '';
+                return pname
+                    ? t('portfolio:notify.assetAddedToMsg', '{{symbol}} → {{portfolio}} portföyüne eklendi.', { symbol: vars.symbol, portfolio: pname })
+                    : t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: vars.symbol });
+            };
             notify({
                 type: 'success',
                 title: t('portfolio:notify.assetAdded', 'Portföye eklendi'),
-                message: vars?.symbol
-                    ? (pname
-                        ? t('portfolio:notify.assetAddedToMsg', '{{symbol}} → {{portfolio}} portföyüne eklendi.', { symbol: vars.symbol, portfolio: pname })
-                        : t('portfolio:notify.assetAddedMsg', '{{symbol}} portföyünüze eklendi.', { symbol: vars.symbol }))
-                    : ''
+                message: buildMsg()
             });
         },
         onError: (err) => notify({
@@ -350,7 +352,7 @@ const PortfolioPage = () => {
                     </div>
                 )}
 
-                {portfolio && portfolio.length === 0 ? (
+                {portfolio?.length === 0 ? (
                     /* Hiç varlık yok — ilk varlık için ortada geniş mavi CTA */
                     <div className="bg-surface-2 border border-border rounded-2xl p-10 sm:p-16 text-center flex flex-col items-center">
                         <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">

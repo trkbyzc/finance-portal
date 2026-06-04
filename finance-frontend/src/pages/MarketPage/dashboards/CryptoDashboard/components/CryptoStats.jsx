@@ -50,7 +50,7 @@ export default function CryptoStats({ coins, loading }) {
             <div className="bg-surface border border-border p-5 rounded-2xl flex items-center justify-between shadow-lg group hover:border-warning transition-all">
                 <div>
                     <p className="text-text-muted text-[10px] font-bold uppercase tracking-widest mb-1">{t('crypto.btcDominance')}</p>
-                    <h3 className="text-xl font-black text-warning">{btcDominance != null ? `${btcDominance.toFixed(1)}%` : '—'}</h3>
+                    <h3 className="text-xl font-black text-warning">{btcDominance == null ? '—' : `${btcDominance.toFixed(1)}%`}</h3>
                 </div>
                 <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center text-warning">
                     <Zap size={24} />

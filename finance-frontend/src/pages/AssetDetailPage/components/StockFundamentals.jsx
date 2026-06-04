@@ -95,10 +95,10 @@ export default function StockFundamentals({ symbol }) {
 
             {/* Temel oranlar / veriler */}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                <Stat label={t('asset:fundamentals.marketCap', 'Piyasa Değeri')} value={data.marketCapTl != null ? fmtBig(data.marketCapTl, '₺') : '—'} />
-                <Stat label={t('asset:fundamentals.marketCapUsd', 'Piyasa Değeri ($)')} value={data.marketCapUsd != null ? fmtBig(data.marketCapUsd, '$') : '—'} />
-                <Stat label={t('asset:fundamentals.freeFloat', 'Halka Açıklık')} value={data.freeFloatPct != null ? `%${fmtNum(data.freeFloatPct, 1)}` : '—'} />
-                <Stat label={t('asset:fundamentals.capital', 'Sermaye')} value={data.capital != null ? fmtBig(data.capital, '₺') : '—'} />
+                <Stat label={t('asset:fundamentals.marketCap', 'Piyasa Değeri')} value={data.marketCapTl == null ? '—' : fmtBig(data.marketCapTl, '₺')} />
+                <Stat label={t('asset:fundamentals.marketCapUsd', 'Piyasa Değeri ($)')} value={data.marketCapUsd == null ? '—' : fmtBig(data.marketCapUsd, '$')} />
+                <Stat label={t('asset:fundamentals.freeFloat', 'Halka Açıklık')} value={data.freeFloatPct == null ? '—' : `%${fmtNum(data.freeFloatPct, 1)}`} />
+                <Stat label={t('asset:fundamentals.capital', 'Sermaye')} value={data.capital == null ? '—' : fmtBig(data.capital, '₺')} />
                 <Stat
                     label={t('asset:fundamentals.dayRange', 'Gün İçi Aralık')}
                     value={data.dayLow != null && data.dayHigh != null ? `${cur}${fmtNum(data.dayLow)} – ${cur}${fmtNum(data.dayHigh)}` : '—'}

@@ -11,7 +11,7 @@ import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import AlarmModal from '../alarm/AlarmModal';
 
 const CUR_SYMBOL = { TRY: '₺', USD: '$' };
-const YIELD_CATS = ['BOND', 'TR_BOND', 'EUROBOND'];
+const YIELD_CATS = new Set(['BOND', 'TR_BOND', 'EUROBOND']);
 
 const derivePrice = (asset) =>
     asset?.displayPrice ?? asset?.price ?? asset?.currentPrice ??
@@ -51,14 +51,16 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
     const symbol = asset.symbol || asset.currencyCode;
     const effectiveAsset = { ...asset, assetCategory: cat, currentPrice: derivePrice(asset) };
     // Tahvil/bono getiri (%) bazlı — para birimi/çevrim uygulanmaz. Diğerlerinde native birim.
-    const isYield = YIELD_CATS.includes((cat || '').toUpperCase());
+    const isYield = YIELD_CATS.has((cat || '').toUpperCase());
     const native = nativeCurrencyForType(cat, symbol);
 
     const openAdd = () => {
         const raw = derivePrice(asset);
         // Getiri değilse fiyatı seçili para birimine çevirip ön-doldur
-        const shown = raw === '' ? '' : (isYield ? raw : convertPrice(Number(raw), native));
-        setForm({ quantity: '1', price: shown === '' ? '' : String(+Number(shown).toFixed(6)) });
+        let shown = '';
+        if (raw !== '') shown = isYield ? raw : convertPrice(Number(raw), native);
+        const price = shown === '' ? '' : String(+Number(shown).toFixed(6));
+        setForm({ quantity: '1', price });
         setTargetPortfolioId('');
         setAddOpen(true);
     };
@@ -71,9 +73,9 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
             await portfolioApi.addManualEntry({
                 symbol,
                 assetType: toBackendAssetType(cat),
-                quantity: parseFloat(form.quantity),
+                quantity: Number.parseFloat(form.quantity),
                 // Getiri ise olduğu gibi; değilse girilen (seçili birim) fiyat native'e çevrilir
-                averagePrice: isYield ? parseFloat(form.price) : toNative(parseFloat(form.price), native),
+                averagePrice: isYield ? Number.parseFloat(form.price) : toNative(Number.parseFloat(form.price), native),
                 ...(pid ? { portfolioId: pid } : {})
             });
             setAddOpen(false);
@@ -163,7 +165,7 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
 
                             <div>
                                 <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">
-                                    {t('portfolio:modal.purchasePrice')}{!isYield ? ` (${CUR_SYMBOL[currency] || currency})` : ''}
+                                    {t('portfolio:modal.purchasePrice')}{isYield ? '' : ` (${CUR_SYMBOL[currency] || currency})`}
                                 </label>
                                 <input
                                     type="number" step="any" required min="0.000001"

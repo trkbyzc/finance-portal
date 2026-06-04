@@ -48,31 +48,31 @@ describe('TickerItem', () => {
 
     it('symbol verilirse cursor-pointer + role=button', () => {
         const { container } = wrap({ name: 'X', price: 100, change: 1, symbol: 'BTC' });
-        const wrapper = container.querySelector('[role="button"]');
+        const wrapper = container.querySelector('button[type="button"]');
         expect(wrapper).toBeInTheDocument();
         expect(wrapper.className).toContain('cursor-pointer');
     });
 
     it('symbol yoksa cursor pointer yok', () => {
         const { container } = wrap({ name: 'X', price: 100, change: 1 });
-        expect(container.querySelector('[role="button"]')).toBeNull();
+        expect(container.querySelector('button[type="button"]')).toBeNull();
     });
 
     it('click + symbol → navigate /chart/SYMBOL', () => {
         const { container } = wrap({ name: 'X', price: 100, change: 1, symbol: 'BTC' });
-        fireEvent.click(container.querySelector('[role="button"]'));
+        fireEvent.click(container.querySelector('button[type="button"]'));
         expect(navigateMock).toHaveBeenCalledWith('/chart/BTC');
     });
 
     it('click + symbol + category → /chart/SYMBOL?cat=...', () => {
         const { container } = wrap({ name: 'X', price: 100, change: 1, symbol: 'BTC', category: 'CRYPTO' });
-        fireEvent.click(container.querySelector('[role="button"]'));
+        fireEvent.click(container.querySelector('button[type="button"]'));
         expect(navigateMock).toHaveBeenCalledWith('/chart/BTC?cat=CRYPTO');
     });
 
     it('Enter tuşu → navigate', () => {
         const { container } = wrap({ name: 'X', price: 100, change: 1, symbol: 'BTC' });
-        fireEvent.keyDown(container.querySelector('[role="button"]'), { key: 'Enter' });
+        fireEvent.keyDown(container.querySelector('button[type="button"]'), { key: 'Enter' });
         expect(navigateMock).toHaveBeenCalled();
     });
 });

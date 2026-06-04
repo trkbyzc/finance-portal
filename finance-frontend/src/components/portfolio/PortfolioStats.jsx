@@ -9,11 +9,14 @@ const MASK = '••••••';
  *   neutral → gri ikon çipi, nötr değer
  *   pnl     → değere göre yeşil/kırmızı (kâr/zarar)
  */
+function pnlChip(positive) {
+    return positive ? 'bg-buy/10 text-buy border-buy/20' : 'bg-sell/10 text-sell border-sell/20';
+}
+
 function StatCard({ icon: Icon, label, value, sub, tone = 'neutral', positive = true, highlight = false }) {
-    const valueColor = tone === 'pnl' ? (positive ? 'text-buy' : 'text-sell') : 'text-text';
-    const chip = tone === 'pnl'
-        ? (positive ? 'bg-buy/10 text-buy border-buy/20' : 'bg-sell/10 text-sell border-sell/20')
-        : 'bg-primary/10 text-primary border-primary/20';
+    let valueColor = 'text-text';
+    if (tone === 'pnl') valueColor = positive ? 'text-buy' : 'text-sell';
+    const chip = tone === 'pnl' ? pnlChip(positive) : 'bg-primary/10 text-primary border-primary/20';
     return (
         <div className={`bg-surface border rounded-2xl p-5 shadow-sm transition-colors ${highlight ? 'border-primary/40' : 'border-border'}`}>
             <div className="flex items-center gap-2.5 mb-3">
@@ -34,8 +37,16 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
 
     // Toplamlar TRY bazlı; büyük tutarlar 2 ondalıkla gösterilir (₺49.768,01)
     const money = (v) => (hidden ? MASK : formatPrice(v, 'TRY', 2, 2));
-    const signed = (v) => (hidden ? MASK : `${v >= 0 ? '+' : ''}${formatPrice(v, 'TRY', 2, 2)}`);
-    const pct = (v) => (hidden ? MASK : `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`);
+    const signed = (v) => {
+        if (hidden) return MASK;
+        const sign = v >= 0 ? '+' : '';
+        return `${sign}${formatPrice(v, 'TRY', 2, 2)}`;
+    };
+    const pct = (v) => {
+        if (hidden) return MASK;
+        const sign = v >= 0 ? '+' : '';
+        return `${sign}${v.toFixed(2)}%`;
+    };
 
     // Maliyet ve değer TRY bazlı (calculateProfitLoss farklı para birimlerini TRY'ye çevirir);
     // böylece USD kripto + TRY hisse karışık portföyde toplamlar tutarlı olur.

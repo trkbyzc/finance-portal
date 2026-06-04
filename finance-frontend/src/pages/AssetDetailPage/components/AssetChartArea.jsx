@@ -34,10 +34,10 @@ export default function AssetChartArea({ asset, isViop }) {
         const prev = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         const onKey = (e) => { if (e.key === 'Escape') setFullscreen(false); };
-        window.addEventListener('keydown', onKey);
+        globalThis.addEventListener('keydown', onKey);
         return () => {
             document.body.style.overflow = prev;
-            window.removeEventListener('keydown', onKey);
+            globalThis.removeEventListener('keydown', onKey);
         };
     }, [fullscreen]);
 

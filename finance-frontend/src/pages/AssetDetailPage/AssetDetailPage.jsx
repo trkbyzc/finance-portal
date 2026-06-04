@@ -61,8 +61,8 @@ export default function AssetDetailPage() {
                     <Skeleton className="h-4 w-40 mb-4" />
                     <Skeleton className="h-2 w-full mb-5 rounded-full" />
                     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                            <Skeleton key={i} className="h-14 rounded-xl" />
+                        {Array.from({ length: 6 }, (_, i) => `skel-${i}`).map((k) => (
+                            <Skeleton key={k} className="h-14 rounded-xl" />
                         ))}
                     </div>
                 </div>
@@ -99,9 +99,9 @@ export default function AssetDetailPage() {
             const payload = {
                 symbol: asset?.symbol || decodedSymbol,
                 assetType: toBackendAssetType(asset?.assetCategory),
-                quantity: parseFloat(formData.quantity),
+                quantity: Number.parseFloat(formData.quantity),
                 // Girilen fiyat seçili para biriminde → native'e çevrilip saklanır
-                averagePrice: toNative(parseFloat(formData.price), nativeCur),
+                averagePrice: toNative(Number.parseFloat(formData.price), nativeCur),
                 ...(pid ? { portfolioId: pid } : {}),
                 // VİOP'ta sözleşme büyüklüğü (çarpan) holding'e snapshot'lanır
                 ...(isViop ? { contractSize: Number(asset?.contractSize) || 1 } : {})

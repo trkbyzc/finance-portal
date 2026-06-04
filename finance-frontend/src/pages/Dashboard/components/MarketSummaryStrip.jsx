@@ -48,12 +48,12 @@ const priceOf = (item, assetType) => {
 const CURRENCY_SYMBOLS = { TRY: '₺', USD: '$', EUR: '€', GBP: '£' };
 // Gösterilen değerin para birimi: döviz kartı TRY karşılığı (forexSelling), kripto USD;
 // endeks/hisse/emtia için varlığın yerel para birimi (BIST .IS -> TRY, ABD -> USD).
-const prefixOf = (item, assetType) => {
-    const cur = assetType === 'CURRENCY' ? 'TRY'
-        : assetType === 'CRYPTO' ? 'USD'
-        : detectNativeCurrency(item);
-    return CURRENCY_SYMBOLS[cur] || '';
+const nativeCurrencyOf = (item, assetType) => {
+    if (assetType === 'CURRENCY') return 'TRY';
+    if (assetType === 'CRYPTO') return 'USD';
+    return detectNativeCurrency(item);
 };
+const prefixOf = (item, assetType) => CURRENCY_SYMBOLS[nativeCurrencyOf(item, assetType)] || '';
 // Endekslerde sembol (XU100) yerine dostça ad (BIST 100) göster; döviz/kripto'da kod kalsın.
 const labelOf = (item, symbol, cat) => {
     if (cat === 'INDEX' && item.name) return item.name;

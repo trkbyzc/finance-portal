@@ -11,6 +11,19 @@ const COST_COLOR = '#64748b';   // maliyet — gri
 const VALUE_COLOR = '#2962ff';  // piyasa değeri — lacivert
 const UP = '#22c55e', DOWN = '#ef4444', FLAT = '#94a3b8', NODATA = '#facc15';
 
+function StatusTooltip({ active, payload, noHoldingsLabel }) {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload;
+    return (
+        <div style={tooltipStyle}>
+            <div className="font-bold text-text">{d.label} · {d.count}</div>
+            {d.symbols?.length > 0
+                ? <div className="text-xs text-text-muted mt-1 max-w-55">{d.symbols.join(', ')}</div>
+                : <div className="text-xs text-text-muted mt-1">{noHoldingsLabel}</div>}
+        </div>
+    );
+}
+
 /**
  * Portföy "Tümü" görünümünde varlık listesinin altına eklenen iki çubuk grafik:
  *   1) Maliyet / Piyasa Değeri — her varlık için toplam maliyet vs anlık piyasa değeri.
@@ -48,19 +61,7 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
         ];
     }, [portfolio, getDailyChange, t]);
 
-    // Günlük Durum tooltip'i — kova etiketi + içindeki varlık sembolleri
-    const StatusTooltip = ({ active, payload }) => {
-        if (!active || !payload?.length) return null;
-        const d = payload[0].payload;
-        return (
-            <div style={tooltipStyle}>
-                <div className="font-bold text-text">{d.label} · {d.count}</div>
-                {d.symbols?.length > 0
-                    ? <div className="text-xs text-text-muted mt-1 max-w-55">{d.symbols.join(', ')}</div>
-                    : <div className="text-xs text-text-muted mt-1">{t('holdings.noHoldings', '—')}</div>}
-            </div>
-        );
-    };
+    const noHoldingsLabel = t('holdings.noHoldings', '—');
 
     if (!portfolio || portfolio.length === 0) return null;
 
@@ -97,7 +98,7 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
                         <XAxis dataKey="label" stroke="var(--color-text-muted)" tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }} axisLine={{ stroke: 'var(--color-border)' }} />
                         <YAxis allowDecimals={false} stroke="var(--color-text-muted)" tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }} axisLine={{ stroke: 'var(--color-border)' }} />
                         <Tooltip
-                            content={<StatusTooltip />}
+                            content={<StatusTooltip noHoldingsLabel={noHoldingsLabel} />}
                             cursor={{ fill: 'var(--color-text-muted)', fillOpacity: 0.08 }}
                         />
                         <Bar dataKey="count" radius={[6, 6, 0, 0]}>

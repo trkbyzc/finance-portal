@@ -213,7 +213,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     <div className="flex justify-between items-center mt-2">
                         <span className="text-text-muted">{t('portfolio:modal.notional', 'Nominal Değer')}</span>
                         <span className="font-semibold text-primary">
-                            {notional != null ? formatNative(notional, native) : '—'}
+                            {notional == null ? '—' : formatNative(notional, native)}
                         </span>
                     </div>
                     <p className="text-[11px] text-text-muted mt-2">

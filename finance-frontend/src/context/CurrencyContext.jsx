@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { currencyApi } from '../services/api';
@@ -67,8 +67,15 @@ export const CurrencyProvider = ({ children }) => {
         return formatCurrency(price, nativeCurrency, minDecimals, maxDecimals);
     };
 
+    const value = useMemo(
+        () => ({ currency, setCurrency, toggleCurrency, usdRate, convertPrice, toNative, formatPrice, formatNative }),
+        // currency + usdRate kapanışları içeren tüm fonksiyonlar bu iki state ile yenilenir
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [currency, usdRate]
+    );
+
     return (
-        <CurrencyContext.Provider value={{ currency, setCurrency, toggleCurrency, usdRate, convertPrice, toNative, formatPrice, formatNative }}>
+        <CurrencyContext.Provider value={value}>
             {children}
         </CurrencyContext.Provider>
     );

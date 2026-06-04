@@ -8,23 +8,24 @@ export default function TickerItem({ name, price, change, symbol, category }) {
     const locale = i18n.language?.startsWith('en') ? 'en-US' : 'tr-TR';
     const navigate = useNavigate();
 
-    const target = symbol
-        ? (category
-            ? `/chart/${encodeURIComponent(symbol)}?cat=${category}`
-            : `/chart/${encodeURIComponent(symbol)}`)
-        : null;
+    const buildTarget = () => {
+        if (!symbol) return null;
+        const encoded = encodeURIComponent(symbol);
+        return category ? `/chart/${encoded}?cat=${category}` : `/chart/${encoded}`;
+    };
+    const target = buildTarget();
 
     const handleClick = () => { if (target) navigate(target); };
     const handleKey = (e) => { if (target && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); navigate(target); } };
 
+    const Tag = target ? 'button' : 'div';
     return (
-        <div
+        <Tag
+            type={target ? 'button' : undefined}
             onClick={handleClick}
             onKeyDown={handleKey}
-            role={target ? 'button' : undefined}
-            tabIndex={target ? 0 : undefined}
             title={target ? name : undefined}
-            className={`flex items-center gap-2 shrink-0 px-6 transition-colors ${
+            className={`flex items-center gap-2 shrink-0 px-6 transition-colors bg-transparent border-0 ${
                 target ? 'cursor-pointer group/ticker hover:text-primary' : ''
             }`}
         >
@@ -34,6 +35,6 @@ export default function TickerItem({ name, price, change, symbol, category }) {
                 {isPositive ? <TrendingUp size={12} className="mr-0.5"/> : <TrendingDown size={12} className="mr-0.5"/>}
                 {Math.abs(change || 0).toFixed(2)}%
             </span>
-        </div>
+        </Tag>
     );
 }

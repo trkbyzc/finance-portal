@@ -16,11 +16,20 @@ const corrCellClass = (v) => {
 };
 const shortSym = (s) => (s || '').replace('-USD', '').replace('.IS', '').replace('TP.', '');
 
+function riskValueColor(tone, positive) {
+    if (tone === 'pnl') return positive ? 'text-buy' : 'text-sell';
+    if (tone === 'warn') return 'text-warning';
+    return 'text-text';
+}
+function riskChip(tone, positive) {
+    if (tone === 'pnl') return positive ? 'bg-buy/10 text-buy border-buy/20' : 'bg-sell/10 text-sell border-sell/20';
+    if (tone === 'warn') return 'bg-warning/10 text-warning border-warning/20';
+    return 'bg-primary/10 text-primary border-primary/20';
+}
+
 function RiskCard({ icon: Icon, label, value, tone = 'neutral', positive = true, hint }) {
-    const valueColor = tone === 'pnl' ? (positive ? 'text-buy' : 'text-sell') : tone === 'warn' ? 'text-warning' : 'text-text';
-    const chip = tone === 'pnl'
-        ? (positive ? 'bg-buy/10 text-buy border-buy/20' : 'bg-sell/10 text-sell border-sell/20')
-        : tone === 'warn' ? 'bg-warning/10 text-warning border-warning/20' : 'bg-primary/10 text-primary border-primary/20';
+    const valueColor = riskValueColor(tone, positive);
+    const chip = riskChip(tone, positive);
     return (
         <div className="bg-surface border border-border rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2.5 mb-2">
@@ -35,6 +44,24 @@ function RiskCard({ icon: Icon, label, value, tone = 'neutral', positive = true,
     );
 }
 
+function RiskWrapper({ title, subtitle, children }) {
+    return (
+        <div className="bg-surface-2 rounded-2xl p-6 border border-border/50 mt-6">
+            <div className="flex items-center gap-2 mb-1">
+                <Gauge size={20} className="text-primary" />
+                <h3 className="text-xl font-bold">{title}</h3>
+            </div>
+            <p className="text-xs text-text-muted mb-4">{subtitle}</p>
+            {children}
+        </div>
+    );
+}
+
+function betaHint(t, beta) {
+    if (beta == null) return t('risk.betaNA', 'Hesaplanamadı');
+    return beta > 1 ? t('risk.betaHigh', 'Piyasadan oynak') : t('risk.betaLow', 'Piyasadan sakin');
+}
+
 /**
  * Portföy Risk & Çeşitlendirme paneli — volatilite, maks. düşüş, beta, Sharpe + konsantrasyon
  * skoru + holdingler arası korelasyon ısı haritası. Tamamen 1y günlük historical veriden hesaplanır.
@@ -45,28 +72,20 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
 
     if (hidden) return null;
 
-    const Wrapper = ({ children }) => (
-        <div className="bg-surface-2 rounded-2xl p-6 border border-border/50 mt-6">
-            <div className="flex items-center gap-2 mb-1">
-                <Gauge size={20} className="text-primary" />
-                <h3 className="text-xl font-bold">{t('risk.title', 'Risk & Çeşitlendirme')}</h3>
-            </div>
-            <p className="text-xs text-text-muted mb-4">{t('risk.subtitle', 'Son 1 yıllık günlük veriye göre hesaplanır')}</p>
-            {children}
-        </div>
-    );
+    const title = t('risk.title', 'Risk & Çeşitlendirme');
+    const subtitle = t('risk.subtitle', 'Son 1 yıllık günlük veriye göre hesaplanır');
 
-    if (loading) return <Wrapper><div className="h-40 flex items-center justify-center text-text-muted"><Loader2 className="animate-spin" size={26} /></div></Wrapper>;
+    if (loading) return <RiskWrapper title={title} subtitle={subtitle}><div className="h-40 flex items-center justify-center text-text-muted"><Loader2 className="animate-spin" size={26} /></div></RiskWrapper>;
     if (!ready) return null;
     if (insufficient || !metrics) {
-        return <Wrapper><div className="py-8 text-center text-sm text-text-muted">{t('risk.insufficient', 'Risk metrikleri için yeterli geçmiş veri yok (en az ~1 ay ortak veri gerekir).')}</div></Wrapper>;
+        return <RiskWrapper title={title} subtitle={subtitle}><div className="py-8 text-center text-sm text-text-muted">{t('risk.insufficient', 'Risk metrikleri için yeterli geçmiş veri yok (en az ~1 ay ortak veri gerekir).')}</div></RiskWrapper>;
     }
 
     const m = metrics;
     const concentrated = m.topWeight >= 0.6;
 
     return (
-        <Wrapper>
+        <RiskWrapper title={title} subtitle={subtitle}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
                 <RiskCard
                     icon={Activity}
@@ -88,9 +107,7 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                     label={t('risk.beta', 'Beta (BIST 100)')}
                     value={m.beta != null ? m.beta.toFixed(2) : '—'}
                     tone="neutral"
-                    hint={m.beta != null
-                        ? (m.beta > 1 ? t('risk.betaHigh', 'Piyasadan oynak') : t('risk.betaLow', 'Piyasadan sakin'))
-                        : t('risk.betaNA', 'Hesaplanamadı')}
+                    hint={betaHint(t, m.beta)}
                 />
                 <RiskCard
                     icon={Sigma}
@@ -139,7 +156,7 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                                         <td className="text-[10px] font-bold text-text-muted pr-2 text-right whitespace-nowrap">{shortSym(rowSym)}</td>
                                         {correlation.matrix[i].map((v, j) => (
                                             <td
-                                                key={j}
+                                                key={`${rowSym}-${correlation.symbols[j]}`}
                                                 title={`${shortSym(rowSym)} / ${shortSym(correlation.symbols[j])}: ${v.toFixed(2)}`}
                                                 className={`text-[10px] font-bold text-center rounded-md tabular-nums ${corrCellClass(v)}`}
                                                 style={{ minWidth: 40, height: 30 }}
@@ -154,6 +171,6 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                     </div>
                 </div>
             )}
-        </Wrapper>
+        </RiskWrapper>
     );
 }

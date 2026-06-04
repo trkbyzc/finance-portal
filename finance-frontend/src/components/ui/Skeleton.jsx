@@ -32,8 +32,8 @@ export function MarketRowSkeleton() {
 export function MarketTableSkeleton({ rows = 6 }) {
     return (
         <div className="divide-y divide-border/40">
-            {Array.from({ length: rows }).map((_, i) => (
-                <MarketRowSkeleton key={i} />
+            {Array.from({ length: rows }, (_, i) => `row-${i}`).map((k) => (
+                <MarketRowSkeleton key={k} />
             ))}
         </div>
     );
