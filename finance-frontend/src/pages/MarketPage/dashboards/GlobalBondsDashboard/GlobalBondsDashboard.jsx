@@ -28,7 +28,7 @@ export default function GlobalBondsDashboard() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                <div className="xl:col-span-3 h-[600px] shadow-2xl rounded-2xl overflow-hidden border border-border bg-surface flex flex-col">
+                <div className="xl:col-span-3 h-[780px] shadow-2xl rounded-2xl overflow-hidden border border-border bg-surface flex flex-col">
                     {selectedAsset ? (
                         <>
                             <div className="p-4 md:p-6 border-b border-border flex justify-between items-center bg-surface">
