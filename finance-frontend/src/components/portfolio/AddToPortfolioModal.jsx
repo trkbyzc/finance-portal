@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
@@ -23,6 +23,11 @@ const AddToPortfolioModal = ({ isOpen, onClose, onSubmit }) => {
     const [fetchingPrice, setFetchingPrice] = useState(false);
 
     const selectedBackendValue = PORTFOLIO_ASSET_TYPES.find(at => at.uiKey === selectedType)?.backendValue;
+
+    // Modal her açıldığında sıfırdan başlasın (önceki varlık tipi/menüsü hatırlanmasın)
+    useEffect(() => {
+        if (isOpen) { setStep(1); setSelectedType(''); setSelectedAsset(null); }
+    }, [isOpen]);
 
     const resetAndClose = () => {
         setStep(1);

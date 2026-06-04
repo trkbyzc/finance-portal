@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Search, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -95,6 +95,12 @@ export default function BaseAssetPickerModal({
         setSelectedUiKey('');
         setSearchTerm('');
     };
+
+    // Modal her açıldığında sıfırdan başlasın — seçimle kapanıp tekrar açılınca
+    // önceki kategori/menü hatırlanmasın.
+    useEffect(() => {
+        if (isOpen) reset();
+    }, [isOpen]);
 
     const handleClose = () => {
         reset();

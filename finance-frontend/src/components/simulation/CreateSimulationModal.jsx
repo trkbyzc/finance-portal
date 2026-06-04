@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SIM_ASSET_TYPES } from './createModal/simAssetTypes';
@@ -27,6 +27,11 @@ export default function CreateSimulationModal({ isOpen, onClose, onPreview, onSa
         setSelectedType('');
         setSelectedAsset(null);
     };
+
+    // Modal her açıldığında sıfırdan başlasın (önceki varlık tipi/menüsü hatırlanmasın)
+    useEffect(() => {
+        if (isOpen) resetAll();
+    }, [isOpen]);
 
     const handleClose = () => {
         resetAll();
