@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useLiveMarketData } from '../../hooks/useLiveMarketData';
 import ChartSection from './components/ChartSection';
 import IndicesSection from './components/IndicesSection';
+import BistHeatmapSection from './components/BistHeatmapSection';
 import TurkishStocksSection from './components/TurkishStocksSection';
 import CommoditiesSection from './components/CommoditiesSection';
 import ForexSection from './components/ForexSection';
@@ -20,6 +21,7 @@ export default function LiveMarketPage() {
 
     const {
         loading, indices, ipos, trBonds,
+        turkishStocks,
         highestVolume, mostVolatile, topGainers, topLosers,
         commodityCards, sortedForexList,
         economyMacro,
@@ -72,6 +74,9 @@ export default function LiveMarketPage() {
                     selectedSymbol={selectedSymbol}
                     setSelectedSymbol={setSelectedSymbol}
                 />
+
+                {/* 1.5 BIST ISI HARİTASI — endekslerden sonra */}
+                <BistHeatmapSection stocks={turkishStocks} loading={stocksLoading} />
 
                 {/* 2. GRAFİK ALANI - 🚀 onNavigateToMarket özelliği eklendi */}
                 <ChartSection

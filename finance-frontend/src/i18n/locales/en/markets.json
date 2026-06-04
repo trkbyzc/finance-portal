@@ -6,6 +6,10 @@
   "live": {
     "title": "Live Markets",
     "indices": "Indices",
+    "heatmap": "BIST Heatmap",
+    "heatmapSub": "Box size by trading volume, color by daily change · ",
+    "heatmapUp": "green up",
+    "heatmapDown": "red down",
     "snapshotSubtitle": "Live Price Snapshot",
     "viewAllStocks": "View All {{name}} Stocks",
     "turkishStocks": "Turkish Stocks",

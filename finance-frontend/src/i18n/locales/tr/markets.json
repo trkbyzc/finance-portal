@@ -6,6 +6,10 @@
   "live": {
     "title": "Canlı Piyasalar",
     "indices": "Endeksler",
+    "heatmap": "BIST Isı Haritası",
+    "heatmapSub": "Kutu boyutu işlem hacmine, renk günlük değişime göre · ",
+    "heatmapUp": "yeşil yükselen",
+    "heatmapDown": "kırmızı düşen",
     "snapshotSubtitle": "Anlık Fiyat Özeti",
     "viewAllStocks": "Tüm {{name}} Hisselerini Gör",
     "turkishStocks": "Türk Hisseleri",

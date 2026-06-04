@@ -118,6 +118,7 @@ export const useLiveMarketData = () => {
 
         // Data
         indices, ipos, trBonds, globalBonds, globalFunds, trFunds,
+        turkishStocks,
         highestVolume, mostVolatile, topGainers, topLosers,
         commodityCards, sortedForexList,
         economyMacro,
