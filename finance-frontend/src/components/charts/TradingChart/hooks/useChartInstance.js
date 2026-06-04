@@ -41,9 +41,33 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
         chart.setStyles(getChartStyles(chartType));
         chart.createIndicator('VOL', false, { id: 'pane_VOL', height: 100 });
 
-        // Fiyat ekseni (Y) üzerinde mouse scroll ile fiyat ölçeğini daralt/genişlet.
-        // klinecharts'ta default açık olsa da pane bazında açıkça garanti ediyoruz.
+        // Fiyat ekseni (Y) üzerinde mouse SCROLL ile fiyat ölçeğini daralt/genişlet.
+        // klinecharts Y ekseninde yalnız SÜRÜKLE-ölçekle destekler (wheel handler'ı yok).
+        // Bu yüzden eksen üstünde wheel'i yakalayıp aynı sürükle-ölçekle mekanizmasını
+        // sentetik mouse event'leriyle (mousedown→mousemove→mouseup) tetikliyoruz.
         chart.setPaneOptions({ id: 'candle_pane', axisOptions: { scrollZoomEnabled: true } });
+        const yAxisDom = chart.getDom('candle_pane', 'yAxis');
+        const onYAxisWheel = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const rect = yAxisDom.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+            const step = Math.min(36, rect.height * 0.08);
+            // Yukarı kaydır = yakınlaş (aralık daralır), aşağı = uzaklaş (aralık genişler)
+            const endY = startY + (e.deltaY < 0 ? -step : step);
+            const root = (yAxisDom.ownerDocument || document).documentElement;
+            const mk = (type, y) => new MouseEvent(type, {
+                clientX: cx, clientY: y, bubbles: true, cancelable: true, view: window
+            });
+            const downTarget = document.elementFromPoint(cx, startY) || yAxisDom;
+            downTarget.dispatchEvent(mk('mousedown', startY));
+            root.dispatchEvent(mk('mousemove', endY));
+            root.dispatchEvent(mk('mouseup', endY));
+        };
+        if (yAxisDom) {
+            yAxisDom.addEventListener('wheel', onYAxisWheel, { passive: false, capture: true });
+        }
 
         // Crosshair hareketinde üstteki OHLCV kartlarını canlı güncellemek için
         if (onCrosshairChange) {
@@ -63,6 +87,9 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
         // Cleanup
         return () => {
             window.removeEventListener('resize', handleResize);
+            if (yAxisDom) {
+                yAxisDom.removeEventListener('wheel', onYAxisWheel, { capture: true });
+            }
             if (containerRef.current && chartInstance.current) {
                 dispose(containerRef.current);
                 chartInstance.current = null;

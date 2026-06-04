@@ -66,8 +66,10 @@ export default function PriceChart({
     const tooltipEl = <PriceTooltip stroke={stroke} isYield={isYield} t={t} formatPriceLabel={formatPriceLabel} />;
 
     // Zoom'a göre Y domain: merkez sabit, açıklık 1/zoom ile daralır/genişler.
-    // zoom=1 → veriye %8 pay; zoom>1 → daha dar aralık (yakınlaşma), zoom<1 → daha geniş.
+    // Zoom yokken (1) recharts'ın kendi otomatik domain'i kullanılır — varsayılan görünüm
+    // birebir korunur (regresyon yok). Yalnız kullanıcı scroll'ladığında özel domain devreye girer.
     const yDomain = useMemo(() => {
+        if (zoom === 1) return ['auto', 'auto'];
         let lo = Infinity, hi = -Infinity;
         for (const d of chartData || []) {
             const v = d?.close;
@@ -101,7 +103,7 @@ export default function PriceChart({
                             tickFormatter={yTickFormatter}
                         />
                         <RechartsTooltip content={tooltipEl} />
-                        <Area type="monotone" dataKey="close" stroke={stroke} strokeWidth={3} fillOpacity={1} fill="url(#colorClose)" />
+                        <Area type="monotone" dataKey="close" stroke={stroke} strokeWidth={3} fillOpacity={1} fill="url(#colorClose)" connectNulls />
                     </AreaChart>
                 ) : (
                     <LineChart data={chartData}>
@@ -109,7 +111,7 @@ export default function PriceChart({
                         <XAxis dataKey="dateStr" stroke="#787b86" tick={{ fontSize: 11 }} tickFormatter={formatChartDate} />
                         <YAxis stroke="#787b86" orientation="right" domain={yDomain} allowDataOverflow tickFormatter={yTickFormatter} />
                         <RechartsTooltip content={tooltipEl} />
-                        <Line type="monotone" dataKey="close" stroke="#2962ff" strokeWidth={3} dot={false} />
+                        <Line type="monotone" dataKey="close" stroke="#2962ff" strokeWidth={3} dot={false} connectNulls />
                     </LineChart>
                 )}
             </ResponsiveContainer>

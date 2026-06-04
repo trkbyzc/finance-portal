@@ -134,7 +134,7 @@ export default function TurkishFundsDashboard() {
                 </div>
             </div>
 
-            <NewsSection category="Yatırım Fonları" titleKey="news:categories.fund" accent="buy" />
+            <NewsSection category="Yatırım Fonları" titleKey="news:categories.fund" accent="primary" />
           </div>
         </div>
     );
