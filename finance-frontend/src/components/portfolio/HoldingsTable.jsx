@@ -68,9 +68,10 @@ function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory,
     const native = nativeCurrencyForType(item.assetType, item.symbol);
     const positive = calc.profitLoss >= 0;
     const MASK = '••••';
+    // Birim fiyatlar (ort. maliyet, anlık fiyat) varlığın KENDİ biriminde gösterilir.
     const money = (v) => (hidden ? MASK : formatPrice(v, native));
-    // Toplam tutarlar (değer / K-Z) 2 ondalıkla — birim fiyatlar daha hassas kalabilir
-    const money2 = (v) => (hidden ? MASK : formatPrice(v, native, 2, 2));
+    // Toplam değer / K-Z calculateProfitLoss'tan TRY bazlı gelir → TRY olarak çevrilip 2 ondalıkla gösterilir.
+    const money2 = (v) => (hidden ? MASK : formatPrice(v, 'TRY', 2, 2));
     // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
     const multiplier = Number(item.contractSize) || 1;
     const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;

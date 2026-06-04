@@ -38,14 +38,10 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
     const signed = (v) => (hidden ? MASK : `${v >= 0 ? '+' : ''}${formatPrice(v, 'TRY', 2, 2)}`);
     const pct = (v) => (hidden ? MASK : `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`);
 
-    const totalInvestment = portfolio?.reduce((sum, item) => {
-        return sum + (item.averagePrice * item.quantity * (Number(item.contractSize) || 1));
-    }, 0) || 0;
-
-    const totalValue = portfolio?.reduce((sum, item) => {
-        const calc = calculateProfitLoss(item);
-        return sum + calc.currentValue;
-    }, 0) || 0;
+    // Maliyet ve değer TRY bazlı (calculateProfitLoss farklı para birimlerini TRY'ye çevirir);
+    // böylece USD kripto + TRY hisse karışık portföyde toplamlar tutarlı olur.
+    const totalInvestment = portfolio?.reduce((sum, item) => sum + (calculateProfitLoss(item).costValue || 0), 0) || 0;
+    const totalValue = portfolio?.reduce((sum, item) => sum + (calculateProfitLoss(item).currentValue || 0), 0) || 0;
 
     const totalProfitLoss = totalValue - totalInvestment;
     const returnRate = totalInvestment > 0 ? ((totalProfitLoss / totalInvestment) * 100) : 0;

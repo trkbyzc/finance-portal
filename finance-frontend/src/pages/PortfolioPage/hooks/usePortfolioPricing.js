@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../../config/apiClient';
+import { useCurrency } from '../../../context/CurrencyContext';
+import { nativeCurrencyForType } from '../../../utils/currencyConversion';
 
 /**
  * Portföydeki holdings için canlı fiyat hesaplama altyapısı.
@@ -15,6 +17,7 @@ import { apiClient } from '../../../config/apiClient';
  * PortfolioPage 30+ satır boilerplate'i bu hook'a taşıdı.
  */
 export default function usePortfolioPricing(portfolio) {
+    const { usdRate } = useCurrency();
     const { data: marketData } = useQuery({
         queryKey: ['allMarketData'],
         queryFn: async () => {
@@ -98,12 +101,22 @@ export default function usePortfolioPricing(portfolio) {
     };
 
     const calculateProfitLoss = (item) => {
+        // currentPrice/averagePrice varlığın KENDİ para biriminde (kripto/ABD hissesi → USD, TR → TRY).
         const currentPrice = getCurrentPrice(item.symbol, item.assetType) || item.currentPrice;
         // VİOP sözleşme büyüklüğü (çarpan); diğer varlıklarda 1. Nominal = fiyat × çarpan × adet.
         const multiplier = Number(item.contractSize) || 1;
-        const profitLoss = (currentPrice - item.averagePrice) * item.quantity * multiplier;
-        const profitLossPercent = ((currentPrice - item.averagePrice) / item.averagePrice) * 100;
-        return { currentPrice, profitLoss, profitLossPercent, currentValue: currentPrice * item.quantity * multiplier };
+        // Toplam/dağılım hesapları için her şeyi ORTAK TRY bazına çeviriyoruz; aksi halde farklı
+        // para birimindeki değerler (USD kripto + TRY hisse) toplanırken tutarsızlık oluşuyordu.
+        const native = nativeCurrencyForType(item.assetType, item.symbol);
+        const rate = native === 'USD' ? (Number(usdRate) || 1) : 1; // native → TRY
+        const currentValue = (Number(currentPrice) || 0) * rate * item.quantity * multiplier; // TRY
+        const costValue = (Number(item.averagePrice) || 0) * rate * item.quantity * multiplier; // TRY
+        const profitLoss = currentValue - costValue; // TRY
+        const profitLossPercent = item.averagePrice
+            ? ((currentPrice - item.averagePrice) / item.averagePrice) * 100
+            : 0;
+        // currentPrice native kalır (tablodaki birim fiyat sütunları için); değer/maliyet/K-Z TRY.
+        return { currentPrice, profitLoss, profitLossPercent, currentValue, costValue };
     };
 
     return { getCurrentPrice, getDailyChange, calculateProfitLoss };

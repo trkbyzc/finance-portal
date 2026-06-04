@@ -19,10 +19,10 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
 
     const costVsValue = useMemo(() => (portfolio || []).map(item => {
         const calc = calculateProfitLoss(item);
-        const mult = Number(item.contractSize) || 1;
         return {
             name: item.symbol,
-            cost: Number((item.averagePrice * item.quantity * mult) || 0),
+            // cost ve value ortak TRY bazında (calculateProfitLoss) — karışık para biriminde tutarlı
+            cost: Number(calc.costValue || 0),
             value: Number(calc.currentValue || 0)
         };
     }), [portfolio, calculateProfitLoss]);
