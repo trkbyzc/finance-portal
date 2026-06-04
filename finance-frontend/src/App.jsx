@@ -34,6 +34,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage/AdminPage.jsx';
 import GlobalTicker from './components/layout/MarketTicker/GlobalTicker';
 import ChatWidget from './components/chat/ChatWidget';
+import ScrollToTopButton from './components/layout/ScrollToTopButton';
 
 
 
@@ -79,6 +80,7 @@ function App() {
                         </main>
                         <Footer />
                         <ChatWidget />
+                        <ScrollToTopButton />
                     </div>
                 </Router>
             </CurrencyProvider>

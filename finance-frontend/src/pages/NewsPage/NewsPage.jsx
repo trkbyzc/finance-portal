@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Newspaper, Loader2, PlusCircle } from 'lucide-react';
+import { Newspaper, Loader2, PlusCircle, MinusCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { newsApi } from '../../services/api';
@@ -76,9 +76,18 @@ export default function NewsPage() {
     }, [responseData, page]);
 
     const hasNext = responseData?.hasNext || false;
+    const PAGE_SIZE = 12;
+    // İlk sayfa hariç bir sayfa daha yüklenmişse "Daha Az" görünür
+    const canShowLess = accumulatedNews.length > PAGE_SIZE;
 
     const handleNewsClick = (item) => {
         navigate('/news/detail', { state: { newsItem: item } });
+    };
+
+    const handleShowLess = () => {
+        // Son yüklenen sayfayı çıkar; mevcut sayfa numarasını da geri al
+        setAccumulatedNews(prev => prev.slice(0, Math.max(PAGE_SIZE, prev.length - PAGE_SIZE)));
+        setPage(p => Math.max(0, p - 1));
     };
 
     return (
@@ -109,14 +118,26 @@ export default function NewsPage() {
                             />
                         ))}
 
-                        {hasNext && (
-                            <button
-                                onClick={() => setPage(p => p + 1)}
-                                disabled={loadingMore}
-                                className="mt-8 mb-12 mx-auto flex items-center gap-2 px-10 py-4 bg-surface-2 border border-border rounded-full hover:bg-primary transition-all text-sm font-bold shadow-2xl disabled:opacity-50"
-                            >
-                                {loadingMore ? <Loader2 className="animate-spin" size={20} /> : <><PlusCircle size={20}/> {t('common:actions.viewMore')}</>}
-                            </button>
+                        {(hasNext || canShowLess) && (
+                            <div className="mt-8 mb-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+                                {canShowLess && (
+                                    <button
+                                        onClick={handleShowLess}
+                                        className="flex items-center gap-2 px-8 py-4 bg-surface-2 border border-border rounded-full hover:bg-surface-hover hover:border-border-strong transition-all text-sm font-bold shadow-lg"
+                                    >
+                                        <MinusCircle size={20} /> {t('common:actions.viewLess')}
+                                    </button>
+                                )}
+                                {hasNext && (
+                                    <button
+                                        onClick={() => setPage(p => p + 1)}
+                                        disabled={loadingMore}
+                                        className="flex items-center gap-2 px-10 py-4 bg-surface-2 border border-border rounded-full hover:bg-primary hover:text-primary-fg transition-all text-sm font-bold shadow-2xl disabled:opacity-50"
+                                    >
+                                        {loadingMore ? <Loader2 className="animate-spin" size={20} /> : <><PlusCircle size={20}/> {t('common:actions.viewMore')}</>}
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}
