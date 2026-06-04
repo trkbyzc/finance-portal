@@ -193,7 +193,7 @@ export default function WatchlistPage() {
                             await handleAdd({ symbol, assetType });
                             setModalOpen(false);
                         } catch (e) {
-                            // eslint-disable-next-line no-console
+                             
                             console.error('Watchlist add error', e);
                         }
                     }}

@@ -17,5 +17,16 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Sonar uyumu: loose equality bug fix'i için --fix otomatik düzeltir
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      // console.log debug kalıntıları — error/warn bilinçli, log silinmeli
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  // Test dosyalarında console mantıklı (vi.spyOn için)
+  {
+    files: ['**/*.test.{js,jsx}'],
+    rules: { 'no-console': 'off' },
   },
 ])
