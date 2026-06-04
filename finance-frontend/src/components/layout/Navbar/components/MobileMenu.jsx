@@ -70,14 +70,11 @@ export default function MobileMenu({ open, onClose, navConfig, extraLinks }) {
                                                     key={iIdx}
                                                     to={item.to}
                                                     onClick={onClose}
-                                                    className="px-3 py-2 rounded-md hover:bg-bg text-sm flex flex-col gap-0.5 transition"
+                                                    className="px-3 py-2 rounded-md hover:bg-bg text-sm flex items-center transition"
                                                 >
                                                     <span style={item.accent ? { color: item.accent } : undefined} className="font-medium text-text">
                                                         {item.label}
                                                     </span>
-                                                    {item.desc && (
-                                                        <span className="text-[10px] text-text-muted uppercase tracking-wide">{item.desc}</span>
-                                                    )}
                                                 </Link>
                                             );
                                         })}

@@ -38,9 +38,6 @@ export default function NavDropdown({ title, items }) {
                                                     className="px-3 py-2 mx-1 rounded-md hover:bg-surface-hover transition-colors flex flex-col gap-0.5"
                                                 >
                                                     <span className="text-sm font-medium text-text">{sub.label}</span>
-                                                    {sub.desc && (
-                                                        <span className="text-[10px] text-text-muted font-medium uppercase tracking-wide">{sub.desc}</span>
-                                                    )}
                                                 </Link>
                                             ))}
                                         </div>
@@ -49,14 +46,11 @@ export default function NavDropdown({ title, items }) {
                             ) : (
                                 <Link
                                     to={item.to}
-                                    className="px-3 py-2 mx-1 rounded-md hover:bg-surface-hover transition-colors flex flex-col gap-0.5 group/item"
+                                    className="px-3 py-2 mx-1 rounded-md hover:bg-surface-hover transition-colors flex items-center group/item"
                                 >
                                     <span className={`text-sm font-medium ${item.color ? '' : 'text-text'}`} style={item.accent ? { color: item.accent } : undefined}>
                                         {item.label}
                                     </span>
-                                    {item.desc && (
-                                        <span className="text-[10px] text-text-muted font-medium uppercase tracking-wide">{item.desc}</span>
-                                    )}
                                 </Link>
                             )}
                         </React.Fragment>
