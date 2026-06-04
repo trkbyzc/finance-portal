@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "sonar": "vitest run --coverage && sonar-scanner"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.4",
@@ -51,6 +52,7 @@
     "globals": "^17.5.0",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.12",
+    "sonarqube-scanner": "^4.3.6",
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.10",
     "vitest": "^4.1.8"

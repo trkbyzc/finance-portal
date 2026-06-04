@@ -122,10 +122,56 @@ ve **Quality Gate** (varsayılan `Sonar way`).
 
 # Sonar başlat + coverage göndererek tam analiz
 docker compose --profile sonar up -d sonarqube
-./mvnw -B verify sonar:sonar \
-  -Dsonar.host.url=http://localhost:9000 \
-  -Dsonar.token=<TOKEN>
+./mvnw -B verify sonar:sonar -Dsonar.token=<TOKEN>
 
 # Sonar'ı kapat (data korunur)
 docker compose --profile sonar down
 ```
+
+---
+
+## 3) Frontend (React) — ayrı Sonar projesi
+
+Frontend JavaScript olduğu için JaCoCo işe yaramaz; **Vitest + @vitest/coverage-v8**
+ile ölçülüyor (v8 coverage = Java tarafının JaCoCo'su). Çıktı `lcov.info` formatında.
+
+Backend ile aynı SonarQube container'ı kullanılır, ama **ayrı projectKey**
+(`finance-portal-frontend`) altında — Quality Gate ve coverage backend'den izole.
+
+### Frontend Sonar analizi çalıştırma
+
+```bash
+# 1) SonarQube container'ı zaten ayakta olmalı (yukarıdaki docker compose komutu)
+# 2) Frontend dizinine geç:
+cd finance-frontend
+
+# 3) Coverage üret + Sonar'a gönder (tek komut):
+npm run sonar
+# Bu komut iki şey yapar: 'vitest run --coverage' → lcov.info üretir,
+# sonra 'sonar-scanner' → finance-frontend/sonar-project.properties'i okur ve gönderir.
+```
+
+### Sonar token nasıl geçilir
+
+`sonarqube-scanner` token'ı şu sırayla arar:
+1. CLI argümanı: `npx sonar-scanner -Dsonar.token=<TOKEN>`
+2. Ortam değişkeni: `SONAR_TOKEN=<TOKEN>` (lokalde `.env` veya PowerShell'de `$env:SONAR_TOKEN`)
+3. `sonar-project.properties` içindeki `sonar.token` (önerilmez, commit edilebilir)
+
+Lokalde en kolay: backend ile aynı token, ortam değişkeni olarak:
+
+```powershell
+$env:SONAR_TOKEN = "squ_xxxxx"
+npm run sonar
+```
+
+### Sonar config — `finance-frontend/sonar-project.properties`
+
+| Property | Değer |
+|---|---|
+| `sonar.projectKey` | `finance-portal-frontend` |
+| `sonar.sources` | `src` |
+| `sonar.tests` | `src` (test inclusion ile ayrılıyor) |
+| `sonar.test.inclusions` | `**/*.test.js,**/*.test.jsx,**/*.spec.*` |
+| `sonar.javascript.lcov.reportPaths` | `coverage/lcov.info` |
+| `sonar.exclusions` | `node_modules`, `dist`, `coverage`, test dosyaları |
