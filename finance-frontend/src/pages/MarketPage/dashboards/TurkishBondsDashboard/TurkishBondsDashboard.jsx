@@ -61,7 +61,6 @@ export default function TurkishBondsDashboard() {
                         <span className="w-2 h-8 bg-primary rounded-full"></span>
                         {t('markets:trBonds.headerTitle')}
                     </h1>
-                    <p className="text-text-muted text-sm mt-2 ml-5">{t('markets:trBonds.headerSubtitle')}</p>
                 </div>
                 <div className="relative w-full md:w-80">
                     <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />

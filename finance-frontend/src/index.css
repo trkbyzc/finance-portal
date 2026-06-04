@@ -135,10 +135,24 @@
                 inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
 }
 
-/* Hybrid scrollbar — daha koyu */
+/* Açık & Hybrid scrollbar — belirgin (açıkta var(--border) çok soluk kalıyordu) */
+[data-theme="light"] ::-webkit-scrollbar-thumb,
 [data-theme="hybrid"] ::-webkit-scrollbar-thumb {
-    background: #64748b;
-    border: 2px solid #e2e8f0;
+    background: #94a3b8;            /* slate-400 — track üstünde net görünür */
+    border: 2px solid var(--bg);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="hybrid"] ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;            /* slate-500 — hover'da koyulaşır */
+}
+[data-theme="light"] ::-webkit-scrollbar-track,
+[data-theme="hybrid"] ::-webkit-scrollbar-track {
+    background: #e2e8f0;           /* hafif gri oluk, thumb'ı çerçeveler */
+}
+/* Firefox — ince mod soluk kalmasın */
+[data-theme="light"] *,
+[data-theme="hybrid"] * {
+    scrollbar-color: #94a3b8 #e2e8f0;
 }
 
 /* ============================================================
