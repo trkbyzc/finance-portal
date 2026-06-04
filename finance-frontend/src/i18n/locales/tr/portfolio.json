@@ -1,6 +1,27 @@
 {
   "pageTitle": "Portföyüm",
   "pageSubtitle": "Yatırımlarınızın anlık değeri, kar/zarar ve dağılımı",
+  "risk": {
+    "title": "Risk & Çeşitlendirme",
+    "subtitle": "Son 1 yıllık günlük veriye göre hesaplanır",
+    "insufficient": "Risk metrikleri için yeterli geçmiş veri yok (en az ~1 ay ortak veri gerekir).",
+    "volatility": "Volatilite (yıllık)",
+    "volatilityHint": "Yıllık dalgalanma",
+    "maxDrawdown": "Maks. Düşüş",
+    "maxDrawdownHint": "Zirveden en dip kayıp",
+    "beta": "Beta (BIST 100)",
+    "betaHigh": "Piyasadan oynak",
+    "betaLow": "Piyasadan sakin",
+    "betaNA": "Hesaplanamadı",
+    "sharpe": "Sharpe (rf=0)",
+    "sharpeHint": "Risk başına getiri",
+    "diversification": "Çeşitlendirme",
+    "effectiveAssets": "etkin varlık",
+    "topConcentration": "En büyük pozisyon",
+    "concentratedWarn": "yüksek konsantrasyon, riski tek varlığa bağlı",
+    "correlation": "Korelasyon Isı Haritası",
+    "correlationHint": "Yeşil = düşük/negatif (iyi çeşitlenme) · Kırmızı = yüksek (birlikte hareket)"
+  },
   "hideBalances": "Bakiyeleri gizle",
   "showBalances": "Bakiyeleri göster",
   "switcher": {

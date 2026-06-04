@@ -17,6 +17,7 @@ import PortfolioTabs from '../../components/portfolio/PortfolioTabs';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 import HoldingsTable from '../../components/portfolio/HoldingsTable';
 import PortfolioActivityCharts from '../../components/portfolio/charts/PortfolioActivityCharts';
+import PortfolioRiskAnalytics from '../../components/portfolio/PortfolioRiskAnalytics';
 import PortfolioSwitcher from '../../components/portfolio/PortfolioSwitcher';
 import usePortfolioPricing from './hooks/usePortfolioPricing';
 import usePortfolioTabs from './hooks/usePortfolioTabs';
@@ -367,6 +368,15 @@ const PortfolioPage = () => {
                             getDailyChange={getDailyChange}
                         />
                     </div>
+                )}
+
+                {/* Risk & Çeşitlendirme — yalnızca "Tümü" sekmesinde (tüm portföy bazında anlamlı) */}
+                {activeTab === 'ALL' && portfolio && portfolio.length > 0 && (
+                    <PortfolioRiskAnalytics
+                        portfolio={portfolio}
+                        calculateProfitLoss={calculateProfitLoss}
+                        hidden={hideBalances}
+                    />
                 )}
             </div>
 

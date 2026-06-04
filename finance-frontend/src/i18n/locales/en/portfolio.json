@@ -1,5 +1,26 @@
 {
   "pageTitle": "My Portfolio",
+  "risk": {
+    "title": "Risk & Diversification",
+    "subtitle": "Computed from the last 1 year of daily data",
+    "insufficient": "Not enough history for risk metrics (need ~1 month of common data).",
+    "volatility": "Volatility (annual)",
+    "volatilityHint": "Annualized fluctuation",
+    "maxDrawdown": "Max Drawdown",
+    "maxDrawdownHint": "Largest peak-to-trough loss",
+    "beta": "Beta (BIST 100)",
+    "betaHigh": "More volatile than market",
+    "betaLow": "Calmer than market",
+    "betaNA": "Not available",
+    "sharpe": "Sharpe (rf=0)",
+    "sharpeHint": "Return per unit risk",
+    "diversification": "Diversification",
+    "effectiveAssets": "effective assets",
+    "topConcentration": "Largest position",
+    "concentratedWarn": "high concentration, risk tied to a single asset",
+    "correlation": "Correlation Heatmap",
+    "correlationHint": "Green = low/negative (good diversification) · Red = high (move together)"
+  },
   "hideBalances": "Hide balances",
   "showBalances": "Show balances",
   "switcher": {
