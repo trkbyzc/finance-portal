@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Vitest coverage report — gitignored, CI artifact'a / lokal HTML'e bakılır
+coverage
+
 # Local env
 .env
 .env.local
