@@ -1,5 +1,15 @@
 {
   "back": "Geri",
+  "fundamentals": {
+    "title": "Temel Veriler",
+    "week52": "52 Hafta Aralığı",
+    "dayRange": "Gün İçi Aralık",
+    "marketCap": "Piyasa Değeri",
+    "marketCapUsd": "Piyasa Değeri ($)",
+    "freeFloat": "Halka Açıklık",
+    "capital": "Sermaye",
+    "volume": "Hacim"
+  },
   "addToPortfolio": "Portföye Ekle",
   "setAlarm": "Alarm Kur",
   "showInCurrency": "Para Biriminde Göster",
@@ -28,7 +38,9 @@
     "interval": "Aralık",
     "indicators": "Göstergeler",
     "addIndicator": "Gösterge Ekle",
-    "tools": "Çizim Araçları"
+    "tools": "Çizim Araçları",
+    "fullscreen": "Tam ekran",
+    "exitFullscreen": "Tam ekrandan çık"
   },
   "comparison": {
     "title": "Karşılaştırma",

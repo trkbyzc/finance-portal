@@ -13,6 +13,7 @@ import AssetHeader from './components/AssetHeader';
 import AssetChartArea from './components/AssetChartArea';
 import BondDetailView from './components/BondDetailView';
 import ComparisonSection from './components/ComparisonSection';
+import StockFundamentals from './components/StockFundamentals';
 
 const CUR_SYMBOL = { TRY: '₺', USD: '$' };
 
@@ -107,6 +108,9 @@ export default function AssetDetailPage() {
         <div className="min-h-screen bg-bg text-text relative">
             <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
                 <AssetHeader asset={asset} navigate={navigate} onAddPortfolioClick={handleOpenModal} />
+                {asset?.assetCategory === 'STOCK' && (
+                    <StockFundamentals symbol={asset?.yahooSymbol || asset?.symbol} />
+                )}
                 <AssetChartArea asset={asset} isViop={isViop} />
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
             </div>

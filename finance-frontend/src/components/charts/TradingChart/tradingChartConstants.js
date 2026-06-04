@@ -17,4 +17,22 @@ export const CRYPTO_OPTIONS = [
     { key: 'BITW', symbol: 'BITW', label: 'BITW (Top 10)', color: '#9c27b0', category: 'INDEX' }
 ];
 
+/**
+ * Hisse sektörüne göre eklenen BIST sektör endeksi (BIST KARŞILAŞTIR'a XU100/50/30'a EK olarak).
+ * Kapsam bilinçli olarak XBANK/XUSIN ile sınırlı: banka ise BIST Bankacılık, değilse BIST Sınai.
+ * TR_INDEX kategorisiyle aynı Fintables UDF endpoint'inden çekilir (XU100 ile aynı aile).
+ */
+export const SECTOR_INDEXES = {
+    XBANK: { key: 'XBANK', symbol: 'XBANK', label: 'BIST Bankacılık', color: '#e0a800', category: 'TR_INDEX' },
+    XUSIN: { key: 'XUSIN', symbol: 'XUSIN', label: 'BIST Sınai',       color: '#e0a800', category: 'TR_INDEX' }
+};
+
+/** İş Yatırım sektör adından ilgili BIST sektör endeksini seç; sektör yoksa null (buton eklenmez). */
+export function sectorIndexFor(sector) {
+    if (!sector) return null;
+    const s = sector.toLocaleLowerCase('tr');
+    if (s.includes('banka')) return SECTOR_INDEXES.XBANK;
+    return SECTOR_INDEXES.XUSIN;
+}
+
 export const ASSET_COLOR = '#ff9800';

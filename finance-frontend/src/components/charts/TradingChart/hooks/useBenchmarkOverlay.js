@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { historicalApi } from '../../../../services/api';
-import { BIST_OPTIONS, CRYPTO_OPTIONS } from '../tradingChartConstants';
+import { stockApi } from '../../../../services/api/stockApi';
+import { BIST_OPTIONS, CRYPTO_OPTIONS, sectorIndexFor } from '../tradingChartConstants';
 
 // Ana grafikle AYNI range→interval eşlemesi (useChartData ile uyumlu) — aksi halde benchmark
 // her zaman günlük ('1d') çekilip 1G/1H gibi intraday aralıklarda düz 2-nokta çizgi oluyordu.
@@ -45,6 +46,22 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
 
     const isCrypto = useMemo(() => asset?.assetCategory === 'CRYPTO', [asset]);
 
+    // Hisse sektörünü temel veri endpoint'inden al (StockFundamentals kartıyla AYNI query key → tek istek).
+    // Sektöre göre BIST KARŞILAŞTIR'a XBANK/XUSIN sektör endeksi EK olarak eklenir.
+    const benchSymbol = asset?.yahooSymbol || asset?.symbol;
+    const { data: fundamentals } = useQuery({
+        queryKey: ['stockFundamentals', benchSymbol],
+        queryFn: () => stockApi.getFundamentals(benchSymbol),
+        enabled: isTrStock && !!benchSymbol,
+        staleTime: 5 * 60 * 1000
+    });
+    const sectorOption = useMemo(() => sectorIndexFor(fundamentals?.sector), [fundamentals]);
+
+    // XU100/50/30 + (varsa) sektör endeksi — tüm BIST hesapları bu dinamik listeyi kullanır.
+    const bistOptions = useMemo(
+        () => (sectorOption ? [...BIST_OPTIONS, sectorOption] : BIST_OPTIONS),
+        [sectorOption]);
+
     const [activeBists, setActiveBists] = useState({ XU100: false, XU050: false, XU030: false });
     const [activeCryptoBench, setActiveCryptoBench] = useState({ BITW: false });
 
@@ -56,8 +73,8 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
 
     // BIST fetch
     const activeBistKeys = useMemo(() =>
-        BIST_OPTIONS.filter(b => activeBists[b.key]).map(b => b.symbol),
-        [activeBists]);
+        bistOptions.filter(b => activeBists[b.key]).map(b => b.symbol),
+        [activeBists, bistOptions]);
 
     const { data: bistDataMap = {} } = useQuery({
         queryKey: ['bistOverlay', activeBistKeys.join(','), activeRange, customStartDate, customEndDate],
@@ -145,8 +162,8 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
     };
 
     const bistOverlayChartData = useMemo(
-        () => hasBistOverlay ? buildNormalized(BIST_OPTIONS, activeBists, bistDataMap) : [],
-        [hasBistOverlay, rawChartData, bistDataMap, activeBists]);
+        () => hasBistOverlay ? buildNormalized(bistOptions, activeBists, bistDataMap) : [],
+        [hasBistOverlay, rawChartData, bistDataMap, activeBists, bistOptions]);
 
     const cryptoOverlayChartData = useMemo(
         () => hasCryptoOverlay ? buildNormalized(CRYPTO_OPTIONS, activeCryptoBench, cryptoBenchDataMap) : [],
@@ -158,7 +175,7 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
 
     const overlayChartData = showBistChart ? bistOverlayChartData : showCryptoChart ? cryptoOverlayChartData : [];
     const overlayBenchmarks = showBistChart
-        ? BIST_OPTIONS.filter(b => activeBists[b.key])
+        ? bistOptions.filter(b => activeBists[b.key])
         : showCryptoChart
             ? CRYPTO_OPTIONS.filter(b => activeCryptoBench[b.key])
             : [];
@@ -166,6 +183,7 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
     return {
         isTrStock,
         isCrypto,
+        bistOptions,
         activeBists, toggleBist,
         activeCryptoBench, toggleCryptoBench,
         showOverlayChart,

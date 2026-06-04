@@ -13,7 +13,7 @@ import { useCurrency } from '../../../context/CurrencyContext';
 import { useNotify } from '../../../context/NotificationContext';
 import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConversion';
 import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
-import { BIST_OPTIONS, CRYPTO_OPTIONS } from './tradingChartConstants';
+import { CRYPTO_OPTIONS } from './tradingChartConstants';
 
 import ChartHeader from './components/ChartHeader';
 import ChartOhlcvBar from './components/ChartOhlcvBar';
@@ -94,6 +94,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
     // Benchmark overlay (BIST + Crypto)
     const {
         isTrStock, isCrypto,
+        bistOptions,
         activeBists, toggleBist,
         activeCryptoBench, toggleCryptoBench,
         showOverlayChart, overlayChartData, overlayBenchmarks
@@ -224,7 +225,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 <BenchmarkCompareBar
                     labelKey="bistCompare"
                     activeLabelKey="bistCompareActive"
-                    options={BIST_OPTIONS}
+                    options={bistOptions}
                     activeMap={activeBists}
                     onToggle={toggleBist}
                     buttonColor="#2962ff"
