@@ -8,6 +8,7 @@ import { commodityApi } from '../../services/api';
 import GoldHeader from './components/GoldHeader';
 import GoldListHeader from './components/GoldListHeader';
 import GoldRow from './components/GoldRow';
+import RelatedNews from '../AssetDetailPage/components/RelatedNews';
 
 export default function TurkishGoldPage() {
     const navigate = useNavigate();
@@ -58,6 +59,11 @@ export default function TurkishGoldPage() {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Gram altını etkileyen haberler (NewsEntityTagger relatedSymbol=GAU) */}
+                <div className="mt-8">
+                    <RelatedNews symbol="GAU" />
                 </div>
             </div>
         </div>
