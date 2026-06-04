@@ -165,8 +165,21 @@ public class NewsService {
                 .toList();
     }
 
+    /**
+     * Sembolü taban forma indirir; haber relatedSymbol'ü ile varlık sembolünün farklı
+     * yahoo varyantlarında gelmesi durumunda eşleşmeyi sağlar:
+     *   ASELS.IS → ASELS, BTC-USD → BTC, ETH-USDT → ETH, USDTRY=X → USDTRY, GC=F → GC
+     */
     private String normalizeSymbol(String symbol) {
-        return symbol.trim().toUpperCase().replace(".IS", "");
+        String s = symbol.trim().toUpperCase().replace(".IS", "");
+        if (s.endsWith("=X") || s.endsWith("=F")) {
+            s = s.substring(0, s.length() - 2);
+        }
+        int dash = s.indexOf('-');
+        if (dash > 0) {
+            s = s.substring(0, dash); // BTC-USD → BTC
+        }
+        return s;
     }
 
     /** Frontend "Stocks" gönderse de TR cache'te "Borsa" → ikisine de eşle. */

@@ -141,7 +141,7 @@ export default function AssetDetailPage() {
                 )}
                 <AssetChartArea asset={asset} isViop={isViop} />
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
-                <RelatedNews symbol={asset?.yahooSymbol || asset?.symbol} />
+                <RelatedNews symbol={asset?.symbol || asset?.currencyCode || asset?.yahooSymbol} />
             </div>
 
             {isAddModalOpen && (
