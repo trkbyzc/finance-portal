@@ -83,7 +83,12 @@
     "bist100": "BIST 100",
     "usd": "Dolar",
     "eur": "Euro",
-    "btc": "Bitcoin"
+    "btc": "Bitcoin",
+    "customize": "Kartları Düzenle",
+    "customizeTitle": "Özet kartlarını özelleştir",
+    "customizeHint": "Üst şeritte gösterilecek varlıkları seç.",
+    "reset": "Varsayılana dön",
+    "empty": "Henüz varlık seçilmedi. \"Özelleştir\" ile ekleyin."
   },
   "widgets": {
     "marketTitle": "Piyasa Özeti",

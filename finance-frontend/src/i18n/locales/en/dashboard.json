@@ -83,7 +83,12 @@
     "bist100": "BIST 100",
     "usd": "Dollar",
     "eur": "Euro",
-    "btc": "Bitcoin"
+    "btc": "Bitcoin",
+    "customize": "Edit Cards",
+    "customizeTitle": "Customize summary cards",
+    "customizeHint": "Choose the assets shown in the top strip.",
+    "reset": "Reset to default",
+    "empty": "No assets selected yet. Add some via \"Customize\"."
   },
   "widgets": {
     "marketTitle": "Market Summary",
