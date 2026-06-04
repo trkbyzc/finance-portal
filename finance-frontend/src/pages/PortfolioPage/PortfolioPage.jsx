@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Eye, EyeOff, FileSpreadsheet, FileText } from 'lucide-react';
+import { Eye, EyeOff, FileSpreadsheet, FileText, Plus, Wallet } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -316,9 +316,9 @@ const PortfolioPage = () => {
                         </button>
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-primary-hover rounded font-semibold transition"
+                            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-primary-hover text-primary-fg rounded-xl font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all flex items-center gap-1.5"
                         >
-                            + {t('common:actions.add')}
+                            <Plus size={18} /> {t('common:actions.add')}
                         </button>
                     </div>
                 </div>
@@ -350,14 +350,31 @@ const PortfolioPage = () => {
                     </div>
                 )}
 
-                <HoldingsTable
-                    portfolio={filteredPortfolio}
-                    calculateProfitLoss={calculateProfitLoss}
-                    hidden={hideBalances}
-                    onOpenHistory={setHistorySymbol}
-                    onOpenBuy={setBuyMoreAsset}
-                    onOpenSell={setSellAsset}
-                />
+                {portfolio && portfolio.length === 0 ? (
+                    /* Hiç varlık yok — ilk varlık için ortada geniş mavi CTA */
+                    <div className="bg-surface-2 border border-border rounded-2xl p-10 sm:p-16 text-center flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
+                            <Wallet size={30} className="text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold text-text mb-2">{t('portfolio:holdings.noHoldings')}</h3>
+                        <p className="text-text-muted text-sm mb-6 max-w-sm">{t('portfolio:pageSubtitle')}</p>
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-full max-w-sm px-6 py-4 bg-primary hover:bg-primary-hover text-primary-fg rounded-xl font-bold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                        >
+                            <Plus size={20} /> {t('portfolio:holdings.addFirst')}
+                        </button>
+                    </div>
+                ) : (
+                    <HoldingsTable
+                        portfolio={filteredPortfolio}
+                        calculateProfitLoss={calculateProfitLoss}
+                        hidden={hideBalances}
+                        onOpenHistory={setHistorySymbol}
+                        onOpenBuy={setBuyMoreAsset}
+                        onOpenSell={setSellAsset}
+                    />
+                )}
 
                 {/* Varlık listesinin altında: Maliyet/Piyasa Değeri + Günlük Durum çubuk grafikleri */}
                 {filteredPortfolio && filteredPortfolio.length > 0 && (

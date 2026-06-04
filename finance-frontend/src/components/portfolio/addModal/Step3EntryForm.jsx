@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
@@ -233,9 +233,9 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 px-4 py-3 bg-primary hover:bg-primary-hover rounded-lg font-semibold transition disabled:opacity-50"
+                    className="flex-1 px-4 py-3 bg-primary hover:bg-primary-hover text-primary-fg rounded-lg font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
-                    {loading ? t('common:actions.loadingDots') : t('common:actions.save')}
+                    {loading ? t('common:actions.loadingDots') : (<><Plus size={18} /> {t('common:actions.save')}</>)}
                 </button>
             </div>
         </form>
