@@ -23,7 +23,9 @@ export default function MarketTicker() {
             return {
                 name: finalName,
                 price: asset.forexSelling || asset.price,
-                change: asset.changePercent
+                change: asset.changePercent,
+                symbol: asset._symbol || asset.symbol || asset.currencyCode || null,
+                category: asset._category || null
             };
         });
     }, [rawData, t]);
@@ -42,6 +44,8 @@ export default function MarketTicker() {
                         name={asset.name}
                         price={asset.price}
                         change={asset.change}
+                        symbol={asset.symbol}
+                        category={asset.category}
                     />
                 ))}
             </div>

@@ -2,6 +2,20 @@ import { useQuery } from '@tanstack/react-query';
 import { aggregateApi } from '../services/api';
 import { useMemo } from 'react';
 import useUserPreferences from './useUserPreferences';
+import { detectCategoryFromSymbol } from '../utils/categoryUtils';
+
+/**
+ * Ticker item'a tıklanınca grafiğe gidebilmek için sembol + kategoriyi item'a iliştirir.
+ * Kategori: önce sembol pattern'ı (kesin olanlar — XU100→INDEX, .IS→STOCK), yoksa
+ * bilinen pool kategorisi (poolCategory). Kısa semboller (USD/EUR/GAU/BTC) pattern'da
+ * null döndüğü için poolCategory şart.
+ */
+const tagForChart = (item, poolCategory) => {
+    if (!item) return null;
+    const symbol = item.symbol || item.currencyCode || item.code || null;
+    const category = detectCategoryFromSymbol(symbol) || poolCategory || null;
+    return { ...item, _symbol: symbol, _category: category };
+};
 
 /**
  * Auth user'ın preferences.tickers'ı varsa onu kullanır; yoksa varsayılan 5 majör varlık.
@@ -15,7 +29,13 @@ const DEFAULT_FALLBACK_FINDER = (allItems) => {
     const gramAltin = allItems.find(i => i.symbol === 'GAU' || (i.name && i.name.toUpperCase().includes('GRAM')));
     const bist100 = allItems.find(i => i.symbol === 'XU100' || i.symbol === 'XU100.IS' || i.name === 'BIST 100');
     const btc = allItems.find(i => i.currencyCode === 'BTC' || i.symbol === 'BTC');
-    return [usd, eur, gramAltin, bist100, btc].filter(Boolean);
+    return [
+        tagForChart(usd, 'CURRENCY'),
+        tagForChart(eur, 'CURRENCY'),
+        tagForChart(gramAltin, 'COMMODITY'),
+        tagForChart(bist100, 'INDEX'),
+        tagForChart(btc, 'CRYPTO')
+    ].filter(Boolean);
 };
 
 /** AssetType başına aggregate response'taki ilgili list anahtarları. */
@@ -59,7 +79,7 @@ export const useTickerData = () => {
         const customList = preferences?.tickers;
         if (customList && customList.length > 0) {
             return customList
-                .map(t => findAsset(allMarkets, t.symbol, t.assetType))
+                .map(t => tagForChart(findAsset(allMarkets, t.symbol, t.assetType), t.assetType))
                 .filter(Boolean);
         }
 
