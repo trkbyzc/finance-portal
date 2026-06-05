@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../config/apiClient';
+import { bankLogo } from '../utils/bankLogo';
 
 /**
  * Tüm market verisinden (BİST/ABD hisse, kripto, emtia, tahvil, fon, VİOP) sembol bazlı
@@ -34,7 +35,14 @@ export default function useAssetLogos() {
                 case 'CRYPTO':    return marketData.cryptos?.find(c => c.currencyCode === symbol)?.image || null;
                 case 'COMMODITY': return marketData.commodities?.find(c => c.symbol === symbol)?.image || null;
                 case 'BOND':      return marketData.bonds?.find(b => b.symbol === symbol)?.image || null;
-                case 'FUND':      return marketData.funds?.find(f => f.symbol === symbol)?.image || null;
+                case 'FUND': {
+                    // TR fonların aggregate'ı image vermiyor (TEFAS); fon adı kurucusuyla başlıyor
+                    // ("AK PORTFÖY ...", "ATA PORTFÖY ...") → bankLogo ile kurucu favicon'una düş.
+                    const fund = marketData.funds?.find(f => f.symbol === symbol);
+                    if (fund?.image) return fund.image;
+                    if (fund?.name) return bankLogo(fund.name);
+                    return null;
+                }
                 case 'FUTURE':    return marketData.viop?.find(v => v.symbol === symbol)?.image || null;
                 default:          return null; // CURRENCY → AssetIcon currencyFlag'e düşer
             }
