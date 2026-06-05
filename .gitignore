@@ -70,5 +70,23 @@ Thumbs.db
 *.class
 hs_err_pid*
 
+# Sonar local state (her koşumda yenilenir, repoya gitmez)
+**/.scannerwork/
+
+# Spring Initializr leftover — Maven projesi açılır açılmaz oluşur, referans dokümanı, ihtiyaç yok
+HELP.md
+
+# HTTP test client dosyaları (IntelliJ .http vb.) — local credential içerebilir
+*.http
+
+# Geliştirme aşamasında üretilen faz/iç dokümanlar (FAZA-1, CLEANUP-REPORT, ROADMAP vb.)
+**/FAZA-*.md
+**/CLEANUP-REPORT.md
+**/REFACTORING-ROADMAP.md
+
+# Maven Central metadata indirildiğinde takılan rastgele kalıntılar
+metadata.xml
+maven-metadata.xml
+
 # Keycloak generated themes (optional — uncomment if you don't want them tracked)
 # **/keycloak-themes/
