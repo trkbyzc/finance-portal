@@ -46,7 +46,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     }, [symbol, backendType]);
 
     const unitPrice = () => {
-        const p = parseFloat(averagePrice);
+        const p = Number.parseFloat(averagePrice);
         if (p > 0) return p;
         return Number(selectedAsset.currentPrice || selectedAsset.price || selectedAsset.forexSelling
             || selectedAsset.value || selectedAsset.lastPrice || selectedAsset.unitPrice || 0) || 0;
@@ -54,17 +54,17 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const handleQuantity = (v) => {
         setQuantity(v);
         const p = unitPrice();
-        setAmount(v && p > 0 ? String(+(parseFloat(v) * p).toFixed(2)) : '');
+        setAmount(v && p > 0 ? String(+(Number.parseFloat(v) * p).toFixed(2)) : '');
     };
     const handleAmount = (v) => {
         setAmount(v);
         const p = unitPrice();
-        setQuantity(v && p > 0 ? String(+(parseFloat(v) / p).toFixed(8)) : '');
+        setQuantity(v && p > 0 ? String(+(Number.parseFloat(v) / p).toFixed(8)) : '');
     };
     const handlePrice = (v) => {
         setAveragePrice(v);
-        const p = parseFloat(v);
-        if (quantity && p > 0) setAmount(String(+(parseFloat(quantity) * p).toFixed(2)));
+        const p = Number.parseFloat(v);
+        if (quantity && p > 0) setAmount(String(+(Number.parseFloat(quantity) * p).toFixed(2)));
     };
     const handleDate = async (v) => {
         setPurchaseDate(v);
@@ -76,7 +76,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
             if (price != null && price > 0) {
                 setAveragePrice(String(price));
                 setDatePriceInfo({ ok: true, price });
-                if (quantity) setAmount(String(+(parseFloat(quantity) * price).toFixed(2)));
+                if (quantity) setAmount(String(+(Number.parseFloat(quantity) * price).toFixed(2)));
             } else {
                 setDatePriceInfo({ ok: false });
             }
@@ -92,8 +92,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
             await onSubmit({
                 symbol: selectedAsset.symbol || selectedAsset.currencyCode,
                 assetType: selectedBackendValue || selectedType,
-                quantity: parseFloat(quantity),
-                averagePrice: parseFloat(averagePrice),
+                quantity: Number.parseFloat(quantity),
+                averagePrice: Number.parseFloat(averagePrice),
                 // Seçilen hedef portföy (yoksa parent aktif portföye ekler)
                 ...(targetPortfolioId ? { portfolioId: targetPortfolioId } : {}),
                 // Alış tarihi seçildiyse gönder — reel getiri/enflasyon işlem tarihinden hesaplanır
@@ -113,8 +113,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const native = nativeCurrencyForType(selectedType, selectedAsset?.symbol || selectedAsset?.currencyCode);
 
     // VİOP nominal değeri (girilen adet üzerinden) — kullanıcı gerçek maruziyeti görsün
-    const qtyNum = parseFloat(quantity);
-    const priceNum = parseFloat(averagePrice) || currentPrice || 0;
+    const qtyNum = Number.parseFloat(quantity);
+    const priceNum = Number.parseFloat(averagePrice) || currentPrice || 0;
     const notional = isViop && qtyNum > 0 ? priceNum * contractSize * qtyNum : null;
 
     return (

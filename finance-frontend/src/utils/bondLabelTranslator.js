@@ -15,12 +15,12 @@ export const translateBondLabel = (label) => {
     if (!label || !isEn()) return label;
 
     let result = label;
-    result = result.replace(/Kısa Vadeli/gi, 'Short Term');
-    result = result.replace(/Orta Vadeli/gi, 'Medium Term');
-    result = result.replace(/Uzun Vadeli/gi, 'Long Term');
-    result = result.replace(/Yıl\+?/g, 'Yr+').replace(/Yr\+ Yr\+/g, 'Yr+'); // 5 Yıl+ → 5 Yr+
-    result = result.replace(/Yıl/g, 'Yr');
-    result = result.replace(/Ay/g, 'Mo');
+    result = result.replaceAll(/Kısa Vadeli/gi, 'Short Term');
+    result = result.replaceAll(/Orta Vadeli/gi, 'Medium Term');
+    result = result.replaceAll(/Uzun Vadeli/gi, 'Long Term');
+    result = result.replaceAll(/Yıl\+?/g, 'Yr+').replaceAll('Yr+ Yr+', 'Yr+'); // 5 Yıl+ → 5 Yr+
+    result = result.replaceAll('Yıl', 'Yr');
+    result = result.replaceAll('Ay', 'Mo');
     return result;
 };
 
@@ -30,8 +30,8 @@ export const translateBondLabel = (label) => {
 export const translateBondName = (name) => {
     if (!name || !isEn()) return name;
     let result = translateBondLabel(name);
-    result = result.replace(/DİBS/gi, 'TR Gov. Bond');
-    result = result.replace(/Tahvil/gi, 'Bond');
+    result = result.replaceAll(/DİBS/gi, 'TR Gov. Bond');
+    result = result.replaceAll(/Tahvil/gi, 'Bond');
     return result;
 };
 
@@ -42,7 +42,7 @@ export const translateBondDate = (dateStr) => {
     if (!dateStr || !isEn()) return dateStr;
     let result = dateStr;
     Object.entries(TR_MONTH_TO_EN).forEach(([tr, en]) => {
-        result = result.replace(new RegExp(`\\b${tr}\\b`, 'g'), en);
+        result = result.replaceAll(new RegExp(`\\b${tr}\\b`, 'g'), en);
     });
     return result;
 };

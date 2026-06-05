@@ -68,8 +68,8 @@ export default function WatchlistWidget() {
             <div className="divide-y divide-border/50">
                 {items.slice(0, 6).map((item, i) => {
                     const symbol = item.symbol || item.currencyCode || '';
-                    const price = item.currentPrice != null ? parseFloat(item.currentPrice) : null;
-                    const change = item.dailyChangePct != null ? parseFloat(item.dailyChangePct) : null;
+                    const price = item.currentPrice != null ? Number.parseFloat(item.currentPrice) : null;
+                    const change = item.dailyChangePct != null ? Number.parseFloat(item.dailyChangePct) : null;
                     const up = (change || 0) >= 0;
                     const priceSym = (item.assetType === 'CRYPTO' || item.assetType === 'COMMODITY') ? '$' : '₺';
                     return (

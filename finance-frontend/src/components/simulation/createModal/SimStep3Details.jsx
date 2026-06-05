@@ -41,12 +41,12 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
     const handleAmount = (v) => {
         setAmountTry(v);
         setPreviewResult(null);
-        setQuantity(priceNum > 0 && v !== '' ? String(+(parseFloat(v) / priceNum).toFixed(8)) : '');
+        setQuantity(priceNum > 0 && v !== '' ? String(+(Number.parseFloat(v) / priceNum).toFixed(8)) : '');
     };
     const handleQuantity = (v) => {
         setQuantity(v);
         setPreviewResult(null);
-        setAmountTry(priceNum > 0 && v !== '' ? String(+(parseFloat(v) * priceNum).toFixed(2)) : '');
+        setAmountTry(priceNum > 0 && v !== '' ? String(+(Number.parseFloat(v) * priceNum).toFixed(2)) : '');
     };
 
     const handleDateChange = async (v) => {
@@ -62,8 +62,8 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
             setDatePrice(valid ? p : false);
             // Fiyat gelince mevcut alanlardan diğerini güncelle (önce tutar, yoksa miktar baz alınır).
             if (valid) {
-                if (amountTry !== '') setQuantity(String(+(parseFloat(amountTry) / p).toFixed(8)));
-                else if (quantity !== '') setAmountTry(String(+(parseFloat(quantity) * p).toFixed(2)));
+                if (amountTry !== '') setQuantity(String(+(Number.parseFloat(amountTry) / p).toFixed(8)));
+                else if (quantity !== '') setAmountTry(String(+(Number.parseFloat(quantity) * p).toFixed(2)));
             }
         } finally {
             setDatePriceLoading(false);
@@ -87,14 +87,14 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
         symbol: selectedAsset.symbol || selectedAsset.currencyCode,
         assetType: backendType,
         investmentDate,
-        amountTry: parseFloat(amountTry),
+        amountTry: Number.parseFloat(amountTry),
         notes: notes?.trim() || null
     });
 
     const canSubmit = () => {
         if (!selectedAsset || !investmentDate) return false;
-        const amt = parseFloat(amountTry);
-        return !isNaN(amt) && amt > 0;
+        const amt = Number.parseFloat(amountTry);
+        return !Number.isNaN(amt) && amt > 0;
     };
 
     const handlePreview = async () => {

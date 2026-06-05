@@ -42,7 +42,7 @@ export default function CryptoTable({ data, loading }) {
                             // 🚀 TETHER DÜZELTMESİ: Eğer sembol direkt USDT/USD/TRY ise silme, olduğu gibi bırak.
                             const displaySymbol = (symbol === 'USDT' || symbol === 'USD' || symbol === 'TRY')
                                 ? symbol
-                                : symbol.replace(/USDT|TRY|USD/g, '');
+                                : symbol.replaceAll(/USDT|TRY|USD/g, '');
 
                             const fullName = coin?.currencyName || t('categories.crypto');
                             const displayName = fullName.replace('Kripto - ', '');

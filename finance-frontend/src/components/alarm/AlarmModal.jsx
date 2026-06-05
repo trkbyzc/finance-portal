@@ -101,8 +101,9 @@ export default function AlarmModal({ open, onClose, asset }) {
     if (!open || !asset) return null;
 
     const canSubmit = () => {
-        const v = parseFloat(threshold);
-        return !isNaN(v) && v > 0;
+        const v = Number.parseFloat(threshold);
+        // v parseFloat sonucu zaten number; Number.isNaN ile aynı sonuç + S7773 uyumlu.
+        return !Number.isNaN(v) && v > 0;
     };
 
     const applyPreset = (pct) => {
@@ -119,7 +120,7 @@ export default function AlarmModal({ open, onClose, asset }) {
             symbol: asset.symbol || asset.currencyCode,
             assetType: toBackendAssetType(asset.assetCategory),
             condition,
-            threshold: parseFloat(threshold),
+            threshold: Number.parseFloat(threshold),
             frequency,
             note: note.trim() || null
         });

@@ -38,8 +38,8 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
     if (!isOpen || !asset) return null;
 
     const todayStr = new Date().toISOString().slice(0, 10);
-    const qtyNum = parseFloat(quantity);
-    const priceNum = parseFloat(price);
+    const qtyNum = Number.parseFloat(quantity);
+    const priceNum = Number.parseFloat(price);
     const isValid = qtyNum > 0 && priceNum > 0;
     const total = isValid ? qtyNum * priceNum : 0;
 
@@ -47,17 +47,17 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
     const handleQuantity = (v) => {
         setQuantity(v);
         const p = unitPrice();
-        setAmount(v && p > 0 ? String(+(parseFloat(v) * p).toFixed(2)) : '');
+        setAmount(v && p > 0 ? String(+(Number.parseFloat(v) * p).toFixed(2)) : '');
     };
     const handleAmount = (v) => {
         setAmount(v);
         const p = unitPrice();
-        setQuantity(v && p > 0 ? String(+(parseFloat(v) / p).toFixed(8)) : '');
+        setQuantity(v && p > 0 ? String(+(Number.parseFloat(v) / p).toFixed(8)) : '');
     };
     const handlePrice = (v) => {
         setPrice(v);
-        const p = parseFloat(v);
-        if (quantity && p > 0) setAmount(String(+(parseFloat(quantity) * p).toFixed(2)));
+        const p = Number.parseFloat(v);
+        if (quantity && p > 0) setAmount(String(+(Number.parseFloat(quantity) * p).toFixed(2)));
     };
     const handleDate = async (v) => {
         setPurchaseDate(v);
@@ -69,7 +69,7 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
             if (p != null && p > 0) {
                 setPrice(String(p));
                 setDatePriceInfo({ ok: true, price: p });
-                if (quantity) setAmount(String(+(parseFloat(quantity) * p).toFixed(2)));
+                if (quantity) setAmount(String(+(Number.parseFloat(quantity) * p).toFixed(2)));
             } else {
                 setDatePriceInfo({ ok: false });
             }

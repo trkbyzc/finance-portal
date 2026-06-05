@@ -12,7 +12,7 @@ const parseDate = (dateInput) => {
         }
     }
     const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? null : date;
+    return Number.isNaN(date.getTime()) ? null : date;
 };
 
 export const formatDate = (dateInput) => {
@@ -54,7 +54,7 @@ export const formatChartDate = (value) => {
  */
 export const formatKlineDate = (timestamp, format = '') => {
     const d = new Date(timestamp);
-    if (isNaN(d.getTime())) return '';
+    if (Number.isNaN(d.getTime())) return '';
     const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const yyyy = d.getFullYear();

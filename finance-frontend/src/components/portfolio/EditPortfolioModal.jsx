@@ -25,8 +25,8 @@ const EditPortfolioModal = ({ isOpen, onClose, onSubmit, asset }) => {
             await onSubmit({
                 symbol: asset.symbol,
                 assetType: asset.assetType,
-                quantity: parseFloat(quantity),
-                averagePrice: parseFloat(averagePrice)
+                quantity: Number.parseFloat(quantity),
+                averagePrice: Number.parseFloat(averagePrice)
             });
 
             onClose();

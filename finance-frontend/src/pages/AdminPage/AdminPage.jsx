@@ -71,7 +71,7 @@ export default function AdminPage() {
     const banMutation = useMutation({
         mutationFn: async ({ userId, duration }) => {
             if (duration === 'permanent') return adminApi.banPermanent(userId);
-            return adminApi.banUser(userId, parseInt(duration, 10));
+            return adminApi.banUser(userId, Number.parseInt(duration, 10));
         },
         onSuccess: invalidate
     });

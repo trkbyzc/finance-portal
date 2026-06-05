@@ -17,7 +17,7 @@ function Sparkline({ data, positive }) {
     if (!data || data.length < 2) {
         return <div className="text-text-muted text-xs">—</div>;
     }
-    const nums = data.map(v => parseFloat(v) || 0);
+    const nums = data.map(v => Number.parseFloat(v) || 0);
     const min = Math.min(...nums);
     const max = Math.max(...nums);
     const range = max - min || 1;
@@ -139,7 +139,7 @@ export default function WatchlistPage() {
                                 </thead>
                                 <tbody>
                                 {items.map(item => {
-                                    const change = parseFloat(item.dailyChangePct) || 0;
+                                    const change = Number.parseFloat(item.dailyChangePct) || 0;
                                     const positive = change >= 0;
                                     return (
                                         <tr
@@ -162,7 +162,7 @@ export default function WatchlistPage() {
                                                 </div>
                                             </td>
                                             <td className="p-4 text-right font-mono font-bold">
-                                                {formatNative(parseFloat(item.currentPrice || 0), nativeCurrencyForType(item.assetType, item.symbol), 2, 2)}
+                                                {formatNative(Number.parseFloat(item.currentPrice || 0), nativeCurrencyForType(item.assetType, item.symbol), 2, 2)}
                                             </td>
                                             <td className={`p-4 text-right font-mono font-bold text-sm ${positive ? 'text-buy' : 'text-sell'}`}>
                                                 {positive ? '+' : ''}{change.toFixed(2)}%

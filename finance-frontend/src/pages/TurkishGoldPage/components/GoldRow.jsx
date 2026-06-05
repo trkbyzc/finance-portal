@@ -27,7 +27,7 @@ export default function GoldRow({ gold, onClick, clickable = true }) {
                 </div>
                 <div>
                     <h3 className="font-bold text-lg text-text group-hover:text-warning transition-colors">{gold.name}</h3>
-                    <span className="text-xs text-text-muted font-medium">{gold.symbol.replace(/_/g, ' ')}</span>
+                    <span className="text-xs text-text-muted font-medium">{gold.symbol.replaceAll('_', ' ')}</span>
                 </div>
             </div>
 

@@ -3,7 +3,7 @@ import i18n from '../../i18n';
 const getLocale = () => (i18n.language?.startsWith('en') ? 'en-US' : 'tr-TR');
 
 export const formatNumber = (value, minDecimals = 2, maxDecimals = 2) => {
-    if (value == null || isNaN(value)) return '-';
+    if (value == null || Number.isNaN(Number(value))) return '-';
     return new Intl.NumberFormat(getLocale(), {
         minimumFractionDigits: minDecimals,
         maximumFractionDigits: maxDecimals
@@ -11,7 +11,7 @@ export const formatNumber = (value, minDecimals = 2, maxDecimals = 2) => {
 };
 
 export const formatPercent = (value) => {
-    if (value == null || isNaN(value)) {
+    if (value == null || Number.isNaN(Number(value))) {
         return i18n.language?.startsWith('en') ? '0.00%' : '%0,00';
     }
 
@@ -33,7 +33,7 @@ export const formatPercent = (value) => {
 };
 
 export const formatCompactNumber = (value) => {
-    if (value == null || isNaN(value)) return '-';
+    if (value == null || Number.isNaN(Number(value))) return '-';
     return new Intl.NumberFormat(getLocale(), {
         notation: 'compact',
         compactDisplay: 'short',

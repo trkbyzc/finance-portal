@@ -235,11 +235,11 @@ export default function AssetDetailPage() {
                                         <span className="text-text-muted">{t('portfolio:modal.contractSize', 'Sözleşme Büyüklüğü (çarpan)')}</span>
                                         <span className="font-bold text-text">× {Number(asset?.contractSize) || 1}</span>
                                     </div>
-                                    {parseFloat(formData.quantity) > 0 && (
+                                    {Number.parseFloat(formData.quantity) > 0 && (
                                         <div className="flex justify-between mt-1.5">
                                             <span className="text-text-muted">{t('portfolio:modal.notional', 'Nominal Değer')}</span>
                                             <span className="font-bold text-primary">
-                                                {((parseFloat(formData.price) || Number(asset?.displayPrice) || 0) * (Number(asset?.contractSize) || 1) * parseFloat(formData.quantity)).toLocaleString('tr-TR', { maximumFractionDigits: 2 })}
+                                                {((Number.parseFloat(formData.price) || Number(asset?.displayPrice) || 0) * (Number(asset?.contractSize) || 1) * Number.parseFloat(formData.quantity)).toLocaleString('tr-TR', { maximumFractionDigits: 2 })}
                                             </span>
                                         </div>
                                     )}

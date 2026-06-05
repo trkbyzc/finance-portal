@@ -20,9 +20,9 @@ export const DEFAULT_COLOR = { base: '#64748b', light: '#94a3b8' };
 /** Hex → RGB → factor uygulanır → hex (factor < 1 koyulaştır, > 1 açıklaştır). */
 function shade(hex, factor) {
     const h = hex.replace('#', '');
-    const r = parseInt(h.substring(0, 2), 16);
-    const g = parseInt(h.substring(2, 4), 16);
-    const b = parseInt(h.substring(4, 6), 16);
+    const r = Number.parseInt(h.substring(0, 2), 16);
+    const g = Number.parseInt(h.substring(2, 4), 16);
+    const b = Number.parseInt(h.substring(4, 6), 16);
     const adjust = (c) => Math.max(0, Math.min(255, Math.round(c * factor)));
     return `#${[adjust(r), adjust(g), adjust(b)].map(v => v.toString(16).padStart(2, '0')).join('')}`;
 }

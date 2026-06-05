@@ -19,7 +19,7 @@ export default function BanModal({ user, duration, onDurationChange, onConfirm, 
     // Preset dışı bir değer girilmişse "özel" mod aktiftir
     const isCustom = duration !== '' && !PRESETS.includes(duration);
     // Onay geçerli mi: kalıcı, preset veya >=1 tam sayı
-    const isValid = duration === 'permanent' || (/^\d+$/.test(duration) && parseInt(duration, 10) >= 1);
+    const isValid = duration === 'permanent' || (/^\d+$/.test(duration) && Number.parseInt(duration, 10) >= 1);
 
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">

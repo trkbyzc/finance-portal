@@ -45,7 +45,7 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
     if (!isOpen || !asset) return null;
 
     const todayStr = new Date().toISOString().slice(0, 10);
-    const qtyNum = parseFloat(quantity);
+    const qtyNum = Number.parseFloat(quantity);
     const isValid = qtyNum > 0 && qtyNum <= maxQty + 1e-9; // floating epsilon
     const isAllOut = qtyNum >= maxQty - 1e-9;
     const total = isValid ? qtyNum * effectivePrice : 0;
@@ -59,8 +59,8 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
             setQuantity(val);
             return;
         }
-        const num = parseFloat(val);
-        if (isNaN(num)) return;
+        const num = Number.parseFloat(val);
+        if (Number.isNaN(num)) return;
         if (num < 0) {
             setQuantity('0');
             return;
@@ -75,8 +75,8 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
     // Tutar girince fiyattan miktarı hesapla (max ile sınırla)
     const handleAmount = (val) => {
         if (val === '' || effectivePrice <= 0) { setQuantity(''); return; }
-        const a = parseFloat(val);
-        if (isNaN(a) || a < 0) return;
+        const a = Number.parseFloat(val);
+        if (Number.isNaN(a) || a < 0) return;
         const q = Math.min(a / effectivePrice, maxQty);
         setQuantity(String(+q.toFixed(8)));
     };

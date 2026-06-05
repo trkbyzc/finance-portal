@@ -4,7 +4,7 @@
  */
 export function formatCompactVolume(val) {
     const n = Number(val ?? 0);
-    if (!isFinite(n) || n <= 0) return '-';
+    if (!Number.isFinite(n) || n <= 0) return '-';
     const abs = Math.abs(n);
     if (abs >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1).replace('.', ',')}B`;
     if (abs >= 1_000_000)     return `${(n / 1_000_000).toFixed(1).replace('.', ',')}M`;

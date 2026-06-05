@@ -49,8 +49,8 @@ export default function WhatIfPage() {
     };
 
     const handleQuantityChange = (idx, value) => {
-        const num = parseFloat(value);
-        setAssets(assets.map((a, i) => i === idx ? { ...a, quantity: isNaN(num) ? '' : num } : a));
+        const num = Number.parseFloat(value);
+        setAssets(assets.map((a, i) => i === idx ? { ...a, quantity: Number.isNaN(num) ? '' : num } : a));
         invalidateResult();
     };
 
@@ -60,11 +60,11 @@ export default function WhatIfPage() {
         if (isQuantityMode) {
             if (!assets.every(a => Number(a.quantity) > 0)) return;
         } else {
-            if (!amountTry || parseFloat(amountTry) <= 0) return;
+            if (!amountTry || Number.parseFloat(amountTry) <= 0) return;
         }
         const payload = {
             investmentDate,
-            amountTry: isQuantityMode ? null : parseFloat(amountTry),
+            amountTry: isQuantityMode ? null : Number.parseFloat(amountTry),
             assets: assets.map(a => isQuantityMode
                 ? { symbol: a.symbol, assetType: a.assetType, quantity: Number(a.quantity) }
                 : { symbol: a.symbol, assetType: a.assetType }
@@ -75,7 +75,7 @@ export default function WhatIfPage() {
 
     const canCompare = (() => {
         if (!investmentDate || assets.length === 0 || compareMutation.isPending) return false;
-        if (inputMode === 'amount') return amountTry && parseFloat(amountTry) > 0;
+        if (inputMode === 'amount') return amountTry && Number.parseFloat(amountTry) > 0;
         return assets.every(a => Number(a.quantity) > 0);
     })();
 

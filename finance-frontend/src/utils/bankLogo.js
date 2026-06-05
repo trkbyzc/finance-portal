@@ -7,10 +7,10 @@
 
 const normalize = (s = '') =>
     s.toLocaleLowerCase('tr')
-        .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
-        .replace(/ç/g, 'c').replace(/ö/g, 'o').replace(/ü/g, 'u')
-        .normalize('NFD').replace(/[̀-ͯ]/g, '') // kombine aksanları (İ→i̇) temizle
-        .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+        .replaceAll('ı', 'i').replaceAll('ş', 's').replaceAll('ğ', 'g')
+        .replaceAll('ç', 'c').replaceAll('ö', 'o').replaceAll('ü', 'u')
+        .normalize('NFD').replaceAll(/[̀-ͯ]/g, '') // kombine aksanları (İ→i̇) temizle
+        .replaceAll(/[^a-z0-9 ]/g, ' ').replaceAll(/\s+/g, ' ').trim();
 
 // Sıra önemli: spesifik (uzun) anahtar kelimeler önce — "ziraat katilim" > "ziraat".
 const BANK_DOMAINS = [
