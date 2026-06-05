@@ -17,8 +17,21 @@ function StatusTooltip({ active, payload, noHoldingsLabel }) {
     return (
         <div style={tooltipStyle}>
             <div className="font-bold text-text">{d.label} · {d.count}</div>
-            {d.symbols?.length > 0
-                ? <div className="text-xs text-text-muted mt-1 max-w-55">{d.symbols.join(', ')}</div>
+            {d.items?.length > 0
+                ? (
+                    <div className="text-xs mt-1.5 max-w-60 space-y-0.5">
+                        {d.items.map((it) => (
+                            <div key={it.sym} className="flex items-center justify-between gap-3">
+                                <span className="text-text-muted">{it.sym}</span>
+                                {it.dc != null && (
+                                    <span className={`font-semibold ${it.dc >= 0 ? 'text-buy' : 'text-sell'}`}>
+                                        {it.dc >= 0 ? '+' : ''}{it.dc.toFixed(2)}%
+                                    </span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )
                 : <div className="text-xs text-text-muted mt-1">{noHoldingsLabel}</div>}
         </div>
     );
@@ -47,17 +60,20 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
         const buckets = { up: [], down: [], flat: [], noData: [] };
         for (const item of portfolio || []) {
             const sym = item.symbol || item.currencyCode;
-            const dc = getDailyChange ? getDailyChange(item.symbol, item.assetType) : null;
-            if (dc == null || Number.isNaN(Number(dc))) buckets.noData.push(sym);
-            else if (Number(dc) > 0.05) buckets.up.push(sym);
-            else if (Number(dc) < -0.05) buckets.down.push(sym);
-            else buckets.flat.push(sym);
+            const raw = getDailyChange ? getDailyChange(item.symbol, item.assetType) : null;
+            const dc = (raw != null && !Number.isNaN(Number(raw))) ? Number(raw) : null;
+            if (dc == null) buckets.noData.push({ sym, dc: null });
+            else if (dc > 0.05) buckets.up.push({ sym, dc });
+            else if (dc < -0.05) buckets.down.push({ sym, dc });
+            else buckets.flat.push({ sym, dc });
         }
+        // Her grup kendi içinde mutlak değişime göre sıralı (en çok hareket eden üstte)
+        const byMag = (a, b) => Math.abs(b.dc ?? 0) - Math.abs(a.dc ?? 0);
         return [
-            { key: 'up', label: t('charts.status.up', 'Yükselen'), count: buckets.up.length, color: UP, symbols: buckets.up },
-            { key: 'down', label: t('charts.status.down', 'Düşen'), count: buckets.down.length, color: DOWN, symbols: buckets.down },
-            { key: 'flat', label: t('charts.status.flat', 'Yatay'), count: buckets.flat.length, color: FLAT, symbols: buckets.flat },
-            { key: 'noData', label: t('charts.status.noData', 'Veri Yok'), count: buckets.noData.length, color: NODATA, symbols: buckets.noData }
+            { key: 'up', label: t('charts.status.up', 'Yükselen'), count: buckets.up.length, color: UP, items: [...buckets.up].sort(byMag) },
+            { key: 'down', label: t('charts.status.down', 'Düşen'), count: buckets.down.length, color: DOWN, items: [...buckets.down].sort(byMag) },
+            { key: 'flat', label: t('charts.status.flat', 'Yatay'), count: buckets.flat.length, color: FLAT, items: buckets.flat },
+            { key: 'noData', label: t('charts.status.noData', 'Veri Yok'), count: buckets.noData.length, color: NODATA, items: buckets.noData }
         ];
     }, [portfolio, getDailyChange, t]);
 

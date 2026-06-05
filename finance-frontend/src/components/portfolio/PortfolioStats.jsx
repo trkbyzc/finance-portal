@@ -31,7 +31,7 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'neutral', positive = 
     );
 }
 
-const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflationFactor = null }) => {
+const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflationFactorBySymbol = null }) => {
     const { t } = useTranslation('portfolio');
     const { formatPrice } = useCurrency();
 
@@ -57,14 +57,21 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
     const returnRate = totalInvestment > 0 ? ((totalProfitLoss / totalInvestment) * 100) : 0;
     const pnlUp = totalProfitLoss >= 0;
 
-    // Reel (enflasyon-düzeltilmiş) K/Z: maliyet bugünkü liraya çekilir (× CPI_now/CPI_alış).
-    // CPI verisi + alım tarihi varsa gösterilir. Faktör ~1 ise (yakın tarihli alım) reel ≈ nominal —
-    // bu durumda kartta "yakın alım" notu gösterilir ki kullanıcı neden aynı olduğunu anlasın.
-    const hasReal = inflationFactor != null && inflationFactor > 0 && totalInvestment > 0;
-    const realIsFlat = hasReal && inflationFactor <= 1.005; // enflasyon farkı yok denecek kadar küçük
-    const realCost = hasReal ? totalInvestment * inflationFactor : null;
+    // Reel (enflasyon-düzeltilmiş) K/Z: HER varlığın maliyeti KENDİ alış tarihinin faktörüyle
+    // bugünkü liraya çekilir → Σ(maliyet × faktör). Üst kartta gösterilen ×faktör, bu toplamdan
+    // türeyen AĞIRLIKLI ortalamadır (realCost / nominalCost). Faktör ~1 ise reel ≈ nominal.
+    const hasReal = inflationFactorBySymbol != null && totalInvestment > 0;
+    const realCost = hasReal
+        ? portfolio.reduce((sum, item) => {
+            const c = calculateProfitLoss(item).costValue || 0;
+            const f = inflationFactorBySymbol[item.symbol] || 1;
+            return sum + c * f;
+        }, 0)
+        : null;
+    const avgFactor = hasReal && totalInvestment > 0 ? realCost / totalInvestment : null;
+    const realIsFlat = hasReal && avgFactor <= 1.005; // enflasyon farkı yok denecek kadar küçük
     const realProfitLoss = hasReal ? totalValue - realCost : null;
-    const realReturnRate = hasReal ? (realProfitLoss / realCost) * 100 : null;
+    const realReturnRate = hasReal && realCost > 0 ? (realProfitLoss / realCost) * 100 : null;
     const realUp = hasReal && realProfitLoss >= 0;
 
     const gridCols = hasReal ? 'md:grid-cols-2 xl:grid-cols-5' : 'md:grid-cols-2 xl:grid-cols-4';
@@ -105,7 +112,7 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
                             <span className="text-text-muted font-medium ml-1">
                                 {realIsFlat
                                     ? `(${t('stats.recentBuy', 'yakın tarihli alım')})`
-                                    : `(${t('stats.inflation', 'Enflasyon')} ×${inflationFactor.toFixed(2)})`}
+                                    : `(${t('stats.inflation', 'Enflasyon')} ~×${avgFactor.toFixed(2)})`}
                             </span>
                         </p>
                     }

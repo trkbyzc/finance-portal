@@ -44,14 +44,14 @@ describe('PortfolioStats', () => {
         expect(screen.getAllByText('₺0.00').length).toBeGreaterThanOrEqual(2);
     });
 
-    it('inflationFactor verilirse 5. kart Reel K/Z render', () => {
-        render(<PortfolioStats portfolio={portfolio} calculateProfitLoss={calcFn} inflationFactor={1.5} />);
+    it('inflationFactorBySymbol verilirse 5. kart Reel K/Z + ağırlıklı ort. çarpan render', () => {
+        render(<PortfolioStats portfolio={portfolio} calculateProfitLoss={calcFn} inflationFactorBySymbol={{ A: 1.5, B: 1.5 }} />);
         expect(screen.getByText(/Reel K\/Z/)).toBeInTheDocument();
-        expect(screen.getByText(/Enflasyon ×1\.50/)).toBeInTheDocument();
+        expect(screen.getByText(/Enflasyon ~×1\.50/)).toBeInTheDocument();
     });
 
-    it('inflationFactor ~1 → "yakın tarihli alım" notu', () => {
-        render(<PortfolioStats portfolio={portfolio} calculateProfitLoss={calcFn} inflationFactor={1.001} />);
+    it('faktör ~1 → "yakın tarihli alım" notu', () => {
+        render(<PortfolioStats portfolio={portfolio} calculateProfitLoss={calcFn} inflationFactorBySymbol={{ A: 1.001, B: 1.001 }} />);
         expect(screen.getByText(/yakın tarihli alım/)).toBeInTheDocument();
     });
 });

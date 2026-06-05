@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Loader2, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2, Plus, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
+import { simulationApi } from '../../../services/api/simulationApi';
 import DatePicker from '../../common/DatePicker';
 
 /**
@@ -20,6 +21,9 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const [priceLoading, setPriceLoading] = useState(false);
     const [datePriceInfo, setDatePriceInfo] = useState(null);
     const [loading, setLoading] = useState(false);
+    // Bu varlığın en eski historical tarihi — DatePicker min'i + ibare için (simülasyondaki gibi)
+    const [earliestDate, setEarliestDate] = useState(null);
+    const [earliestLoading, setEarliestLoading] = useState(false);
     // Hedef portföy — varsayılan aktif portföy; birden fazla portföy varsa kullanıcı seçebilir.
     const [targetPortfolioId, setTargetPortfolioId] = useState(activePortfolioId || (portfolios[0]?.id ?? ''));
 
@@ -29,6 +33,17 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const symbol = selectedAsset.symbol || selectedAsset.currencyCode;
     const backendType = selectedBackendValue || selectedType;
     const todayStr = new Date().toISOString().slice(0, 10);
+
+    // Varlık seçildiğinde en eski historical tarihi çek (DatePicker min'i + alttaki ibare için)
+    useEffect(() => {
+        if (!symbol || !backendType) return;
+        setEarliestLoading(true);
+        setEarliestDate(null);
+        simulationApi.getEarliestDate(symbol, backendType)
+            .then(res => setEarliestDate(res?.earliestDate || null))
+            .catch(err => { console.error('earliestDate fetch failed:', err); setEarliestDate(null); })
+            .finally(() => setEarliestLoading(false));
+    }, [symbol, backendType]);
 
     const unitPrice = () => {
         const p = parseFloat(averagePrice);
@@ -146,6 +161,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                         <DatePicker
                             value={purchaseDate}
                             onChange={handleDate}
+                            min={earliestDate || undefined}
                             max={todayStr}
                         />
                         {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={18} />}
@@ -165,7 +181,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 </div>
             </div>
             {/* Date hint — tarih ile fiyat'ın altında, ikiline sığar (full-width) */}
-            <div className="min-h-[18px] mb-4">
+            <div className="min-h-[18px] mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
                 {datePriceInfo?.ok && (
                     <p className="text-[11px] text-buy">
                         {t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatNative(datePriceInfo.price, native)}
@@ -173,6 +189,19 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 )}
                 {datePriceInfo && !datePriceInfo.ok && (
                     <p className="text-[11px] text-text-muted">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</p>
+                )}
+                {/* En erken tarih ibaresi — simülasyondaki gibi, kullanıcı veri olmayan eski tarihi seçmesin */}
+                {earliestLoading && (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-text-muted">
+                        <Loader2 className="animate-spin" size={11} />
+                        {t('portfolio:modal.earliestLoading', 'Tarih aralığı kontrol ediliyor…')}
+                    </span>
+                )}
+                {!earliestLoading && earliestDate && (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-text-muted">
+                        <Calendar size={11} />
+                        {t('portfolio:modal.earliestAvailable', { date: earliestDate, defaultValue: 'Bu varlık için en erken tarih: {{date}}' })}
+                    </span>
                 )}
             </div>
 

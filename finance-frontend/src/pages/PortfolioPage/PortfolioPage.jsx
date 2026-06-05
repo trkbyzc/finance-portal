@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Eye, EyeOff, FileSpreadsheet, FileText, Plus, Wallet } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -107,23 +107,42 @@ const PortfolioPage = () => {
         staleTime: 60 * 60 * 1000
     });
 
-    const inflationFactor = useMemo(() => {
+    // CPI serisini bir kez sırala (artan tarih). Reel K/Z faktörleri bunun üstünden hesaplanır.
+    const cpiSorted = useMemo(() => {
         const cpi = Array.isArray(cpiSeries) ? cpiSeries : (cpiSeries?.content || []);
-        const txs = txPage?.content || (Array.isArray(txPage) ? txPage : []);
-        if (!cpi.length || !txs.length) return null;
-        const buys = txs.filter(tx => tx.side === 'BUY' && tx.executedAt).map(tx => tx.executedAt);
-        if (!buys.length) return null;
-        const earliest = buys.reduce((a, b) => (a < b ? a : b)); // ISO string min
-        const sorted = [...cpi].filter(p => p.date && p.value != null).sort((a, b) => (a.date < b.date ? -1 : 1));
-        if (!sorted.length) return null;
-        const cpiNow = Number(sorted[sorted.length - 1].value);
-        const targetMonth = earliest.slice(0, 7); // YYYY-MM
+        return cpi.filter(p => p?.date && p?.value != null).sort((a, b) => (a.date < b.date ? -1 : 1));
+    }, [cpiSeries]);
+
+    // Bir alış tarihi (YYYY-MM-DD…) için enflasyon faktörü = CPI_bugün / CPI_o_ay.
+    const factorForDate = useCallback((dateStr) => {
+        if (!cpiSorted.length || !dateStr) return null;
+        const cpiNow = Number(cpiSorted[cpiSorted.length - 1].value);
+        const targetMonth = String(dateStr).slice(0, 7); // YYYY-MM
         let cpiThen = null;
-        for (const p of sorted) { if (p.date.slice(0, 7) <= targetMonth) cpiThen = Number(p.value); else break; }
-        if (cpiThen == null) cpiThen = Number(sorted[0].value);
+        for (const p of cpiSorted) { if (p.date.slice(0, 7) <= targetMonth) cpiThen = Number(p.value); else break; }
+        if (cpiThen == null) cpiThen = Number(cpiSorted[0].value);
         if (!cpiNow || !cpiThen) return null;
         return cpiNow / cpiThen;
-    }, [cpiSeries, txPage]);
+    }, [cpiSorted]);
+
+    // Her varlık (symbol) için KENDİ en eski BUY tarihinin enflasyon faktörü → { 'THYAO.IS': 4.19, ... }.
+    // Reel K/Z'yi varlık bazında düzeltir; üst kartlardaki ortalama da bundan türetilir.
+    const inflationFactorBySymbol = useMemo(() => {
+        const txs = txPage?.content || (Array.isArray(txPage) ? txPage : []);
+        if (!cpiSorted.length || !txs.length) return null;
+        const earliestBySymbol = {};
+        for (const tx of txs) {
+            if (tx.side !== 'BUY' || !tx.executedAt || !tx.symbol) continue;
+            const cur = earliestBySymbol[tx.symbol];
+            if (!cur || tx.executedAt < cur) earliestBySymbol[tx.symbol] = tx.executedAt;
+        }
+        const map = {};
+        for (const [sym, date] of Object.entries(earliestBySymbol)) {
+            const f = factorForDate(date);
+            if (f != null) map[sym] = f;
+        }
+        return Object.keys(map).length ? map : null;
+    }, [txPage, cpiSorted, factorForDate]);
 
     // Excel / PDF dışa aktarma — aktif sekmedeki holding'leri sisteme uygun belgeye döker
     const buildExportData = () => {
@@ -148,11 +167,15 @@ const PortfolioPage = () => {
         const totalPnl = totalValue - totalCost;
         const returnRate = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
 
-        // Enflasyona göre düzeltilmiş reel K/Z (varsa) — export'a ek satır olarak gelir
-        const hasReal = inflationFactor != null && inflationFactor > 0 && totalCost > 0;
-        const realCost = hasReal ? totalCost * inflationFactor : null;
+        // Enflasyona göre düzeltilmiş reel K/Z (varsa) — her varlık KENDİ alış tarihi faktörüyle
+        // düzeltilir; export'taki çarpan bunların ağırlıklı ortalamasıdır (realCost / totalCost).
+        const hasReal = inflationFactorBySymbol != null && totalCost > 0;
+        const realCost = hasReal
+            ? list.reduce((s, i) => s + (calculateProfitLoss(i).costValue || 0) * (inflationFactorBySymbol[i.symbol] || 1), 0)
+            : null;
         const realPnl = hasReal ? totalValue - realCost : null;
-        const realReturnRate = hasReal ? (realPnl / realCost) * 100 : null;
+        const realReturnRate = hasReal && realCost > 0 ? (realPnl / realCost) * 100 : null;
+        const inflationFactor = hasReal && totalCost > 0 ? realCost / totalCost : null;
 
         const meta = {
             title: t('portfolio:pageTitle'),
@@ -205,6 +228,7 @@ const PortfolioPage = () => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio-tx-all'] }); // reel K/Z enflasyon faktörü bu liste üstünden hesaplanır
             const pid = vars?.portfolioId || activePortfolioId;
             const pname = portfolios.find(p => p.id === pid)?.name;
             const buildMsg = () => {
@@ -232,6 +256,7 @@ const PortfolioPage = () => {
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
             queryClient.invalidateQueries({ queryKey: ['portfolios'] });
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio-tx-all'] }); // reel K/Z enflasyon faktörü bu liste üstünden hesaplanır
             notify({
                 type: 'info',
                 title: t('portfolio:notify.assetSold', 'Satış kaydedildi'),
@@ -338,7 +363,7 @@ const PortfolioPage = () => {
                     portfolio={filteredPortfolio}
                     calculateProfitLoss={calculateProfitLoss}
                     hidden={hideBalances}
-                    inflationFactor={inflationFactor}
+                    inflationFactorBySymbol={inflationFactorBySymbol}
                 />
 
                 {filteredPortfolio && filteredPortfolio.length > 0 && (
@@ -371,6 +396,8 @@ const PortfolioPage = () => {
                     <HoldingsTable
                         portfolio={filteredPortfolio}
                         calculateProfitLoss={calculateProfitLoss}
+                        getDailyChange={getDailyChange}
+                        inflationFactorBySymbol={inflationFactorBySymbol}
                         hidden={hideBalances}
                         onOpenHistory={setHistorySymbol}
                         onOpenBuy={setBuyMoreAsset}

@@ -102,6 +102,7 @@
       "totalValue": "Toplam Değer",
       "pnl": "K/Z",
       "pnlPercent": "K/Z %",
+      "realPnl": "Reel K/Z",
       "actions": "İşlemler"
     }
   },
@@ -116,6 +117,9 @@
     "purchaseDate": "Alış Tarihi",
     "datePriceFound": "O tarihteki fiyat",
     "datePriceMissing": "Bu tarih için fiyat bulunamadı, elle girebilirsiniz.",
+    "earliestAvailable": "Bu varlık için en erken tarih: {{date}}",
+    "earliestLoading": "Tarih aralığı kontrol ediliyor…",
+    "earliestUnavailable": "Bu varlık için historical veri yok",
     "contractSize": "Sözleşme Büyüklüğü (çarpan)",
     "notional": "Nominal Değer",
     "notionalHint": "Nominal = fiyat × çarpan × adet. Portföy değeri ve K/Z bu çarpanla hesaplanır.",

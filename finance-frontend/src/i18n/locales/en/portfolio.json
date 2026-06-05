@@ -102,6 +102,7 @@
       "totalValue": "Total Value",
       "pnl": "P/L",
       "pnlPercent": "P/L %",
+      "realPnl": "Real P/L",
       "actions": "Actions"
     }
   },
@@ -116,6 +117,9 @@
     "purchaseDate": "Purchase Date",
     "datePriceFound": "Price on that date",
     "datePriceMissing": "No price found for this date, you can enter it manually.",
+    "earliestAvailable": "Earliest available for this asset: {{date}}",
+    "earliestLoading": "Checking date range…",
+    "earliestUnavailable": "No historical data for this asset",
     "contractSize": "Contract Size (multiplier)",
     "notional": "Notional Value",
     "notionalHint": "Notional = price × multiplier × quantity. Portfolio value and P&L use this multiplier.",

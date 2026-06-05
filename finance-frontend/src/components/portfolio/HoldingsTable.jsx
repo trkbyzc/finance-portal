@@ -15,9 +15,10 @@ import { nativeCurrencyForType } from '../../utils/currencyConversion';
  *   - lg+:       Ort. Maliyet, Toplam Değer
  * Mobile kullanıcı varlığın altında ek detay görür (asset cell içinde gizli kolonların özet rozetleri).
  */
-export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHistory, onOpenBuy, onOpenSell, hidden = false }) {
+export default function HoldingsTable({ portfolio, calculateProfitLoss, getDailyChange, inflationFactorBySymbol = null, onOpenHistory, onOpenBuy, onOpenSell, hidden = false }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
+    const showReal = !!inflationFactorBySymbol;
 
     if (!portfolio || portfolio.length === 0) {
         return (
@@ -40,6 +41,9 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
                         <th className="text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.currentPrice')}</th>
                         <th className="hidden lg:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.totalValue')}</th>
                         <th className="text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.pnl')}</th>
+                        {showReal && (
+                            <th className="hidden md:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap" title={t('portfolio:stats.realPnlTip', 'Enflasyona göre düzeltilmiş kâr/zarar')}>{t('portfolio:holdings.cols.realPnl', 'Reel K/Z')}</th>
+                        )}
                         <th className="text-center p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.actions')}</th>
                     </tr>
                 </thead>
@@ -49,6 +53,9 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
                             key={idx}
                             item={item}
                             calc={calculateProfitLoss(item)}
+                            dailyChange={getDailyChange ? getDailyChange(item.symbol, item.assetType) : null}
+                            realFactor={inflationFactorBySymbol?.[item.symbol]}
+                            showReal={showReal}
                             formatPrice={formatPrice}
                             t={t}
                             hidden={hidden}
@@ -63,7 +70,7 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, onOpenHi
     );
 }
 
-function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory, onOpenBuy, onOpenSell }) {
+function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, formatPrice, t, hidden = false, onOpenHistory, onOpenBuy, onOpenSell }) {
     const native = nativeCurrencyForType(item.assetType, item.symbol);
     const positive = calc.profitLoss >= 0;
     const MASK = '••••';
@@ -71,13 +78,29 @@ function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory,
     const money = (v) => (hidden ? MASK : formatPrice(v, native));
     // Toplam değer / K-Z calculateProfitLoss'tan TRY bazlı gelir → TRY olarak çevrilip 2 ondalıkla gösterilir.
     const money2 = (v) => (hidden ? MASK : formatPrice(v, 'TRY', 2, 2));
+    // Reel K/Z: maliyet bu varlığın KENDİ alış tarihinin enflasyon faktörüyle bugünkü liraya çekilir.
+    const hasReal = realFactor != null && realFactor > 0;
+    const realCost = hasReal ? (calc.costValue || 0) * realFactor : null;
+    const realPnl = hasReal ? (calc.currentValue || 0) - realCost : null;
+    const realPct = hasReal && realCost > 0 ? (realPnl / realCost) * 100 : null;
+    const realPositive = realPnl != null && realPnl >= 0;
     // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
     const multiplier = Number(item.contractSize) || 1;
     const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;
+    // Günlük değişim % (piyasadan) — sembolün yanında küçük renkli rozet
+    const dc = (dailyChange != null && !Number.isNaN(Number(dailyChange))) ? Number(dailyChange) : null;
+    const dcUp = dc != null && dc >= 0;
     return (
         <tr className="border-b border-border hover:bg-bg transition">
             <td className="p-2 md:p-4 whitespace-nowrap">
-                <div className="font-semibold text-sm md:text-base">{item.symbol}</div>
+                <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm md:text-base">{item.symbol}</span>
+                    {dc != null && (
+                        <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded ${dcUp ? 'text-buy bg-buy/10' : 'text-sell bg-sell/10'}`}>
+                            {dcUp ? '+' : ''}{dc.toFixed(2)}%
+                        </span>
+                    )}
+                </div>
                 {/* Mobile-only: tip + adet özet rozeti (md altında gizli kolonların yerine) */}
                 <div className="md:hidden mt-0.5 text-[10px] text-text-muted">
                     {t('common:assetTypes.' + item.assetType, item.assetType)}
@@ -108,6 +131,18 @@ function HoldingRow({ item, calc, formatPrice, t, hidden = false, onOpenHistory,
                     )}
                 </span>
             </td>
+            {showReal && (
+                <td className={`hidden md:table-cell p-2 md:p-4 text-right font-semibold text-sm md:text-base whitespace-nowrap ${hasReal ? (realPositive ? 'text-buy' : 'text-sell') : 'text-text-muted'}`}>
+                    {hidden ? MASK : hasReal ? (
+                        <>
+                            {realPositive ? '+' : '-'}{money2(Math.abs(realPnl))}
+                            <span className="text-sm ml-1">
+                                ({realPct >= 0 ? '+' : ''}{realPct.toFixed(2)}%)
+                            </span>
+                        </>
+                    ) : '—'}
+                </td>
+            )}
             <td className="p-1 sm:p-2 md:p-4 text-center whitespace-nowrap">
                 <div className="flex items-center justify-center gap-0.5 sm:gap-1 md:gap-2">
                     <button
