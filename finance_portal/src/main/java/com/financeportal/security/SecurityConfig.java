@@ -30,6 +30,7 @@ public class SecurityConfig {
 
     private final UserBanFilter userBanFilter;
     private final UserSyncFilter userSyncFilter; // 🚀 EKLENDİ - Senkronizasyon filtremiz
+    private final SessionRevocationFilter sessionRevocationFilter; // Admin force-logout için
 
     /**
      * CORS allowed origin pattern listesi. Default sadece local dev (localhost/127.0.0.1, herhangi port).
@@ -63,7 +64,9 @@ public class SecurityConfig {
                 // 2. Token geçerliyse, bu kullanıcı DB'de var mı diye bizim filtreye sok:
                 .addFilterAfter(userSyncFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
                 // 3. Kullanıcı var, peki banlı mı diye Ban kontrolüne sok:
-                .addFilterAfter(userBanFilter, UserSyncFilter.class);
+                .addFilterAfter(userBanFilter, UserSyncFilter.class)
+                // 4. Admin force-logout sonrası eski token'ları reddet (server-side revocation)
+                .addFilterAfter(sessionRevocationFilter, UserBanFilter.class);
 
         return http.build();
     }

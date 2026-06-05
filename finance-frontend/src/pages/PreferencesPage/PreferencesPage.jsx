@@ -7,6 +7,7 @@ import { aggregateApi } from '../../services/api/aggregateApi';
 import { userApi } from '../../services/api/userApi';
 import TickerPicker from '../../components/preferences/TickerPicker';
 import { useNotify } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * Aggregate market response'unu TickerPicker'ın beklediği pools formatına çevirir.
@@ -48,6 +49,7 @@ export default function PreferencesPage() {
     const { t } = useTranslation(['preferences', 'common']);
     const queryClient = useQueryClient();
     const notify = useNotify();
+    const { isAdmin } = useAuth();
 
     const [tickers, setTickers] = useState([]);
     const [scope, setScope] = useState('ALL_PAGES');
@@ -231,7 +233,8 @@ export default function PreferencesPage() {
                             </div>
                         </section>
 
-                        {/* Section: Güvenlik (2FA) */}
+                        {/* Section: Güvenlik (2FA) — admin için gizli (admin login akışında 2FA zorunlu değil) */}
+                        {!isAdmin && (
                         <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">
                             <div className="flex items-center gap-2 mb-1">
                                 {twoFaEnabled
@@ -294,6 +297,7 @@ export default function PreferencesPage() {
                                 )
                             }
                         </section>
+                        )}
 
                         {/* Section: Bildirimler (E-posta) */}
                         <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">

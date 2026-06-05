@@ -46,6 +46,14 @@ public class User {
     private boolean banPermanent;
 
     /**
+     * Admin "Tüm Oturumları Kapat" eylemiyle set edilen server-side revocation timestamp.
+     * SessionRevocationFilter, JWT iat (issued-at) claim'ini bu değerle karşılaştırır:
+     * iat &lt; sessionInvalidatedAt ise istek 401 alır. Null → revocation yok (normal akış).
+     */
+    @Column(name = "session_invalidated_at")
+    private java.time.Instant sessionInvalidatedAt;
+
+    /**
      * Market ticker bar'ının görünürlük kapsamı. Default ALL_PAGES — her sayfada görünür.
      * Kullanıcı /preferences sayfasından HOME_ONLY'ye çekebilir (sadece dashboard).
      */

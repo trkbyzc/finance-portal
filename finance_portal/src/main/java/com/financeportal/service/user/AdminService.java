@@ -114,10 +114,21 @@ public class AdminService {
 
     // ---------- SESSION ----------
 
+    /**
+     * İki katmanlı revocation:
+     *   (1) Keycloak'ta refresh token'lar iptal edilir (yeni token üretilemez).
+     *   (2) DB'de user.sessionInvalidatedAt = now() set edilir. Mevcut access
+     *       token'lar SessionRevocationFilter tarafından bir sonraki istekte
+     *       (iat &lt; sessionInvalidatedAt) 401 alır — 5dk expire beklemeden.
+     */
+    @Transactional
     public boolean logoutAllSessions(UUID userId) {
         User user = findOrThrow(userId);
         boolean ok = keycloakAdminService.logoutAllSessions(user.getId().toString());
-        log.info("[ADMIN] {} için force-logout sonucu: {}", user.getUsername(), ok ? "OK" : "BAŞARISIZ");
+        user.setSessionInvalidatedAt(java.time.Instant.now());
+        userRepository.save(user);
+        log.info("[ADMIN] {} için force-logout (Keycloak: {}, server-side: ✅)",
+                user.getUsername(), ok ? "OK" : "BAŞARISIZ");
         return ok;
     }
 

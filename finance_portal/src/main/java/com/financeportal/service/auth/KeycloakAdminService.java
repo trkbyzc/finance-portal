@@ -195,11 +195,28 @@ public class KeycloakAdminService {
      * CONFIGURE_TOTP required action sadece "kullanıcıdan kurmasını iste" demektir; gerçek
      * aktivasyon credential kaydedilince olur.
      */
+    /**
+     * 2FA durumu — UI toggle'ın yansıtması gereken kullanıcı niyeti.
+     *   true  → OTP credential KURULU veya CONFIGURE_TOTP required action var
+     *   false → 2FA tamamen yok
+     *
+     * Önceden sadece OTP credential bakıyordu; kullanıcı toggle ON yapıp henüz
+     * Authenticator'ı kurmamışken UI off görünüyordu ("aktif" bildirimi gelmesine
+     * rağmen). Required action da sayılınca toggle anında doğru pozisyona geçer.
+     */
     public boolean is2FAEnabled(String userId) {
         if (keycloak == null || userId == null) return false;
         try {
-            var creds = keycloak.realm(realm).users().get(userId).credentials();
-            return creds != null && creds.stream().anyMatch(c -> "otp".equalsIgnoreCase(c.getType()));
+            UserResource userResource = keycloak.realm(realm).users().get(userId);
+            // (1) Mevcut OTP credential var mı
+            var creds = userResource.credentials();
+            boolean hasOtpCredential = creds != null
+                    && creds.stream().anyMatch(c -> "otp".equalsIgnoreCase(c.getType()));
+            if (hasOtpCredential) return true;
+            // (2) Bir sonraki girişte CONFIGURE_TOTP istenecek mi
+            UserRepresentation user = userResource.toRepresentation();
+            return user.getRequiredActions() != null
+                    && user.getRequiredActions().contains("CONFIGURE_TOTP");
         } catch (Exception e) {
             log.warn("[KC-2FA] {} için 2FA status kontrolü başarısız: {}", userId, e.getMessage());
             return false;
