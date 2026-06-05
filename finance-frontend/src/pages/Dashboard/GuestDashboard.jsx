@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Globe, Landmark, Ship, Coins, Newspaper, UserPlus, Star, Bell } from 'lucide-react';
+import { CandlestickChart, Banknote, Gem, Bitcoin, Newspaper, UserPlus, Star, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useDashboardData } from '../../hooks/useDashboardData.js';
@@ -24,10 +24,10 @@ export default function GuestDashboard() {
     } = useDashboardData();
 
     const tabs = [
-        { id: 'stocks', title: t('tabs.stocks'), icon: <Globe size={16}/> },
-        { id: 'currencies', title: t('tabs.currencies'), icon: <Landmark size={16}/> },
-        { id: 'commodities', title: t('tabs.commodities'), icon: <Ship size={16}/> },
-        { id: 'crypto', title: t('tabs.crypto'), icon: <Coins size={16}/> },
+        { id: 'stocks', title: t('tabs.stocks'), icon: <CandlestickChart size={16}/> },
+        { id: 'currencies', title: t('tabs.currencies'), icon: <Banknote size={16}/> },
+        { id: 'commodities', title: t('tabs.commodities'), icon: <Gem size={16}/> },
+        { id: 'crypto', title: t('tabs.crypto'), icon: <Bitcoin size={16}/> },
         { id: 'news', title: t('tabs.news'), icon: <Newspaper size={16}/> }
     ];
 
