@@ -58,8 +58,11 @@ export const nativeCurrencyForType = (typeKey, symbol) => {
     switch ((typeKey || '').toUpperCase()) {
         case 'STOCK':
             return sym.endsWith('.IS') ? 'TRY' : 'USD';
-        case 'CRYPTO':
         case 'COMMODITY':
+            // Türk altını/gümüşü (GRAM_ALTIN, CEYREK_ALTIN, BILEZIK…) TRY bazlı; küresel emtia (GC=F, CL=F) USD.
+            return (sym.includes('ALTIN') || sym.includes('ALTİN') || sym.includes('GUMUS')
+                || sym.includes('GÜMÜŞ') || sym.includes('BILEZIK')) ? 'TRY' : 'USD';
+        case 'CRYPTO':
         case 'BOND':
             return 'USD';
         default:

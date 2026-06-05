@@ -10,6 +10,8 @@ import Modal from '../../components/layout/Modal';
 import AssetIcon from '../../components/asset/AssetIcon';
 import useAssetLogos from '../../hooks/useAssetLogos';
 import { displaySymbol } from '../../utils/symbolDisplay';
+import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { useCurrency } from '../../context/CurrencyContext';
 
 function Sparkline({ data, positive }) {
     if (!data || data.length < 2) {
@@ -49,6 +51,7 @@ export default function WatchlistPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [removeTarget, setRemoveTarget] = useState(null);
     const { getLogo } = useAssetLogos();
+    const { formatNative } = useCurrency();
 
     const { data: items = [], isLoading, isError } = useQuery({
         queryKey: ['watchlist'],
@@ -159,7 +162,7 @@ export default function WatchlistPage() {
                                                 </div>
                                             </td>
                                             <td className="p-4 text-right font-mono font-bold">
-                                                {parseFloat(item.currentPrice || 0).toFixed(2)} ₺
+                                                {formatNative(parseFloat(item.currentPrice || 0), nativeCurrencyForType(item.assetType, item.symbol), 2, 2)}
                                             </td>
                                             <td className={`p-4 text-right font-mono font-bold text-sm ${positive ? 'text-buy' : 'text-sell'}`}>
                                                 {positive ? '+' : ''}{change.toFixed(2)}%
