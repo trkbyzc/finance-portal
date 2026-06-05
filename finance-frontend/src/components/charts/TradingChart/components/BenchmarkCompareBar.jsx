@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
  *   (lacivert) dolgulu olur. Grafik çizgileri yine kendi `b.color`'ını kullanır.
  *   Verilmezse eski davranış: pasif = kendi renginde outline.
  */
-export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle, buttonColor }) {
+export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle, buttonColor, extra }) {
     const { t } = useTranslation('charts');
     const hasActive = Object.values(activeMap).some(Boolean);
 
@@ -46,6 +46,7 @@ export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options,
                     </button>
                 );
             })}
+            {extra}
             {hasActive && (
                 <span className="ml-auto text-[10px] text-text-muted italic">
                     {t(activeLabelKey)}

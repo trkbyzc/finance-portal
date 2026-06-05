@@ -21,6 +21,7 @@ import ChartSidebar from './components/ChartSidebar';
 import ChartStatusOverlay from './components/ChartStatusOverlay';
 import BenchmarkCompareBar from './components/BenchmarkCompareBar';
 import BenchmarkOverlayChart from './components/BenchmarkOverlayChart';
+import FearGreedOverlayChart from './components/FearGreedOverlayChart';
 import PriceChart from './components/PriceChart';
 
 registerCustomOverlays();
@@ -97,6 +98,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
         bistOptions,
         activeBists, toggleBist,
         activeCryptoBench, toggleCryptoBench,
+        activeFng, toggleFng, showFngChart, fngOverlayData,
         showOverlayChart, overlayChartData, overlayBenchmarks
     } = useBenchmarkOverlay({ asset, rawChartData, activeRange, customStartDate, customEndDate });
 
@@ -240,6 +242,18 @@ function TradingChart({ asset, initialRange = '1y' }) {
                     activeMap={activeCryptoBench}
                     onToggle={toggleCryptoBench}
                     buttonColor="#2962ff"
+                    extra={(
+                        <button
+                            type="button"
+                            onClick={toggleFng}
+                            className={`px-3 py-1 text-xs font-bold rounded-md border transition-all ${
+                                activeFng ? 'text-text shadow-lg' : 'bg-surface-2 text-text border-border hover:border-border-strong'
+                            }`}
+                            style={activeFng ? { backgroundColor: '#f7931a', borderColor: '#f7931a', boxShadow: '0 0 12px #f7931a55' } : undefined}
+                        >
+                            Fear &amp; Greed
+                        </button>
+                    )}
                 />
             )}
 
@@ -251,7 +265,9 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 <div className="flex-1 w-full bg-surface relative p-2">
                     <ChartStatusOverlay isLoading={isLoading} error={error} />
 
-                    {showOverlayChart ? (
+                    {showFngChart ? (
+                        <FearGreedOverlayChart data={fngOverlayData} displayName={displayName} />
+                    ) : showOverlayChart ? (
                         <BenchmarkOverlayChart
                             overlayChartData={overlayChartData}
                             overlayBenchmarks={overlayBenchmarks}

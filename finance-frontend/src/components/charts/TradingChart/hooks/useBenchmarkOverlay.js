@@ -64,12 +64,33 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
 
     const [activeBists, setActiveBists] = useState({ XU100: false, XU050: false, XU030: false });
     const [activeCryptoBench, setActiveCryptoBench] = useState({ BITW: false });
+    const [activeFng, setActiveFng] = useState(false); // Fear & Greed overlay (BITW ile tek-overlay, karşılıklı dışlamalı)
 
     const hasBistOverlay = useMemo(() => Object.values(activeBists).some(Boolean), [activeBists]);
     const hasCryptoOverlay = useMemo(() => Object.values(activeCryptoBench).some(Boolean), [activeCryptoBench]);
 
     const toggleBist = (key) => setActiveBists(prev => ({ ...prev, [key]: !prev[key] }));
-    const toggleCryptoBench = (key) => setActiveCryptoBench(prev => ({ ...prev, [key]: !prev[key] }));
+    const toggleCryptoBench = (key) => setActiveCryptoBench(prev => {
+        const next = { ...prev, [key]: !prev[key] };
+        if (next[key]) setActiveFng(false); // BITW açılınca F&G kapansın (tek overlay)
+        return next;
+    });
+    const toggleFng = () => setActiveFng(prev => {
+        const next = !prev;
+        if (next) setActiveCryptoBench({ BITW: false }); // F&G açılınca BITW kapansın
+        return next;
+    });
+
+    // Fear & Greed serisi (panelle AYNI query key → tek istek). Sadece aktif+kripto iken çekilir.
+    const { data: fngSeries = [] } = useQuery({
+        queryKey: ['fearGreed'],
+        queryFn: async () => {
+            const r = await stockApi.getFearGreed();
+            return Array.isArray(r) ? r : (r?.data || []);
+        },
+        enabled: activeFng && isCrypto,
+        staleTime: 60 * 60 * 1000
+    });
 
     // BIST fetch
     const activeBistKeys = useMemo(() =>
@@ -180,9 +201,30 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
         () => hasCryptoOverlay ? buildNormalized(CRYPTO_OPTIONS, activeCryptoBench, cryptoBenchDataMap) : [],
         [hasCryptoOverlay, rawChartData, cryptoBenchDataMap, activeCryptoBench]);
 
+    // Fear & Greed overlay verisi: varlık fiyatı (sol eksen) + F&G değeri (sağ 0-100), gün bazlı forward-fill.
+    const fngOverlayData = useMemo(() => {
+        if (!activeFng || !isCrypto || !rawChartData?.length || !fngSeries?.length) return [];
+        const fngSorted = fngSeries
+            .map(d => ({ ts: d.timestamp * 1000, v: d.value }))
+            .filter(d => Number.isFinite(d.ts) && Number.isFinite(d.v))
+            .sort((a, b) => a.ts - b.ts);
+        if (!fngSorted.length) return [];
+        const rows = rawChartData
+            .filter(p => p.timestamp != null && p.close != null)
+            .map(p => ({ date: p.timestamp, price: p.close }))
+            .sort((a, b) => a.date - b.date);
+        let i = 0, last = null;
+        for (const row of rows) {
+            while (i < fngSorted.length && fngSorted[i].ts <= row.date) { last = fngSorted[i].v; i++; }
+            if (last != null) row.fng = last;
+        }
+        return rows.filter(r => r.fng != null);
+    }, [activeFng, isCrypto, rawChartData, fngSeries]);
+
     const showBistChart = hasBistOverlay && isTrStock;
     const showCryptoChart = hasCryptoOverlay && isCrypto;
-    const showOverlayChart = showBistChart || showCryptoChart;
+    const showFngChart = activeFng && isCrypto && fngOverlayData.length > 0;
+    const showOverlayChart = showBistChart || showCryptoChart || showFngChart;
 
     const overlayChartData = showBistChart ? bistOverlayChartData : showCryptoChart ? cryptoOverlayChartData : [];
     const overlayBenchmarks = showBistChart
@@ -197,6 +239,9 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
         bistOptions,
         activeBists, toggleBist,
         activeCryptoBench, toggleCryptoBench,
+        activeFng, toggleFng,
+        showFngChart,
+        fngOverlayData,
         showOverlayChart,
         overlayChartData,
         overlayBenchmarks
