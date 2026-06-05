@@ -1,5 +1,6 @@
-import { ArrowRightLeft, Building2 } from 'lucide-react';
+import { ArrowRightLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import BankIcon from '../../../components/asset/BankIcon';
 
 export default function BankRateCard({ rate }) {
     const { t } = useTranslation(['common', 'markets']);
@@ -17,8 +18,8 @@ export default function BankRateCard({ rate }) {
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl hover:border-primary transition-all group hover:-translate-y-1">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-border/50">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center text-primary border border-border group-hover:border-primary/50 transition-colors">
-                        <Building2 size={20} />
+                    <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center text-primary border border-border group-hover:border-primary/50 transition-colors overflow-hidden">
+                        <BankIcon name={bankNameOnly} iconSize={20} iconClassName="text-primary" imgClassName="w-full h-full object-contain p-1.5" />
                     </div>
                     <div>
                         <h3 className="font-bold text-lg text-text">{bankNameOnly}</h3>

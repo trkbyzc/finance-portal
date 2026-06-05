@@ -1,6 +1,7 @@
-import { Building, ShieldCheck, Loader2 } from 'lucide-react';
+import { ShieldCheck, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
+import BankIcon from '../../../components/asset/BankIcon';
 
 export default function InterestResultList({ results, loading }) {
     const { t } = useTranslation(['interest', 'common']);
@@ -23,8 +24,8 @@ export default function InterestResultList({ results, loading }) {
                     </div>
                     <div className="bg-surface rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-surface-2 border border-border rounded-2xl flex items-center justify-center shrink-0">
-                                <Building className="text-buy" size={32} />
+                            <div className="w-16 h-16 bg-surface-2 border border-border rounded-2xl flex items-center justify-center shrink-0 overflow-hidden">
+                                <BankIcon name={results[0].bankName} iconSize={32} iconClassName="text-buy" imgClassName="w-full h-full object-contain p-2.5" />
                             </div>
                             <div>
                                 <h2 className="text-2xl font-black text-text">{results[0].bankName}</h2>
@@ -58,7 +59,9 @@ export default function InterestResultList({ results, loading }) {
                         {results.slice(1).map((item, idx) => (
                             <tr key={idx} className="hover:bg-surface-2 transition-colors group">
                                 <td className="p-4 font-bold text-text flex items-center gap-3">
-                                    <Building size={16} className="text-text-muted group-hover:text-primary" />
+                                    <span className="w-6 h-6 flex items-center justify-center shrink-0">
+                                        <BankIcon name={item.bankName} iconSize={16} iconClassName="text-text-muted group-hover:text-primary" imgClassName="w-5 h-5 object-contain" />
+                                    </span>
                                     {item.bankName}
                                 </td>
                                 <td className="p-4 text-center text-sm font-mono font-bold text-text">%{item.annualRate.toFixed(2)}</td>
