@@ -43,6 +43,9 @@ class CommodityServiceTest {
     @Mock
     private CacheService cacheService;
 
+    @Mock
+    private com.financeportal.domains.stock.client.TradingViewLogoClient logoClient;
+
     @InjectMocks
     private CommodityService service;
 

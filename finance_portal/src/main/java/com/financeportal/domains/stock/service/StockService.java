@@ -1,6 +1,7 @@
 package com.financeportal.domains.stock.service;
 
 import com.financeportal.domains.stock.client.BistStockClient;
+import com.financeportal.domains.stock.client.TradingViewLogoClient;
 import com.financeportal.domains.stock.dto.StockDto;
 import com.financeportal.model.dto.market.MarketAssetDto;
 import com.financeportal.service.cache.CacheService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class StockService {
     // ŞUNA DÖNÜŞTÜRÜN:
     private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
     private final CacheService cacheService;
+    private final TradingViewLogoClient logoClient;
 
     private final String[] GLOBAL_STOCK_SYMBOLS = {
             // Mevcut çekirdek (mega-cap + bilinen marka)
@@ -85,7 +88,12 @@ public class StockService {
 
         List<MarketAssetDto> globalRaw = yahooFinanceClient.fetchQuotes(GLOBAL_STOCK_SYMBOLS, "HİSSE SENEDİ (YABANCI)");
         if (globalRaw != null) {
-            allStocks.addAll(globalRaw.stream().map(this::mapToStockDto).toList());
+            Map<String, String> usLogos = logoClient.usLogos(List.of(GLOBAL_STOCK_SYMBOLS));
+            allStocks.addAll(globalRaw.stream().map(m -> {
+                StockDto s = mapToStockDto(m);
+                s.setImage(usLogos.get(s.getSymbol())); // ABD hisse logosu (yoksa null)
+                return s;
+            }).toList());
         }
         return allStocks;
     }

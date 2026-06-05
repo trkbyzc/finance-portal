@@ -3,6 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../../utils/formatters/numberFormatter';
+import AssetIcon from '../../../../components/asset/AssetIcon';
 
 export default function GlobalFundsDashboard() {
     const navigate = useNavigate();
@@ -37,8 +38,13 @@ export default function GlobalFundsDashboard() {
                         return (
                             <tr key={i} onClick={() => navigate(`/chart/${encodeURIComponent(symbol)}?cat=FUND`)} className="hover:bg-surface-2 transition-colors cursor-pointer group">
                                 <td className="p-5">
-                                    <div className="font-bold text-text group-hover:text-text transition">{etf.currencyName || etf.name}</div>
-                                    <div className="text-[10px] text-text-muted font-mono">{symbol}</div>
+                                    <div className="flex items-center gap-3">
+                                        <AssetIcon src={etf.image} symbol={symbol} size={32} />
+                                        <div className="min-w-0">
+                                            <div className="font-bold text-text group-hover:text-text transition truncate">{etf.currencyName || etf.name}</div>
+                                            <div className="text-[10px] text-text-muted font-mono">{symbol}</div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td className="p-5 text-right font-mono text-text">
                                     ${formatNumber(etf.forexBuying || etf.price || 0)}

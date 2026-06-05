@@ -19,4 +19,5 @@ public class FundDto {
     private String yahooSymbol;
     private String chartType;
     private String assetCategory;
+    private String image;   // TradingView ETF logosu (global fonlar); yoksa null
 }

@@ -41,8 +41,16 @@ class StockServiceTest {
     @Mock
     private CacheService cacheService;
 
+    @Mock
+    private com.financeportal.domains.stock.client.TradingViewLogoClient logoClient;
+
     @InjectMocks
     private StockService service;
+
+    @org.junit.jupiter.api.BeforeEach
+    void stubLogos() {
+        when(logoClient.usLogos(any())).thenReturn(java.util.Map.of());
+    }
 
     @SuppressWarnings("unchecked")
     private void wireCacheToRunSupplier() {

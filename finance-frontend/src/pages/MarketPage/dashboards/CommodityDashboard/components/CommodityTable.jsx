@@ -59,8 +59,16 @@ export default function CommodityTable({ data, loading }) {
                                     className="hover:bg-surface-2 transition cursor-pointer group"
                                 >
                                     <td className="p-5 flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center shadow-inner group-hover:border-primary transition-all">
-                                            {getCommodityIcon(code)}
+                                        <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center shadow-inner group-hover:border-primary transition-all overflow-hidden">
+                                            {item.image ? (
+                                                <img
+                                                    src={item.image}
+                                                    alt=""
+                                                    className="w-full h-full object-contain p-1.5"
+                                                    loading="lazy"
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                                />
+                                            ) : getCommodityIcon(code)}
                                         </div>
                                         <div>
                                             <div className="font-bold text-text group-hover:text-text transition line-clamp-1">

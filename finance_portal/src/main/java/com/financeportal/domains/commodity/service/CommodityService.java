@@ -4,6 +4,7 @@ import com.financeportal.domains.commodity.client.TruncgilIntegrationClient;
 import com.financeportal.domains.commodity.dto.CommodityDto;
 import com.financeportal.domains.currency.dto.CurrencyDto;
 import com.financeportal.domains.currency.service.CurrencyService;
+import com.financeportal.domains.stock.client.TradingViewLogoClient;
 import com.financeportal.model.dto.market.MarketAssetDto;
 import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
@@ -27,6 +28,7 @@ public class CommodityService {
     private final TruncgilIntegrationClient truncgilIntegrationClient;
     private final CurrencyService currencyService; // 🚀 Domainler arası ilk iletişim!
     private final CacheService cacheService;
+    private final TradingViewLogoClient logoClient;
 
     private static final String[] COMMODITY_SYMBOLS = { "GC=F", "SI=F", "PL=F", "PA=F", "CL=F", "BZ=F", "NG=F", "HG=F", "ZW=F", "ZC=F", "KC=F", "CC=F", "CT=F" };
 
@@ -57,8 +59,16 @@ public class CommodityService {
     public List<CommodityDto> getTurkishGold() {
         return cacheService.getOrFetch("cache:turkish_gold", () -> {
             List<CommodityDto> list = truncgilIntegrationClient.fetchLiveTurkishGold();
-            return (list != null && !list.isEmpty()) ? list : calculateGoldMathematically();
+            List<CommodityDto> result = (list != null && !list.isEmpty()) ? list : calculateGoldMathematically();
+            result.forEach(c -> c.setImage(commodityImage(c))); // altın/gümüş logosu
+            return result;
         }, 5);
+    }
+
+    /** Emtia DTO'su için logo: önce sembol (GC=F vb.), yoksa isimden (Altın/Gümüş) anahtar kelime. */
+    private String commodityImage(CommodityDto c) {
+        String img = logoClient.commodityLogo(c.getSymbol());
+        return img != null ? img : logoClient.commodityLogo(c.getName());
     }
 
     private List<CommodityDto> calculateGoldMathematically() {
@@ -123,6 +133,7 @@ public class CommodityService {
         c.setPrice(m.getPrice()); c.setBuyPrice(m.getBuyPrice()); c.setChangePercent(m.getChangePercent());
         c.setVolume(m.getVolume()); c.setYahooSymbol(m.getYahooSymbol()); c.setChartType(m.getChartType());
         c.setAssetCategory(m.getAssetCategory());
+        c.setImage(commodityImage(c));
         return c;
     }
 

@@ -3,6 +3,7 @@ import { Search, TrendingUp, TrendingDown, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNavigate } from 'react-router-dom';
+import AssetIcon from '../../../../components/asset/AssetIcon';
 
 export default function UsStocksDashboard() {
     const { data: stocks, loading: isLoading } = useMarketData('us-stocks');
@@ -67,13 +68,16 @@ export default function UsStocksDashboard() {
                                     <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity ${isPositive ? 'bg-buy' : isNegative ? 'bg-sell' : 'bg-primary'}`}></div>
 
                                     <div className="flex justify-between items-start mb-4 relative z-10">
-                                        <div>
-                                            <h3 className="text-xl font-black text-text group-hover:text-primary transition">
-                                                {stock.symbol.replace('-USD', '')}
-                                            </h3>
-                                            <p className="text-xs text-text-muted mt-1 max-w-[150px] truncate">
-                                                {stock.name || ''}
-                                            </p>
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <AssetIcon src={stock.image} symbol={stock.symbol} size={40} />
+                                            <div className="min-w-0">
+                                                <h3 className="text-xl font-black text-text group-hover:text-primary transition">
+                                                    {stock.symbol.replace('-USD', '')}
+                                                </h3>
+                                                <p className="text-xs text-text-muted mt-1 max-w-[150px] truncate">
+                                                    {stock.name || ''}
+                                                </p>
+                                            </div>
                                         </div>
                                         <div className="w-10 h-10 rounded-full bg-surface-2 border border-border flex items-center justify-center text-text-muted group-hover:text-text transition shadow-sm">
                                             <ChevronRight size={18} />

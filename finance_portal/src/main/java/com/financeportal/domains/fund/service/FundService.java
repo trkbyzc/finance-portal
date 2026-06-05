@@ -2,6 +2,7 @@ package com.financeportal.domains.fund.service;
 
 import com.financeportal.domains.fund.client.TefasFundClient;
 import com.financeportal.domains.fund.dto.FundDto;
+import com.financeportal.domains.stock.client.TradingViewLogoClient;
 import com.financeportal.model.dto.market.MarketAssetDto;
 import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,13 +23,19 @@ public class FundService {
     // ŞUNA DÖNÜŞTÜRÜN:
     private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
     private final CacheService cacheService;
+    private final TradingViewLogoClient logoClient;
 
     private final List<String> GLOBAL_ETF_SYMBOLS = List.of("SPY", "GLD", "TLT", "VNQ", "DIA", "IWM", "VTI", "VOO", "HYG", "LQD", "BND", "AGG", "IEF", "SHY");
 
     public List<FundDto> getGlobalFunds() {
         return cacheService.getOrFetch("cache:global_funds", () -> {
             List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(GLOBAL_ETF_SYMBOLS.toArray(new String[0]), "YATIRIM FONU (GLOBAL)");
-            return raw.stream().map(this::mapToFundDto).toList();
+            Map<String, String> etfLogos = logoClient.usLogos(GLOBAL_ETF_SYMBOLS);
+            return raw.stream().map(m -> {
+                FundDto f = mapToFundDto(m);
+                f.setImage(etfLogos.get(f.getSymbol())); // ETF logosu (yoksa null)
+                return f;
+            }).toList();
         }, 60);
     }
 

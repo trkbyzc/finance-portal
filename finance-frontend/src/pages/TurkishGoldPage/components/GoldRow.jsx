@@ -14,8 +14,16 @@ export default function GoldRow({ gold, onClick, clickable = true }) {
             className={`flex flex-col md:flex-row items-center justify-between bg-surface border border-border rounded-2xl p-4 md:p-5 shadow-lg transition-all group ${clickable ? 'hover:border-warning/50 hover:bg-surface-2 cursor-pointer' : ''}`}
         >
             <div className="flex items-center gap-4 w-full md:w-1/3 mb-4 md:mb-0">
-                <div className="w-12 h-12 rounded-full bg-bg flex shrink-0 items-center justify-center font-black text-warning border border-warning/20 shadow-[0_0_10px_rgba(255,152,0,0.1)]">
-                    AU
+                <div className="w-12 h-12 rounded-full bg-bg flex shrink-0 items-center justify-center font-black text-warning border border-warning/20 shadow-[0_0_10px_rgba(255,152,0,0.1)] overflow-hidden">
+                    {gold.image ? (
+                        <img
+                            src={gold.image}
+                            alt=""
+                            className="w-full h-full object-contain p-2"
+                            loading="lazy"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.textContent = 'AU'; }}
+                        />
+                    ) : 'AU'}
                 </div>
                 <div>
                     <h3 className="font-bold text-lg text-text group-hover:text-warning transition-colors">{gold.name}</h3>

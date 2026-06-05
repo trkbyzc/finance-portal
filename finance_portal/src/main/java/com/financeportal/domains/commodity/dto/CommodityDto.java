@@ -19,4 +19,5 @@ public class CommodityDto {
     private String yahooSymbol;
     private String chartType;
     private String assetCategory;
+    private String image;   // TradingView emtia/metal logosu (TradingViewLogoClient); yoksa null
 }

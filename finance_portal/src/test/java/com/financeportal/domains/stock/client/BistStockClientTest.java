@@ -37,7 +37,7 @@ class BistStockClientTest {
 
     @Mock private RestTemplate restTemplate;
     @Mock private BistIndexService bistIndexService;
-    @Mock private BistLogoClient bistLogoClient;
+    @Mock private TradingViewLogoClient logoClient;
 
     @InjectMocks private BistStockClient client;
 
