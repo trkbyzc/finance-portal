@@ -30,7 +30,7 @@ export default function ThemeToggle({ compact = false }) {
                             aria-checked={active}
                             aria-label={meta.tooltip}
                             onClick={() => setTheme(key)}
-                            className={`flex items-center justify-center px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition-all duration-150 ${
+                            className={`flex items-center justify-center px-1 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition-all duration-150 ${
                                 active
                                     ? 'bg-primary text-primary-fg shadow-sm'
                                     : 'text-text-muted hover:text-text hover:bg-surface-hover'

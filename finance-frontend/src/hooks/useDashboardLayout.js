@@ -1,19 +1,32 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-const STORAGE_KEY = 'dashboard:layout:v1';
+const STORAGE_KEY_PREFIX = 'dashboard:layout:v1';
+
+/** Kullanıcıya bağlı storage anahtarı — aynı tarayıcıda farklı kullanıcılar kendi yerleşimini görsün. */
+function storageKeyFor(username) {
+    return username ? `${STORAGE_KEY_PREFIX}:${username}` : STORAGE_KEY_PREFIX;
+}
 
 /**
  * Dashboard widget yerleşimini yönetir (sıra + gizli set) ve localStorage'a kalıcılaştırır.
  * Kod tarafına yeni widget eklenirse otomatik olarak sona eklenir (eski kayıt bozulmaz).
  *
  * @param {string[]} allKeys registry'deki tüm widget anahtarları (varsayılan sıra)
+ * @param {string} [username] giriş yapmış kullanıcı — yoksa anonim/legacy anahtar kullanılır
  */
-export function useDashboardLayout(allKeys) {
-    const [state, setState] = useState(() => load(allKeys));
+export function useDashboardLayout(allKeys, username) {
+    const storageKey = storageKeyFor(username);
+    const [state, setState] = useState(() => load(allKeys, storageKey));
+
+    // Kullanıcı değişince (logout/login farklı user) state'i yeniden yükle.
+    useEffect(() => {
+        setState(load(allKeys, storageKey));
+        // allKeys reference değişmesi de re-load tetikler; load idempotent.
+    }, [storageKey, allKeys]);
 
     useEffect(() => {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* quota/private mode */ }
-    }, [state]);
+        try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* quota/private mode */ }
+    }, [state, storageKey]);
 
     const disabled = useMemo(() => new Set(state.disabled), [state.disabled]);
 
@@ -66,9 +79,9 @@ function mergedOrder(order, allKeys) {
     return merged;
 }
 
-function load(allKeys) {
+function load(allKeys, storageKey) {
     try {
-        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const raw = JSON.parse(localStorage.getItem(storageKey));
         if (raw && Array.isArray(raw.order)) {
             return {
                 order: mergedOrder(raw.order, allKeys),

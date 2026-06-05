@@ -8,9 +8,15 @@ import { apiClient } from '../../../config/apiClient';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 import { detectNativeCurrency } from '../../../utils/currencyConversion';
 import { displaySymbol } from '../../../utils/symbolDisplay';
+import { useAuth } from '../../../context/AuthContext';
 import TickerPicker from '../../../components/preferences/TickerPicker';
 
-const STORAGE_KEY = 'fp_dashboard_strip_v1';
+const STORAGE_KEY_PREFIX = 'fp_dashboard_strip_v1';
+
+/** Kullanıcıya bağlı storage anahtarı — aynı tarayıcıda farklı kullanıcılar kendi seçimini görsün. */
+function storageKeyFor(username) {
+    return username ? `${STORAGE_KEY_PREFIX}:${username}` : STORAGE_KEY_PREFIX;
+}
 const MAX_CARDS = 8;
 
 // AssetType -> aggregate response list anahtarları (useTickerData ile aynı eşleme)
@@ -97,6 +103,8 @@ function buildDefault(allMarkets) {
 export default function MarketSummaryStrip() {
     const { t } = useTranslation(['dashboard', 'common']);
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const storageKey = storageKeyFor(user?.username);
     const [editing, setEditing] = useState(false);
 
     const { data: allMarkets } = useQuery({
@@ -106,10 +114,20 @@ export default function MarketSummaryStrip() {
         refetchInterval: 30 * 1000
     });
 
-    // stored: kullanıcı seçimi (null = varsayılan)
+    // stored: kullanıcı seçimi (null = varsayılan). Kullanıcı değişince yeniden yüklenir.
     const [stored, setStored] = useState(() => {
-        try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+        try { const r = localStorage.getItem(storageKey); return r ? JSON.parse(r) : null; } catch { return null; }
     });
+
+    // Aynı tarayıcıda farklı kullanıcı giriş yaptığında selection'ı yeniden oku.
+    useEffect(() => {
+        try {
+            const r = localStorage.getItem(storageKey);
+            setStored(r ? JSON.parse(r) : null);
+        } catch {
+            setStored(null);
+        }
+    }, [storageKey]);
 
     const defaults = useMemo(() => (allMarkets ? buildDefault(allMarkets) : []), [allMarkets]);
     const selected = stored ?? defaults;
@@ -178,11 +196,11 @@ export default function MarketSummaryStrip() {
 
     const saveSelection = (next) => {
         setStored(next);
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* kota yoksa yoksay */ }
+        try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { /* kota yoksa yoksay */ }
     };
     const resetSelection = () => {
         setStored(null);
-        try { localStorage.removeItem(STORAGE_KEY); } catch { /* yoksay */ }
+        try { localStorage.removeItem(storageKey); } catch { /* yoksay */ }
     };
 
     return (

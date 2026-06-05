@@ -28,7 +28,7 @@ export default function LanguageToggle() {
                             aria-checked={active}
                             aria-label={lang.tooltip}
                             onClick={() => i18n.changeLanguage(lang.code)}
-                            className={`flex items-center justify-center px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-[11px] font-black tracking-wider transition-all duration-150 ${
+                            className={`flex items-center justify-center px-1 sm:px-2 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-[11px] font-black tracking-wider transition-all duration-150 ${
                                 active
                                     ? 'bg-primary text-primary-fg shadow-sm'
                                     : 'text-text-muted hover:text-text hover:bg-surface-hover'

@@ -61,7 +61,8 @@ export default function AuthenticatedDashboard() {
     }), [calcAmount, setCalcAmount, calcCurrency, setCalcCurrency, calculatedResult, usdRate]);
 
     const allKeys = useMemo(() => Object.keys(registry), [registry]);
-    const { enabledKeys, availableKeys, reorder, remove, add, reset } = useDashboardLayout(allKeys);
+    // username ile scope'la — aynı tarayıcıda farklı kullanıcılar kendi yerleşimini görsün.
+    const { enabledKeys, availableKeys, reorder, remove, add, reset } = useDashboardLayout(allKeys, user?.username);
 
     const onDrop = (targetKey) => {
         if (dragKey && dragKey !== targetKey) reorder(dragKey, targetKey);

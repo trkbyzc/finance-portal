@@ -9,6 +9,7 @@ import com.financeportal.model.entity.WatchlistItem;
 import com.financeportal.model.enums.AssetType;
 import com.financeportal.repository.UserRepository;
 import com.financeportal.repository.WatchlistItemRepository;
+import com.financeportal.domains.fund.service.FundService;
 import com.financeportal.security.SecurityUtils;
 import com.financeportal.service.market.MarketChartService;
 import com.financeportal.service.portfolio.PortfolioPriceService;
@@ -47,6 +48,7 @@ class WatchlistServiceTest {
     @Mock private SecurityUtils securityUtils;
     @Mock private PortfolioPriceService priceService;
     @Mock private MarketChartService chartService;
+    @Mock private FundService fundService;
 
     @InjectMocks private WatchlistService service;
 
