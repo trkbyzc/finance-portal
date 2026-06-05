@@ -1,8 +1,6 @@
 package com.financeportal.domains.stock.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.financeportal.domains.currency.dto.CurrencyDto;
-import com.financeportal.domains.currency.service.CurrencyService;
 import com.financeportal.domains.stock.client.IsYatirimFundamentalsClient;
 import com.financeportal.domains.stock.client.TradingViewLogoClient;
 import com.financeportal.domains.stock.dto.StockFundamentalsDto;
@@ -28,7 +26,6 @@ public class StockFundamentalsService {
     private final RestTemplate restTemplate;
     private final IsYatirimFundamentalsClient isyClient;
     private final TradingViewLogoClient logoClient;
-    private final CurrencyService currencyService;
 
     public StockFundamentalsDto getFundamentals(String symbol) {
         if (symbol == null || symbol.isBlank()) return null;
@@ -73,17 +70,14 @@ public class StockFundamentalsService {
                 log.warn("[STOCK-FUND] İş Yatırım {} alınamadı: {}", sym, e.getMessage());
             }
         } else {
+            // ABD hissesi: piyasa değeri (USD), sektör, halka açıklık — TradingView scanner.
+            // ₺ piyasa değeri / sermaye ABD şirketi için anlamsız → null bırakılır (kart gizlenir).
             try {
                 TradingViewLogoClient.UsFundamentals uf = logoClient.usFundamentals(sym);
                 if (uf != null) {
                     b.sector(uf.sector())
                      .marketCapUsd(uf.marketCapUsd())
                      .freeFloatPct(uf.freeFloatPct());
-                    // ABD piyasa değeri USD → ₺ karşılığı (kart hem ₺ hem $ gösteriyor)
-                    Double usdTry = usdTryRate();
-                    if (uf.marketCapUsd() != null && usdTry != null) {
-                        b.marketCapTl(uf.marketCapUsd() * usdTry);
-                    }
                 }
             } catch (Exception e) {
                 log.warn("[STOCK-FUND] ABD temel verisi {} alınamadı: {}", sym, e.getMessage());
@@ -91,21 +85,6 @@ public class StockFundamentalsService {
         }
 
         return b.build();
-    }
-
-    /** USD/TRY satış kuru (₺ karşılığı hesabı için); bulunamazsa null. */
-    private Double usdTryRate() {
-        try {
-            return currencyService.getCurrencyRates().stream()
-                    .filter(c -> "USD".equalsIgnoreCase(c.getCurrencyCode()))
-                    .map(CurrencyDto::getForexSelling)
-                    .filter(java.util.Objects::nonNull)
-                    .findFirst()
-                    .map(java.math.BigDecimal::doubleValue)
-                    .orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private static Double dbl(JsonNode n, String k) {
