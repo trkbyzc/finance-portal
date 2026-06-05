@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/charts")
+@RequestMapping("/charts")
 @RequiredArgsConstructor
 @Tag(name = "Kaydedilmiş Grafikler", description = "Kullanıcının çizim araçlarıyla kaydettiği grafikleri yönetir (Hesabım sayfası).")
 public class SavedChartController {

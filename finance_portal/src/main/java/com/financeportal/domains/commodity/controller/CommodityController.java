@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Emtia ve Altın", description = "Global Emtialar ve Türkiye Kapalıçarşı Altın Fiyatları")
 public class CommodityController {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Yatırım Fonları", description = "TEFAS ve Global ETF Fonları")
 public class FundController {

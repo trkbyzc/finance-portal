@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/interest")
+@RequestMapping("/interest")
 @RequiredArgsConstructor
 @Tag(name = "Faiz ve Mevduat Modülü", description = "Mevduat getirisi hesaplama operasyonları")
 public class InterestController {

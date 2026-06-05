@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Grafik ve Tarihçe", description = "Tüm Varlıklar İçin Grafik Verileri")

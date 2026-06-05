@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Ana Pano (Dashboard)", description = "Tüm piyasa verilerini tek seferde toplayan aggregator")
 public class MarketDataController {

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Döviz Kurları", description = "TCMB Güncel Döviz Verileri")
 public class CurrencyController {

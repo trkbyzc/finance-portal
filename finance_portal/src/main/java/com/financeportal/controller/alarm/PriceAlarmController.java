@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/alarms")
+@RequestMapping("/alarms")
 @RequiredArgsConstructor
 @Tag(name = "Fiyat Alarmları", description = "Kullanıcının fiyat alarmlarını kurma, listeleme ve silme")
 public class PriceAlarmController {

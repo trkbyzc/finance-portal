@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/news")
+@RequestMapping("/news")
 @RequiredArgsConstructor
 @Tag(name = "Haber ve Takvim", description = "Finansal haberler, haber içerikleri ve ekonomik takvim")
 public class NewsController {

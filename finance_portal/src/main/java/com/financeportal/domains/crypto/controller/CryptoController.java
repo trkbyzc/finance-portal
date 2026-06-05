@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 // FRONTEND PATLAMASIN DİYE ESKİ URL KORUNDU
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Kripto Paralar", description = "CoinGecko üzerinden anlık kripto para verileri")
 public class CryptoController {

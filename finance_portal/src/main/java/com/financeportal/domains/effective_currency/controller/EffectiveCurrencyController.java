@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Efektif Döviz", description = "TCMB Banknote (nakit/efektif) kurları + EVDS *.EF.YTL tarihçeleri")
 public class EffectiveCurrencyController {

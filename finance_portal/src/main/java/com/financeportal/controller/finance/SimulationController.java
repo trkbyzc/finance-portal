@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/simulation")
+@RequestMapping("/simulation")
 @RequiredArgsConstructor
 @Tag(name = "Simülasyon", description = "Kullanıcıya özel 'şu tarihte şu varlığı X TL ile alsaydım' senaryoları.")
 public class SimulationController {

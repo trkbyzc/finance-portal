@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/market-data/eurobonds")
+@RequestMapping("/market-data/eurobonds")
 @RequiredArgsConstructor
 @Tag(name = "Eurobond", description = "Türkiye Hazine eurobondları (businessinsider canlı veri)")
 public class EurobondController {

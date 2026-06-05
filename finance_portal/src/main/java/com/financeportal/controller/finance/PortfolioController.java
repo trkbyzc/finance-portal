@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/portfolio")
+@RequestMapping("/portfolio")
 @RequiredArgsConstructor
 @Tag(name = "Portföy Yönetimi", description = "Manuel portföy takibi: varlık ekleme, güncelleme, silme ve kâr/zarar analizi")
 public class PortfolioController {

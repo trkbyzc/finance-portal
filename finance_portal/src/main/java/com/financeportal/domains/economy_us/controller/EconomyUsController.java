@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Makro Ekonomi (ABD)", description = "ABD CPI verisi (FRED CPIAUCSL serisi)")
 public class EconomyUsController {

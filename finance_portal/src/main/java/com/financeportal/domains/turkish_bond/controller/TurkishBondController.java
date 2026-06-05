@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/market-data")
+@RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Türk Tahvilleri", description = "EVDS Üzerinden Güncel Türk Devlet Tahvilleri")
 public class TurkishBondController {

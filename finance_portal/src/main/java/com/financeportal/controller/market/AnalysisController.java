@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/analysis")
+@RequestMapping("/analysis")
 @RequiredArgsConstructor
 @Tag(name = "Analiz ve Tarihsel Veri", description = "Grafik çizimi ve trend analizleri için gerçek tarihsel veriler")
 public class AnalysisController {

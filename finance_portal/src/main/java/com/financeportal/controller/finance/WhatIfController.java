@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/what-if")
+@RequestMapping("/what-if")
 @RequiredArgsConstructor
 @Tag(name = "What-If Karşılaştırma", description = "Aynı tarihte aynı tutarla farklı varlıkları karşılaştır — stateless, persist etmez.")
 public class WhatIfController {

@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "Kullanıcı Yönetimi", description = "Profil, üyelik ve 2FA işlemleri")
 public class UserController {

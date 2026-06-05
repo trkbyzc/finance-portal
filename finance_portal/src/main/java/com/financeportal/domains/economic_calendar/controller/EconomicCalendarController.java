@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/economic-calendar")
+@RequestMapping("/economic-calendar")
 @RequiredArgsConstructor
 @Tag(name = "Ekonomik Takvim", description = "Finnhub kaynaklı global ekonomik olay takvimi")
 public class EconomicCalendarController {

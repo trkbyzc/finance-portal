@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/watchlist")
+@RequestMapping("/watchlist")
 @RequiredArgsConstructor
 @Tag(name = "İzleme Listesi", description = "Kullanıcının takip listesi (favori sembolleri) — quantity/price tutmadan sadece sembol takibi.")
 public class WatchlistController {

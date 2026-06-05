@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users/me/preferences")
+@RequestMapping("/users/me/preferences")
 @RequiredArgsConstructor
 @Tag(name = "Kullanıcı Tercihleri", description = "Market ticker bar'ında gösterilecek varlık listesi + scope (her sayfa / sadece ana sayfa).")
 public class UserPreferencesController {

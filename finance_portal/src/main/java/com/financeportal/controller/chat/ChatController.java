@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/chat")
 @RequiredArgsConstructor
 @Tag(name = "Chatbot", description = "FinansPortal asistanı — sohbetler ve mesajlar")
 public class ChatController {

@@ -59,7 +59,7 @@ function MiniStat({ label, value }) {
 /**
  * Crypto Fear & Greed Index paneli — kripto detay sayfasına EK (toggle butonla açılır).
  * Sol: gauge (anlık değer) + geçmiş değerler + yıllık yüksek/düşük. Sağ: zone bantlı çizgi grafik
- * (30G/1Y/Tümü). Veri: /api/market-data/fear-greed (alternative.me, market geneli — coin bağımsız).
+ * (30G/1Y/Tümü). Veri: /api/v1/market-data/fear-greed (alternative.me, market geneli — coin bağımsız).
  */
 export default function FearGreedPanel() {
     const { t, i18n } = useTranslation(['asset', 'common']);

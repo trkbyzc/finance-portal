@@ -6,7 +6,7 @@ import { useNotify } from '../../context/NotificationContext';
 
 /**
  * Self-service şifre değiştirme modal'ı.
- * Backend: POST /api/users/me/password { oldPassword, newPassword }.
+ * Backend: POST /api/v1/users/me/password { oldPassword, newPassword }.
  * Frontend validation: yeni şifre min 8, yenilerin eşleşmesi, eskisinden farklı.
  */
 export default function ChangePasswordModal({ open, onClose }) {

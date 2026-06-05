@@ -149,6 +149,10 @@ management:
 
 server:
   port: ${SERVER_PORT:8081}
+  # REST API versiyonlama — tüm controller'ların kök prefix'i.
+  # Sonradan v2'ye geçmek için yalnızca bu değer değişir; controller path'leri kalır.
+  servlet:
+    context-path: /api/v1
 
 evds:
   # `evds3.tcmb.gov.tr/igmevdsms-dis` İnteraktif Grafik Modülü endpoint'i — projedeki
