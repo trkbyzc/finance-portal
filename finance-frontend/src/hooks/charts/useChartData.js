@@ -23,6 +23,27 @@ const normalizeRange = (range) => {
     return r; // ytd, 1y, 5y gibi olanlar aynı kalır
 };
 
+// TR tahvili (DİBS) backend'i range'i yok sayıp tüm geçmişi döner. Seçilen aralığı
+// anlamlı kılmak için client-side dilimleriz (son N gün / YBİ / hepsi).
+const RANGE_DAYS = { '1mo': 31, '3mo': 93, '6mo': 186, '1y': 372, '5y': 1830, '5d': 6, '1d': 2 };
+const sliceByRange = (data, range) => {
+    if (!data?.length) return data;
+    const r = (range || '').toLowerCase();
+    if (r === '5y' || r === 'custom') return data; // 5Y/Tarih → tüm mevcut geçmiş
+    let cutoff;
+    if (r === 'ytd' || r === 'ybi') {
+        const now = new Date();
+        cutoff = new Date(now.getFullYear(), 0, 1).getTime();
+    } else {
+        const days = RANGE_DAYS[r];
+        if (days == null) return data;
+        cutoff = Date.now() - days * 86400000;
+    }
+    const sliced = data.filter(p => p.timestamp != null && p.timestamp >= cutoff);
+    // Aralıkta veri yoksa boş grafik göstermemek için son birkaç noktaya düş.
+    return sliced.length >= 2 ? sliced : data.slice(-Math.min(data.length, 30));
+};
+
 // 🚀 KURŞUN GEÇİRMEZ TRANSFORMER (Az önce çözdüğümüz hayat kurtaran filtre)
 const transformChartData = (rawData) => {
     return rawData
@@ -83,7 +104,11 @@ export const useChartData = (backendSymbol, category, activeRange, customStartDa
                 });
             }
             const dataArray = Array.isArray(data) ? data : (data?.priceData || data || []);
-            return transformChartData(dataArray);
+            const transformed = transformChartData(dataArray);
+            // TR tahvilinde backend range'i yok sayar → seçilen aralığı client-side uygula.
+            const isTrBond = (category || '').toUpperCase() === 'TR_BOND'
+                || (backendSymbol || '').toUpperCase().startsWith('TP.');
+            return isTrBond ? sliceByRange(transformed, activeRange) : transformed;
         },
         enabled: !!backendSymbol && !isNone,
         staleTime: QUERY_CONFIG.STALE_TIME.DEFAULT,

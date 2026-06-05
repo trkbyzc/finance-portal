@@ -26,7 +26,11 @@ export default function ChartHeader({
         { label: t('common:ranges.1y'), value: '1y' },
         { label: t('common:ranges.5y'), value: '5y' }
     ];
-    const timeframes = isTrBond ? [{ label: t('common:ranges.ytd'), value: 'ytd' }] : allTimeframes;
+    // TR tahvili (DİBS) günlük getiri serisi → intraday (1G/1H) anlamsız; mantıklı aralıklar gösterilir.
+    // Aralıklar client-side dilimlenir (backend tüm geçmişi döner), bkz. useChartData.
+    const timeframes = isTrBond
+        ? allTimeframes.filter(tf => tf.value !== '1d' && tf.value !== '5d')
+        : allTimeframes;
 
     // 🆕 Tarih popover state — Portal ile body'ye render edilir, böylece header'ın overflow-x-auto'su tarafından kırpılmaz
     const [pickerOpen, setPickerOpen] = useState(false);

@@ -13,6 +13,17 @@ const fmtMaturity = (iso) => {
     return `${d}.${m}.${y}`;
 };
 
+// Vadesi geçmiş (matured) DİBS'in canlı grafiği olmaz → listede gösterme.
+// Dinamik: demo günü itibarıyla vadesi dolan tüm tahviller otomatik gizlenir.
+const isMatured = (iso) => {
+    if (!iso || iso.length < 10) return false; // tarihsizi gizleme (güvenli taraf)
+    const d = new Date(`${iso}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return d < today;
+};
+
 /**
  * Türkiye Hazine tahvil/bono (DİBS) dashboard'u — vade kategorili.
  * Üstte vade kovaları (Tümü, Kısa Vadeli, 1+..10+ Yıl), altında tablo.
@@ -29,21 +40,24 @@ export default function TurkishBondsDashboard() {
         queryFn: async () => (await bondFundApi.getTrBondsCatalog()) || []
     });
 
+    // Vadesi geçmiş tahvilleri en baştan ele (hem sekmeler hem liste canlı tahvilleri görsün).
+    const liveBonds = useMemo(() => bonds.filter(b => !isMatured(b.maturity)), [bonds]);
+
     // Sekmeler: veride bulunan kovalar (backend label'ı ile), başta "Tümü"
     const tabs = useMemo(() => {
         const byBucket = new Map();
-        for (const b of bonds) if (!byBucket.has(b.bucket)) byBucket.set(b.bucket, b.label || b.bucket);
+        for (const b of liveBonds) if (!byBucket.has(b.bucket)) byBucket.set(b.bucket, b.label || b.bucket);
         const ordered = BUCKET_ORDER.filter(k => byBucket.has(k)).map(k => ({ id: k, label: byBucket.get(k) }));
         return [{ id: 'all', label: t('markets:trBonds.all') }, ...ordered];
-    }, [bonds, t]);
+    }, [liveBonds, t]);
 
     const filtered = useMemo(() => {
-        let arr = bonds;
+        let arr = liveBonds;
         if (activeBucket !== 'all') arr = arr.filter(b => b.bucket === activeBucket);
         const q = query.trim().toLowerCase();
         if (q) arr = arr.filter(b => (b.name || '').toLowerCase().includes(q) || (b.isin || '').toLowerCase().includes(q));
         return arr;
-    }, [bonds, activeBucket, query]);
+    }, [liveBonds, activeBucket, query]);
 
     return (
         <div className="min-h-screen bg-bg text-text">
