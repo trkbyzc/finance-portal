@@ -1,0 +1,48 @@
+# Docker Compose profile — container'lar arası DNS kullanır.
+#
+# `app-backend` servisi `SPRING_PROFILES_ACTIVE=docker` ile başlatılınca bu dosya yüklenir.
+# Override edilen değerler: DB/Redis/Kafka host'ları + Keycloak issuer URI.
+#
+# NOT — Keycloak issuer URI sorunu:
+# Backend token validation'da JWT `iss` claim'ini issuer-uri ile karşılaştırır.
+# Browser (host) `http://localhost:8080` üzerinden login olur → token iss = localhost.
+# Backend container `localhost:8080`'e erişemez → host hostname aliası kullanıyoruz.
+#
+# Kullanıcı bilgisayarında C:\Windows\System32\drivers\etc\hosts dosyasına şunu ekle:
+#     127.0.0.1   keycloak.local
+# Bu dev DNS olur; hem browser hem backend container `http://keycloak.local:8080`'i kullanır.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/finance_db
+    username: ${DB_USERNAME:finance_user}
+    password: ${DB_PASSWORD:finance_password}
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+  kafka:
+    bootstrap-servers: kafka:29092
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak.local:8080/realms/finance-realm
+
+keycloak:
+  server-url: http://keycloak.local:8080
+  realm: finance-realm
+
+# Logstash adresi — Logstash container service name'i
+logstash:
+  host: logstash
+  port: 5044
+
+# OpenTelemetry — Collector container ismi
+otel:
+  exporter:
+    otlp:
+      endpoint: http://otel-collector:4317

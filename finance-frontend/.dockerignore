@@ -1,0 +1,36 @@
+# Build artefact'leri — image'a girmesin (npm ci + npm run build container'da yapar)
+node_modules/
+dist/
+coverage/
+.scannerwork/
+
+# IDE
+.idea/
+.vscode/
+
+# Test (build için gerek yok)
+**/*.test.js
+**/*.test.jsx
+**/*.spec.js
+**/*.spec.jsx
+
+# OS
+Thumbs.db
+.DS_Store
+
+# VCS
+.git/
+.gitignore
+
+# Lokal env — image'a girmesin (build-time ARG ile geçilir)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dökümanlar
+README.md
+*.md

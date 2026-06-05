@@ -29,9 +29,18 @@ services:
       KC_SPI_THEME_STATIC_MAX_AGE: -1
       KC_SPI_THEME_CACHE_THEMES: "false"
       KC_SPI_THEME_CACHE_TEMPLATES: "false"
+      # Browser + backend container'lar aynı hostname'i kullansın diye keycloak.local alias.
+      # User'ın hosts dosyasına `127.0.0.1 keycloak.local` eklemesi gerek (README).
+      KC_HOSTNAME: keycloak.local
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_RELATIVE_PATH: /
     command: start-dev
     ports:
       - "8080:8080"
+    networks:
+      default:
+        aliases:
+          - keycloak.local
     volumes:
       - ./keycloak-themes:/opt/keycloak/themes
       # Banlı kullanıcıyı 2FA öncesi engelleyen özel authenticator (SPI).
@@ -251,6 +260,76 @@ services:
       - prometheus
       - tempo
       - opensearch
+    restart: unless-stopped
+
+  # ==========================================================================
+  #  UYGULAMA — Backend (Spring Boot 3.3.9 + Java 21) + Frontend (React 19 + Nginx)
+  #  Bu iki servis için image yerelde build edilir (Dockerfile içeren dizin).
+  # ==========================================================================
+
+  app-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: finance-portal-backend:local
+    container_name: finance-app-backend
+    environment:
+      # Spring profile — docker; application-docker.yml ek override sağlar
+      SPRING_PROFILES_ACTIVE: docker
+      # application.yaml `${VAR:default}` okuyor; container DNS'lerini override ediyoruz
+      DB_URL: jdbc:postgresql://postgres:5432/finance_db
+      DB_USERNAME: finance_user
+      DB_PASSWORD: finance_password
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
+      # Keycloak issuer: browser + backend aynı hostname'i kullansın (network alias keycloak.local)
+      KEYCLOAK_ISSUER_URI: http://keycloak.local:8080/realms/finance-realm
+      KEYCLOAK_SERVER_URL: http://keycloak.local:8080
+      KEYCLOAK_REALM: finance-realm
+      KEYCLOAK_ADMIN_USERNAME: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_CLIENT_ID: finance-client
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
+      # OpenTelemetry — container DNS
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: finance-portal-backend
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      kafka:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
+  app-frontend:
+    build:
+      context: ../finance-frontend
+      dockerfile: Dockerfile
+      args:
+        # Browser'dan API'ye relative path — nginx /api/ → app-backend:8081 proxy eder.
+        VITE_API_BASE_URL: /api/v1
+        VITE_KEYCLOAK_URL: http://keycloak.local:8080
+        VITE_KEYCLOAK_REALM: finance-realm
+        VITE_KEYCLOAK_CLIENT_ID: finance-client
+        VITE_APP_URL: http://localhost:5173
+    image: finance-portal-frontend:local
+    container_name: finance-app-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - app-backend
     restart: unless-stopped
 
   # SonarQube — kod kalitesi / statik analiz.

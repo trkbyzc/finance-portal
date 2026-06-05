@@ -12,7 +12,8 @@
              mdc.traceId'ye eşler; mevcut OpenSearch dashboard'ları değişmeden çalışır. -->
         <Kafka name="Kafka" topic="finance-app-logs" syncSend="false">
             <JsonTemplateLayout eventTemplateUri="classpath:finance-event-template.json"/>
-            <Property name="bootstrap.servers">localhost:9092</Property>
+            <!-- KAFKA_LOG_BOOTSTRAP_SERVERS env varsa kullan, yoksa localhost (lokal dev). -->
+            <Property name="bootstrap.servers">${env:KAFKA_LOG_BOOTSTRAP_SERVERS:-localhost:9092}</Property>
         </Kafka>
     </Appenders>
 

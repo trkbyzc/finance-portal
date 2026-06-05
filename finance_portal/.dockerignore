@@ -1,0 +1,37 @@
+# Build artefact'leri — image'a girmesin (Maven container'da yeniden build eder)
+target/
+.mvn/wrapper/maven-wrapper.jar.bak
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Test/coverage
+.scannerwork/
+coverage/
+jacoco.exec
+
+# OS
+Thumbs.db
+.DS_Store
+
+# VCS (build için gerek yok, log/blame'i dışlar)
+.git/
+.gitignore
+.gitattributes
+
+# Lokal config / secrets
+application-local.yml
+.env
+.env.local
+.venv/
+
+# Logs
+logs/
+*.log
+
+# Dökümanlar (runtime için gerek yok)
+docs/
+*.md
+HELP.md
