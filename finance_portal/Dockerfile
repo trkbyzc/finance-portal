@@ -37,12 +37,21 @@ RUN for i in 1 2 3; do \
 # -----------------------------------------------------------------------------
 FROM eclipse-temurin:21-jre-alpine AS runtime
 
+# wget — OTel agent download + healthcheck için
+RUN apk add --no-cache wget
+
 # Non-root user (container hardening)
 RUN addgroup -S app && adduser -S -G app app
 
 WORKDIR /app
 
-# Build çıktısı + OpenTelemetry agent (mount edilecek, image'a gömülmedi)
+# OpenTelemetry Java Agent — TraceId/SpanId injection (otomatik HTTP/JDBC/Kafka instrument)
+# Pin'lenmiş versiyon — reproducible build için latest yerine açıkça tag.
+ARG OTEL_AGENT_VERSION=2.10.0
+RUN wget -q -O /app/otel-agent.jar \
+    "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${OTEL_AGENT_VERSION}/opentelemetry-javaagent.jar"
+
+# Build çıktısı
 COPY --from=build /app/app.jar /app/app.jar
 
 # Port + healthcheck endpoint (springdoc + actuator default'u)
@@ -54,8 +63,9 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
 
 USER app
 
-# JVM ayarları + Spring profile container için
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0" \
+# JVM ayarları + Spring profile container için + OTel Java Agent
+# Agent OTEL_EXPORTER_OTLP_ENDPOINT env'ini okur (compose'da set edildi → otel-collector:4317)
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -javaagent:/app/otel-agent.jar" \
     SPRING_PROFILES_ACTIVE=docker
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

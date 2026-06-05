@@ -270,6 +270,12 @@ services:
       dockerfile: Dockerfile
     image: finance-portal-backend:local
     container_name: finance-app-backend
+    # Docker Desktop WSL2'nin embedded DNS'i (127.0.0.11) bazı Windows kurulumlarında
+    # external lookup yapamıyor → Yahoo/EVDS/FRED/FMP/BusinessInsider sync'leri "bad address"
+    # alıp düşüyor. Cloudflare + Google public DNS'i container'a inject ediyoruz.
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       # Spring profile — docker; application-docker.yml ek override sağlar
       SPRING_PROFILES_ACTIVE: docker
@@ -293,12 +299,16 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
       KEYCLOAK_CLIENT_ID: finance-client
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
-      # OpenTelemetry — container DNS
+      # OpenTelemetry — container DNS + gRPC protokol (4317 = gRPC, 4318 = HTTP)
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_SERVICE_NAME: finance-portal-backend
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
       OTEL_LOGS_EXPORTER: otlp
+      # Log4j2 MDC injection — trace_id/span_id otomatik ThreadContext'e
+      OTEL_INSTRUMENTATION_LOG4J_CONTEXT_DATA_ENABLED: "true"
+      OTEL_INSTRUMENTATION_LOG4J_APPENDER_EXPERIMENTAL_CAPTURE_MDC_ATTRIBUTES: "*"
       # ----------------------------------------------------------------------
       # SECRETS — .env dosyasından okunur (gitignore'da). Boşsa ilgili sync'ler
       # warning atar, kritik servisler etkilenmez. Lokalde geliştirici makinesinde
