@@ -3,6 +3,15 @@
   "relatedNews": {
     "title": "İlgili Haberler"
   },
+  "fearGreed": {
+    "title": "Fear & Greed Endeksi",
+    "subtitle": "· Kripto piyasa duyarlılığı",
+    "yesterday": "Dün",
+    "lastWeek": "Geçen Hafta",
+    "lastMonth": "Geçen Ay",
+    "yearHigh": "Yıllık Yüksek",
+    "yearLow": "Yıllık Düşük"
+  },
   "cryptoFund": {
     "rank": "Sıra",
     "range24h": "24 Saat Aralığı",

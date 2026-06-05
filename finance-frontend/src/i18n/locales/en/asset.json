@@ -3,6 +3,15 @@
   "relatedNews": {
     "title": "Related News"
   },
+  "fearGreed": {
+    "title": "Fear & Greed Index",
+    "subtitle": "· Crypto market sentiment",
+    "yesterday": "Yesterday",
+    "lastWeek": "Last Week",
+    "lastMonth": "Last Month",
+    "yearHigh": "Yearly High",
+    "yearLow": "Yearly Low"
+  },
   "cryptoFund": {
     "rank": "Rank",
     "range24h": "24h Range",

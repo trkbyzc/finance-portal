@@ -16,6 +16,7 @@ import BondDetailView from './components/BondDetailView';
 import ComparisonSection from './components/ComparisonSection';
 import StockFundamentals from './components/StockFundamentals';
 import CryptoFundamentals from './components/CryptoFundamentals';
+import FearGreedPanel from './components/fearGreed/FearGreedPanel';
 import RelatedNews from './components/RelatedNews';
 
 const CUR_SYMBOL = { TRY: '₺', USD: '$' };
@@ -144,6 +145,7 @@ export default function AssetDetailPage() {
                     <CryptoFundamentals geckoId={asset?.geckoId} symbol={asset?.symbol || asset?.currencyCode} />
                 )}
                 <AssetChartArea asset={asset} isViop={isViop} />
+                {asset?.assetCategory === 'CRYPTO' && <FearGreedPanel />}
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
                 <RelatedNews symbol={asset?.symbol || asset?.currencyCode || asset?.yahooSymbol} />
             </div>

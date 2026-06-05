@@ -34,4 +34,10 @@ public class CryptoController {
     public ResponseEntity<CryptoFundamentalsDto> getCryptoFundamentals(@RequestParam String id) {
         return ResponseEntity.ok(cryptoService.getFundamentals(id));
     }
+
+    @GetMapping("/fear-greed")
+    @Operation(summary = "Crypto Fear & Greed Index (tüm günlük geçmiş)")
+    public ResponseEntity<List<com.financeportal.domains.crypto.dto.FearGreedDto>> getFearGreed() {
+        return ResponseEntity.ok(cryptoService.getFearGreed());
+    }
 }
