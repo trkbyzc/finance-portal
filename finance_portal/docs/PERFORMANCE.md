@@ -24,15 +24,25 @@ Bu metrik canlı dashboard'da görülebilir — dashboard `observability/grafana
 #### Çalıştırma
 Backend ayakta olmalı (port 8080).
 
-```bash
-# Docker ile (k6 kurmadan)
-docker run --rm -i --network host grafana/k6 run - < scripts/perf-test.js
-
-# k6 yüklüyse direkt
-k6 run scripts/perf-test.js
+**PowerShell (Windows)** — `<` redirect desteklenmediği için volume mount kullan:
+```powershell
+docker run --rm --network host -v ${PWD}/scripts:/scripts grafana/k6 run /scripts/perf-test.js
 
 # Farklı host'a karşı
-docker run --rm -i --network host -e BASE_URL=http://staging:8080 grafana/k6 run - < scripts/perf-test.js
+docker run --rm --network host -e BASE_URL=http://staging:8080 -v ${PWD}/scripts:/scripts grafana/k6 run /scripts/perf-test.js
+```
+
+**Bash (Linux/macOS/Git Bash)** — stdin redirect veya volume mount:
+```bash
+# stdin
+docker run --rm -i --network host grafana/k6 run - < scripts/perf-test.js
+# veya volume
+docker run --rm --network host -v "$PWD/scripts:/scripts" grafana/k6 run /scripts/perf-test.js
+```
+
+**k6 yüklüyse direkt** (her platformda):
+```
+k6 run scripts/perf-test.js
 ```
 
 #### Beklenen Çıktı
