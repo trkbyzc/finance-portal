@@ -83,7 +83,7 @@ export default function Navbar() {
                     borderColor: 'var(--nav-border)'
                 }}
             >
-                <div className="min-h-16 max-w-container mx-auto px-2 sm:px-4 md:px-6 flex items-center justify-between gap-1 sm:gap-2 md:gap-6">
+                <div className="min-h-16 max-w-container mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between gap-2 md:gap-6">
 
                     {/* SOL: Logo + nav links. Boşluklar sıkılaştırıldı (md:gap-4 lg:gap-5)
                         ki nav linkleri sağdaki aksiyon grubunun (CANLI PİYASA) üstüne binmesin.
@@ -130,7 +130,7 @@ export default function Navbar() {
                     {/* SAĞ: Live + Theme + Lang + User.
                         NavActions kendi `hidden 2xl:flex` gating'ini taşır; ayrı sarmalayıcı
                         div KOYMA — gizliyken bile flex `gap` payı tüketen hayalet öğe olur. */}
-                    <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
                         <NavActions />
                         <LanguageToggle compact />
                         <ThemeToggle compact />

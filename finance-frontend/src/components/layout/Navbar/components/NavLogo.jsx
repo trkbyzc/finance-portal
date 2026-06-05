@@ -13,12 +13,12 @@ export default function NavLogo() {
             <img
                 src="/finanslogo.png"
                 alt="FinansPortal"
-                className="w-10 h-10 sm:w-13 sm:h-13 md:w-17 md:h-17 shrink-0 object-contain group-hover:opacity-90 transition-opacity"
+                className="w-11 h-11 sm:w-13 sm:h-13 md:w-17 md:h-17 shrink-0 object-contain group-hover:opacity-90 transition-opacity"
             />
-            {/* Wordmark < 480px'de gizli — Mobile S/Medium ekranlarda diğer kontroller
-                (TR/EN + tema + avatar) sığsın diye. ≥ 480px'den itibaren görünür.
-                -ml-2/-5: PNG transparan padding'ini text'e bitiştir. */}
-            <span className="hidden min-[480px]:inline font-black tracking-tight sm:tracking-normal md:tracking-wider text-sm sm:text-base text-nav-text uppercase whitespace-nowrap -ml-2 sm:-ml-5">
+            {/* Wordmark Mobile S (320px) ve Mobile M (375px) — ikisi de < sm (640px) — gizli;
+                bu ekranlarda navbar sağ tarafı (TR/EN + tema + avatar) sığsın diye.
+                ≥ sm görünür. -ml-5: PNG transparan padding'ini text'e bitiştir. */}
+            <span className="hidden sm:inline font-black tracking-normal md:tracking-wider text-base text-nav-text uppercase whitespace-nowrap -ml-5">
                 FINANS<span className="text-primary group-hover:opacity-80 transition-opacity">PORTAL</span>
             </span>
         </Link>

@@ -136,14 +136,31 @@ public class WatchlistService {
     private boolean isTrFundSymbol(String symbol) {
         if (symbol == null || symbol.isBlank()) return false;
         try {
-            List<FundDto> trFunds = fundService.getTrFunds();
-            if (trFunds == null) return false;
+            // Cache hit'te Redis generic List<LinkedHashMap> dönüyor (Jackson default typing
+            // kapalı, @class info kaybediliyor); cache miss'te tip-doğru List<FundDto>.
+            // İkisine de toleranslı oku — historical close okuyucusuyla aynı pattern.
+            List<?> trFunds = fundService.getTrFunds();
+            if (trFunds == null || trFunds.isEmpty()) return false;
             String want = symbol.trim();
-            return trFunds.stream().anyMatch(f -> f != null && want.equalsIgnoreCase(f.getSymbol()));
+            for (Object o : trFunds) {
+                String s = extractFundSymbol(o);
+                if (s != null && want.equalsIgnoreCase(s)) return true;
+            }
+            return false;
         } catch (Exception e) {
-            log.debug("[WATCHLIST] TR fon kontrolü başarısız ({}): {}", symbol, e.getMessage());
+            log.warn("[WATCHLIST] TR fon kontrolü başarısız ({}): {}", symbol, e.getMessage());
             return false;
         }
+    }
+
+    private String extractFundSymbol(Object o) {
+        if (o == null) return null;
+        if (o instanceof FundDto f) return f.getSymbol();
+        if (o instanceof Map<?, ?> m) {
+            Object s = m.get("symbol");
+            return s != null ? s.toString() : null;
+        }
+        return null;
     }
 
     private List<BigDecimal> extractSparkline(List<?> history) {
