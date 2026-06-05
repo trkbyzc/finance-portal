@@ -22,7 +22,8 @@ export const portfolioApi = {
             quantity: data.quantity,
             price: data.averagePrice,
             contractSize: data.contractSize, // VİOP çarpanı (varsa); diğer varlıklarda backend 1 sayar
-            portfolioId: data.portfolioId // hedef portföy (yoksa backend varsayılanı kullanır)
+            portfolioId: data.portfolioId, // hedef portföy (yoksa backend varsayılanı kullanır)
+            purchaseDate: data.purchaseDate // alış tarihi → transaction.executedAt; reel K/Z / enflasyon bundan hesaplanır
         });
     },
 
