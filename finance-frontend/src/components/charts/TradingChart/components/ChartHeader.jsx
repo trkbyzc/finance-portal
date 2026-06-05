@@ -15,7 +15,7 @@ export default function ChartHeader({
                                     }) {
     const { t } = useTranslation(['charts', 'common']);
     const disabledClass = disableInteraction ? 'opacity-40 pointer-events-none cursor-not-allowed' : '';
-    const disabledTitle = disableInteraction ? '' : '';
+    const disabledTitle = '';
     const allTimeframes = [
         { label: t('common:ranges.1d'), value: '1d' },
         { label: t('common:ranges.1w'), value: '5d' },

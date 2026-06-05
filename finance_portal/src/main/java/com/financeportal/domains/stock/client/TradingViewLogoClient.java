@@ -37,12 +37,13 @@ public class TradingViewLogoClient {
     private final ObjectMapper objectMapper;
 
     // BİST: ticker(UPPER) → logoid
-    private volatile Map<String, String> bistCache = new HashMap<>();
-    private volatile long bistLastFetch = 0L;
+    // S3077: volatile referans concurrent write'ı korumaz; thread-safe Map kullan.
+    private final java.util.concurrent.ConcurrentMap<String, String> bistCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.atomic.AtomicLong bistLastFetch = new java.util.concurrent.atomic.AtomicLong(0L);
 
     // ABD: ticker(UPPER) → logoid ("" = logosu yok, tekrar sorgulanmasın)
-    private final Map<String, String> usCache = new HashMap<>();
-    private volatile long usLastFetch = 0L;
+    private final java.util.concurrent.ConcurrentMap<String, String> usCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.atomic.AtomicLong usLastFetch = new java.util.concurrent.atomic.AtomicLong(0L);
 
     private String logoUrl(String logoid) {
         return (logoid != null && !logoid.isBlank()) ? LOGO_BASE + logoid + "--big.svg" : null;
@@ -61,12 +62,13 @@ public class TradingViewLogoClient {
     }
 
     private synchronized void ensureBist() {
-        if (System.currentTimeMillis() - bistLastFetch < REFRESH_MS && !bistCache.isEmpty()) return;
+        if (System.currentTimeMillis() - bistLastFetch.get() < REFRESH_MS && !bistCache.isEmpty()) return;
         Map<String, String> parsed = fetchScanner("turkey",
                 "{\"symbols\":{\"query\":{\"types\":[\"stock\"]}},\"columns\":[\"name\",\"logoid\"],\"range\":[0,1500]}");
         if (!parsed.isEmpty()) {
-            bistCache = parsed;
-            bistLastFetch = System.currentTimeMillis();
+            bistCache.clear();
+            bistCache.putAll(parsed);
+            bistLastFetch.set(System.currentTimeMillis());
             log.info("[TV-LOGO] {} BİST logoid cache'lendi", parsed.size());
         }
     }
@@ -75,7 +77,7 @@ public class TradingViewLogoClient {
     /** Verilen ABD sembolleri için {sembol → logoUrl} (logosu olmayanlar haritada yer almaz). */
     public synchronized Map<String, String> usLogos(Collection<String> symbols) {
         if (symbols == null || symbols.isEmpty()) return Map.of();
-        if (System.currentTimeMillis() - usLastFetch >= REFRESH_MS) {
+        if (System.currentTimeMillis() - usLastFetch.get() >= REFRESH_MS) {
             usCache.clear(); // 24s'te bir tazele
         }
         List<String> missing = symbols.stream().map(this::norm)
@@ -87,7 +89,7 @@ public class TradingViewLogoClient {
                 String logoid = fetched.get(s);
                 usCache.put(s, logoid != null ? logoid : ""); // "" → "logosu yok", tekrar sorgulama
             }
-            usLastFetch = System.currentTimeMillis();
+            usLastFetch.set(System.currentTimeMillis());
             log.info("[TV-LOGO] {} ABD sembolü için logoid sorgulandı", missing.size());
         }
         Map<String, String> out = new HashMap<>();

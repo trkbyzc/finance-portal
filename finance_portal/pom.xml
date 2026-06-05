@@ -35,14 +35,24 @@
 		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.junit.reportPaths>${project.basedir}/target/surefire-reports,${project.basedir}/target/failsafe-reports</sonar.junit.reportPaths>
-		<!-- Coverage'a dahil EDİLMEYECEK paketler: DTO/entity/enum POJO,
-		     konfigürasyon class'ları, main app entry. -->
+		<!-- Coverage'a dahil EDİLMEYECEK paketler. Sınırlandırma mantığı:
+		     - POJO (DTO/entity/enum) — sadece getter/setter, anlamlı test edilemez.
+		     - config/ — Spring konfigürasyon wiring'i (deklaratif, integration test alanı).
+		     - client/ — external HTTP scraping (RestTemplate + ağ; integration-only).
+		     - mapper/**Impl — MapStruct tarafından otomatik üretilen sınıflar.
+		     - *Catalog — JSON'dan yüklenen data file'ları, logic yok.
+		     - SecurityConfig — Spring Security wiring (deklaratif).
+		     - Application entry. -->
 		<sonar.coverage.exclusions>
 			**/model/dto/**,
 			**/model/entity/**,
 			**/model/enums/**,
 			**/dto/**,
 			**/config/**,
+			**/client/**,
+			**/mapper/**/*MapperImpl.java,
+			**/*Catalog.java,
+			**/security/SecurityConfig.java,
 			**/*Application.java
 		</sonar.coverage.exclusions>
 	</properties>
@@ -348,6 +358,23 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco.version}</version>
+				<configuration>
+					<!-- JaCoCo report'undan da hariç tut (Sonar exclusion'ı ile aynı liste).
+					     Aksi halde local HTML/XML raporu "şişirilmiş" görünür: Sonar değil
+					     ama JaCoCo class'ı sayar, biz fark edemeyiz. -->
+					<excludes>
+						<exclude>**/model/dto/**</exclude>
+						<exclude>**/model/entity/**</exclude>
+						<exclude>**/model/enums/**</exclude>
+						<exclude>**/dto/**</exclude>
+						<exclude>**/config/**</exclude>
+						<exclude>**/client/**</exclude>
+						<exclude>**/mapper/**/*MapperImpl.class</exclude>
+						<exclude>**/*Catalog.class</exclude>
+						<exclude>**/security/SecurityConfig.class</exclude>
+						<exclude>**/*Application.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>

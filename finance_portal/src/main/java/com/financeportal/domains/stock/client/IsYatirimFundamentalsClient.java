@@ -40,8 +40,9 @@ public class IsYatirimFundamentalsClient {
 
     private final RestTemplate restTemplate;
 
-    private volatile Map<String, Fundamentals> cache = new HashMap<>();
-    private volatile long lastFetch = 0L;
+    // S3077: volatile referans concurrent write'ı korumaz; thread-safe primitive'ler kullan.
+    private final java.util.concurrent.ConcurrentMap<String, Fundamentals> cache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.atomic.AtomicLong lastFetch = new java.util.concurrent.atomic.AtomicLong(0L);
 
     public record Fundamentals(String sector, Double marketCapTl, Double marketCapUsd,
                                Double freeFloatPct, Double capital) {}
@@ -54,7 +55,7 @@ public class IsYatirimFundamentalsClient {
     }
 
     private synchronized void ensureFresh() {
-        if (System.currentTimeMillis() - lastFetch < REFRESH_MS && !cache.isEmpty()) return;
+        if (System.currentTimeMillis() - lastFetch.get() < REFRESH_MS && !cache.isEmpty()) return;
         try {
             HttpHeaders h = new HttpHeaders();
             h.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
@@ -95,8 +96,9 @@ public class IsYatirimFundamentalsClient {
                 ));
             }
             if (!parsed.isEmpty()) {
-                cache = parsed;
-                lastFetch = System.currentTimeMillis();
+                cache.clear();
+                cache.putAll(parsed);
+                lastFetch.set(System.currentTimeMillis());
                 log.info("[ISY-FUND] {} hisse temel verisi cache'lendi", parsed.size());
             }
         } catch (Exception e) {

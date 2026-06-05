@@ -28,7 +28,7 @@ const buildUsdTryRateLookup = (usdTryHistory) => {
             }
         }
     });
-    const sortedDates = Array.from(lookup.keys()).sort();
+    const sortedDates = Array.from(lookup.keys()).sort((a, b) => a.localeCompare(b));
     return { lookup, sortedDates, avg: count > 0 ? sum / count : 1 };
 };
 

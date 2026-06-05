@@ -19,10 +19,13 @@ export function useDashboardLayout(allKeys, username) {
     const [state, setState] = useState(() => load(allKeys, storageKey));
 
     // Kullanıcı değişince (logout/login farklı user) state'i yeniden yükle.
+    // DİKKAT: allKeys'i deps'e koyma — caller (AuthenticatedDashboard) registry
+    // her render'da yeni referans dönüyor olabilir, infinite loop'a sebep olur.
+    // allKeys yalnız initial load için kullanılır; storageKey değişince re-load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         setState(load(allKeys, storageKey));
-        // allKeys reference değişmesi de re-load tetikler; load idempotent.
-    }, [storageKey, allKeys]);
+    }, [storageKey]);
 
     useEffect(() => {
         try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* quota/private mode */ }

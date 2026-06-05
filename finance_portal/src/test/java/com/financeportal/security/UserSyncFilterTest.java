@@ -86,7 +86,9 @@ class UserSyncFilterTest {
     void cacheHit_skipsSync() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), "alice", "a@x", null));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(true);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        // setIfAbsent false → başka thread (cache hit) lock'u önceden almış demektir
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(false);
 
         filter.doFilterInternal(request, response, chain);
 
@@ -99,23 +101,23 @@ class UserSyncFilterTest {
     void cacheMissUserExists_syncsRoleOnly() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), "alice", "a@x", Map.of("roles", List.of("USER"))));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
         when(userRepository.existsById(id)).thenReturn(true);
 
         filter.doFilterInternal(request, response, chain);
 
         verify(userService, never()).syncAndCreateUser(any(), anyString(), anyString());
         verify(userService).syncRoleFromKeycloak(id, false);
-        verify(valueOps).set("user_sync:" + id, "synced", Duration.ofHours(1));
+        verify(valueOps).setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1));
     }
 
     @Test
     void cacheMissNewUser_createsAndSyncsRole() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), "bob", "bob@x", Map.of("roles", List.of("ADMIN"))));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
         when(userRepository.existsById(id)).thenReturn(false);
 
         filter.doFilterInternal(request, response, chain);
@@ -128,8 +130,8 @@ class UserSyncFilterTest {
     void newUserWithNullUsername_generatesFallback() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), null, null, null));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
         when(userRepository.existsById(id)).thenReturn(false);
 
         filter.doFilterInternal(request, response, chain);
@@ -146,8 +148,8 @@ class UserSyncFilterTest {
     void newUserDataIntegrityViolation_swallowed() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), "race", "r@x", null));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
         when(userRepository.existsById(id)).thenReturn(false);
         org.mockito.Mockito.doThrow(new DataIntegrityViolationException("dup"))
                 .when(userService).syncAndCreateUser(any(), anyString(), anyString());
@@ -162,8 +164,8 @@ class UserSyncFilterTest {
     void realmAccessRolesAsStringObject_lookupAdminTrue() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), "x", "x@x", Map.of("roles", List.of("admin", "USER"))));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
         when(userRepository.existsById(id)).thenReturn(true);
 
         filter.doFilterInternal(request, response, chain);
@@ -172,11 +174,30 @@ class UserSyncFilterTest {
     }
 
     @Test
+    void syncRuntimeException_releasesLockAndRethrows() throws Exception {
+        UUID id = UUID.randomUUID();
+        setAuth(buildJwt(id.toString(), "boom", "b@x", null));
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
+        when(userRepository.existsById(id)).thenReturn(false);
+        org.mockito.Mockito.doThrow(new RuntimeException("downstream failure"))
+                .when(userService).syncAndCreateUser(any(), anyString(), anyString());
+
+        try {
+            filter.doFilterInternal(request, response, chain);
+            org.junit.jupiter.api.Assertions.fail("Should have thrown");
+        } catch (RuntimeException expected) {
+            // Lock release edilmiş olmalı → bir sonraki istek tekrar deneyebilsin
+            verify(redisTemplate).delete("user_sync:" + id);
+        }
+    }
+
+    @Test
     void realmAccessRolesNotList_returnsFalse() throws Exception {
         UUID id = UUID.randomUUID();
         setAuth(buildJwt(id.toString(), "x", "x@x", Map.of("roles", "ADMIN_string_not_list")));
-        when(redisTemplate.hasKey("user_sync:" + id)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.setIfAbsent("user_sync:" + id, "synced", Duration.ofHours(1))).thenReturn(true);
         when(userRepository.existsById(id)).thenReturn(true);
 
         filter.doFilterInternal(request, response, chain);

@@ -21,7 +21,7 @@ export default function EconomicCalendarPage() {
     const [minImpact, setMinImpact] = useState('LOW');
 
     const { data: events = [], isLoading, isError } = useQuery({
-        queryKey: ['economic-calendar', fromDate, toDate, Array.from(selectedCountries).sort().join(','), minImpact],
+        queryKey: ['economic-calendar', fromDate, toDate, Array.from(selectedCountries).sort((a, b) => a.localeCompare(b)).join(','), minImpact],
         queryFn: () => economicCalendarApi.getEvents({
             from: fromDate,
             to: toDate,
