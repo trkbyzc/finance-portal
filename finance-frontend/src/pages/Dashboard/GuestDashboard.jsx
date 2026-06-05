@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { CandlestickChart, Banknote, Gem, Bitcoin, Newspaper, UserPlus, Star, Bell } from 'lucide-react';
+import { UserPlus, Star, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { StocksIcon, CurrencyIcon, CommodityIcon, CryptoIcon, NewsIcon } from '../../components/ui/CategoryIcons';
 
 import { useDashboardData } from '../../hooks/useDashboardData.js';
 import { goToRegister } from '../../utils/keycloak';
@@ -24,11 +25,11 @@ export default function GuestDashboard() {
     } = useDashboardData();
 
     const tabs = [
-        { id: 'stocks', title: t('tabs.stocks'), icon: <CandlestickChart size={16}/> },
-        { id: 'currencies', title: t('tabs.currencies'), icon: <Banknote size={16}/> },
-        { id: 'commodities', title: t('tabs.commodities'), icon: <Gem size={16}/> },
-        { id: 'crypto', title: t('tabs.crypto'), icon: <Bitcoin size={16}/> },
-        { id: 'news', title: t('tabs.news'), icon: <Newspaper size={16}/> }
+        { id: 'stocks', title: t('tabs.stocks'), icon: <StocksIcon size={18}/> },
+        { id: 'currencies', title: t('tabs.currencies'), icon: <CurrencyIcon size={18}/> },
+        { id: 'commodities', title: t('tabs.commodities'), icon: <CommodityIcon size={18}/> },
+        { id: 'crypto', title: t('tabs.crypto'), icon: <CryptoIcon size={18}/> },
+        { id: 'news', title: t('tabs.news'), icon: <NewsIcon size={18}/> }
     ];
 
     return (
