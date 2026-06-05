@@ -1,16 +1,13 @@
 # Docker Compose profile — container'lar arası DNS kullanır.
 #
 # `app-backend` servisi `SPRING_PROFILES_ACTIVE=docker` ile başlatılınca bu dosya yüklenir.
-# Override edilen değerler: DB/Redis/Kafka host'ları + Keycloak issuer URI.
+# Override edilen değerler: DB/Redis/Kafka host'ları + Keycloak issuer/JWK URI.
 #
-# NOT — Keycloak issuer URI sorunu:
-# Backend token validation'da JWT `iss` claim'ini issuer-uri ile karşılaştırır.
-# Browser (host) `http://localhost:8080` üzerinden login olur → token iss = localhost.
-# Backend container `localhost:8080`'e erişemez → host hostname aliası kullanıyoruz.
-#
-# Kullanıcı bilgisayarında C:\Windows\System32\drivers\etc\hosts dosyasına şunu ekle:
-#     127.0.0.1   keycloak.local
-# Bu dev DNS olur; hem browser hem backend container `http://keycloak.local:8080`'i kullanır.
+# Keycloak iki URL'le yönetilir:
+#   issuer-uri  = http://localhost:8080/...   ← browser ile aynı (token `iss` claim match)
+#   jwk-set-uri = http://keycloak:8080/...    ← backend container içinden internal DNS
+# Bu sayede browser localhost'a (Chrome Secure cookies HTTP'de izin verir) erişir,
+# backend container keycloak'a internal DNS ile ulaşır; token `iss` validation yine çalışır.
 
 spring:
   datasource:
@@ -30,10 +27,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak.local:8080/realms/finance-realm
+          issuer-uri: http://localhost:8080/realms/finance-realm
+          jwk-set-uri: http://keycloak:8080/realms/finance-realm/protocol/openid-connect/certs
 
 keycloak:
-  server-url: http://keycloak.local:8080
+  server-url: http://keycloak:8080
   realm: finance-realm
 
 # Logstash adresi — Logstash container service name'i

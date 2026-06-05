@@ -29,18 +29,15 @@ services:
       KC_SPI_THEME_STATIC_MAX_AGE: -1
       KC_SPI_THEME_CACHE_THEMES: "false"
       KC_SPI_THEME_CACHE_TEMPLATES: "false"
-      # Browser + backend container'lar aynı hostname'i kullansın diye keycloak.local alias.
-      # User'ın hosts dosyasına `127.0.0.1 keycloak.local` eklemesi gerek (README).
-      KC_HOSTNAME: keycloak.local
+      # Browser localhost:8080 ile erişir (Chrome Secure cookies HTTP'de izin verir lokalhost'a).
+      # Backend container içinden keycloak:8080 ile JWK çeker (docker internal DNS).
+      # Token `iss` claim'i = http://localhost:8080/...; backend `jwk-set-uri` ayrı verir.
+      KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_RELATIVE_PATH: /
     command: start-dev
     ports:
       - "8080:8080"
-    networks:
-      default:
-        aliases:
-          - keycloak.local
     volumes:
       - ./keycloak-themes:/opt/keycloak/themes
       # Banlı kullanıcıyı 2FA öncesi engelleyen özel authenticator (SPI).
@@ -284,9 +281,11 @@ services:
       REDIS_PORT: "6379"
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
-      # Keycloak issuer: browser + backend aynı hostname'i kullansın (network alias keycloak.local)
-      KEYCLOAK_ISSUER_URI: http://keycloak.local:8080/realms/finance-realm
-      KEYCLOAK_SERVER_URL: http://keycloak.local:8080
+      # Keycloak issuer: browser ile aynı (token iss claim match için)
+      KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/finance-realm
+      # JWK Set: backend container içinden keycloak'a internal DNS ile
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/finance-realm/protocol/openid-connect/certs
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: finance-realm
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -320,7 +319,7 @@ services:
       args:
         # Browser'dan API'ye relative path — nginx /api/ → app-backend:8081 proxy eder.
         VITE_API_BASE_URL: /api/v1
-        VITE_KEYCLOAK_URL: http://keycloak.local:8080
+        VITE_KEYCLOAK_URL: http://localhost:8080
         VITE_KEYCLOAK_REALM: finance-realm
         VITE_KEYCLOAK_CLIENT_ID: finance-client
         VITE_APP_URL: http://localhost:5173

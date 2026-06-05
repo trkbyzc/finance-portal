@@ -82,6 +82,10 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/finance-realm}
+          # Backend container içinden JWK Set'ini doğrudan keycloak container'ından çekmek için
+          # ayrı URI. Token `iss` claim'i issuer-uri ile match'lenir; JWK ayrı host'tan gelir.
+          # Lokal dev'de boş bırak (issuer-uri OIDC discovery yapar); docker'da env override eder.
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:}
 
 # Keycloak Admin Client Konfigürasyonu
 keycloak:

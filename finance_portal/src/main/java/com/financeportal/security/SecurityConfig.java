@@ -45,13 +45,15 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // NOT: Spring Security request matcher'lar Tomcat context-path'i (/api/v1) strip'ler.
+                        // Bu yüzden pattern'lar /api/v1 ile değil, controller mapping'iyle aynı şekilde başlar.
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/market-data/**").permitAll()
-                        .requestMatchers("/api/analysis/**").permitAll()
-                        .requestMatchers("/api/news/**").permitAll()
-                        .requestMatchers("/api/interest/**").permitAll()
-                        .requestMatchers("/api/economic-calendar/**").permitAll()
+                        .requestMatchers("/market-data/**").permitAll()
+                        .requestMatchers("/analysis/**").permitAll()
+                        .requestMatchers("/news/**").permitAll()
+                        .requestMatchers("/interest/**").permitAll()
+                        .requestMatchers("/economic-calendar/**").permitAll()
                         // 🚀 DİKKAT: "/api/auth/**" ve "POST /api/users" silindi!
                         // Artık Keycloak harici arka kapıdan kimse kayıt veya token isteği atamaz.
                         .anyRequest().authenticated()

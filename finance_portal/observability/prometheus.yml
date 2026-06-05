@@ -12,12 +12,12 @@ rule_files:
 
 scrape_configs:
   # (1) Backend doğrudan — Collector çökse bile JVM/HTTP/liveness metrikleri görünür.
-  #     Backend host'ta (mvnw spring-boot:run) çalışır; container'dan host'a erişim
-  #     için host.docker.internal kullanılır.
+  #     Backend container DNS: app-backend:8081/api/v1/actuator/prometheus
+  #     (context-path /api/v1 olduğu için actuator da o prefix'in altında).
   - job_name: 'finance-portal-backend'
-    metrics_path: '/actuator/prometheus'
+    metrics_path: '/api/v1/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8081']
+      - targets: ['app-backend:8081']
         labels:
           application: 'finance-portal'
 
