@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Star, ChevronRight, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { watchlistApi } from '../../../services/api/watchlistApi';
-import { aggregateApi } from '../../../services/api';
 import MiniSparkline from '../../../components/common/MiniSparkline';
 import DashboardWidgetCard from './DashboardWidgetCard';
 
@@ -26,35 +25,12 @@ export default function WatchlistWidget() {
     const { t } = useTranslation(['dashboard', 'common']);
     const navigate = useNavigate();
 
+    // Backend WatchlistService her item için currentPrice + dailyChangePct dönüyor
+    // (TR fonların historical NAV fallback'i, hisse/kripto için aggregate'tan).
+    // Ekstra aggregate fetch yapmıyoruz: tr-funds'ı atlıyordu → fonlar "—" görünüyordu.
     const { data: items, isLoading } = useQuery({
         queryKey: ['watchlist'],
         queryFn: watchlistApi.getMyWatchlist
-    });
-
-    // İzleme listesindeki semboller için anlık fiyat + değişim (tek seferde tüm market listeleri)
-    const { data: quotes = {} } = useQuery({
-        queryKey: ['watchlistQuotes'],
-        enabled: !!(items && items.length),
-        staleTime: 60 * 1000,
-        queryFn: async () => {
-            const [stocks, cryptos, currencies, commodities, bonds] = await Promise.all([
-                aggregateApi.getMarketsByEndpoint('/stocks').catch(() => []),
-                aggregateApi.getMarketsByEndpoint('/crypto-currencies').catch(() => []),
-                aggregateApi.getMarketsByEndpoint('/currencies').catch(() => []),
-                aggregateApi.getMarketsByEndpoint('/commodities').catch(() => []),
-                aggregateApi.getMarketsByEndpoint('/bonds').catch(() => [])
-            ]);
-            const map = {};
-            const add = (arr, keyField) => (arr || []).forEach(x => {
-                const k = x[keyField];
-                if (k && map[k] === undefined) {
-                    map[k] = { price: x.price ?? x.forexSelling, change: x.changePercent };
-                }
-            });
-            add(stocks, 'symbol'); add(commodities, 'symbol'); add(bonds, 'symbol');
-            add(cryptos, 'currencyCode'); add(currencies, 'currencyCode');
-            return map;
-        }
     });
 
     const shellProps = {
@@ -92,8 +68,8 @@ export default function WatchlistWidget() {
             <div className="divide-y divide-border/50">
                 {items.slice(0, 6).map((item, i) => {
                     const symbol = item.symbol || item.currencyCode || '';
-                    const quote = quotes[symbol] || quotes[symbol.replace('-USD', '')] || {};
-                    const change = quote.change;
+                    const price = item.currentPrice != null ? parseFloat(item.currentPrice) : null;
+                    const change = item.dailyChangePct != null ? parseFloat(item.dailyChangePct) : null;
                     const up = (change || 0) >= 0;
                     const priceSym = (item.assetType === 'CRYPTO' || item.assetType === 'COMMODITY') ? '$' : '₺';
                     return (
@@ -115,7 +91,7 @@ export default function WatchlistWidget() {
 
                             <div className="text-right shrink-0 min-w-20">
                                 <div className="text-sm font-mono font-bold text-text">
-                                    {quote.price != null ? `${priceSym}${fmtPrice(quote.price)}` : '—'}
+                                    {price != null && price > 0 ? `${priceSym}${fmtPrice(price)}` : '—'}
                                 </div>
                                 {change != null && (
                                     <div className={`text-[11px] font-bold font-mono flex items-center justify-end gap-0.5 ${up ? 'text-buy' : 'text-sell'}`}>
