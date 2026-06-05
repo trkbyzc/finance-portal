@@ -7,8 +7,10 @@ import com.financeportal.domains.crypto.dto.CryptoDto;
 import com.financeportal.domains.crypto.service.CryptoService;
 import com.financeportal.domains.currency.dto.CurrencyDto;
 import com.financeportal.domains.currency.service.CurrencyService;
+import com.financeportal.domains.fund.client.TefasFundClient;
 import com.financeportal.domains.fund.dto.FundDto;
 import com.financeportal.domains.fund.service.FundService;
+import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.domains.future.service.FutureService;
 import com.financeportal.domains.stock.dto.StockDto;
 import com.financeportal.domains.stock.service.StockService;
@@ -39,6 +41,7 @@ public class PortfolioPriceService {
     private final ViopService viopService;
     private final StockService stockService;
     private final FundService fundService;
+    private final TefasFundClient tefasFundClient;
 
     public BigDecimal getCurrentPrice(String symbol, AssetType assetType) {
         if (symbol == null || symbol.isBlank()) return BigDecimal.ZERO;
@@ -66,6 +69,12 @@ public class PortfolioPriceService {
                 case FUND:
                     BigDecimal trFundPrice = extractPriceFromList(fundService.getTrFunds(), symbol);
                     if (trFundPrice.compareTo(BigDecimal.ZERO) > 0) return trFundPrice;
+                    // TR fonların aggregate listede price=0 gelir (Fintables yield endpoint'i NAV vermez).
+                    // Fallback: historical /barbar/udf/history (range=1y) → son geçerli NAV.
+                    // Frontend usePortfolioPricing.js aynı pattern'i yapıyor; backend tarafında
+                    // da yapmazsak Watchlist + Simulation ₺0.00 gösterir.
+                    BigDecimal trFundLatestNav = fetchLatestTrFundNav(symbol);
+                    if (trFundLatestNav.compareTo(BigDecimal.ZERO) > 0) return trFundLatestNav;
                     return extractPriceFromList(fundService.getGlobalFunds(), symbol);
                 case FUTURE:
                     BigDecimal viopPrice = extractPriceFromList(viopService.getViopData(), symbol);
@@ -77,6 +86,26 @@ public class PortfolioPriceService {
             }
         } catch (Exception e) {
             log.error("❌ Fiyat çekilirken hata: {} - {}", symbol, e.getMessage());
+            return BigDecimal.ZERO;
+        }
+    }
+
+    /**
+     * TR fon son geçerli NAV'ı historical endpoint'inden çek.
+     * Dar pencerede ([]) dönen fonlar için range=1y zorunlu (memory/fund-price-gotcha).
+     * Hata varsa 0 döner; çağıran kod kendi fallback'iyle devam eder.
+     */
+    private BigDecimal fetchLatestTrFundNav(String symbol) {
+        try {
+            List<HistoricalDataDto> series = tefasFundClient.fetchFundHistory(symbol.trim(), "1y");
+            if (series == null || series.isEmpty()) return BigDecimal.ZERO;
+            for (int i = series.size() - 1; i >= 0; i--) {
+                BigDecimal nav = series.get(i).getPrice();
+                if (nav != null && nav.compareTo(BigDecimal.ZERO) > 0) return nav;
+            }
+            return BigDecimal.ZERO;
+        } catch (Exception e) {
+            log.warn("[FUND-NAV] TR fon NAV çekilemedi: {} - {}", symbol, e.getMessage());
             return BigDecimal.ZERO;
         }
     }
