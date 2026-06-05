@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Crypto Fear & Greed Index'in tek bir günlük noktası (alternative.me).
+ * Crypto Fear &amp; Greed Index'in tek bir günlük noktası (alternative.me).
  * value: 0–100 (0 = Extreme Fear, 100 = Extreme Greed), classification: metin sınıf,
  * timestamp: unix saniye (günlük).
  */

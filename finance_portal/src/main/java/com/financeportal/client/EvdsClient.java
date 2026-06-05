@@ -36,7 +36,7 @@ public class EvdsClient {
 
     /**
      * EVDS API'nin per-request hard limit'i 1000 nokta. Bu metod ham (paginated olmayan)
-     * çağrı yapar — sadece <=1000 nokta dönecek aralıklar için kullan. Daha uzun aralıklar
+     * çağrı yapar — sadece {@code <=1000} nokta dönecek aralıklar için kullan. Daha uzun aralıklar
      * için {@link #fetchSeriesPaginated} kullan.
      */
     public List<JsonNode> fetchSeries(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, String formulas) {
@@ -99,7 +99,7 @@ public class EvdsClient {
      * verilen aralığı parça parça çağırır ve sonuçları birleştirir.
      * <p>
      * Her chunk {@code chunkYears} yıl uzunluğunda; günlük seriler için 3 yıl güvenli
-     * (3y × 252 trade days ≈ 756 nokta < 1000 limit). API'yi yormamak için her chunk
+     * ({@code 3y × 252 trade days ≈ 756 nokta < 1000 limit}). API'yi yormamak için her chunk
      * arasında 200ms bekler.
      *
      * @param chunkYears Chunk uzunluğu (yıl). Günlük seri için 3, haftalık için 12 vb.

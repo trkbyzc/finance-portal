@@ -33,7 +33,7 @@ import java.util.UUID;
 /**
  * Kullanıcıya özel "Şu tarihte şu varlığı X TL ile alsaydım?" senaryolarını tutar ve hesaplar.
  * <p>
- * Hesap (compute) her okumada anlık yapılır — series + currentValue + P&L DB'de saklanmaz,
+ * Hesap (compute) her okumada anlık yapılır — series + currentValue + P&amp;L DB'de saklanmaz,
  * sadece kullanıcı'nın girdiği parametreler persistent.
  */
 @Service

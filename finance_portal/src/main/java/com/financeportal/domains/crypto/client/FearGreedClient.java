@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Crypto Fear & Greed Index — alternative.me ücretsiz API'sinden (API key gerekmez).
+ * Crypto Fear &amp; Greed Index — alternative.me ücretsiz API'sinden (API key gerekmez).
  * Tüm günlük geçmiş (~8 yıl) tek istekte gelir; CryptoService 1 saat cache'ler (günde 1 güncellenir).
  * Sonuç timestamp'e göre ARTAN sıralı döner (grafik için).
  */

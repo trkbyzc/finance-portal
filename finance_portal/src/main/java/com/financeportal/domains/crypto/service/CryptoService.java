@@ -30,7 +30,7 @@ public class CryptoService {
         return coinGeckoClient.fetchCoinFundamentals(geckoId);
     }
 
-    /** Crypto Fear & Greed Index — tüm günlük geçmiş (alternative.me), 1 saat cache. */
+    /** Crypto Fear &amp; Greed Index — tüm günlük geçmiş (alternative.me), 1 saat cache. */
     public List<FearGreedDto> getFearGreed() {
         return cacheService.getOrFetch("cache:fear-greed", fearGreedClient::fetchAll, 60);
     }

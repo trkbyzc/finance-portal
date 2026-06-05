@@ -22,7 +22,7 @@ import java.util.Locale;
  * CoinGecko OHLC grafik istemcisi — Yahoo ve Binance'te veri bulunamayan coinler için
  * en geniş kapsamlı fallback. CoinGecko listelediği TÜM coinler için OHLC sağlar.
  *
- * Endpoint: /coins/{id}/ohlc?vs_currency=usd&days={days}
+ * Endpoint: {@code /coins/{id}/ohlc?vs_currency=usd&days={days}}
  *   Dönüş: [[timestamp_ms, open, high, low, close], ...] (hacim yok).
  *   id, sembolden {@link com.financeportal.domains.crypto.service.CryptoIdRegistry}
  *   ile çözülür. Fiyatlar tam hassasiyetle (BigDecimal(string)) okunur — küçük coinlerde

@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Süresi dolmuş geçici ban kayıtlarını her 10 dakikada bir temizler.
- * UserBanFilter zaten "şu an < bannedUntil" mantığıyla geçicileri otomatik düşürüyor,
+ * UserBanFilter zaten {@code "şu an < bannedUntil"} mantığıyla geçicileri otomatik düşürüyor,
  * ama DB tutarlılığı + analitik için bannedUntil'ı null'lamak temiz.
  * <p>
  * Kalıcı ban'lar dokunulmaz (banPermanent=true atlanır).

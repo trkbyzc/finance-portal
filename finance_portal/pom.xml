@@ -385,6 +385,30 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- Javadoc HTML site üretimi: mvn javadoc:javadoc
+			     Çıktı: target/site/apidocs/index.html
+			     API dokümantasyon gereksinimi için. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.3</version>
+				<configuration>
+					<source>21</source>
+					<doctitle>FinansPortal API — ${project.version}</doctitle>
+					<windowtitle>FinansPortal API</windowtitle>
+					<encoding>UTF-8</encoding>
+					<charset>UTF-8</charset>
+					<docencoding>UTF-8</docencoding>
+					<!-- Lombok-generated kod + 3rd party kaynak Javadoc'larında WARN/ERROR
+					     üretiyor; modern JDK'da bunlar fatal. failOnError=false ile
+					     warning'lere tolerans, build asıl hata olmadıkça yeşil. -->
+					<failOnError>false</failOnError>
+					<failOnWarnings>false</failOnWarnings>
+					<doclint>none</doclint>
+					<quiet>true</quiet>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
