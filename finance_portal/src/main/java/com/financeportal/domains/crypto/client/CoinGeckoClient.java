@@ -1,6 +1,7 @@
 package com.financeportal.domains.crypto.client;
 
 import com.financeportal.domains.crypto.dto.CryptoDto;
+import com.financeportal.domains.crypto.dto.CryptoFundamentalsDto;
 import com.financeportal.util.HttpHeadersUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,51 @@ public class CoinGeckoClient {
         log.info("[COINGECKO] Fetched {} crypto assets in {} ms.", allRates.size(), (System.currentTimeMillis() - startTime));
         return allRates;
     }
+
+    /**
+     * Tek bir kripto için temel veri (piyasa değeri, sıra, 24s hacim/aralık, arz, ATH/ATL).
+     * CoinGecko /coins/markets?ids={geckoId} endpoint'inden; bulunamazsa null.
+     */
+    public CryptoFundamentalsDto fetchCoinFundamentals(String geckoId) {
+        if (geckoId == null || geckoId.isBlank()) return null;
+        try {
+            HttpEntity<String> entity = new HttpEntity<>(HttpHeadersUtil.getCoinGeckoHeaders());
+            String url = String.format(
+                    "%s/coins/markets?vs_currency=usd&ids=%s&price_change_percentage=24h&sparkline=false",
+                    coinGeckoBaseUrl, geckoId.trim());
+            ResponseEntity<List<Object>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new org.springframework.core.ParameterizedTypeReference<List<Object>>() {});
+            List<Object> body = response.getBody();
+            if (body == null || body.isEmpty()) return null;
+            Map<?, ?> c = (Map<?, ?>) body.get(0);
+
+            return CryptoFundamentalsDto.builder()
+                    .symbol(str(c.get("symbol")) != null ? str(c.get("symbol")).toUpperCase(Locale.ENGLISH) : null)
+                    .name(str(c.get("name")))
+                    .priceUsd(dbl(c.get("current_price")))
+                    .changePct24h(dbl(c.get("price_change_percentage_24h")))
+                    .marketCapRank(lng(c.get("market_cap_rank")))
+                    .marketCapUsd(dbl(c.get("market_cap")))
+                    .volume24hUsd(dbl(c.get("total_volume")))
+                    .high24h(dbl(c.get("high_24h")))
+                    .low24h(dbl(c.get("low_24h")))
+                    .ath(dbl(c.get("ath")))
+                    .athChangePct(dbl(c.get("ath_change_percentage")))
+                    .atl(dbl(c.get("atl")))
+                    .circulatingSupply(dbl(c.get("circulating_supply")))
+                    .totalSupply(dbl(c.get("total_supply")))
+                    .maxSupply(dbl(c.get("max_supply")))
+                    .build();
+        } catch (Exception e) {
+            log.warn("[COINGECKO] Temel veri alınamadı '{}': {}", geckoId, e.getMessage());
+            return null;
+        }
+    }
+
+    private static String str(Object o) { return o instanceof String s ? s : null; }
+    private static Double dbl(Object o) { return o instanceof Number n ? n.doubleValue() : null; }
+    private static Long lng(Object o) { return o instanceof Number n ? n.longValue() : null; }
 
     private void processCoins(List<?> rawCoins, List<CryptoDto> targetList) {
         for (Object obj : rawCoins) {

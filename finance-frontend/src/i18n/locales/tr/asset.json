@@ -3,6 +3,15 @@
   "relatedNews": {
     "title": "İlgili Haberler"
   },
+  "cryptoFund": {
+    "rank": "Sıra",
+    "range24h": "24 Saat Aralığı",
+    "volume24h": "24s Hacim",
+    "circSupply": "Dolaşan Arz",
+    "maxSupply": "Maks Arz",
+    "ath": "ATH",
+    "atl": "ATL"
+  },
   "fundamentals": {
     "title": "Temel Veriler",
     "week52": "52 Hafta Aralığı",

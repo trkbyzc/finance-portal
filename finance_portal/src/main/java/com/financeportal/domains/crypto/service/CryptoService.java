@@ -20,4 +20,10 @@ public class CryptoService {
     public List<CryptoDto> getCryptoRates() {
         return cacheService.getOrFetch("cache:crypto", coinGeckoClient::fetchCryptoRates, 5);
     }
+
+    /** Kripto detay "Temel Veriler" kartı için CoinGecko market verisi (frontend react-query cache'ler). */
+    public com.financeportal.domains.crypto.dto.CryptoFundamentalsDto getFundamentals(String geckoId) {
+        if (geckoId == null || geckoId.isBlank()) return null;
+        return coinGeckoClient.fetchCoinFundamentals(geckoId);
+    }
 }

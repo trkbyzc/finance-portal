@@ -3,6 +3,15 @@
   "relatedNews": {
     "title": "Related News"
   },
+  "cryptoFund": {
+    "rank": "Rank",
+    "range24h": "24h Range",
+    "volume24h": "24h Volume",
+    "circSupply": "Circulating Supply",
+    "maxSupply": "Max Supply",
+    "ath": "ATH",
+    "atl": "ATL"
+  },
   "fundamentals": {
     "title": "Fundamentals",
     "week52": "52-Week Range",

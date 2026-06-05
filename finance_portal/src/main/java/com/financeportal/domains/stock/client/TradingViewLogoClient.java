@@ -98,6 +98,45 @@ public class TradingViewLogoClient {
         return out;
     }
 
+    public record UsFundamentals(Double marketCapUsd, String sector, Double freeFloatPct) {}
+
+    /**
+     * Tek bir ABD hissesi için temel veri (piyasa değeri USD, sektör, halka açıklık %)
+     * America scanner'dan filtreli olarak çekilir. İş Yatırım sadece BİST kapsadığı için
+     * ABD hisselerinde bu kaynak kullanılır. Bulunamazsa null.
+     */
+    public UsFundamentals usFundamentals(String symbol) {
+        if (symbol == null || symbol.isBlank()) return null;
+        try {
+            Map<String, Object> filter = Map.of("left", "name", "operation", "in_range",
+                    "right", List.of(symbol.trim().toUpperCase()));
+            Map<String, Object> body = Map.of(
+                    "symbols", Map.of("query", Map.of("types", List.of())),
+                    "columns", List.of("market_cap_basic", "sector", "float_shares_percent_current"),
+                    "filter", List.of(filter),
+                    "range", List.of(0, 1));
+            HttpHeaders h = new HttpHeaders();
+            h.setContentType(MediaType.APPLICATION_JSON);
+            h.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            h.set("Origin", "https://www.tradingview.com");
+            h.set("Referer", "https://www.tradingview.com/");
+            ResponseEntity<JsonNode> res = restTemplate.exchange(
+                    "https://scanner.tradingview.com/america/scan",
+                    HttpMethod.POST, new HttpEntity<>(objectMapper.writeValueAsString(body), h), JsonNode.class);
+            JsonNode data = res.getBody() != null ? res.getBody().path("data") : null;
+            if (data == null || !data.isArray() || data.isEmpty()) return null;
+            JsonNode d = data.get(0).path("d");
+            if (!d.isArray() || d.size() < 3) return null;
+            Double mcap = d.get(0).isNumber() ? d.get(0).asDouble() : null;
+            String sector = d.get(1).isNull() ? null : d.get(1).asText(null);
+            Double freeFloat = d.get(2).isNumber() ? d.get(2).asDouble() : null;
+            return new UsFundamentals(mcap, sector, freeFloat);
+        } catch (Exception e) {
+            log.warn("[TV-LOGO] {} ABD temel verisi alınamadı: {}", symbol, e.getMessage());
+            return null;
+        }
+    }
+
     private String filteredBody(List<String> tickers) {
         try {
             Map<String, Object> filter = Map.of("left", "name", "operation", "in_range", "right", tickers);

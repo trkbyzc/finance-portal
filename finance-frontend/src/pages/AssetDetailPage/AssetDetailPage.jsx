@@ -15,6 +15,7 @@ import AssetChartArea from './components/AssetChartArea';
 import BondDetailView from './components/BondDetailView';
 import ComparisonSection from './components/ComparisonSection';
 import StockFundamentals from './components/StockFundamentals';
+import CryptoFundamentals from './components/CryptoFundamentals';
 import RelatedNews from './components/RelatedNews';
 
 const CUR_SYMBOL = { TRY: '₺', USD: '$' };
@@ -138,6 +139,9 @@ export default function AssetDetailPage() {
                 <AssetHeader asset={asset} navigate={navigate} onAddPortfolioClick={handleOpenModal} />
                 {asset?.assetCategory === 'STOCK' && (
                     <StockFundamentals symbol={asset?.yahooSymbol || asset?.symbol} />
+                )}
+                {asset?.assetCategory === 'CRYPTO' && (
+                    <CryptoFundamentals geckoId={asset?.geckoId} symbol={asset?.symbol || asset?.currencyCode} />
                 )}
                 <AssetChartArea asset={asset} isViop={isViop} />
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
