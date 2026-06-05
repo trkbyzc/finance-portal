@@ -133,6 +133,12 @@ management:
     tags:
       # Tüm metriklere ortak etiket — Grafana/Prometheus'ta servisi ayırt etmek için
       application: ${spring.application.name:finance-portal}
+    # http.client.requests URI cardinality limit'i — backend Yahoo + BusinessInsider
+    # + CoinGecko gibi per-symbol URL'lere çok istek atıyor; default 100 hızla doluyor.
+    # 2000'e çıkarınca tüm tag'lar tutulur, Prometheus cardinality kabul edilebilir.
+    web:
+      client:
+        max-uri-tags: 2000
     distribution:
       # http.server.requests için histogram bucket'larını yayınla.
       # Olmazsa sadece _count/_sum üretilir; Grafana'daki p50/p95/p99

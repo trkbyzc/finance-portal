@@ -289,6 +289,7 @@ services:
       KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
       ELASTICSEARCH_URI: http://opensearch:9200
       LDAP_URL: ldap://openldap:389
+      LIBRETRANSLATE_URL: http://libretranslate:5000
       # Keycloak issuer: browser ile aynı (token iss claim match için)
       KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/finance-realm
       # JWK Set: backend container içinden keycloak'a internal DNS ile
