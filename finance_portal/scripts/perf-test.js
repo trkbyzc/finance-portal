@@ -16,7 +16,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-const BASE = __ENV.BASE_URL || 'http://localhost:8080';
+const BASE = __ENV.BASE_URL || 'http://localhost:8081';
 
 export const options = {
     stages: [
@@ -42,7 +42,7 @@ const ENDPOINTS = [
     '/api/market-data/turkish-gold',
     '/api/market-data/all',
     '/api/news?lang=tr',
-    '/api/economy/indicators',
+    '/api/market-data/economy/indicators',
 ];
 
 export default function () {

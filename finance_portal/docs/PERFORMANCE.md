@@ -22,7 +22,7 @@ Bu metrik canlı dashboard'da görülebilir — dashboard `observability/grafana
 [scripts/perf-test.js](../scripts/perf-test.js) en sık çağrılan 10 public read endpoint'i 20 sanal kullanıcıyla rastgele hit eder. Threshold ihlali olursa script `exit code 99` ile düşer (CI'da fail edilir).
 
 #### Çalıştırma
-Backend ayakta olmalı (port 8080).
+Backend ayakta olmalı (port 8081 — script default'u). Farklı port için `BASE_URL` env'i geç.
 
 **PowerShell (Windows)** — `<` redirect desteklenmediği için volume mount kullan:
 ```powershell
