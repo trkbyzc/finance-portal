@@ -44,21 +44,30 @@ public class UserSyncFilter extends OncePerRequestFilter {
             if (subject != null) {
                 String cacheKey = "user_sync:" + subject;
 
-                // Redis cache hit varsa son 1 saatte sync ettik; tekrar yorma.
-                if (Boolean.FALSE.equals(redisTemplate.hasKey(cacheKey))) {
+                // Redis SETNX ile distributed lock: aynı kullanıcı için paralel istekler
+                // (örn. login sonrası /users/me + /portfolio/me + /watchlist/me eş zamanlı)
+                // ilk gelen "synced" işaretler, diğerleri burada erken çıkar. setIfAbsent
+                // atomic — race'siz tek log garantisi. 1 saatlik TTL ile rol sync de
+                // periyodik (yeni rol Keycloak'tan geldiğinde max 1 saat gecikme).
+                Boolean acquired = redisTemplate.opsForValue()
+                        .setIfAbsent(cacheKey, "synced", Duration.ofHours(1));
+                if (Boolean.TRUE.equals(acquired)) {
                     UUID userId = UUID.fromString(subject);
                     Jwt jwt = jwtToken.getToken();
-
-                    if (!userRepository.existsById(userId)) {
-                        syncNewUser(jwt, userId);
+                    try {
+                        if (!userRepository.existsById(userId)) {
+                            syncNewUser(jwt, userId);
+                        }
+                        // Var olan kullanıcılar için bile rolü Keycloak'a göre eşitle —
+                        // superadmin gibi rolü sonradan ADMIN olan kullanıcılar DB'de
+                        // takılı kalmasın.
+                        userService.syncRoleFromKeycloak(userId, isKeycloakAdmin(jwt));
+                    } catch (RuntimeException ex) {
+                        // İş başarısız → lock'u serbest bırak ki bir sonraki istek tekrar
+                        // denesin (1 saat retry beklemesin).
+                        redisTemplate.delete(cacheKey);
+                        throw ex;
                     }
-
-                    // Var olan kullanıcılar için bile rolü Keycloak'a göre eşitle —
-                    // superadmin gibi rolü sonradan ADMIN olan kullanıcılar DB'de
-                    // takılı kalmasın.
-                    userService.syncRoleFromKeycloak(userId, isKeycloakAdmin(jwt));
-
-                    redisTemplate.opsForValue().set(cacheKey, "synced", Duration.ofHours(1));
                 }
             }
         }
