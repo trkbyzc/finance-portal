@@ -305,7 +305,6 @@ const PortfolioPage = () => {
                                 />
                             )}
                         </div>
-                        <p className="text-text-muted mt-1 text-sm sm:text-base">{t('portfolio:pageSubtitle')}</p>
                     </div>
                     <div className="flex items-center gap-2 self-start sm:self-auto">
                         {/* Bakiye gizle/göster */}

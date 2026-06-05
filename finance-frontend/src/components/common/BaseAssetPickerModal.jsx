@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../config/apiClient';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { displaySymbol } from '../../utils/symbolDisplay';
 
 /**
  * Generic 2-step asset picker — type seç (step 1) → asset seç (step 2) → onSelect callback.
@@ -190,7 +191,7 @@ export default function BaseAssetPickerModal({
                                                 className="w-full p-3 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left flex justify-between items-center disabled:opacity-40 disabled:cursor-not-allowed"
                                             >
                                                 <div className="flex-1">
-                                                    <div className="font-semibold">{symbol}</div>
+                                                    <div className="font-semibold">{displaySymbol(symbol)}</div>
                                                     <div className="text-sm text-text-muted">{name}</div>
                                                 </div>
                                                 <div className="text-right">

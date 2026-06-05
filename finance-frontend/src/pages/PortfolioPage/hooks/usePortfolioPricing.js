@@ -43,8 +43,10 @@ export default function usePortfolioPricing(portfolio) {
             if (funds.length === 0) return {};
             const pricePromises = funds.map(async (fund) => {
                 try {
+                    // Geniş aralık (1y): bazı TEFAS fonlarının son verisi >30 gün eski olabiliyor (feed durmuş)
+                    // ve dar pencere boş [] dönüyor → fiyat 0 görünüyordu. 1y çekip son MEVCUT NAV'ı alıyoruz.
                     const chartData = await apiClient.get('/market-data/historical', {
-                        params: { symbol: fund.symbol, category: 'TR_FUND', range: '1d', interval: '1d' }
+                        params: { symbol: fund.symbol, category: 'TR_FUND', range: '1y', interval: '1d' }
                     });
                     if (chartData && chartData.length > 0) {
                         return { symbol: fund.symbol, price: chartData[chartData.length - 1].price };

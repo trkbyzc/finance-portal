@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../../../utils/formatters/numberFormatter';
+import { displaySymbol } from '../../../../../utils/symbolDisplay';
 
 const getCommodityIcon = (code) => {
     const c = code.toUpperCase();
@@ -74,7 +75,7 @@ export default function CommodityTable({ data, loading }) {
                                             <div className="font-bold text-text group-hover:text-text transition line-clamp-1">
                                                 {name.split(',')[0]}
                                             </div>
-                                            <div className="text-[10px] text-text-muted uppercase font-mono">{code}</div>
+                                            <div className="text-[10px] text-text-muted uppercase font-mono">{displaySymbol(code)}</div>
                                         </div>
                                     </td>
                                     <td className="p-5 text-right font-mono font-bold text-text-muted">

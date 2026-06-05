@@ -7,6 +7,9 @@ import { Star, Plus, Trash2, Loader2 } from 'lucide-react';
 import { watchlistApi } from '../../services/api/watchlistApi';
 import BaseAssetPickerModal from '../../components/common/BaseAssetPickerModal';
 import Modal from '../../components/layout/Modal';
+import AssetIcon from '../../components/asset/AssetIcon';
+import useAssetLogos from '../../hooks/useAssetLogos';
+import { displaySymbol } from '../../utils/symbolDisplay';
 
 function Sparkline({ data, positive }) {
     if (!data || data.length < 2) {
@@ -45,6 +48,7 @@ export default function WatchlistPage() {
     const { t } = useTranslation(['watchlist', 'common']);
     const [modalOpen, setModalOpen] = useState(false);
     const [removeTarget, setRemoveTarget] = useState(null);
+    const { getLogo } = useAssetLogos();
 
     const { data: items = [], isLoading, isError } = useQuery({
         queryKey: ['watchlist'],
@@ -79,7 +83,7 @@ export default function WatchlistPage() {
     return (
         <div className="min-h-screen bg-bg text-text p-4 md:p-8">
             <div className="max-w-[1400px] mx-auto">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
                             <Star size={20} />
@@ -93,7 +97,6 @@ export default function WatchlistPage() {
                         <Plus size={18} /> {t('watchlist:actions.add')}
                     </button>
                 </div>
-                <p className="text-text-muted mb-8">{t('watchlist:pageSubtitle')}</p>
 
                 {isLoading ? (
                     <div className="flex items-center justify-center py-20 text-text-muted">
@@ -143,11 +146,14 @@ export default function WatchlistPage() {
                                         >
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-surface-2 text-text-muted flex items-center justify-center font-bold text-sm group-hover:bg-primary group-hover:text-primary-fg transition">
-                                                        {(item.symbol || '').substring(0, 2)}
-                                                    </div>
+                                                    <AssetIcon
+                                                        src={getLogo(item.symbol, item.assetType)}
+                                                        symbol={item.symbol}
+                                                        size={40}
+                                                        className="rounded-full"
+                                                    />
                                                     <div>
-                                                        <div className="font-bold uppercase">{item.symbol}</div>
+                                                        <div className="font-bold uppercase">{displaySymbol(item.symbol)}</div>
                                                         <div className="text-xs text-text-muted">{t('common:assetTypes.' + item.assetType, item.assetType)}</div>
                                                     </div>
                                                 </div>

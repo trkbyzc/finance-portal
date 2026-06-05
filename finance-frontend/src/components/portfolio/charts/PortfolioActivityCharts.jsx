@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { formatCurrency } from '../../../utils/formatters/currencyFormatter';
 import { fmtTry, tooltipStyle } from './portfolioChartColors';
+import { displaySymbol } from '../../../utils/symbolDisplay';
 
 const COST_COLOR = '#64748b';   // maliyet — gri
 const VALUE_COLOR = '#2962ff';  // piyasa değeri — lacivert
@@ -50,7 +51,7 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
         const calc = calculateProfitLoss(item);
         // TRY bazlı maliyet/değer seçili para birimine çevrilir (eksen/tooltip toggle ile tutarlı)
         return {
-            name: item.symbol,
+            name: displaySymbol(item.symbol),
             cost: Number(convertPrice(Number(calc.costValue || 0), 'TRY')),
             value: Number(convertPrice(Number(calc.currentValue || 0), 'TRY'))
         };
@@ -59,7 +60,7 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
     const dailyStatus = useMemo(() => {
         const buckets = { up: [], down: [], flat: [], noData: [] };
         for (const item of portfolio || []) {
-            const sym = item.symbol || item.currencyCode;
+            const sym = displaySymbol(item.symbol || item.currencyCode);
             const raw = getDailyChange ? getDailyChange(item.symbol, item.assetType) : null;
             const dc = (raw != null && !Number.isNaN(Number(raw))) ? Number(raw) : null;
             if (dc == null) buckets.noData.push({ sym, dc: null });

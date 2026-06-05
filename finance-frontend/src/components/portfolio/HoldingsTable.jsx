@@ -2,6 +2,7 @@ import { Clock, Plus, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { displaySymbol } from '../../utils/symbolDisplay';
 
 /**
  * Portföydeki holding listesini render eden tablo. PortfolioPage'in ana tablosu olarak
@@ -94,7 +95,7 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
         <tr className="border-b border-border hover:bg-bg transition">
             <td className="p-2 md:p-4 whitespace-nowrap">
                 <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm md:text-base">{item.symbol}</span>
+                    <span className="font-semibold text-sm md:text-base">{displaySymbol(item.symbol)}</span>
                     {dc != null && (
                         <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded ${dcUp ? 'text-buy bg-buy/10' : 'text-sell bg-sell/10'}`}>
                             {dcUp ? '+' : ''}{dc.toFixed(2)}%

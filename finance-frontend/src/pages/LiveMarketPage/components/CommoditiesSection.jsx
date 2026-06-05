@@ -1,6 +1,7 @@
 import { ChevronRight, Coins, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
+import { displaySymbol } from '../../../utils/symbolDisplay';
 
 export default function CommoditiesSection({ commodityCards, onSelect, isLoading }) {
     const { t } = useTranslation('markets');
@@ -38,7 +39,7 @@ export default function CommoditiesSection({ commodityCards, onSelect, isLoading
                                     <div className="flex items-center gap-1">
                                         <span className="text-sm font-bold text-text group-hover:text-text transition-colors">{item.name}</span>
                                     </div>
-                                    <span className="text-xs text-text-muted bg-surface-2 px-1.5 py-0.5 rounded w-max mt-1 border border-border">{item.symbol}</span>
+                                    <span className="text-xs text-text-muted bg-surface-2 px-1.5 py-0.5 rounded w-max mt-1 border border-border">{displaySymbol(item.symbol)}</span>
                                 </div>
                             </div>
                             <div className="flex flex-col items-end gap-1">

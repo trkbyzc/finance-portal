@@ -181,7 +181,7 @@ export default function UserDrawer({ open, onClose }) {
     );
 }
 
-function DrawerItem({ icon: Icon, label, sub, onClick, accent, disabled, badge }) {
+function DrawerItem({ icon: Icon, label, onClick, accent, disabled, badge }) {
     const accentClass = {
         primary: 'text-primary bg-primary/10 border-primary/20',
         buy: 'text-buy bg-buy/10 border-buy/20',
@@ -208,7 +208,6 @@ function DrawerItem({ icon: Icon, label, sub, onClick, accent, disabled, badge }
             </div>
             <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm text-text">{label}</div>
-                {sub && <div className="text-[10px] text-text-muted truncate">{sub}</div>}
             </div>
         </button>
     );

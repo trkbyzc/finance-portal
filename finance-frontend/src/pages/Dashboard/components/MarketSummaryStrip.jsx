@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { aggregateApi } from '../../../services/api';
+import { apiClient } from '../../../config/apiClient';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 import { detectNativeCurrency } from '../../../utils/currencyConversion';
+import { displaySymbol } from '../../../utils/symbolDisplay';
 import TickerPicker from '../../../components/preferences/TickerPicker';
 
 const STORAGE_KEY = 'fp_dashboard_strip_v1';
@@ -34,7 +36,13 @@ const matchItem = (i, symbol) => i.symbol === symbol || i.currencyCode === symbo
 function resolveAsset(allMarkets, symbol, assetType) {
     for (const k of (POOL_KEYS[assetType] || [])) {
         const hit = (allMarkets[k] || []).find((i) => matchItem(i, symbol));
-        if (hit) return { item: hit, cat: hit.assetCategory || KEY_CAT[k] || assetType };
+        if (hit) {
+            // Havuz anahtarı (k) kategori için OTORİTER: TEFAS fonları assetCategory="FUND" set ediyor
+            // ama tr_funds havuzundakiler aslında TR_FUND/TRY. KEY_CAT[k] önce gelir; böylece detectNativeCurrency
+            // doğru para birimini (₺) verir ve TR fon fiyat override'ı (cat==='TR_FUND') devreye girer.
+            const cat = KEY_CAT[k] || hit.assetCategory || assetType;
+            return { item: { ...hit, assetCategory: cat }, cat };
+        }
     }
     return null;
 }
@@ -57,7 +65,7 @@ const prefixOf = (item, assetType) => CURRENCY_SYMBOLS[nativeCurrencyOf(item, as
 // Endekslerde sembol (XU100) yerine dostça ad (BIST 100) göster; döviz/kripto'da kod kalsın.
 const labelOf = (item, symbol, cat) => {
     if (cat === 'INDEX' && item.name) return item.name;
-    return (item.currencyCode || item.symbol || symbol).replace('.IS', '').replace('-USD', '');
+    return displaySymbol((item.currencyCode || item.symbol || symbol).replace('.IS', '').replace('-USD', ''));
 };
 
 const chartLinkFor = (item, cat, assetType) => {
@@ -106,22 +114,67 @@ export default function MarketSummaryStrip() {
     const defaults = useMemo(() => (allMarkets ? buildDefault(allMarkets) : []), [allMarkets]);
     const selected = stored ?? defaults;
 
+    // TR fonlarının fiyatı aggregate listede 0 dönüyor → seçili TR fonlar için historical'dan
+    // (TR_FUND kategorisi) son fiyatı tek tek çek. (Portföy fiyatlamasıyla aynı yaklaşım.)
+    const trFundSymbols = useMemo(() => {
+        if (!allMarkets) return [];
+        return selected
+            .filter((s) => s.assetType === 'FUND')
+            .map((s) => s.symbol)
+            .filter((sym) => (allMarkets.tr_funds || []).some((i) => matchItem(i, sym)));
+    }, [allMarkets, selected]);
+
+    const { data: fundPrices = {} } = useQuery({
+        queryKey: ['stripTrFundPrices', trFundSymbols],
+        queryFn: async () => {
+            const out = {};
+            await Promise.all(trFundSymbols.map(async (sym) => {
+                try {
+                    // Geniş aralık (1y): bazı fonların son verisi >30 gün eski olabiliyor (feed durmuş);
+                    // dar pencere boş [] dönüyordu. Son MEVCUT NAV'ı yakalamak için 1y çekip son noktayı alıyoruz.
+                    const ch = await apiClient.get('/market-data/historical', {
+                        params: { symbol: sym, category: 'TR_FUND', range: '1y', interval: '1d' }
+                    });
+                    const arr = Array.isArray(ch) ? ch : (ch?.priceData || []);
+                    if (arr.length) {
+                        const last = arr[arr.length - 1];
+                        const prev = arr.length > 1 ? arr[arr.length - 2] : null;
+                        const price = last?.close ?? last?.price ?? null;
+                        const prevPrice = prev?.close ?? prev?.price ?? null;
+                        const change = (price != null && prevPrice)
+                            ? ((price - prevPrice) / prevPrice) * 100 : null;
+                        if (price != null) out[sym] = { price, change };
+                    }
+                } catch { /* fiyat çekilemezse aggregate değeri kullanılır */ }
+            }));
+            return out;
+        },
+        enabled: trFundSymbols.length > 0,
+        staleTime: 60 * 1000
+    });
+
     const cards = useMemo(() => {
         if (!allMarkets) return [];
         return selected.map((sel) => {
             const resolved = resolveAsset(allMarkets, sel.symbol, sel.assetType);
             if (!resolved) return { key: `${sel.assetType}:${sel.symbol}`, label: sel.symbol, missing: true };
             const { item, cat } = resolved;
+            const aggPrice = priceOf(item, sel.assetType);
+            // TR fon ise ve aggregate fiyatı yoksa/0 ise historical'dan gelen gerçek fiyatı kullan
+            const fp = fundPrices[sel.symbol];
+            const value = (cat === 'TR_FUND' && (!aggPrice || aggPrice <= 0) && fp) ? fp.price : aggPrice;
+            const change = (cat === 'TR_FUND' && (!aggPrice || aggPrice <= 0) && fp && fp.change != null)
+                ? fp.change : item.changePercent;
             return {
                 key: `${sel.assetType}:${sel.symbol}`,
                 label: labelOf(item, sel.symbol, cat),
-                value: priceOf(item, sel.assetType),
-                change: item.changePercent,
+                value,
+                change,
                 prefix: prefixOf(item, sel.assetType),
                 onClick: () => navigate(chartLinkFor(item, cat, sel.assetType))
             };
         });
-    }, [allMarkets, selected, navigate]);
+    }, [allMarkets, selected, navigate, fundPrices]);
 
     const saveSelection = (next) => {
         setStored(next);
