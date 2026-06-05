@@ -6,6 +6,7 @@ import { formatDateTime } from '../../../utils/formatters/dateFormatter';
 import { useNewsData } from '../../../hooks/useNewsData';
 import { MarketTableSkeleton } from '../../../components/ui/Skeleton';
 import NewsAssetChip from '../../../components/news/NewsAssetChip';
+import AssetIcon from '../../../components/asset/AssetIcon';
 
 const TAB_TO_CATEGORY = {
     stocks: 'STOCK',
@@ -122,9 +123,12 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
                                         className="hover:bg-surface-hover cursor-pointer transition-colors group/row"
                                     >
                                         <td className="p-3.5 pl-4">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-text group-hover/row:text-primary transition-colors">{symbol}</span>
-                                                <span className="text-[10px] text-text-muted truncate max-w-45">{asset.name || asset.currencyName}</span>
+                                            <div className="flex items-center gap-2.5">
+                                                <AssetIcon src={asset.image} symbol={symbol} size={28} />
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-sm font-bold text-text group-hover/row:text-primary transition-colors">{symbol}</span>
+                                                    <span className="text-[10px] text-text-muted truncate max-w-45">{asset.name || asset.currencyName}</span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="p-3.5 text-right font-mono text-sm font-semibold text-text">

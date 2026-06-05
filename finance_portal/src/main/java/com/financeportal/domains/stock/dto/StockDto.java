@@ -22,4 +22,5 @@ public class StockDto {
     private boolean inBist30;
     private boolean inBist50;
     private boolean inBist100;
+    private String image;   // TradingView logo URL'i (BistLogoClient); yoksa null → frontend sembol baş harflerine düşer
 }

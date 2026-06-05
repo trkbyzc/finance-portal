@@ -37,6 +37,7 @@ class BistStockClientTest {
 
     @Mock private RestTemplate restTemplate;
     @Mock private BistIndexService bistIndexService;
+    @Mock private BistLogoClient bistLogoClient;
 
     @InjectMocks private BistStockClient client;
 

@@ -28,6 +28,7 @@ public class BistStockClient {
 
     private final RestTemplate restTemplate;
     private final BistIndexService bistIndexService;
+    private final BistLogoClient bistLogoClient;
 
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -70,6 +71,7 @@ public class BistStockClient {
                         dto.setSymbol(symbol + ".IS");
                         dto.setYahooSymbol(symbol + ".IS");
                         dto.setName(symbol);
+                        dto.setImage(bistLogoClient.getLogoUrl(symbol)); // TradingView şirket logosu (yoksa null)
                         dto.setAssetType("HİSSE SENEDİ");
                         dto.setAssetCategory("STOCK");
                         dto.setChartType("CANDLE");

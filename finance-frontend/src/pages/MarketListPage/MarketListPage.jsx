@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Search } from 'lucide-react';
 import { Skeleton, MarketTableSkeleton } from '../../components/ui/Skeleton';
+import AssetIcon from '../../components/asset/AssetIcon';
 import { aggregateApi } from '../../services/api';
 
 export default function MarketListPage() {
@@ -177,11 +178,16 @@ export default function MarketListPage() {
                                         className="hover:bg-surface-2 transition-colors cursor-pointer group"
                                     >
                                         <td className="p-4">
-                                            <div className="font-bold text-text group-hover:text-primary transition-colors">
-                                                {symbol.replace('-USD', '').replace('.IS', '')}
-                                            </div>
-                                            <div className="text-xs text-text-muted truncate max-w-[200px] md:max-w-[300px]">
-                                                {item.name || item.currencyName || 'Market Asset'}
+                                            <div className="flex items-center gap-3">
+                                                <AssetIcon src={item.image} symbol={symbol} size={32} />
+                                                <div className="min-w-0">
+                                                    <div className="font-bold text-text group-hover:text-primary transition-colors">
+                                                        {symbol.replace('-USD', '').replace('.IS', '')}
+                                                    </div>
+                                                    <div className="text-xs text-text-muted truncate max-w-[200px] md:max-w-[300px]">
+                                                        {item.name || item.currencyName || 'Market Asset'}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="p-4 text-right font-mono">

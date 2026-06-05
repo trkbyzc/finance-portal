@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../../hooks/useMarketData.js';
 import { useNavigate } from 'react-router-dom';
 import { formatCompactVolume } from './volumeFormat';
+import AssetIcon from '../../../../../components/asset/AssetIcon';
 
 /**
  * BIST hisse listesi tablosu — arama + sortable kolonlar (sembol/fiyat/değişim%/hacim).
@@ -138,9 +139,14 @@ export default function StockListTable() {
                                     className="hover:bg-surface-2 transition cursor-pointer group"
                                 >
                                     <td className="p-4 whitespace-nowrap">
-                                        <div className="font-bold text-text">{stock.symbol.replace('.IS', '')}</div>
-                                        <div className="text-xs text-text-muted mt-1 max-w-[200px] truncate">
-                                            {stock.name || ''}
+                                        <div className="flex items-center gap-3">
+                                            <AssetIcon src={stock.image} symbol={stock.symbol} size={32} />
+                                            <div>
+                                                <div className="font-bold text-text">{stock.symbol.replace('.IS', '')}</div>
+                                                <div className="text-xs text-text-muted mt-1 max-w-[200px] truncate">
+                                                    {stock.name || ''}
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="p-4 text-right font-mono font-medium text-text whitespace-nowrap">
