@@ -149,6 +149,11 @@ management:
   health:
     ldap:
       enabled: false # LDAP federation kullanılmıyor
+    # OpenSearch Elasticsearch 8.x client ile tam API uyumlu değil; health check
+    # her zaman fail eder ve gereksiz WARN logger basar. Veri yazımı (Kafka pipeline)
+    # ayrı yoldan çalışıyor, bu check'i kapatmak güvenli.
+    elasticsearch:
+      enabled: false
 
 
 server:

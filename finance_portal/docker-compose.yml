@@ -281,6 +281,8 @@ services:
       REDIS_PORT: "6379"
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
+      ELASTICSEARCH_URI: http://opensearch:9200
+      LDAP_URL: ldap://openldap:389
       # Keycloak issuer: browser ile aynı (token iss claim match için)
       KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/finance-realm
       # JWK Set: backend container içinden keycloak'a internal DNS ile
@@ -297,6 +299,24 @@ services:
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
       OTEL_LOGS_EXPORTER: otlp
+      # ----------------------------------------------------------------------
+      # SECRETS — .env dosyasından okunur (gitignore'da). Boşsa ilgili sync'ler
+      # warning atar, kritik servisler etkilenmez. Lokalde geliştirici makinesinde
+      # application-local.yml'da tutuluyordu; container'a alınmadığı için .env yolu.
+      # ----------------------------------------------------------------------
+      EVDS_API_KEY: ${EVDS_API_KEY:-}
+      FRED_API_KEY: ${FRED_API_KEY:-}
+      FMP_API_KEY: ${FMP_API_KEY:-}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      APP_MAIL_ENABLED: ${APP_MAIL_ENABLED:-true}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-}
+      APP_MAIL_FROM_NAME: ${APP_MAIL_FROM_NAME:-FinansPortal}
     ports:
       - "8081:8081"
     depends_on:
