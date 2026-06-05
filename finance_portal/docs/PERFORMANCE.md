@@ -24,17 +24,13 @@ Bu metrik canlı dashboard'da görülebilir — dashboard `observability/grafana
 #### Çalıştırma
 Backend ayakta olmalı (port 8081 — script default'u). Farklı port için `BASE_URL` env'i geç.
 
-**PowerShell (Windows)** — `<` redirect desteklenmediği için volume mount kullan:
+**PowerShell (Windows + Docker Desktop WSL2)** — `--network host` flag'i Windows'ta host loopback'ine ulaşmıyor; `host.docker.internal` DNS adı kullanmak gerek:
 ```powershell
-docker run --rm --network host -v ${PWD}/scripts:/scripts grafana/k6 run /scripts/perf-test.js
-
-# Farklı host'a karşı
-docker run --rm --network host -e BASE_URL=http://staging:8080 -v ${PWD}/scripts:/scripts grafana/k6 run /scripts/perf-test.js
+docker run --rm -e BASE_URL=http://host.docker.internal:8081 -v ${PWD}/scripts:/scripts grafana/k6 run /scripts/perf-test.js
 ```
 
-**Bash (Linux/macOS/Git Bash)** — stdin redirect veya volume mount:
+**Bash (Linux/macOS/Git Bash)** — Linux'ta `--network host` çalışıyor; default `localhost:8081` direkt host'u işaret eder:
 ```bash
-# stdin
 docker run --rm -i --network host grafana/k6 run - < scripts/perf-test.js
 # veya volume
 docker run --rm --network host -v "$PWD/scripts:/scripts" grafana/k6 run /scripts/perf-test.js
@@ -45,16 +41,26 @@ docker run --rm --network host -v "$PWD/scripts:/scripts" grafana/k6 run /script
 k6 run scripts/perf-test.js
 ```
 
+**Farklı host'a karşı** (staging vb.) — `BASE_URL` env'i geç:
+```
+docker run --rm -e BASE_URL=http://staging:8081 -v ${PWD}/scripts:/scripts grafana/k6 run /scripts/perf-test.js
+```
+
 #### Beklenen Çıktı
 ```
-✓ http_req_duration..............: p(95)=842ms  ✓
-✓ http_req_failed................: 0.00%        ✓
+✓ http_req_duration..............: p(95)<2000ms
+✓ http_req_failed................: 0.00%
+checks_succeeded.................: 100.00%
 ```
 
 ## Son rapor
 
-| Tarih | Ortam | P95 | Hata | Sonuç |
-|---|---|---|---|---|
-| _henüz çalıştırılmadı_ | local | — | — | — |
+| Tarih | Ortam | P50 | P90 | **P95** | Max | Hata | Throughput | Sonuç |
+|---|---|---|---|---|---|---|---|---|
+| 2026-06-05 | local (Win11 + Docker Desktop) | 8.77ms | 798ms | **843ms** | 1.59s | 0.00% | 14 req/s, 1.8 MB/s | ✅ Geçti |
 
-Test çalıştırıldıktan sonra sonuç bu tabloya işlenecek.
+### Notlar
+- Median 8.77ms — çoğu endpoint'i Redis cache'ten 10ms altı dönüyor.
+- P95 ~843ms — `/api/market-data/all` endpoint'i cold-cache durumda 1-1.6s alıyor (7 paralel iç çağrı).
+- Toplam 1396 istek tamamlandı, **sıfır hata**, 179 MB veri transfer.
+- Threshold ihlali yok;  §9.1 hedefi (<2sn) marjla karşılanıyor.
