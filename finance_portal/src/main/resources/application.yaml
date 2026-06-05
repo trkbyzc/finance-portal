@@ -2,8 +2,13 @@ spring:
   application:
     name: finance-portal
   profiles:
-    # 'local' profile application-local.yml dosyasındaki API key'leri yükler
-    # (dosya gitignore'da, sadece geliştirici bilgisayarında bulunur)
+    # Aktif profil zinciri (son okunan üstte):
+    #   dev    — application-dev.yml: SQL log, full actuator, DEBUG log
+    #   local  — application-local.yml: API key'ler (gitignored, dev makinesi)
+    #   docker — application-docker.yml: container DNS + Keycloak JWK
+    #   prod   — application-prod.yml: hardening (log WARN, actuator kısıtlı)
+    #   test   — application-test.yml: H2 in-memory, mock'lar
+    # Override sırası: profil dosyası > base application.yaml > kod default'u.
     active: ${SPRING_PROFILES_ACTIVE:dev,local}
 
   # PostgreSQL Konfigürasyonu

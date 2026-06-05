@@ -1,0 +1,73 @@
+# =====================================================================
+# PROD profile — canlı/üretim için güvenlik + performans sertleştirmesi
+# =====================================================================
+# Aktive: SPRING_PROFILES_ACTIVE=prod
+# Tüm secret'lar env variable'dan gelmeli (.env veya k8s Secret).
+# application-local.yml prod'da YÜKLENMEMELİDİR (dev-only).
+
+spring:
+  jpa:
+    # SQL log basma — performans + güvenlik (query plan PII içerebilir)
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        generate_statistics: false
+
+  # DataSource HikariCP — prod için daha agresif connection pool
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+
+# Actuator — sadece monitoring için zorunlu olanlar dış dünyaya
+# health/info/prometheus public, diğerleri (heapdump, env, beans) KAPALI
+# (S5852 — endpoint exposure attack surface'ı azaltır)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+        exclude: "env,beans,configprops,heapdump,threaddump,mappings,loggers"
+  endpoint:
+    health:
+      # PII sızdırmasın — sadece authenticated kullanıcı detay görsün
+      show-details: never
+      show-components: never
+    info:
+      enabled: true
+  info:
+    git:
+      mode: simple   # commit hash + branch (debug için), full diff yok
+
+# Server hardening — error response'ta stack trace verme
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+  # Server header'ı gizle — fingerprinting'i zorlaştırır
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: true
+        same-site: strict
+
+logging:
+  level:
+    root: WARN
+    com.financeportal: INFO
+    org.springframework: WARN
+    org.springframework.security: WARN
+    # Hibernate WARN'a → query log basmasın, ama veri bütünlüğü uyarıları kalsın
+    org.hibernate: WARN
+  # Konsola değil dosyaya yaz (container'da stdout'a yine yazılır, Logstash okur)
+  pattern:
+    # JSON format'a geçtiğimiz için console pattern stripped
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%X{trace_id:-}] %c{1} - %m%n"

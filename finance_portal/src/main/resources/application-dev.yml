@@ -1,0 +1,39 @@
+# =====================================================================
+# DEV profile — geliştirici makinesinde mvnw spring-boot:run varsayılanı
+# =====================================================================
+# application.yaml `${SPRING_PROFILES_ACTIVE:dev,local}` ile bu dosyayı
+# implicit aktive ediyordu; explicit hale getirdik ki override'lar
+# tek bir yerden okunsun. application-local.yml (secret'lar) bunun
+# üstüne yüklenir.
+
+spring:
+  jpa:
+    # Geliştirme aşamasında SQL query'leri konsola dökülsün — debug + n+1 tespiti
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # Statistics sayfaları için connection metrik'leri
+        generate_statistics: false
+
+# Actuator dev'de TÜM endpoint'leri açsın — heapdump, threaddump, env, beans vs.
+# Production'da bunlar kapatılır (bkz. application-prod.yml).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      # show-details=always — token validation hatası incelemek için
+      show-details: always
+
+logging:
+  level:
+    # Spring/Hibernate INFO+, kendi paketimiz DEBUG (akış görünür olsun)
+    root: INFO
+    com.financeportal: DEBUG
+    org.springframework.security: INFO
+    # SQL parametre değerleri — show-sql ile birlikte kullan
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

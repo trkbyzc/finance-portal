@@ -1,0 +1,90 @@
+# =====================================================================
+# TEST profile — unit/integration test'ler için izole ortam
+# =====================================================================
+# Aktive: @ActiveProfiles("test") veya SPRING_PROFILES_ACTIVE=test
+# Dış bağımlılık yok — H2 in-memory DB, mock'lanmış 3rd-party (Wiremock vs.)
+# Mevcut backend test'leri (1014) Mockito ile servisleri izole ettiği için
+# bu profile zorunlu değil, ama integration test'i için kullanılır.
+
+spring:
+  # H2 in-memory — testlerde container/Postgres gerekmez
+  datasource:
+    url: jdbc:h2:mem:finance_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 2  # test scope'una yeter
+
+  jpa:
+    # Test'te Flyway çalışmadığı için Hibernate tablo yaratsın
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Flyway off — H2'de migration script'leri Postgres-spesifik olduğu için patlar
+  flyway:
+    enabled: false
+
+  # Test'te DB/Redis/Kafka yok — auto-config'leri kapat
+  data:
+    redis:
+      repositories:
+        enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
+  # Keycloak/OAuth2 testte mock
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+          jwk-set-uri:
+
+# Mock 3rd party API'leri — testte dış istek YOK
+evds:
+  api-key: "test-key"
+external-api:
+  fred:
+    api-key: "test-key"
+  fmp:
+    api-key: "test-key"
+  finnhub:
+    api-key: "test-key"
+  libretranslate:
+    url: "http://localhost:0"  # disabled
+
+app:
+  mail:
+    enabled: false
+  chat:
+    enabled: false
+  llm:
+    primary: groq
+    groq:
+      api-key: "test-key"
+    gemini:
+      api-key: "test-key"
+
+# OTel testte tamamen kapalı
+otel:
+  exporter:
+    otlp:
+      endpoint:
+  sdk:
+    disabled: true
+
+logging:
+  level:
+    root: WARN
+    com.financeportal: INFO
