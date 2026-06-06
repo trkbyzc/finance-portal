@@ -1,0 +1,33 @@
+# cert-manager — Let's Encrypt sertifikalarını otomatik yönetir.
+#
+# Kurulum: bu manifest cert-manager namespace'i + bütün CRD'leri içerir.
+# Apply sonrası ~1 dakika içinde 3 deployment Ready olur (cert-manager,
+# cainjector, webhook). Sonra ClusterIssuer aktif edilebilir.
+#
+# Apply:
+#   kubectl apply -f k8s/network/71-cert-manager.yaml
+#   kubectl wait --for=condition=Available --timeout=180s \
+#     deployment/cert-manager deployment/cert-manager-webhook \
+#     deployment/cert-manager-cainjector -n cert-manager
+#
+# Sonra ClusterIssuer (72-letsencrypt-issuer.yaml) apply edilebilir.
+
+# cert-manager v1.15.0 official install manifest URL'si — büyük olduğu için
+# inline gömmek yerine kubectl apply -f https://... ile pull edilir.
+# K8s-native approach: HelmRepository veya gibi araç YOK; düz YAML.
+#
+# Alternatif (offline / immutable build için):
+#   curl -L https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml -o k8s/network/71-cert-manager-bundle.yaml
+#   kubectl apply -f k8s/network/71-cert-manager-bundle.yaml
+#
+# Şimdilik en pratik:
+#   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
+#
+# Bu dosya placeholder/dökümantasyon — gerçek apply yukarıdaki URL ile yapılır.
+# open-cluster.ps1 scripti bunu otomatik çalıştırır.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+  labels:
+    name: cert-manager

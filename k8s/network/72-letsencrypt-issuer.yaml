@@ -1,0 +1,42 @@
+# ClusterIssuer — Let's Encrypt prod + staging endpoint'leri.
+#
+# Staging: rate-limit sıkı değil, test için. Sertifika BROWSER'da "untrusted"
+# görünür ama setup'ı doğrulamak için ideal.
+# Prod: gerçek browser-trusted sertifika, rate-limit 50 cert / 7 gün / domain.
+#
+# Ingress'te kullanım:
+#   metadata.annotations:
+#     cert-manager.io/cluster-issuer: letsencrypt-prod
+#   spec.tls:
+#     - hosts: [34-36-210-150.nip.io]
+#       secretName: finance-portal-tls
+
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: turkbey.yozcu@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-staging-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: turkbey.yozcu@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx

@@ -1,19 +1,41 @@
-# GKE Ingress — Google Cloud HTTP(S) Load Balancer.
-# - "/" → frontend (nginx, SPA + /api proxy + /auth proxy)
-# - Backend ve Keycloak frontend nginx üzerinden proxy'leniyor; ingress'te ayrı path açmaya gerek yok.
-# - LB IP atanması ~1-2 dakika sürer. Public IP'yi:
-#     kubectl get ingress -n finance finance-portal-ingress -w
+# Finance Portal Ingress — NGINX Ingress Controller + cert-manager TLS.
+#
+# NGINX Ingress kurulumu (cluster oluştuktan sonra):
+#   helm install ingress-nginx ingress-nginx/ingress-nginx \
+#     --namespace ingress-nginx --create-namespace
+#   # veya YAML ile:
+#   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/cloud/deploy.yaml
+#
+# Public IP:
+#   kubectl get svc ingress-nginx-controller -n ingress-nginx \
+#     -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+#
+# Hostname: <IP>.nip.io (örn. 34-36-210-150.nip.io)
+# open-cluster.ps1 scripti bu host'u otomatik tespit edip burayı patch eder.
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: finance-portal-ingress
   namespace: finance
   annotations:
-    # GKE built-in Ingress controller — ekstra add-on kurmaya gerek yok.
-    kubernetes.io/ingress.class: "gce"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
 spec:
-  defaultBackend:
-    service:
-      name: app-frontend
-      port:
-        number: 80
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - REPLACE_WITH_HOST.nip.io      # open-cluster.ps1 patch eder
+      secretName: finance-portal-tls
+  rules:
+    - host: REPLACE_WITH_HOST.nip.io     # open-cluster.ps1 patch eder
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-frontend
+                port:
+                  number: 80
