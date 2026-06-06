@@ -25,6 +25,13 @@ spring:
     # port 9092. Env var ile override (KAFKA_BOOTSTRAP_SERVERS).
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
 
+# CORS: docker-compose local'de http://localhost:5173; K8s/cloud HTTPS nip.io
+# host'undan istek atar. Env CORS_ALLOWED_ORIGINS ile override edilir (open-cluster.ps1
+# ve k6/HPA testleri sirasinda dogru pattern).
+security:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:*}
+
   security:
     oauth2:
       resourceserver:
