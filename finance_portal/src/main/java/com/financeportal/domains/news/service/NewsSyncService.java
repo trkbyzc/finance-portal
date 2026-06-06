@@ -89,7 +89,12 @@ public class NewsSyncService {
     }
 
     /** Zamanlı sync — startup'taki ilk run'dan sonra her 15dk'da bir.
-     *  initialDelay yok: syncOnStartupWhenTranslationReady() ilk run'u zaten halletti. */
+     *  initialDelay yok: syncOnStartupWhenTranslationReady() ilk run'u zaten halletti.
+     *  <p>
+     *  İKİ AŞAMALI PERSIST: önce RSS'ten gelen haberler (TR title/description) HEMEN
+     *  cache'e yazılır → frontend boş kalmaz (özellikle Redis flush sonrası kritik).
+     *  Sonra LibreTranslate ile titleEn/descriptionEn çevirileri yapılıp cache güncellenir.
+     *  Çeviri 60 başlık × 12sn = 12 dk sürebileceği için kullanıcı bunca süre beklemesin. */
     @Scheduled(fixedDelay = 900000, initialDelay = 900000)
     public void fetchAndCacheNews() {
         try {
@@ -103,8 +108,15 @@ public class NewsSyncService {
             if (newlyAddedCount > 0 || purgedCount > 0) {
                 masterList.sort((a, b) -> b.getPubDate().compareTo(a.getPubDate()));
             }
+            // 1. AŞAMA: çevirisiz haberler hemen cache'e yazılsın → frontend dolsun.
+            if (newlyAddedCount + retaggedCount + purgedCount > 0) {
+                persistIfChanged(masterList, newlyAddedCount + retaggedCount, 0, purgedCount, startTime);
+            }
+            // 2. AŞAMA: EN başlık/description çevirilerini yap + tekrar yaz (varsa çevrilen).
             int translatedCount = translatePendingNews(masterList);
-            persistIfChanged(masterList, newlyAddedCount + retaggedCount, translatedCount, purgedCount, startTime);
+            if (translatedCount > 0) {
+                persistIfChanged(masterList, 0, translatedCount, 0, startTime);
+            }
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
         }
