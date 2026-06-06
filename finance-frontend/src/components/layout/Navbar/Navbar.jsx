@@ -12,6 +12,7 @@ import UserDrawer from '../UserDrawer';
 import Avatar from '../../profile/Avatar';
 import useProfileAvatar from '../../../hooks/useProfileAvatar';
 import { useAuth } from '../../../context/AuthContext';
+import { goToLogin, goToRegister } from '../../../utils/keycloak';
 
 export default function Navbar() {
     const { isAuthenticated, user } = useAuth();
@@ -153,25 +154,13 @@ export default function Navbar() {
                         ) : (
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => {
-                                        window.location.href = 'http://localhost:8080/realms/finance-realm/protocol/openid-connect/registrations?' +
-                                            'client_id=finance-client&' +
-                                            'redirect_uri=http://localhost:5173/auth/callback&' +
-                                            'response_type=code&' +
-                                            'scope=openid';
-                                    }}
+                                    onClick={goToRegister}
                                     className="hidden sm:inline-flex px-3.5 py-2 text-xs font-bold rounded-lg border border-nav-border text-nav-text hover:bg-nav-text/10 transition-all min-h-9"
                                 >
                                     {t('navbar:register')}
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        window.location.href = 'http://localhost:8080/realms/finance-realm/protocol/openid-connect/auth?' +
-                                            'client_id=finance-client&' +
-                                            'redirect_uri=http://localhost:5173/auth/callback&' +
-                                            'response_type=code&' +
-                                            'scope=openid';
-                                    }}
+                                    onClick={goToLogin}
                                     className="px-3.5 py-2 text-xs font-bold rounded-lg bg-primary hover:bg-primary-hover text-primary-fg shadow-sm shadow-primary/30 transition-all min-h-9"
                                 >
                                     {t('navbar:login')}
