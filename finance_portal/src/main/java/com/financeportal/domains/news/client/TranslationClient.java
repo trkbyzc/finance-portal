@@ -9,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Lingva Translate self-hosted (docker-compose içinde) için ince HTTP istemcisi.
@@ -54,10 +55,12 @@ public class TranslationClient {
     }
 
     /**
-     * Lingva tek istekte ~5000 chars çevirir (Google Translate ön yüz limit'i). Daha uzunsa
-     * caller {@code NewsService.translateLongText} ile chunk'lar.
+     * Lingva GET path-segment olarak text alır; Türkçe UTF-8 karakterleri URI-encoded'da
+     * 6x büyür (1 char → %XX%XX). Server URL limiti ~8KB → Türkçe için güvenli üst sınır
+     * ~2500 char (URL ~7.4KB). Daha uzunsa caller {@code NewsService.translateLongText}
+     * ile chunk'lar.
      */
-    private static final int MAX_TEXT_LENGTH = 5000;
+    private static final int MAX_TEXT_LENGTH = 2500;
 
     /** TR → EN. Boş/null girdi olduğunda erken çıkar. Başarısızlıkta null. */
     public String translate(String text, String source, String target) {
@@ -68,12 +71,11 @@ public class TranslationClient {
         }
         URI uri;
         try {
-            // Lingva URL'inde text path segment olarak gider; "/" ve özel karakterler bozar →
-            // UriComponentsBuilder.fromUriString + path segment encode.
-            uri = UriComponentsBuilder.fromUriString(baseUrl)
-                    .pathSegment("api", "v1", source, target, text)
-                    .build()
-                    .toUri();
+            // UriComponentsBuilder.pathSegment '.' / ':' gibi karakterleri encode etmiyor;
+            // Lingva backend bazı text'lerde 404 dönüyor. URLEncoder ile manuel encode
+            // (urllib.parse.quote ile aynı davranış). Space için '+' yerine '%20'.
+            String encoded = URLEncoder.encode(text, StandardCharsets.UTF_8).replace("+", "%20");
+            uri = URI.create(baseUrl + "/api/v1/" + source + "/" + target + "/" + encoded);
         } catch (Exception e) {
             log.warn("[TRANSLATE] URI build hatası ({} chars): {}", text.length(), e.getMessage());
             return null;
@@ -103,10 +105,7 @@ public class TranslationClient {
     /** Lingva ayakta mı? Sağlık kontrolü kısa bir çeviri ile (Lingva'da /health endpoint yok). */
     public boolean isAvailable() {
         try {
-            URI uri = UriComponentsBuilder.fromUriString(baseUrl)
-                    .pathSegment("api", "v1", "tr", "en", "test")
-                    .build()
-                    .toUri();
+            URI uri = URI.create(baseUrl + "/api/v1/tr/en/test");
             ResponseEntity<String> resp = restTemplate.getForEntity(uri, String.class);
             return resp.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
