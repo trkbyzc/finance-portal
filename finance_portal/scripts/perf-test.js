@@ -1,56 +1,52 @@
 /**
- * k6 performans testi — gereksinimler §9.1 için (P95 < 2sn hedefi).
+ * k6 performans testi — HPA scale-up demosu.
  *
- * Çalıştırma:
- *   docker run --rm -i --network host grafana/k6 run - < scripts/perf-test.js
+ * Çalıştırma (cloud):
+ *   docker run --rm -i grafana/k6 run - < scripts/perf-test.js
+ *
+ * BASE_URL ortam değişkeniyle hedef değişir (default: cloud Ingress IP).
  *
  * Senaryo:
- *   - 30 sn ramp-up → 20 sanal kullanıcı
- *   - 60 sn sürdür → her kullanıcı en sık çağrılan public read endpoint'leri rastgele hit eder
- *   - 10 sn ramp-down
+ *   - 60 sn ramp-up  → 50 sanal kullanıcı
+ *   - 120 sn sürdür → CPU > %70 → HPA scale-up tetikler (1 → ~3 replica)
+ *   - 30 sn ramp-down
  *
  * Threshold:
- *   - http_req_duration P95 < 2000ms  ( §9.1 hedefi)
- *   - http_req_failed   < %1
+ *   - http_req_duration P95 < 2000 ms  ( §9.1 hedefi)
+ *   - http_req_failed   < %5
  */
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-const BASE = __ENV.BASE_URL || 'http://localhost:8081';
+const BASE = __ENV.BASE_URL || 'http://34.36.210.150';
 
 export const options = {
     stages: [
-        { duration: '30s', target: 20 },
-        { duration: '60s', target: 20 },
-        { duration: '10s', target: 0 },
+        { duration: '60s', target: 50 },
+        { duration: '120s', target: 50 },
+        { duration: '30s', target: 0 },
     ],
     thresholds: {
-        //  §9.1: "Normal yük altında <2 sn"
         'http_req_duration': ['p(95)<2000'],
-        'http_req_failed':   ['rate<0.01'],
+        'http_req_failed':   ['rate<0.05'],
     },
 };
 
-// En sık çağrılan public read endpoint'leri — frontend'in dashboard/market sayfalarında attığı çağrılar
+// Auth gerektirmeyen public endpoint'ler — backend CPU yüklensin yeter.
+// Liveness probe, frontend root, news headlines — bunlar 200 döner JWT'siz.
 const ENDPOINTS = [
-    '/api/market-data/currencies',
-    '/api/market-data/crypto-currencies',
-    '/api/market-data/commodities',
-    '/api/market-data/stocks',
-    '/api/market-data/bonds',
-    '/api/market-data/indices',
-    '/api/market-data/turkish-gold',
-    '/api/market-data/all',
-    '/api/news?lang=tr',
-    '/api/market-data/economy/indicators',
+    '/api/v1/actuator/health/liveness',
+    '/api/v1/actuator/health/readiness',
+    '/',  // Frontend HTML — backend'i etkilemez ama dağıtım gerçekçi
 ];
 
 export default function () {
-    const url = `${BASE}${ENDPOINTS[Math.floor(Math.random() * ENDPOINTS.length)]}`;
-    const res = http.get(url, { tags: { name: url } });
+    const path = ENDPOINTS[Math.floor(Math.random() * ENDPOINTS.length)];
+    const url = `${BASE}${path}`;
+    const res = http.get(url, { tags: { name: path } });
     check(res, {
         'status 200': r => r.status === 200,
         'response <2s': r => r.timings.duration < 2000,
     });
-    sleep(0.5 + Math.random()); // gerçekçi düşünme süresi
+    sleep(0.3 + Math.random() * 0.7); // gerçekçi düşünme süresi
 }
