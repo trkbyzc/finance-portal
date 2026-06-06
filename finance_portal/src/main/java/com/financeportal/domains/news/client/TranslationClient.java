@@ -37,11 +37,18 @@ public class TranslationClient {
         this.restTemplate = new RestTemplate();
     }
 
+    /**
+     * Per-call güvenli üst sınır. LibreTranslate default 10000 char POST limiti var; biraz
+     * marj bırakarak 9500. Daha uzun girdi NewsService.translateLongText tarafından
+     * chunk'lara bölülür; tek tek bu metoda gelir.
+     */
+    private static final int MAX_TEXT_LENGTH = 9500;
+
     /** TR → EN. Boş/null girdi olduğunda erken çıkar. Başarısızlıkta null. */
     public String translate(String text, String source, String target) {
         if (text == null || text.isBlank()) return null;
-        if (text.length() > 5000) {
-            log.debug("[TRANSLATE] Metin 5000 karakterden uzun, atlanıyor.");
+        if (text.length() > MAX_TEXT_LENGTH) {
+            log.debug("[TRANSLATE] Metin {} karakterden uzun, atlanıyor.", MAX_TEXT_LENGTH);
             return null;
         }
         try {

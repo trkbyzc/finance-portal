@@ -13,6 +13,9 @@ import java.time.Duration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -28,6 +31,9 @@ public class NewsService {
     private static final Duration CONTENT_EN_TTL = Duration.ofDays(7);
     private static final String CATEGORY_ALL_TR = "Tümü";
     private static final String CATEGORY_ALL_EN = "All";
+
+    /** Şu an arka planda EN çevirisi yapılan URL'ler — aynı isteği iki kere tetiklemeyelim. */
+    private final Set<String> enTranslationInFlight = ConcurrentHashMap.newKeySet();
 
     /** Aktif dile göre haberleri filtreler. EN talep edildiğinde DTO clone'unda title/description/category EN'e swap'lanır. */
     public Map<String, Object> getPagedNews(String category, int page, int size, String lang) {
@@ -64,8 +70,16 @@ public class NewsService {
     }
 
     /**
-     * Detay sayfası içeriği. EN'de çeviri Redis'te 7 gün cache'lenir (URL hash ile).
-     * Translation API kapalıysa fallback Türkçe içerik döner.
+     * Detay sayfası içeriği.
+     * <p>
+     * EN davranışı: cache hit → çeviri döner; cache miss → TR içerik ANINDA döner ve EN çeviri
+     * ARKA PLANDA başlatılır (sonraki ziyarette EN gözükür). LibreTranslate her çağrıda
+     * ~10-30sn aldığı için senkron beklemek frontend timeout'una takılıyor ve "Article not
+     * found" çıkıyordu. Bu sayede:
+     *   - 1. ziyaret (cache miss): user TR içeriği ANINDA görür (kötü ihtimalde TR'yi okur).
+     *   - Arka plan çevirisi 10-30sn'de Redis'e yazılır.
+     *   - 2. ziyaret: cache hit → instant EN.
+     * Aynı URL için tek bir arka plan task çalışır ({@link #enTranslationInFlight} guard'ı).
      */
     public String getArticleContent(String url, String lang) {
         String trContent = newsScraperClient.scrapeArticleContent(url);
@@ -77,16 +91,33 @@ public class NewsService {
         String cached = stringRedisTemplate.opsForValue().get(cacheKey);
         if (cached != null && !cached.isEmpty()) return cached;
 
-        String translated = translateLongText(trContent);
-        if (translated != null && !translated.isBlank()) {
-            try {
-                stringRedisTemplate.opsForValue().set(cacheKey, translated, CONTENT_EN_TTL);
-            } catch (Exception e) {
-                log.warn("[NEWS_SERVICE] EN content cache yazılamadı: {}", e.getMessage());
-            }
-            return translated;
-        }
+        // Cache miss → TR'yi anında dön + arka planda EN çevirisini başlat.
+        triggerBackgroundTranslation(url, cacheKey, trContent);
         return trContent;
+    }
+
+    private void triggerBackgroundTranslation(String url, String cacheKey, String trContent) {
+        if (!enTranslationInFlight.add(url)) {
+            return; // başka bir thread zaten çeviriyor
+        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                log.info("[NEWS_SERVICE] Background EN translation started: {}", url);
+                long t0 = System.currentTimeMillis();
+                String translated = translateLongText(trContent);
+                if (translated != null && !translated.isBlank()) {
+                    stringRedisTemplate.opsForValue().set(cacheKey, translated, CONTENT_EN_TTL);
+                    log.info("[NEWS_SERVICE] EN translation cached ({} chars, {} ms): {}",
+                            translated.length(), System.currentTimeMillis() - t0, url);
+                } else {
+                    log.warn("[NEWS_SERVICE] EN translation returned empty for: {}", url);
+                }
+            } catch (Exception e) {
+                log.warn("[NEWS_SERVICE] Background EN translation failed for {}: {}", url, e.getMessage());
+            } finally {
+                enTranslationInFlight.remove(url);
+            }
+        });
     }
 
     public String getArticleContent(String url) {
@@ -99,18 +130,21 @@ public class NewsService {
     }
 
     /**
-     * Uzun metni 4500 karakterlik parçalara bölerek çevirir. LibreTranslate her POST için
-     * ~10000 limit verir; güvenli marj için 4500'lük chunks. Paragraf sınırlarında böleriz.
+     * Uzun metni chunk'lara bölerek çevirir. LibreTranslate POST limit ~10000 char; güvenli
+     * marj için 9000'lik chunk. Önceden 4500 idi → 2 katı sığar, çağrı sayısı yarıya iner →
+     * cold call süresi ~30sn → ~15sn (frontend timeout 30sn'ye çıkarıldı). Paragraf sınırında böl.
      */
+    private static final int CHUNK_SIZE = 9000;
+
     private String translateLongText(String text) {
         if (text == null) return null;
-        if (text.length() <= 4500) {
+        if (text.length() <= CHUNK_SIZE) {
             return translationClient.translate(text, "tr", "en");
         }
         StringBuilder out = new StringBuilder(text.length());
         int idx = 0;
         while (idx < text.length()) {
-            int end = Math.min(idx + 4500, text.length());
+            int end = Math.min(idx + CHUNK_SIZE, text.length());
             if (end < text.length()) {
                 int lastBreak = text.lastIndexOf("\n\n", end);
                 if (lastBreak > idx) end = lastBreak;
