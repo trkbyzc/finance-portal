@@ -130,11 +130,10 @@ public class NewsService {
     }
 
     /**
-     * Uzun metni chunk'lara bölerek çevirir. LibreTranslate POST limit ~10000 char; güvenli
-     * marj için 9000'lik chunk. Önceden 4500 idi → 2 katı sığar, çağrı sayısı yarıya iner →
-     * cold call süresi ~30sn → ~15sn (frontend timeout 30sn'ye çıkarıldı). Paragraf sınırında böl.
+     * Uzun metni chunk'lara bölerek çevirir. Lingva (Google Translate ön yüzü) tek istekte
+     * ~5000 char çevirir; güvenli marj için 4500'lük chunk. Paragraf sınırında böl.
      */
-    private static final int CHUNK_SIZE = 9000;
+    private static final int CHUNK_SIZE = 4500;
 
     private String translateLongText(String text) {
         if (text == null) return null;

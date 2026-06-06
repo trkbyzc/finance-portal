@@ -2,22 +2,26 @@ package com.financeportal.domains.news.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Map;
+import java.net.URI;
 
 /**
- * LibreTranslate self-hosted (docker-compose içinde) için ince HTTP istemcisi.
- * Sadece TR ↔ EN. Çevrilen metin >=5000 karakterse atlanır (LibreTranslate request limiti
- * 10000; ama haber title/description bu sınırın çok altında, fallback olarak null döner).
+ * Lingva Translate self-hosted (docker-compose içinde) için ince HTTP istemcisi.
+ * Sadece TR ↔ EN. Lingva Google Translate ön yüzüdür: hızlı, ücretsiz, API key gerekmez.
+ * <p>
+ * API: {@code GET /api/v1/{source}/{target}/{url-encoded-text}} → {@code {"translation": "..."}}
+ * <p>
  * Başarısızlıkta null döner — caller fallback'i kendi yönetir (kaynak dili göster).
+ * Önceki LibreTranslate sürümü CPU-only Docker'da çağrı başı 10-30sn alıyordu; Lingva
+ * Google'ı arkadan kullandığı için ~200-500ms.
  */
 @Component
 @Slf4j
@@ -26,10 +30,10 @@ public class TranslationClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${external-api.libretranslate.url:http://localhost:5050}")
+    @Value("${external-api.lingva.url:http://localhost:5050}")
     private String baseUrl;
 
-    @Value("${external-api.libretranslate.timeout-ms:8000}")
+    @Value("${external-api.lingva.timeout-ms:15000}")
     private int timeoutMs;
 
     public TranslationClient(ObjectMapper objectMapper) {
@@ -38,11 +42,22 @@ public class TranslationClient {
     }
 
     /**
-     * Per-call güvenli üst sınır. LibreTranslate default 10000 char POST limiti var; biraz
-     * marj bırakarak 9500. Daha uzun girdi NewsService.translateLongText tarafından
-     * chunk'lara bölülür; tek tek bu metoda gelir.
+     * Timeout'suz RestTemplate, downstream yanıt vermezse sonsuza kadar bekliyor (ve
+     * NewsSync isAvailable() poll'ü startup'ta kilitleyebiliyor). Connect/read timeout zorunlu.
      */
-    private static final int MAX_TEXT_LENGTH = 9500;
+    @PostConstruct
+    void configureTimeouts() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5_000);
+        factory.setReadTimeout(timeoutMs);
+        restTemplate.setRequestFactory(factory);
+    }
+
+    /**
+     * Lingva tek istekte ~5000 chars çevirir (Google Translate ön yüz limit'i). Daha uzunsa
+     * caller {@code NewsService.translateLongText} ile chunk'lar.
+     */
+    private static final int MAX_TEXT_LENGTH = 5000;
 
     /** TR → EN. Boş/null girdi olduğunda erken çıkar. Başarısızlıkta null. */
     public String translate(String text, String source, String target) {
@@ -51,34 +66,48 @@ public class TranslationClient {
             log.debug("[TRANSLATE] Metin {} karakterden uzun, atlanıyor.", MAX_TEXT_LENGTH);
             return null;
         }
+        URI uri;
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, Object> body = Map.of(
-                    "q", text,
-                    "source", source,
-                    "target", target,
-                    "format", "text"
-            );
-            HttpEntity<Map<String, Object>> req = new HttpEntity<>(body, headers);
-
-            ResponseEntity<String> resp = restTemplate.postForEntity(baseUrl + "/translate", req, String.class);
-            if (resp.getBody() == null) return null;
+            // Lingva URL'inde text path segment olarak gider; "/" ve özel karakterler bozar →
+            // UriComponentsBuilder.fromUriString + path segment encode.
+            uri = UriComponentsBuilder.fromUriString(baseUrl)
+                    .pathSegment("api", "v1", source, target, text)
+                    .build()
+                    .toUri();
+        } catch (Exception e) {
+            log.warn("[TRANSLATE] URI build hatası ({} chars): {}", text.length(), e.getMessage());
+            return null;
+        }
+        try {
+            ResponseEntity<String> resp = restTemplate.getForEntity(uri, String.class);
+            if (resp.getBody() == null) {
+                log.warn("[TRANSLATE] Empty body, status={}", resp.getStatusCode());
+                return null;
+            }
 
             JsonNode node = objectMapper.readTree(resp.getBody());
-            JsonNode translated = node.path("translatedText");
-            return translated.isMissingNode() || translated.isNull() ? null : translated.asText();
+            JsonNode translated = node.path("translation");
+            if (translated.isMissingNode() || translated.isNull()) {
+                log.warn("[TRANSLATE] No 'translation' field in response (len={}): {}",
+                        resp.getBody().length(), resp.getBody().substring(0, Math.min(200, resp.getBody().length())));
+                return null;
+            }
+            return translated.asText();
         } catch (Exception e) {
-            log.warn("[TRANSLATE] {} → {} hatası: {}", source, target, e.getMessage());
+            log.warn("[TRANSLATE] {} → {} hatası ({} chars): {} — {}",
+                    source, target, text.length(), e.getClass().getSimpleName(), e.getMessage());
             return null;
         }
     }
 
-    /** LibreTranslate ayakta mı? false ise sync sırasında çeviri atlanır. */
+    /** Lingva ayakta mı? Sağlık kontrolü kısa bir çeviri ile (Lingva'da /health endpoint yok). */
     public boolean isAvailable() {
         try {
-            ResponseEntity<String> resp = restTemplate.getForEntity(baseUrl + "/languages", String.class);
+            URI uri = UriComponentsBuilder.fromUriString(baseUrl)
+                    .pathSegment("api", "v1", "tr", "en", "test")
+                    .build()
+                    .toUri();
+            ResponseEntity<String> resp = restTemplate.getForEntity(uri, String.class);
             return resp.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
             return false;

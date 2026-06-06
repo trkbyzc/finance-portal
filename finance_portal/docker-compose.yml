@@ -55,26 +55,15 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
-  # LibreTranslate — self-hosted TR<->EN çevirici. İlk açılışta language model'leri
-  # indirir (~500MB tr+en). LOAD_ONLY ile sadece TR ve EN modelleri yüklenir, RAM tasarrufu.
-  # API: POST http://localhost:5050/translate  body: {q, source, target}
+  # Lingva Translate — self-hosted Google Translate ön yüzü (no API key gerekir).
+  # LibreTranslate'in yerine: ~200-500ms per call (CPU-only LT ~10-30sn idi). Kalite Google'ın.
+  # API: GET http://localhost:3000/api/v1/{source}/{target}/{text}  →  {"translation": "..."}
   # NewsSyncService TR haberlerin title/description'ını EN'e çeviriyor (sync sırasında).
-  libretranslate:
-    image: libretranslate/libretranslate:latest
-    container_name: finance-libretranslate
-    # Modeller container'ın kendi dizininde kalsın — named volume permission sorunu
-    # (Errno 13) çıkarıyor. docker rm yapılmadığı sürece modeller kalıcı.
-    environment:
-      LT_LOAD_ONLY: "tr,en"
-      LT_DISABLE_WEB_UI: "false"
-      LT_UPDATE_MODELS: "false"
+  lingva:
+    image: thedaviddelta/lingva-translate:latest
+    container_name: finance-lingva
     ports:
-      - "5050:5000"
-    healthcheck:
-      test: ["CMD-SHELL", "./venv/bin/python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/languages')\" || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 30
+      - "5050:3000"
     restart: unless-stopped
 
   openldap:
@@ -289,7 +278,7 @@ services:
       KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
       ELASTICSEARCH_URI: http://opensearch:9200
       LDAP_URL: ldap://openldap:389
-      LIBRETRANSLATE_URL: http://libretranslate:5000
+      LINGVA_URL: http://lingva:3000
       # Keycloak issuer: browser ile aynı (token iss claim match için)
       KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/finance-realm
       # JWK Set: backend container içinden keycloak'a internal DNS ile

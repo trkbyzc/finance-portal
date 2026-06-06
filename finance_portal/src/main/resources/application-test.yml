@@ -61,7 +61,7 @@ external-api:
     api-key: "test-key"
   finnhub:
     api-key: "test-key"
-  libretranslate:
+  lingva:
     url: "http://localhost:0"  # disabled
 
 app:

@@ -66,11 +66,11 @@ public class NewsSyncService {
     @EventListener(ApplicationReadyEvent.class)
     public void syncOnStartupWhenTranslationReady() {
         CompletableFuture.runAsync(() -> {
-            log.info("[NEWS_SYNC] Startup: LibreTranslate hazır olması bekleniyor (max 3dk)...");
+            log.info("[NEWS_SYNC] Startup: çeviri servisi (Lingva) hazır olması bekleniyor (max 3dk)...");
             int maxAttempts = 36; // 36 × 5sn = 3dk
             for (int i = 0; i < maxAttempts; i++) {
                 if (translationClient.isAvailable()) {
-                    log.info("[NEWS_SYNC] LibreTranslate hazır, ilk sync başlatılıyor.");
+                    log.info("[NEWS_SYNC] Lingva hazır, ilk sync başlatılıyor.");
                     try {
                         fetchAndCacheNews();
                     } catch (Exception e) {
@@ -83,7 +83,7 @@ public class NewsSyncService {
             }
             // Yine de bir RSS-only sync yapalım — çevirisiz haberler frontend'de TR olarak görünür,
             // sonraki 15-dk zamanlı sync'lerde LibreTranslate ayağa kalkmışsa çevrilirler.
-            log.warn("[NEWS_SYNC] LibreTranslate 3dk içinde hazır olmadı, RSS-only sync yapılıyor.");
+            log.warn("[NEWS_SYNC] Lingva 3dk içinde hazır olmadı, RSS-only sync yapılıyor.");
             try { fetchAndCacheNews(); } catch (Exception ignored) { /* zamanlı sync devralır */ }
         });
     }
@@ -222,7 +222,7 @@ public class NewsSyncService {
      */
     protected int translatePendingNews(List<NewsDto> newsList) {
         if (!translationClient.isAvailable()) {
-            log.debug("[NEWS_SYNC] LibreTranslate hazır değil, çeviri atlandı.");
+            log.debug("[NEWS_SYNC] Lingva hazır değil, çeviri atlandı.");
             return 0;
         }
         int translated = 0;
