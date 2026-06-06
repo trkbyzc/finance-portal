@@ -8,7 +8,7 @@ import { useState, useCallback } from 'react';
  * @returns {Object} { activeIndicators, toggleIndicator }
  */
 export const useChartIndicators = (chartInstance) => {
-    const [activeIndicators, setActiveIndicators] = useState(['VOL']);
+    const [activeIndicators, setActiveIndicators] = useState([]);
 
     const toggleIndicator = useCallback((ind) => {
         if (!chartInstance.current) return;

@@ -39,7 +39,8 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
             }
         });
         chart.setStyles(getChartStyles(chartType));
-        chart.createIndicator('VOL', false, { id: 'pane_VOL', height: 100 });
+        // Volume default kapali — kullanici VOL butonuna basinca toggleIndicator() ekler.
+        // Aksi takdirde alt eksen pane'i kapliyor, tarih/saat etiketleri gorunmuyor.
 
         // Fiyat ekseni (Y) üzerinde mouse SCROLL ile fiyat ölçeğini daralt/genişlet.
         // klinecharts Y ekseninde yalnız SÜRÜKLE-ölçekle destekler (wheel handler'ı yok).
@@ -84,9 +85,17 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
         };
         window.addEventListener('resize', handleResize);
 
+        // Container ilk render'da nihai yüksekliğine geç oturuyor; bu yüzden init anında
+        // X-ekseni (tarih/saat) için yer hesaplanmıyor ve eksen görünmüyor. Container'ın
+        // kendi boyut değişimini ResizeObserver ile yakalayıp resize() ediyoruz — böylece
+        // ilk açılışta da tarih ekseni doğru yere oturuyor (etkileşim beklemeden).
+        const resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver.observe(containerRef.current);
+
         // Cleanup
         return () => {
             window.removeEventListener('resize', handleResize);
+            resizeObserver.disconnect();
             if (yAxisDom) {
                 yAxisDom.removeEventListener('wheel', onYAxisWheel, { capture: true });
             }
