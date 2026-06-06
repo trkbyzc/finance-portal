@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  namespace: finance
+data:
+  logstash.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafka:9092"
+        topics => ["finance-app-logs"]
+        codec => "json"
+        group_id => "finance-logstash-group"
+      }
+    }
+    output {
+      opensearch {
+        hosts => ["http://opensearch:9200"]
+        index => "finance-logs-%{+YYYY.MM.dd}"
+      }
+      stdout { codec => rubydebug }
+    }

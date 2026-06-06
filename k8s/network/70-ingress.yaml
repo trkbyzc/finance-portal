@@ -1,0 +1,19 @@
+# GKE Ingress — Google Cloud HTTP(S) Load Balancer.
+# - "/" → frontend (nginx, SPA + /api proxy + /auth proxy)
+# - Backend ve Keycloak frontend nginx üzerinden proxy'leniyor; ingress'te ayrı path açmaya gerek yok.
+# - LB IP atanması ~1-2 dakika sürer. Public IP'yi:
+#     kubectl get ingress -n finance finance-portal-ingress -w
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: finance-portal-ingress
+  namespace: finance
+  annotations:
+    # GKE built-in Ingress controller — ekstra add-on kurmaya gerek yok.
+    kubernetes.io/ingress.class: "gce"
+spec:
+  defaultBackend:
+    service:
+      name: app-frontend
+      port:
+        number: 80

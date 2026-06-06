@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: finance
+data:
+  # Spring profile zinciri: docker (container DNS) + prod (hardening)
+  SPRING_PROFILES_ACTIVE: "docker,prod"
+
+  # Container DNS — k8s ClusterIP service isimleri
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:9092
+  ELASTICSEARCH_URI: http://opensearch:9200
+  LDAP_URL: ldap://openldap:389
+  LDAP_BASE_DN: dc=finance,dc=local
+  LINGVA_URL: http://lingva:3000
+
+  # Keycloak kendi public LB IP'sinde (34.156.189.163). JWK fetch internal cluster DNS'ten,
+  # issuer claim public IP'den (Keycloak Host header'dan extract eder).
+  KEYCLOAK_SERVER_URL: http://keycloak:8080
+  KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/finance-realm/protocol/openid-connect/certs
+  KEYCLOAK_ISSUER_URI: http://34.156.189.163/realms/finance-realm
+
+  # External API base URL'leri (key'ler secret'tan)
+  EVDS_BASE_URL: "https://evds3.tcmb.gov.tr/igmevdsms-dis"
+  TCMB_XML_URL: "https://www.tcmb.gov.tr/kurlar/today.xml"
+  COINGECKO_BASE_URL: "https://api.coingecko.com/api/v3"
+  BINANCE_BASE_URL: "https://api.binance.com"
+  BUSINESSINSIDER_BASE_URL: "https://markets.businessinsider.com"
+  FRED_BASE_URL: "https://api.stlouisfed.org"
+  FMP_BASE_URL: "https://financialmodelingprep.com"
+  FINNHUB_BASE_URL: "https://finnhub.io"
+  GROQ_BASE_URL: "https://api.groq.com/openai/v1"
+  GEMINI_BASE_URL: "https://generativelanguage.googleapis.com/v1beta"
+
+  # OpenTelemetry — collector pod'a OTLP gönder
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+  OTEL_SERVICE_NAME: finance-portal-backend
+  OTEL_TRACES_EXPORTER: otlp
+  OTEL_METRICS_EXPORTER: otlp
+  OTEL_LOGS_EXPORTER: otlp
+  OTEL_INSTRUMENTATION_LOG4J_CONTEXT_DATA_ENABLED: "true"
+  OTEL_INSTRUMENTATION_LOG4J_APPENDER_EXPERIMENTAL_CAPTURE_MDC_ATTRIBUTES: "*"
+  OTEL_RESOURCE_ATTRIBUTES: "service.name=finance-portal-backend,deployment.environment=k8s"
+
+  # CORS — ingress LB IP (gerçek FQDN gelince burayı override edebilirsin)
+  CORS_ALLOWED_ORIGINS: "http://*"
+
+  # Performans
+  APP_MAIL_ENABLED: "false"

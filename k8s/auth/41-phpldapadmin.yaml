@@ -1,0 +1,48 @@
+# phpLDAPadmin — OpenLDAP'a web UI (sadece kümee içi, ingress'e expose etmiyoruz).
+# port-forward ile erişim: kubectl port-forward -n finance svc/phpldapadmin 8082:80
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpldapadmin
+  namespace: finance
+spec:
+  selector:
+    app: phpldapadmin
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpldapadmin
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpldapadmin
+  template:
+    metadata:
+      labels:
+        app: phpldapadmin
+    spec:
+      containers:
+        - name: phpldapadmin
+          image: osixia/phpldapadmin:latest
+          env:
+            - name: PHPLDAPADMIN_LDAP_HOSTS
+              value: openldap
+            - name: PHPLDAPADMIN_HTTPS
+              value: "false"
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+              ephemeral-storage: "1Gi"

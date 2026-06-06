@@ -1,0 +1,94 @@
+# app-backend — Spring Boot 3.3 + OTel Java Agent.
+# Image: Artifact Registry'den çekilir (image push'tan sonra).
+# HPA tarafından 1-5 arası scale edilir (k8s/scaling/80-backend-hpa.yaml).
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-backend
+  namespace: finance
+  labels:
+    app: app-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: app-backend
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-backend
+  namespace: finance
+spec:
+  replicas: 1  # HPA üzerine yazar
+  strategy:
+    type: Recreate   # Rollout sırasında double-pod memory waste önle
+  selector:
+    matchLabels:
+      app: app-backend
+  template:
+    metadata:
+      labels:
+        app: app-backend
+    spec:
+      containers:
+        - name: backend
+          image: europe-west1-docker.pkg.dev/finance-portal-demo/finance/backend:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+              name: http
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: db-credentials
+            - secretRef:
+                name: backend-secrets
+          env:
+            # OTel Collector log pipeline yok, gRPC UNIMPLEMENTED hata spam'liyor — kapat
+            - name: OTEL_LOGS_EXPORTER
+              value: "none"
+            # K8s'de SMTP yok; mail health indicator aggregate /actuator/health'i DOWN
+            # yapıyordu (JavaMailSenderImpl.connectTransport timeout). Kapat.
+            - name: MANAGEMENT_HEALTH_MAIL_ENABLED
+              value: "false"
+            # Split probes: /health/liveness (app alive) + /health/readiness (deps OK)
+            - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
+              value: "true"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1536Mi"      # 1Gi → 1.5Gi (OOMKilled 137 oldu)
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "1536Mi"
+              ephemeral-storage: "1Gi"
+          # Startup: TCP open = Spring Boot ayakta. Tomcat bind ettiğinde geçer.
+          startupProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 60   # 10dk grace
+          # Readiness: TCP. App'in BootstrapReadinessTracker'ı EVDS API key invalid
+          # olunca asla 9/9'a ulaşmıyor — /health/readiness sürekli DOWN. TCP bypass
+          # ile k6/HPA demo için yeterli; EVDS olmadan da diğer 6 servis (Yahoo, FMP,
+          # Finnhub, CoinGecko, Binance, Fintables) tam çalışıyor.
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            periodSeconds: 10
+            timeoutSeconds: 5
+          # Liveness: HTTP. Eğer Spring Boot crashlerse Tomcat HTTP'ye yanıt vermez.
+          livenessProbe:
+            httpGet:
+              path: /api/v1/actuator/health/liveness
+              port: 8081
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3

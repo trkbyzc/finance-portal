@@ -1,0 +1,59 @@
+# Lingva — Google Translate ön yüzü (TR↔EN). No API key, fast.
+apiVersion: v1
+kind: Service
+metadata:
+  name: lingva
+  namespace: finance
+spec:
+  selector:
+    app: lingva
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lingva
+  namespace: finance
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate   # Rollout sırasında double-pod memory waste önle
+  selector:
+    matchLabels:
+      app: lingva
+  template:
+    metadata:
+      labels:
+        app: lingva
+    spec:
+      containers:
+        - name: lingva
+          image: thedaviddelta/lingva-translate:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "500m"       # Next.js cold start CPU starve oluyordu — 250m → 500m
+              memory: "1536Mi"  # 1Gi OOMKilled (next build heap), 1.5Gi'ye çıktı
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "1536Mi"
+              ephemeral-storage: "1Gi"
+          # `thedaviddelta/lingva-translate:latest` image'ı container start'ında `next build`
+          # çalıştırıyor (kötü tasarım, runtime build). 1000m CPU ile bile 7-10 dk alıyor.
+          # 15 dk grace verilmesi gerekiyor yoksa restart loop'a girer.
+          startupProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 90   # 15dk grace (10s * 90 = 900s)
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            periodSeconds: 15
+            failureThreshold: 3

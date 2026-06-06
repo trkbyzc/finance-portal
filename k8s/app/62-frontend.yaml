@@ -1,0 +1,62 @@
+# app-frontend — Vite build + nginx (static + /api proxy).
+# nginx config image içine gömülü (Dockerfile COPY); ConfigMap mount KALDIRILDI çünkü
+# image'daki güncel config'i override ediyordu. Keycloak public LB IP'sinde, frontend
+# nginx'inden /auth/ proxy'ye gerek yok.
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-frontend
+  namespace: finance
+  labels:
+    app: app-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: app-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-frontend
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-frontend
+  template:
+    metadata:
+      labels:
+        app: app-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: europe-west1-docker.pkg.dev/finance-portal-demo/finance/frontend:v8
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 30

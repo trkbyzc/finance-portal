@@ -1,0 +1,94 @@
+# Grafana 10.4 — Prometheus + Tempo + OpenSearch tek arayüzde.
+# Login: admin / admin (ilk girişte değişir).
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: finance
+spec:
+  selector:
+    app: grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana
+  namespace: finance
+spec:
+  serviceName: grafana
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      # Autopilot fsGroup'u eski PVC'lerde uygulanmıyor. Init container ile manuel chown.
+      securityContext:
+        fsGroup: 472
+        runAsUser: 472
+        runAsGroup: 472
+      initContainers:
+        - name: init-chown
+          image: busybox:1.36
+          command: ["sh", "-c", "chown -R 472:472 /var/lib/grafana && chmod -R u+rwX /var/lib/grafana"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/grafana
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "32Mi"
+              ephemeral-storage: "10Mi"
+            limits:
+              cpu: "100m"
+              memory: "32Mi"
+              ephemeral-storage: "10Mi"
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.4.0
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin
+            - name: GF_INSTALL_PLUGINS
+              value: grafana-opensearch-datasource
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+              subPath: datasources.yaml
+            - name: data
+              mountPath: /var/lib/grafana
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
+      volumes:
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

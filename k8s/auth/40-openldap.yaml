@@ -1,0 +1,56 @@
+# OpenLDAP 1.5 — finance.local directory; Keycloak User Federation buradan okuyor.
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  namespace: finance
+spec:
+  selector:
+    app: openldap
+  ports:
+    - name: ldap
+      port: 389
+      targetPort: 389
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openldap
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openldap
+  template:
+    metadata:
+      labels:
+        app: openldap
+    spec:
+      containers:
+        - name: openldap
+          image: osixia/openldap:1.5.0
+          env:
+            - name: LDAP_ORGANISATION
+              value: "Finance Portal"
+            - name: LDAP_DOMAIN
+              value: finance.local
+          envFrom:
+            - secretRef:
+                name: openldap-admin
+          ports:
+            - containerPort: 389
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 389
+            initialDelaySeconds: 15
+            periodSeconds: 10

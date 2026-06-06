@@ -1,0 +1,88 @@
+# OpenSearch 2.11 — log altyapısı (Kafka → Logstash → OpenSearch → Dashboards).
+# Single-node, security disabled — demo. JVM heap 512m (Autopilot CPU/RAM ücretini sıkmamak için).
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch
+  namespace: finance
+spec:
+  selector:
+    app: opensearch
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+    - name: monitoring
+      port: 9600
+      targetPort: 9600
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch
+  namespace: finance
+spec:
+  serviceName: opensearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      # NOT: GKE Autopilot privileged init container'a izin vermez (warden-validating
+      # webhook bloklar). Lokal docker-compose'daki sysctl init container'ı kaldırıldı.
+      # OpenSearch single-node + 512m heap demo için yeterli; vm.max_map_count=65535
+      # default'u "production-not-recommended" warning verir ama functional çalışır.
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.11.1
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: plugins.security.disabled
+              value: "true"
+            - name: bootstrap.memory_lock
+              value: "false"
+            - name: OPENSEARCH_JAVA_OPTS
+              value: "-Xms256m -Xmx256m"      # Heap 256m — minimal demo
+            - name: cluster.name
+              value: finance-logs
+          ports:
+            - containerPort: 9200
+            - containerPort: 9600
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/opensearch/data
+          resources:
+            requests:
+              cpu: "200m"          # 300m → 200m (Autopilot node %96 memory)
+              memory: "768Mi"      # 1Gi → 768Mi (heap 256m + 512m JVM overhead)
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "750m"
+              memory: "768Mi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9200
+            initialDelaySeconds: 120
+            periodSeconds: 30
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

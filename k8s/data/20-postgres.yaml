@@ -1,0 +1,72 @@
+# Postgres 15 — uygulama + Keycloak schema'larını barındırır.
+# StatefulSet + 10Gi SSD PVC (GKE Autopilot regional storage minimumu).
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: finance
+spec:
+  clusterIP: None # headless — DNS doğrudan pod IP'sine
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: finance
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: db-credentials
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata  # postgres'in PGDATA üzerine kendi alt klasör açması için
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "finance_user", "-d", "finance_db"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "finance_user", "-d", "finance_db"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

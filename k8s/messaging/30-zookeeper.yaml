@@ -1,0 +1,53 @@
+# Zookeeper — Kafka coordinator (Kafka 7.5 hala ZK gerektiriyor; KRaft modu opsiyonel).
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  namespace: finance
+spec:
+  selector:
+    app: zookeeper
+  ports:
+    - name: client
+      port: 2181
+      targetPort: 2181
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: confluentinc/cp-zookeeper:7.5.0
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+          ports:
+            - containerPort: 2181
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 10
+            periodSeconds: 5

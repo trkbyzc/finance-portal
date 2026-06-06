@@ -1,0 +1,85 @@
+# Keycloak 24 — OAuth2/OIDC sağlayıcı. Postgres backend.
+# KC_HOSTNAME: ingress'in hostname'i veya IP. İlk deploy'da localhost, ingress IP gelince update.
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: finance
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+# Keycloak'a kendi public IP'si — nginx proxy chain'ini tamamen bypass.
+# GKE LoadBalancer Service GCP'ye yeni bir L4 LB IP atar (~2-3 dk).
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-external
+  namespace: finance
+spec:
+  type: LoadBalancer
+  selector:
+    app: keycloak
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:24.0.2
+          # Sade: kendi public LB IP'sinde root path'te. Proxy chain yok.
+          args: ["start-dev"]
+          envFrom:
+            - secretRef:
+                name: keycloak-admin
+          env:
+            # Hostname dinamik (Host header'dan); strict KAPALI hem master hem realm'lere
+            # her IP/hostname'den erişilebilsin (LB IP ne olursa olsun çalışır).
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_HOSTNAME_STRICT_HTTPS
+              value: "false"
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /realms/master
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /realms/master
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 30

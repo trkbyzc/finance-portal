@@ -1,0 +1,57 @@
+# Logstash — Kafka topic "finance-app-logs"den oku, OpenSearch "finance-logs-YYYY.MM.dd"e yaz.
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: finance
+spec:
+  selector:
+    app: logstash
+  ports:
+    - name: monitoring
+      port: 9600
+      targetPort: 9600
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: opensearchproject/logstash-oss-with-opensearch-output-plugin:8.9.0
+          ports:
+            - containerPort: 9600
+          volumeMounts:
+            - name: pipeline
+              mountPath: /usr/share/logstash/pipeline/logstash.conf
+              subPath: logstash.conf
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "768Mi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "500m"
+              memory: "768Mi"
+              ephemeral-storage: "1Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 9600
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 20
+      volumes:
+        - name: pipeline
+          configMap:
+            name: logstash-pipeline

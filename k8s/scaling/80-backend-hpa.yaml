@@ -1,0 +1,48 @@
+# HorizontalPodAutoscaler — backend için yatay ölçekleme.
+# CPU > %70 → replica artar (1 → max 5).
+# Trafik düşünce 5 → 1 geri çekilir.
+#
+# Test komutları (k6 ile yük testi):
+#   kubectl get hpa -n finance -w                # 1. terminal: HPA durum izle
+#   kubectl get pods -n finance -l app=app-backend -w   # 2. terminal: pod sayısı izle
+#   # 3. terminal: yük başlat
+#   $INGRESS_IP = kubectl get ingress -n finance finance-portal-ingress -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
+#   docker run --rm -e BASE_URL=http://$INGRESS_IP -v ${PWD}/finance_portal/scripts:/scripts grafana/k6 run /scripts/perf-test.js
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-backend-hpa
+  namespace: finance
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app-backend
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30   # hızlı yukarı (load gelir gelmez)
+      policies:
+        - type: Pods
+          value: 2     # 30sn'de en fazla 2 yeni pod
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 180  # yavaş aşağı (yanlış scale-down koruması)
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
