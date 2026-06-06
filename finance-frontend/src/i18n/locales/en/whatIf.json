@@ -25,7 +25,10 @@
   "chart": {
     "title": "Comparison Curve",
     "axisDate": "Date",
-    "axisValue": "Value (TRY)"
+    "axisValue": "Value (TRY)",
+    "modeAbsolute": "Absolute (₺)",
+    "modeIndexed": "Indexed (100=start)",
+    "indexedHint": "All assets start from 100 points. Assets of different magnitudes (e.g. a 5 ₺ stock vs 67,000 ₺ BTC) become directly comparable on the same curve."
   },
   "result": {
     "currentValue": "Current Value",
