@@ -21,14 +21,18 @@ spring:
       port: 6379
 
   kafka:
-    bootstrap-servers: kafka:29092
+    # Local docker-compose: kafka:29092 (advertised listener). K8s'de Kafka Service
+    # port 9092. Env var ile override (KAFKA_BOOTSTRAP_SERVERS).
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/finance-realm
-          jwk-set-uri: http://keycloak:8080/realms/finance-realm/protocol/openid-connect/certs
+          # Env ile override edilebilir; lokal docker-compose'da default localhost,
+          # K8s'de KEYCLOAK_ISSUER_URI env'i ile public LB IP'sine yönlenir.
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/finance-realm}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8080/realms/finance-realm/protocol/openid-connect/certs}
 
 keycloak:
   server-url: http://keycloak:8080
