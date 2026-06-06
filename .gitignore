@@ -10,6 +10,17 @@
 **/application-local.yaml
 **/application-local.properties
 
+# Keycloak realm export (LDAP bind credentials, default admin password vb. icerir)
+finance-realm*.json
+
+# GCP Service Account JSON keys
+*.gcp-key.json
+gcp-sa-key.json
+**/credentials.json
+
+# Open-cluster.ps1 runtime'da uretir (hostname patched)
+k8s/network/*.RUNTIME.yaml
+
 # Personal local scripts (not part of project)
 make_commits.ps1
 run.local.ps1

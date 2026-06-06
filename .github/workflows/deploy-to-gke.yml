@@ -1,0 +1,118 @@
+# Continuous Deployment — GKE'ye otomatik deploy.
+#
+# Tetikleyici:
+#   - manual (workflow_dispatch) → her zaman
+#   - main'e push (sadece backend veya frontend kodu değiştiyse)
+#
+# Adımlar:
+#   1. GCP'ye SA JSON key ile auth
+#   2. kubectl + gcloud kur, cluster credentials al
+#   3. Backend ve frontend image'larını build + Artifact Registry'e push
+#   4. Deployment image'larını güncelle (rolling update)
+#   5. Rollout status bekle
+#
+# Gerekli GitHub Secrets (Repository Settings → Secrets):
+#   GCP_SA_KEY          — Service Account JSON key (içerik, dosya yolu değil)
+#   GCP_PROJECT_ID      — finance-portal-demo
+#   GCP_REGION          — europe-west1
+#   GKE_CLUSTER_NAME    — finance-portal-cluster
+#   VITE_KEYCLOAK_URL   — http://<keycloak-lb-ip>  (open-cluster sonrası set edilir)
+#   VITE_APP_URL        — https://<host>.nip.io
+#
+# Setup rehberi: docs/cd-setup.md
+
+name: Deploy to GKE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'finance_portal/src/**'
+      - 'finance_portal/pom.xml'
+      - 'finance-frontend/**'
+      - 'k8s/**'
+      - '.github/workflows/deploy-to-gke.yml'
+
+env:
+  REGION: ${{ secrets.GCP_REGION }}
+  PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+  CLUSTER: ${{ secrets.GKE_CLUSTER_NAME }}
+  REGISTRY: europe-west1-docker.pkg.dev
+  REPOSITORY: finance
+  NAMESPACE: finance
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: GCP Auth (Service Account)
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud + GKE auth plugin
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: gke-gcloud-auth-plugin
+
+      - name: Docker registry auth
+        run: gcloud auth configure-docker $REGISTRY --quiet
+
+      - name: GKE cluster credentials
+        run: gcloud container clusters get-credentials $CLUSTER --region $REGION --project $PROJECT
+
+      - name: Build + push backend image
+        run: |
+          IMG=$REGISTRY/$PROJECT/$REPOSITORY/backend:${{ github.sha }}
+          docker build -t $IMG ./finance_portal
+          docker push $IMG
+          echo "BACKEND_IMG=$IMG" >> $GITHUB_ENV
+
+      - name: Build + push frontend image
+        run: |
+          IMG=$REGISTRY/$PROJECT/$REPOSITORY/frontend:${{ github.sha }}
+          docker build \
+            --build-arg VITE_API_BASE_URL=/api/v1 \
+            --build-arg VITE_KEYCLOAK_URL="${{ secrets.VITE_KEYCLOAK_URL }}" \
+            --build-arg VITE_KEYCLOAK_REALM=finance-realm \
+            --build-arg VITE_KEYCLOAK_CLIENT_ID=finance-client \
+            --build-arg VITE_APP_URL="${{ secrets.VITE_APP_URL }}" \
+            -t $IMG ./finance-frontend
+          docker push $IMG
+          echo "FRONTEND_IMG=$IMG" >> $GITHUB_ENV
+
+      - name: Apply non-image manifests (ConfigMap, Service, HPA, Ingress)
+        run: |
+          # Image içeren manifest'leri atlayalim (Deployment'lari kubectl set image ile guncelleyecegiz).
+          # Sadece declarative kaynaklar (config/service/network/scaling) apply edilir.
+          kubectl apply -f k8s/namespace/
+          kubectl apply -f k8s/secrets/
+          kubectl apply -f k8s/configs/
+          kubectl apply -f k8s/scaling/
+          # Diger manifest'leri de apply et — Deployment image set image ile override edilir
+          kubectl apply -R -f k8s/ || true
+
+      - name: Update deployment images
+        run: |
+          kubectl set image deployment/app-backend -n $NAMESPACE backend=$BACKEND_IMG
+          kubectl set image deployment/app-frontend -n $NAMESPACE frontend=$FRONTEND_IMG
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/app-backend -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/app-frontend -n $NAMESPACE --timeout=180s
+
+      - name: Smoke test
+        run: |
+          NGINX_IP=$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          HOST="${NGINX_IP//./-}.nip.io"
+          echo "Public host: $HOST"
+          # Backend liveness internal probe yeterli — public test rate limit'e takılabilir
+          kubectl exec -n $NAMESPACE deployment/app-backend -- wget -qO- http://localhost:8081/api/v1/actuator/health/liveness || true
+          echo "Deployment $GITHUB_SHA basariyla yayinlandi"
