@@ -163,13 +163,13 @@ docker compose up -d
 
 ### Keycloak Realm (auto-imported)
 
-The Keycloak realm `finance-realm` — including roles, seeded users, and the **ban-check login flow** — is **imported automatically** on first startup. Docker Compose runs Keycloak with `--import-realm` and mounts [`finance-realm-cloud-LATEST.json`](finance-realm-cloud-LATEST.json); the ban-authenticator plugin (built in step 2) is loaded so the login-flow binding resolves. **No manual step required.**
+The Keycloak realm `finance-realm` — including roles, seeded users, and the **ban-check login flow** — is **imported automatically** on first startup. Docker Compose runs Keycloak with `--import-realm` and mounts the bundled, sanitized realm export ([`finance_portal/finance-realm.json`](finance_portal/finance-realm.json) — no private keys/SMTP; Keycloak generates signing keys on import); the ban-authenticator plugin (built in step 2) is loaded so the login-flow binding resolves. **No manual step required.**
 
 <details>
 <summary><b>Alternative — manual import</b> (if you prefer the console or disabled auto-import)</summary>
 
 1. Open the Keycloak admin console at http://localhost:8080 (`admin` / `admin`).
-2. **Create realm → Import** the file `finance-realm-cloud-LATEST.json` from the repo root.
+2. **Create realm → Import** the file [`finance_portal/finance-realm.json`](finance_portal/finance-realm.json).
 3. In **Authentication → browser flow**, add the **"Ban Check (Finance Portal)"** step *before* OTP, so banned users are blocked at login.
 
 </details>
@@ -373,6 +373,7 @@ docker compose --profile sonar up -d sonarqube      # start SonarQube (http://lo
 │   ├── keycloak-themes/            # custom Keycloak login themes
 │   ├── observability/              # OTel Collector / Tempo / Prometheus / Grafana configs
 │   ├── docker-compose.yml          # full local stack (app + infra)
+│   ├── finance-realm.json          # Keycloak realm (sanitized; auto-imported)
 │   └── Dockerfile
 ├── finance-frontend/               # Frontend — React 19 + Vite
 │   ├── src/                        # pages, components, hooks, context, i18n
@@ -382,7 +383,6 @@ docker compose --profile sonar up -d sonarqube      # start SonarQube (http://lo
 ├── scripts/                        # open-cluster.ps1 / close-cluster.ps1
 ├── assets/                         # README images
 ├── .github/workflows/              # GitHub Actions (CI/CD)
-├── finance-realm-cloud-LATEST.json # Keycloak realm export
 ├── README.md
 └── LICENSE
 ```

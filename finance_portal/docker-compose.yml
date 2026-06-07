@@ -45,8 +45,9 @@ services:
       # Banlı kullanıcıyı 2FA öncesi engelleyen özel authenticator (SPI).
       # JAR'ı önce derle: ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package
       - ./keycloak-providers/ban-authenticator/target/ban-authenticator.jar:/opt/keycloak/providers/ban-authenticator.jar
-      # Realm export'u otomatik import edilir (ban flow bağlaması dahil). Manuel alternatif: README.
-      - ../finance-realm-cloud-LATEST.json:/opt/keycloak/data/import/finance-realm.json:ro
+      # Repo'da bundle'lanan TEMİZLENMİŞ realm (private key/SMTP YOK; ban flow dahil) otomatik
+      # import edilir; Keycloak import'ta imza anahtarlarını kendi üretir. Manuel alternatif: README.
+      - ./finance-realm.json:/opt/keycloak/data/import/finance-realm.json:ro
     depends_on:
       - postgres
     restart: unless-stopped

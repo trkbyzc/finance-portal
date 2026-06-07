@@ -10,8 +10,9 @@
 **/application-local.yaml
 **/application-local.properties
 
-# Keycloak realm export (LDAP bind credentials, default admin password vb. icerir)
-finance-realm*.json
+# Keycloak realm CLOUD export — close-cluster.ps1 uretir; private key/SMTP/LDAP cred icerir -> GITME.
+# Repo'da commit'lenen TEMIZLENMIS realm: finance_portal/finance-realm.json (bu pattern onu kapsamaz).
+finance-realm-cloud*.json
 
 # GCP Service Account JSON keys
 *.gcp-key.json
