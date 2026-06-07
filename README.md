@@ -20,7 +20,7 @@
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-GKE-326CE5?logo=kubernetes)
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-000000?logo=opentelemetry)
 
-*Developed for the ** &  Full-Stack Competition 2025***
+
 
 </div>
 
