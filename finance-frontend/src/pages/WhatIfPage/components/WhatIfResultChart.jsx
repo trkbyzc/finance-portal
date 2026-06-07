@@ -5,50 +5,78 @@ import { PALETTE, fmtTry } from '../whatIfHelpers';
 import { formatChartDate } from '../../../utils/formatters/dateFormatter';
 
 /**
- * Multi-line karşılaştırma grafiği. result.assets'in series'lerini tarih bazında merge eder,
- * her asset için ayrı renkte bir Line render eder. connectNulls=true ki downsample'dan
- * sonra tarih setleri ayrıştığında bile çizgi kopmasın.
+ * Multi-line karşılaştırma grafiği.
  *
- * Mode toggle (Mutlak vs Endeks):
- *   - Mutlak: ham TRY değeri (örn. 1 BTC = 67.000 ₺, 1 hisse = 5,5 ₺)
- *     Sorun: küçük varlık BTC'nin yanında X eksenine ezilir, görünmez.
- *   - Endeks (default): her serinin ilk dolu noktası 100 puana sabitlenir,
- *     sonraki noktalar oransal olarak (value / firstValue) * 100 ile ölçeklenir.
- *     Büyüklük farkı silinir, getiri farkları çıplak gözle karşılaştırılabilir.
+ * Ortak başlangıç tarihi (sharedStart):
+ *   Backend her asset için historical data'da investmentDate'e EN YAKIN >= ilk noktayı bulur.
+ *   Bu nokta asset bazında farklı çıkabilir (ALTNY.IS 02.02, USD 01.01, THYAO.IS 04.02).
+ *   Tek grafiğe ayrı tarihlerden başlayan çizgiler kullanıcıyı yanıltır — "USD 1 ay önden
+ *   başladı" gibi gözükür. Çözüm: assetlerin ilk-dolu-tarihlerinin EN GEÇ olanı sharedStart;
+ *   tüm assetler oradan başlatılır. Hepsinin de orada datası garanti var.
+ *
+ * Mode toggle:
+ *   - Endeks (default): sharedStart'taki değer 100, sonrası (v / base) * 100. Farklı
+ *     büyüklükteki varlıklar birebir karşılaştırılır.
+ *   - Mutlak: ham TRY portföy değeri. Tek bir büyük varlık (BTC) küçükleri ezer.
  */
 export default function WhatIfResultChart({ result }) {
     const { t } = useTranslation('whatIf');
     const [mode, setMode] = useState('indexed'); // 'absolute' | 'indexed'
 
-    const chartData = useMemo(() => {
-        if (!result || !result.assets || result.assets.length === 0) return [];
-        // 1. Tarih bazında merge — her satırda her asset için bir değer veya undefined
+    const { chartData, sharedStart } = useMemo(() => {
+        if (!result || !result.assets || result.assets.length === 0) {
+            return { chartData: [], sharedStart: null };
+        }
+
+        // 1. Her asset'in ilk dolu noktasını bul.
+        const firstDateByKey = new Map();
+        result.assets.forEach((a) => {
+            const firstPoint = (a.series || []).find(
+                p => Number.isFinite(Number(p.value)) && Number(p.value) > 0
+            );
+            if (firstPoint) firstDateByKey.set(a.key, firstPoint.date);
+        });
+
+        // 2. sharedStart = en geç başlayan asset'in tarihi.
+        //    (ISO yyyy-MM-dd string compare doğru sıralama yapar.)
+        const firstDates = Array.from(firstDateByKey.values());
+        const sharedStart = firstDates.length > 0
+            ? firstDates.sort()[firstDates.length - 1]
+            : null;
+
+        // 3. Tarih bazında merge — sadece sharedStart >= satırlar.
         const dateMap = new Map();
         result.assets.forEach((a) => {
             (a.series || []).forEach(p => {
+                if (sharedStart && p.date < sharedStart) return; // ortak başlangıç öncesini kes
                 if (!dateMap.has(p.date)) dateMap.set(p.date, { date: p.date });
                 dateMap.get(p.date)[a.key] = Number(p.value);
             });
         });
         const sorted = Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
-        if (mode === 'absolute') return sorted;
+        if (mode === 'absolute') return { chartData: sorted, sharedStart };
 
-        // 2. Endeks modunda her asset için ilk dolu değeri bul, sonra (v / first) * 100
-        const firstValueByKey = new Map();
-        result.assets.forEach((a) => {
-            const firstPoint = (a.series || []).find(p => Number.isFinite(Number(p.value)) && Number(p.value) > 0);
-            if (firstPoint) firstValueByKey.set(a.key, Number(firstPoint.value));
-        });
-        return sorted.map(row => {
+        // 4. Endeks mode: her asset'in sharedStart'taki değerini base al.
+        //    sharedStart satırında her asset garantiyle var (en geç başlayan bile orada başlıyor).
+        const baseByKey = new Map();
+        if (sorted.length > 0) {
+            const firstRow = sorted[0];
+            result.assets.forEach((a) => {
+                const v = firstRow[a.key];
+                if (Number.isFinite(v) && v > 0) baseByKey.set(a.key, v);
+            });
+        }
+        const indexed = sorted.map(row => {
             const next = { date: row.date };
             result.assets.forEach((a) => {
                 const v = row[a.key];
-                const base = firstValueByKey.get(a.key);
-                if (v != null && base) next[a.key] = (v / base) * 100;
+                const base = baseByKey.get(a.key);
+                if (Number.isFinite(v) && base) next[a.key] = (v / base) * 100;
             });
             return next;
         });
+        return { chartData: indexed, sharedStart };
     }, [result, mode]);
 
     const assetList = result?.assets || [];
@@ -96,6 +124,16 @@ export default function WhatIfResultChart({ result }) {
         );
     };
 
+    // Bazı asset'in sharedStart'ı diğerlerinden çok geç ise kullanıcıya not düş.
+    const sharedStartHint = useMemo(() => {
+        if (!sharedStart || !result?.investmentDate) return null;
+        if (sharedStart === result.investmentDate) return null;
+        return t('chart.sharedStartHint', {
+            date: formatChartDate(sharedStart),
+            defaultValue: 'Karşılaştırma {{date}} tarihinden başlatıldı — bu tarihten önce bazı varlıkların verisi yok.'
+        });
+    }, [sharedStart, result, t]);
+
     return (
         <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
             <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
@@ -103,6 +141,9 @@ export default function WhatIfResultChart({ result }) {
                     <h3 className="font-semibold">{t('chart.title')}</h3>
                     {mode === 'indexed' && (
                         <p className="text-xs text-text-muted mt-1 max-w-xl">{t('chart.indexedHint')}</p>
+                    )}
+                    {sharedStartHint && (
+                        <p className="text-xs text-text-muted mt-1 max-w-xl">{sharedStartHint}</p>
                     )}
                 </div>
                 <div className="inline-flex rounded-lg border border-border overflow-hidden text-xs font-semibold shrink-0">
