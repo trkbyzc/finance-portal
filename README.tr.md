@@ -160,6 +160,7 @@ Tüm yığın (backend + frontend + tüm altyapı) tek bir Docker Compose komutu
 - **Docker** & **Docker Compose**
 - **JDK 21** (yalnızca Keycloak ban-authenticator eklentisini bir kez derlemek için)
 - *(opsiyonel)* **Node.js 20+** — sadece frontend'i Docker dışında dev modunda çalıştırmak istersen
+- **Kaynak:** ~17 container çalışır (OpenSearch & Kafka dahil) — Docker'a **≥ 8 GB RAM** ve **~40 GB boş disk** ayır (Docker Desktop → Settings → Resources)
 
 ### Hızlı Başlangıç
 
@@ -221,6 +222,17 @@ MAIL_PASSWORD=
 ```
 
 > Her şeyi durdurmak için: `docker compose down` (veri volume'larını da silmek için `-v` ekle).
+
+### Sorun Giderme
+
+| Belirti | Çözüm |
+|---------|-------|
+| `./mvnw: Permission denied` (Linux/macOS) | `chmod +x mvnw` çalıştır, sonra tekrar dene |
+| Bir container (genelde **OpenSearch**) **ilk** `up`'ta `unhealthy` | Yük altında geçici başlangıç-zamanlaması — sadece `docker compose up -d`'yi tekrar çalıştır (kalanları ayağa kaldırır). Linux'ta OpenSearch ısrarla düşerse: `sudo sysctl -w vm.max_map_count=262144` sonra tekrar dene |
+| Başlangıçtan hemen sonra bir servis hazır değil | İlk açılış ~1-2 dk sürer (DB migration + bağlantılar). Bekle, sonra `curl http://localhost:8081/api/v1/actuator/health` → `{"status":"UP"}` |
+| Container'lar çöküyor / OOM | Docker'a daha çok bellek ver (**≥ 8 GB**) — OpenSearch & Kafka bellek yer |
+| Temiz başlangıç / Keycloak realm yeniden import | `docker compose down -v` sonra `docker compose up -d` (volume'ları siler, taze DB'de realm yeniden import edilir) |
+| YZ sohbet / e-posta / bazı ekonomi verileri boş | `.env` olmadan **beklenen** — bunlar API anahtarı ister; uygulamanın geri kalanı normal çalışır |
 
 ---
 

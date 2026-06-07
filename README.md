@@ -155,6 +155,7 @@ The entire stack (backend + frontend + all infrastructure) runs with a single Do
 - **Docker** & **Docker Compose**
 - **JDK 21** (only to build the Keycloak ban-authenticator plugin once)
 - *(optional)* **Node.js 20+** — only if you want to run the frontend in dev mode outside Docker
+- **Resources:** ~17 containers run (incl. OpenSearch & Kafka) — allocate Docker **≥ 8 GB RAM** and **~40 GB free disk** (Docker Desktop → Settings → Resources)
 
 ### Quick Start
 
@@ -216,6 +217,17 @@ MAIL_PASSWORD=
 ```
 
 > To stop everything: `docker compose down` (add `-v` to also remove data volumes).
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `./mvnw: Permission denied` (Linux/macOS) | Run `chmod +x mvnw`, then retry |
+| A container (often **OpenSearch**) is `unhealthy` on the **first** `up` | Transient startup timing under load — just re-run `docker compose up -d` (brings up the rest). On Linux, if OpenSearch keeps failing: `sudo sysctl -w vm.max_map_count=262144` then retry |
+| A service isn't ready right after start | First boot takes ~1–2 min (DB migrations + connections). Wait, then check `curl http://localhost:8081/api/v1/actuator/health` → `{"status":"UP"}` |
+| Containers crash / OOM | Give Docker more memory (**≥ 8 GB**) — OpenSearch & Kafka are memory-hungry |
+| Clean slate / re-import the Keycloak realm | `docker compose down -v` then `docker compose up -d` (wipes volumes, re-imports the realm on a fresh DB) |
+| AI chat / e-mail / some economy data empty | **Expected without an `.env`** — those need API keys; the rest of the app works normally |
 
 ---
 
