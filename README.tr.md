@@ -233,6 +233,7 @@ MAIL_PASSWORD=
 | Container'lar çöküyor / OOM | Docker'a daha çok bellek ver (**≥ 8 GB**) — OpenSearch & Kafka bellek yer |
 | Temiz başlangıç / Keycloak realm yeniden import | `docker compose down -v` sonra `docker compose up -d` (volume'ları siler, taze DB'de realm yeniden import edilir) |
 | YZ sohbet / e-posta / bazı ekonomi verileri boş | `.env` olmadan **beklenen** — bunlar API anahtarı ister; uygulamanın geri kalanı normal çalışır |
+| Grafana panoları boş / görünmüyor | **Finance Portal** klasöründeler — `admin`/`admin` ile giriş yap, ya da `docker compose restart grafana` (ilk açılışta SQLite kilidi) |
 
 ---
 
@@ -351,7 +352,9 @@ Kimlik **Keycloak**'a (OIDC) devredilir. Frontend, Authorization Code akışıyl
 | **İzler (Traces)** | OpenTelemetry Java Agent → OTel Collector → **Tempo** → **Grafana** |
 | **Loglar** | Log4j2 (JSON) → **Kafka** → **Logstash** → **OpenSearch** → OpenSearch Dashboards |
 
-**Panolar:** Grafana → http://localhost:3000 · OpenSearch Dashboards → http://localhost:5601
+**Panolar:** Grafana → http://localhost:3000 (önceden yüklü panolar **Finance Portal** klasöründe) · OpenSearch Dashboards → http://localhost:5601
+
+> Grafana pano listesi boş görünüyorsa `admin` / `admin` ile giriş yap (veya `docker compose restart grafana`).
 
 <div align="center">
   <img src="assets/grafana_v1.png" alt="Grafana — Gözlemlenebilirlik Genel Bakış" width="800"/>

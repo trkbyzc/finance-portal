@@ -228,6 +228,7 @@ MAIL_PASSWORD=
 | Containers crash / OOM | Give Docker more memory (**≥ 8 GB**) — OpenSearch & Kafka are memory-hungry |
 | Clean slate / re-import the Keycloak realm | `docker compose down -v` then `docker compose up -d` (wipes volumes, re-imports the realm on a fresh DB) |
 | AI chat / e-mail / some economy data empty | **Expected without an `.env`** — those need API keys; the rest of the app works normally |
+| Grafana dashboards empty / not visible | They live under the **Finance Portal** folder — sign in with `admin`/`admin`, or `docker compose restart grafana` (SQLite lock on first start) |
 
 ---
 
@@ -341,7 +342,9 @@ Full **OpenTelemetry**-based observability across three pillars:
 | **Traces** | OpenTelemetry Java Agent → OTel Collector → **Tempo** → **Grafana** |
 | **Logs** | Log4j2 (JSON) → **Kafka** → **Logstash** → **OpenSearch** → OpenSearch Dashboards |
 
-**Dashboards:** Grafana at http://localhost:3000 · OpenSearch Dashboards at http://localhost:5601
+**Dashboards:** Grafana at http://localhost:3000 (pre-provisioned dashboards under the **Finance Portal** folder) · OpenSearch Dashboards at http://localhost:5601
+
+> If the Grafana dashboard list looks empty, sign in with `admin` / `admin` (or run `docker compose restart grafana`).
 
 <div align="center">
   <img src="assets/grafana_v1.png" alt="Grafana — Observability Overview" width="800"/>

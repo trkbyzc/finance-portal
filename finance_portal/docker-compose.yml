@@ -240,6 +240,9 @@ services:
       # Editor: anonim kullanıcı Explore'a erişebilsin (trace linkine tıklayınca
       # Tempo Explore açılır). Viewer rolü Explore'a giremez -> link home'a atar.
       GF_AUTH_ANONYMOUS_ORG_ROLE: Editor
+      # SQLite WAL — yoğun ilk açılışta "database is locked" yüzünden dashboard klasör
+      # izinlerinin yazılamaması (anonim kullanıcıda boş pano) sorununu önler.
+      GF_DATABASE_WAL: "true"
     volumes:
       - ./observability/grafana/provisioning:/etc/grafana/provisioning
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards
