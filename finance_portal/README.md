@@ -17,6 +17,7 @@ Spring Boot (Java 21) **modular-monolith** backend with **19 domain modules**. P
 From this directory, the Compose file builds the backend and starts every dependency:
 
 ```bash
+chmod +x mvnw   # Linux/macOS only, first time
 ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package   # build ban SPI (once)
 docker compose up -d
 ```

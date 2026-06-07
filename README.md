@@ -164,6 +164,7 @@ git clone <repo-url>
 cd finance_portal
 
 # 2. Build the Keycloak ban-authenticator plugin (one time)
+#    Linux/macOS: if you get "Permission denied", run `chmod +x mvnw` first
 ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package
 
 # 3. (Optional) create an .env file for API keys — see "Configuration" below

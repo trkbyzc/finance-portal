@@ -169,6 +169,7 @@ git clone <repo-url>
 cd finance_portal
 
 # 2. Keycloak ban-authenticator eklentisini derle (tek seferlik)
+#    Linux/macOS: "Permission denied" alırsan önce `chmod +x mvnw`
 ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package
 
 # 3. (Opsiyonel) API anahtarları için .env oluştur — aşağıdaki "Yapılandırma"ya bak
