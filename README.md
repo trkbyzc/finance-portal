@@ -161,13 +161,18 @@ docker compose up -d
 #    Swagger  : http://localhost:8081/api/v1/swagger-ui.html
 ```
 
-### First-Run: Keycloak Realm
+### Keycloak Realm (auto-imported)
 
-The backend authenticates against a Keycloak realm. Import it once:
+The Keycloak realm `finance-realm` — including roles, seeded users, and the **ban-check login flow** — is **imported automatically** on first startup. Docker Compose runs Keycloak with `--import-realm` and mounts [`finance-realm-cloud-LATEST.json`](finance-realm-cloud-LATEST.json); the ban-authenticator plugin (built in step 2) is loaded so the login-flow binding resolves. **No manual step required.**
 
-1. Open the Keycloak admin console at **http://localhost:8080** (admin / admin).
-2. **Create realm → Import** the file [`finance-realm-cloud-LATEST.json`](finance-realm-cloud-LATEST.json) from the repo root.
-3. In the realm's **Authentication → browser flow**, add the **Ban Check** authenticator step (before OTP) so banned users are blocked at login. *(Details: backend Keycloak SPI.)*
+<details>
+<summary><b>Alternative — manual import</b> (if you prefer the console or disabled auto-import)</summary>
+
+1. Open the Keycloak admin console at http://localhost:8080 (`admin` / `admin`).
+2. **Create realm → Import** the file `finance-realm-cloud-LATEST.json` from the repo root.
+3. In **Authentication → browser flow**, add the **"Ban Check (Finance Portal)"** step *before* OTP, so banned users are blocked at login.
+
+</details>
 
 ### Configuration (`.env`)
 

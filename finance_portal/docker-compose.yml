@@ -35,15 +35,18 @@ services:
       KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_RELATIVE_PATH: /
-    command: start-dev
+    # --import-realm: açılışta /opt/keycloak/data/import/ altındaki realm'i otomatik içe aktarır
+    # (realm + roller + kullanıcılar + ban flow bağlaması). Realm zaten varsa atlar.
+    command: start-dev --import-realm
     ports:
       - "8080:8080"
     volumes:
       - ./keycloak-themes:/opt/keycloak/themes
       # Banlı kullanıcıyı 2FA öncesi engelleyen özel authenticator (SPI).
       # JAR'ı önce derle: ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package
-      # start-dev provider'ları açılışta otomatik build eder; sonra realm flow'una eklenmeli (README).
       - ./keycloak-providers/ban-authenticator/target/ban-authenticator.jar:/opt/keycloak/providers/ban-authenticator.jar
+      # Realm export'u otomatik import edilir (ban flow bağlaması dahil). Manuel alternatif: README.
+      - ../finance-realm-cloud-LATEST.json:/opt/keycloak/data/import/finance-realm.json:ro
     depends_on:
       - postgres
     restart: unless-stopped
