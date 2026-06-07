@@ -93,21 +93,36 @@ On top of the data, it offers **portfolio tracking** (profit/loss in TL and %, a
 
 ## Architecture
 
-Modular-monolith backend + React frontend, orchestrated with Docker Compose (local) or Kubernetes/GKE (production). Market data is collected from external providers via scheduled jobs and served from a Redis cache.
+Every component is packaged as a **Docker container** — the entire stack runs with a single `docker compose up` (the baseline deployment). **Kubernetes/GKE is an optional production deployment** that additionally provides an Ingress + TLS (cert-manager) and horizontal autoscaling (HPA). The backend is a modular-monolith Spring Boot app; market data is collected from external providers via scheduled jobs and served from a Redis cache.
 
 ```mermaid
 graph TB
-    B([Browser]) --> IG[Ingress + TLS]
-    IG --> FE[Frontend · React + nginx]
-    FE -->|REST /api/v1| BE[Backend · Spring Boot Monolith · 19 domains]
-    BE --> PG[(PostgreSQL)]
-    BE --> RD[(Redis cache)]
-    BE --> KC[Keycloak · OIDC]
-    KC --- LD[OpenLDAP]
-    BE --> KF[Kafka] --> LS[Logstash] --> OS[(OpenSearch)]
-    BE --> LV[Lingva · translation]
-    BE -->|OTLP| OC[OTel Collector] --> TP[(Tempo)]
-    OC --> PR[(Prometheus)] --> GF[Grafana]
+    B([Browser]) --> FE
+    subgraph DOCKER["🐳 Docker containers · Docker Compose (baseline) or Kubernetes/GKE (optional)"]
+        FE[Frontend · React + nginx]
+        BE[Backend · Spring Boot Monolith · 19 domains]
+        PG[(PostgreSQL)]
+        RD[(Redis cache)]
+        KC[Keycloak · OIDC]
+        LD[OpenLDAP]
+        KF[Kafka]
+        LS[Logstash]
+        OS[(OpenSearch)]
+        LV[Lingva · translation]
+        OC[OTel Collector]
+        TP[(Tempo)]
+        PR[(Prometheus)]
+        GF[Grafana]
+    end
+    FE -->|REST /api/v1| BE
+    BE --> PG
+    BE --> RD
+    BE --> KC
+    KC --- LD
+    BE --> KF --> LS --> OS
+    BE --> LV
+    BE -->|OTLP| OC --> TP
+    OC --> PR --> GF
     TP --> GF
     BE --> EXT[External: Market Data APIs · Gemini/Groq · SMTP]
 ```
