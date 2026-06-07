@@ -24,15 +24,11 @@
 name: Deploy to GKE
 
 on:
+  # Yalnızca MANUEL tetikleme. GKE cluster maliyet sebebiyle genelde KAPALI olduğundan
+  # her push'ta otomatik deploy denemesi başarısız oluyordu (kırmızı). Demo için önce
+  # cluster'ı aç (scripts/open-cluster.ps1), sonra GitHub → Actions → "Deploy to GKE"
+  # → "Run workflow" ile elle çalıştır.
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'finance_portal/src/**'
-      - 'finance_portal/pom.xml'
-      - 'finance-frontend/**'
-      - 'k8s/**'
-      - '.github/workflows/deploy-to-gke.yml'
 
 env:
   REGION: ${{ secrets.GCP_REGION }}
