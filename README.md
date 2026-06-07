@@ -406,4 +406,4 @@ docker compose --profile sonar up -d sonarqube      # start SonarQube (http://lo
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-© 2025 Türkbey Yozçu
+© 2026 Türkbey Yozçu
