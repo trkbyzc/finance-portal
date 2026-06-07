@@ -22,6 +22,8 @@
 
 
 
+**English** · [Türkçe](README.tr.md)
+
 </div>
 
 ---
