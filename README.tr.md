@@ -2,7 +2,7 @@
 
 <img src="assets/logo.png" alt="" width="220"/>
 
-# 💹 Finans Portalı
+# Finans Portalı
 
 **Full-stack, çok varlık-sınıflı finansal piyasa takip & portföy yönetim platformu**
 
@@ -130,6 +130,19 @@ graph TB
     OC --> PR --> GF
     TP --> GF
     BE --> EXT[Dış: Piyasa API'leri · Gemini/Groq · SMTP]
+
+    classDef app fill:#2563eb,stroke:#1d4ed8,color:#fff
+    classDef data fill:#d97706,stroke:#b45309,color:#fff
+    classDef identity fill:#7c3aed,stroke:#6d28d9,color:#fff
+    classDef msg fill:#0891b2,stroke:#0e7490,color:#fff
+    classDef obs fill:#16a34a,stroke:#15803d,color:#fff
+    classDef ext fill:#64748b,stroke:#475569,color:#fff
+    class FE,BE app
+    class PG,RD,OS data
+    class KC,LD identity
+    class KF,LS msg
+    class OC,TP,PR,GF obs
+    class LV,EXT,B ext
 ```
 
 > Ayrıntılı mimari (C4 seviyeleri, bileşenler, veri modeli) **[Teknik Tasarım Dokümanı (PDF)](docs/FinancePortal_SDD.pdf)** içindedir.
@@ -154,6 +167,8 @@ graph TB
 ## Başlarken
 
 Tüm yığın (backend + frontend + tüm altyapı) tek bir Docker Compose komutuyla çalışır. Backend ve frontend imajları kendi Dockerfile'larından **yerelde derlenir**.
+
+> Aşağıdaki URL'lerde **`<app_url>`** = senin host'un — yerel Docker'da `http://localhost`, ya da dağıtım domain'in. Gösterilen portlar (`5173`, `8081`, …) **varsayılan** Docker Compose portlarıdır; istediğin gibi değiştirebilirsin.
 
 ### Önkoşullar
 
@@ -180,9 +195,9 @@ cd finance_portal
 docker compose up -d
 
 # 5. Uygulamayı aç
-#    Ön Uç  : http://localhost:5173
-#    Arka Uç: http://localhost:8081/api/v1
-#    Swagger: http://localhost:8081/api/v1/swagger-ui.html
+#    Ön Uç  : <app_url>:5173
+#    Arka Uç: <app_url>:8081/api/v1
+#    Swagger: <app_url>:8081/api/v1/swagger-ui.html
 ```
 
 ### Keycloak Realm (otomatik içe aktarılır)
@@ -192,7 +207,7 @@ Keycloak realm'i `finance-realm` — roller, hazır kullanıcılar ve **ban-chec
 <details>
 <summary><b>Alternatif — manuel içe aktarma</b> (konsolu tercih edersen veya otomatik import'u kapattıysan)</summary>
 
-1. Keycloak admin konsolunu aç: http://localhost:8080 (`admin` / `admin`).
+1. Keycloak admin konsolunu aç: <app_url>:8080 (`admin` / `admin`).
 2. **Create realm → Import** ile [`finance_portal/finance-realm.json`](finance_portal/finance-realm.json) dosyasını içe aktar.
 3. **Authentication → browser flow** içinde **"Ban Check (Finance Portal)"** adımını OTP'den *önce* ekle; böylece banlı kullanıcılar girişte engellenir.
 
@@ -229,7 +244,7 @@ MAIL_PASSWORD=
 |---------|-------|
 | `./mvnw: Permission denied` (Linux/macOS) | `chmod +x mvnw` çalıştır, sonra tekrar dene |
 | Bir container (genelde **OpenSearch**) **ilk** `up`'ta `unhealthy` | Yük altında geçici başlangıç-zamanlaması — sadece `docker compose up -d`'yi tekrar çalıştır (kalanları ayağa kaldırır). Linux'ta OpenSearch ısrarla düşerse: `sudo sysctl -w vm.max_map_count=262144` sonra tekrar dene |
-| Başlangıçtan hemen sonra bir servis hazır değil | İlk açılış ~1-2 dk sürer (DB migration + bağlantılar). Bekle, sonra `curl http://localhost:8081/api/v1/actuator/health` → `{"status":"UP"}` |
+| Başlangıçtan hemen sonra bir servis hazır değil | İlk açılış ~1-2 dk sürer (DB migration + bağlantılar). Bekle, sonra `curl <app_url>:8081/api/v1/actuator/health` → `{"status":"UP"}` |
 | Container'lar çöküyor / OOM | Docker'a daha çok bellek ver (**≥ 8 GB**) — OpenSearch & Kafka bellek yer |
 | Temiz başlangıç / Keycloak realm yeniden import | `docker compose down -v` sonra `docker compose up -d` (volume'ları siler, taze DB'de realm yeniden import edilir) |
 | YZ sohbet / e-posta / bazı ekonomi verileri boş | `.env` olmadan **beklenen** — bunlar API anahtarı ister; uygulamanın geri kalanı normal çalışır |
@@ -244,25 +259,25 @@ Tüm servisler `docker compose` ile çalışır. Varsayılan giriş bilgileri [V
 
 | Servis | Port(lar) | URL / Erişim |
 |--------|-----------|--------------|
-| **Ön Uç** (React + nginx) | `5173` | http://localhost:5173 |
-| **Arka Uç** (Spring Boot REST API) | `8081` | http://localhost:8081/api/v1 |
-| **Swagger UI** (API dokümanı) | `8081` | http://localhost:8081/api/v1/swagger-ui.html |
-| **Keycloak** (kimlik / OIDC) | `8080` | http://localhost:8080 |
+| **Ön Uç** (React + nginx) | `5173` | <app_url>:5173 |
+| **Arka Uç** (Spring Boot REST API) | `8081` | <app_url>:8081/api/v1 |
+| **Swagger UI** (API dokümanı) | `8081` | <app_url>:8081/api/v1/swagger-ui.html |
+| **Keycloak** (kimlik / OIDC) | `8080` | <app_url>:8080 |
 | **PostgreSQL** (veritabanı) | `5432` | `finance_db` |
 | **Redis** (önbellek) | `6379` | — |
 | **Apache Kafka** | `9092` | — |
 | **Zookeeper** | `2181` | — |
-| **OpenSearch** (log deposu) | `9200`, `9600` | http://localhost:9200 |
-| **OpenSearch Dashboards** | `5601` | http://localhost:5601 |
+| **OpenSearch** (log deposu) | `9200`, `9600` | <app_url>:9200 |
+| **OpenSearch Dashboards** | `5601` | <app_url>:5601 |
 | **Logstash** (log boru hattı) | *(dahili)* | — |
-| **Lingva** (çeviri) | `5050` | http://localhost:5050 |
+| **Lingva** (çeviri) | `5050` | <app_url>:5050 |
 | **OpenLDAP** | `1389` | — |
-| **phpLDAPadmin** | `8082` | http://localhost:8082 |
+| **phpLDAPadmin** | `8082` | <app_url>:8082 |
 | **OpenTelemetry Collector** | `4317` (gRPC), `4318` (HTTP), `8889` | — |
 | **Tempo** (izler) | `3200` | — |
-| **Prometheus** (metrikler) | `9090` | http://localhost:9090 |
-| **Grafana** (panolar) | `3000` | http://localhost:3000 |
-| **SonarQube** (kod kalitesi) | `9000` | http://localhost:9000 — `docker compose --profile sonar up -d sonarqube` ile başlat |
+| **Prometheus** (metrikler) | `9090` | <app_url>:9090 |
+| **Grafana** (panolar) | `3000` | <app_url>:3000 |
+| **SonarQube** (kod kalitesi) | `9000` | <app_url>:9000 — `docker compose --profile sonar up -d sonarqube` ile başlat |
 
 ---
 
@@ -273,7 +288,7 @@ Tüm servisler `docker compose` ile çalışır. Varsayılan giriş bilgileri [V
 
 ### Uygulama Kullanıcıları (Keycloak)
 
-Uygulamadan (http://localhost:5173 → Giriş) hazır realm kullanıcılarından biriyle giriş yap:
+Uygulamadan (<app_url>:5173 → Giriş) hazır realm kullanıcılarından biriyle giriş yap:
 
 | Kullanıcı adı | Şifre | Rol | Notlar |
 |---------------|-------|-----|--------|
@@ -285,10 +300,10 @@ Uygulamadan (http://localhost:5173 → Giriş) hazır realm kullanıcılarından
 
 | Servis | URL | Kullanıcı adı | Şifre |
 |--------|-----|---------------|-------|
-| Keycloak admin | http://localhost:8080 | `admin` | `admin` |
-| Grafana | http://localhost:3000 | `admin` | `admin` |
-| SonarQube | http://localhost:9000 | `admin` | `admin` |
-| PostgreSQL | `localhost:5432` (db `finance_db`) | `finance_user` | `finance_password` |
+| Keycloak admin | <app_url>:8080 | `admin` | `admin` |
+| Grafana | <app_url>:3000 | `admin` | `admin` |
+| SonarQube | <app_url>:9000 | `admin` | `admin` |
+| PostgreSQL | `<app_url>:5432` (db `finance_db`) | `finance_user` | `finance_password` |
 
 ---
 
@@ -297,8 +312,8 @@ Uygulamadan (http://localhost:5173 → Giriş) hazır realm kullanıcılarından
 
 Tüm REST uçları `/api/v1` öneki altında sunulur, JSON döner ve (korumalı olanlar) bir `Authorization: Bearer <JWT>` başlığı ister. Hatalar tek ve tutarlı bir `ErrorResponse` yapısı kullanır.
 
-- **OpenAPI / Swagger UI:** http://localhost:8081/api/v1/swagger-ui.html
-- **OpenAPI şeması (JSON):** http://localhost:8081/api/v1/v3/api-docs
+- **OpenAPI / Swagger UI:** <app_url>:8081/api/v1/swagger-ui.html
+- **OpenAPI şeması (JSON):** <app_url>:8081/api/v1/v3/api-docs
 - **Javadoc:** `./mvnw javadoc:javadoc` (`finance_portal/` içinden) → `target/site/apidocs/index.html`
 
 ### Uç Grupları
@@ -352,20 +367,16 @@ Kimlik **Keycloak**'a (OIDC) devredilir. Frontend, Authorization Code akışıyl
 | **İzler (Traces)** | OpenTelemetry Java Agent → OTel Collector → **Tempo** → **Grafana** |
 | **Loglar** | Log4j2 (JSON) → **Kafka** → **Logstash** → **OpenSearch** → OpenSearch Dashboards |
 
-**Panolar:** Grafana → http://localhost:3000 (önceden yüklü panolar **Finance Portal** klasöründe) · OpenSearch Dashboards → http://localhost:5601
+**Panolar:** Grafana → <app_url>:3000 (önceden yüklü panolar **Finance Portal** klasöründe) · OpenSearch Dashboards → <app_url>:5601
 
 > Grafana pano listesi boş görünüyorsa `admin` / `admin` ile giriş yap (veya `docker compose restart grafana`).
 
-<div align="center">
-  <img src="assets/grafana_v1.png" alt="Grafana — Gözlemlenebilirlik Genel Bakış" width="800"/>
-  <br/><em>Genel Bakış: Servis Sağlığı, API Yanıt Süresi (p50/p95/p99), İstek Hacmi, Hata Oranı, JVM Heap, Aktif Alarmlar</em>
-  <br/><br/>
-  <img src="assets/grafana_v2.png" alt="Grafana — Loglar & İz Korelasyonu" width="800"/>
-  <br/><em>Loglar &amp; İz Korelasyonu: log seviyeleri, en çok log üreten servisler, trace_id/span_id</em>
-  <br/><br/>
-  <img src="assets/grafa_v3.png" alt="Grafana Tempo — Dağıtık İz" width="800"/>
-  <br/><em>Tempo'da dağıtık izleme: tek bir isteğin uçtan uca span'leri (ör. kripto veri senkronu)</em>
-</div>
+**Önceden yüklü panolar** (Grafana → **Finance Portal** klasörü):
+
+| Pano | Önemli paneller |
+|------|-----------------|
+| **Overview** | Servis Sağlığı · İstek Hacmi (req/s, endpoint bazında) · Bugünkü toplam istek · Hata Oranı (5xx) · API Yanıt Süresi (p50 / p95 / p99) · JVM Heap · Aktif Alarmlar |
+| **Loglar & İz Korelasyonu** | Toplam / INFO / WARN / ERROR sayıları · seviyeye göre log hacmi · en çok log üreten servisler · canlı iz akışı (`trace_id` / `span_id` → Tempo) |
 
 ---
 
@@ -379,17 +390,22 @@ Kod kalitesi ve test kapsamı **SonarQube** + **JaCoCo** ile ölçülür.
 ./mvnw verify
 
 # SonarQube ile statik analiz
-docker compose --profile sonar up -d sonarqube      # SonarQube'u başlat (http://localhost:9000)
+docker compose --profile sonar up -d sonarqube      # SonarQube'u başlat (<app_url>:9000)
 ./mvnw -Psonar                                       # analiz et & sonuçları gönder
 ```
 
-<div align="center">
-  <img src="assets/sonarqube_backend.png" alt="SonarQube — Backend Quality Gate" width="800"/>
-  <br/><em>Backend — SonarQube Quality Gate (kapsam, hatalar, güvenlik açıkları, kod kokuları, tekrarlar)</em>
-  <br/><br/>
-  <img src="assets/sonarqube_frontend.png" alt="SonarQube — Frontend Quality Gate" width="800"/>
-  <br/><em>Frontend — SonarQube Quality Gate</em>
-</div>
+**SonarQube Quality Gate — iki proje de Passed:**
+
+| Metrik | Backend | Frontend |
+|--------|---------|----------|
+| **Quality Gate** | ✅ Passed | ✅ Passed |
+| **Coverage (kapsam)** | 80.2% | 86.3% |
+| Security | A (0 sorun) | A (0 sorun) |
+| Reliability | A (0 sorun) | A (0 sorun) |
+| Maintainability | A | A |
+| Security Hotspots | A (0) | A (0) |
+| Duplications (tekrar) | 2.7% | 1.5% |
+| Satır Sayısı (LoC) | 13k | 22k |
 
 ---
 

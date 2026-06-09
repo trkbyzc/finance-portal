@@ -1,5 +1,7 @@
 # Finance Portal — Backend
 
+**English** · [Türkçe](README.tr.md)
+
 Spring Boot (Java 21) **modular-monolith** backend with **19 domain modules**. Provides the REST API (`/api/v1`), market-data sync, portfolio/alarms/chat logic, and integrations (Keycloak, Redis, Kafka, OpenSearch, external market data & LLM providers).
 
 > For the full project overview, architecture, and one-command stack startup, see the **[root README](../README.md)**.

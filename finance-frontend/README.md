@@ -1,5 +1,7 @@
 # Finance Portal — Frontend
 
+**English** · [Türkçe](README.tr.md)
+
 **React 19 + Vite** single-page application: dashboard, market lists, asset detail & charts, portfolio, watchlist, alarms, simulation/What-If, news, and the AI chat widget. Talks to the backend over REST (`/api/v1`) and authenticates via Keycloak (OIDC).
 
 > For the full project overview and one-command stack startup, see the **[root README](../README.md)**.

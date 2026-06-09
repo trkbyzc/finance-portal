@@ -2,7 +2,7 @@
 
 <img src="assets/logo.png" alt="" width="220"/>
 
-# 💹 Finance Portal
+# Finance Portal
 
 **Full-stack, multi-asset financial market tracking & portfolio management platform**
 
@@ -127,6 +127,19 @@ graph TB
     OC --> PR --> GF
     TP --> GF
     BE --> EXT[External: Market Data APIs · Gemini/Groq · SMTP]
+
+    classDef app fill:#2563eb,stroke:#1d4ed8,color:#fff
+    classDef data fill:#d97706,stroke:#b45309,color:#fff
+    classDef identity fill:#7c3aed,stroke:#6d28d9,color:#fff
+    classDef msg fill:#0891b2,stroke:#0e7490,color:#fff
+    classDef obs fill:#16a34a,stroke:#15803d,color:#fff
+    classDef ext fill:#64748b,stroke:#475569,color:#fff
+    class FE,BE app
+    class PG,RD,OS data
+    class KC,LD identity
+    class KF,LS msg
+    class OC,TP,PR,GF obs
+    class LV,EXT,B ext
 ```
 
 > A detailed architecture (C4 levels, components, data model) is in the **[Technical Design Document (PDF)](docs/FinancePortal_SDD.pdf)**.
@@ -149,6 +162,8 @@ graph TB
 ## Getting Started
 
 The entire stack (backend + frontend + all infrastructure) runs with a single Docker Compose command. Images for the backend and frontend are **built locally** from their Dockerfiles.
+
+> **`<app_url>`** in the URLs below = your host — `http://localhost` for local Docker, or your deployed domain. The ports shown (`5173`, `8081`, …) are the **default** Docker Compose ports; remap them freely.
 
 ### Prerequisites
 
@@ -175,9 +190,9 @@ cd finance_portal
 docker compose up -d
 
 # 5. Open the app
-#    Frontend : http://localhost:5173
-#    Backend  : http://localhost:8081/api/v1
-#    Swagger  : http://localhost:8081/api/v1/swagger-ui.html
+#    Frontend : <app_url>:5173
+#    Backend  : <app_url>:8081/api/v1
+#    Swagger  : <app_url>:8081/api/v1/swagger-ui.html
 ```
 
 ### Keycloak Realm (auto-imported)
@@ -187,7 +202,7 @@ The Keycloak realm `finance-realm` — including roles, seeded users, and the **
 <details>
 <summary><b>Alternative — manual import</b> (if you prefer the console or disabled auto-import)</summary>
 
-1. Open the Keycloak admin console at http://localhost:8080 (`admin` / `admin`).
+1. Open the Keycloak admin console at <app_url>:8080 (`admin` / `admin`).
 2. **Create realm → Import** the file [`finance_portal/finance-realm.json`](finance_portal/finance-realm.json).
 3. In **Authentication → browser flow**, add the **"Ban Check (Finance Portal)"** step *before* OTP, so banned users are blocked at login.
 
@@ -224,7 +239,7 @@ MAIL_PASSWORD=
 |---------|-----|
 | `./mvnw: Permission denied` (Linux/macOS) | Run `chmod +x mvnw`, then retry |
 | A container (often **OpenSearch**) is `unhealthy` on the **first** `up` | Transient startup timing under load — just re-run `docker compose up -d` (brings up the rest). On Linux, if OpenSearch keeps failing: `sudo sysctl -w vm.max_map_count=262144` then retry |
-| A service isn't ready right after start | First boot takes ~1–2 min (DB migrations + connections). Wait, then check `curl http://localhost:8081/api/v1/actuator/health` → `{"status":"UP"}` |
+| A service isn't ready right after start | First boot takes ~1–2 min (DB migrations + connections). Wait, then check `curl <app_url>:8081/api/v1/actuator/health` → `{"status":"UP"}` |
 | Containers crash / OOM | Give Docker more memory (**≥ 8 GB**) — OpenSearch & Kafka are memory-hungry |
 | Clean slate / re-import the Keycloak realm | `docker compose down -v` then `docker compose up -d` (wipes volumes, re-imports the realm on a fresh DB) |
 | AI chat / e-mail / some economy data empty | **Expected without an `.env`** — those need API keys; the rest of the app works normally |
@@ -238,25 +253,25 @@ All services run via `docker compose`. Default login credentials are listed in [
 
 | Service | Port(s) | URL / Access |
 |---------|---------|--------------|
-| **Frontend** (React + nginx) | `5173` | http://localhost:5173 |
-| **Backend** (Spring Boot REST API) | `8081` | http://localhost:8081/api/v1 |
-| **Swagger UI** (API docs) | `8081` | http://localhost:8081/api/v1/swagger-ui.html |
-| **Keycloak** (identity / OIDC) | `8080` | http://localhost:8080 |
+| **Frontend** (React + nginx) | `5173` | <app_url>:5173 |
+| **Backend** (Spring Boot REST API) | `8081` | <app_url>:8081/api/v1 |
+| **Swagger UI** (API docs) | `8081` | <app_url>:8081/api/v1/swagger-ui.html |
+| **Keycloak** (identity / OIDC) | `8080` | <app_url>:8080 |
 | **PostgreSQL** (database) | `5432` | `finance_db` |
 | **Redis** (cache) | `6379` | — |
 | **Apache Kafka** | `9092` | — |
 | **Zookeeper** | `2181` | — |
-| **OpenSearch** (log store) | `9200`, `9600` | http://localhost:9200 |
-| **OpenSearch Dashboards** | `5601` | http://localhost:5601 |
+| **OpenSearch** (log store) | `9200`, `9600` | <app_url>:9200 |
+| **OpenSearch Dashboards** | `5601` | <app_url>:5601 |
 | **Logstash** (log pipeline) | *(internal)* | — |
-| **Lingva** (translation) | `5050` | http://localhost:5050 |
+| **Lingva** (translation) | `5050` | <app_url>:5050 |
 | **OpenLDAP** | `1389` | — |
-| **phpLDAPadmin** | `8082` | http://localhost:8082 |
+| **phpLDAPadmin** | `8082` | <app_url>:8082 |
 | **OpenTelemetry Collector** | `4317` (gRPC), `4318` (HTTP), `8889` | — |
 | **Tempo** (traces) | `3200` | — |
-| **Prometheus** (metrics) | `9090` | http://localhost:9090 |
-| **Grafana** (dashboards) | `3000` | http://localhost:3000 |
-| **SonarQube** (code quality) | `9000` | http://localhost:9000 — start with `docker compose --profile sonar up -d sonarqube` |
+| **Prometheus** (metrics) | `9090` | <app_url>:9090 |
+| **Grafana** (dashboards) | `3000` | <app_url>:3000 |
+| **SonarQube** (code quality) | `9000` | <app_url>:9000 — start with `docker compose --profile sonar up -d sonarqube` |
 
 ---
 
@@ -266,7 +281,7 @@ All services run via `docker compose`. Default login credentials are listed in [
 
 ### Application Users (Keycloak)
 
-Log in through the app (http://localhost:5173 → Login) with one of the seeded realm users:
+Log in through the app (<app_url>:5173 → Login) with one of the seeded realm users:
 
 | Username | Password | Role | Notes |
 |----------|----------|------|-------|
@@ -278,10 +293,10 @@ Log in through the app (http://localhost:5173 → Login) with one of the seeded 
 
 | Service | URL | Username | Password |
 |---------|-----|----------|----------|
-| Keycloak admin | http://localhost:8080 | `admin` | `admin` |
-| Grafana | http://localhost:3000 | `admin` | `admin` |
-| SonarQube | http://localhost:9000 | `admin` | `admin` |
-| PostgreSQL | `localhost:5432` (db `finance_db`) | `finance_user` | `finance_password` |
+| Keycloak admin | <app_url>:8080 | `admin` | `admin` |
+| Grafana | <app_url>:3000 | `admin` | `admin` |
+| SonarQube | <app_url>:9000 | `admin` | `admin` |
+| PostgreSQL | `<app_url>:5432` (db `finance_db`) | `finance_user` | `finance_password` |
 
 ---
 
@@ -289,8 +304,8 @@ Log in through the app (http://localhost:5173 → Login) with one of the seeded 
 
 All REST endpoints are served under the `/api/v1` prefix, return JSON, and (where protected) require an `Authorization: Bearer <JWT>` header. Errors use a single, consistent `ErrorResponse` shape.
 
-- **OpenAPI / Swagger UI:** http://localhost:8081/api/v1/swagger-ui.html
-- **OpenAPI spec (JSON):** http://localhost:8081/api/v1/v3/api-docs
+- **OpenAPI / Swagger UI:** <app_url>:8081/api/v1/swagger-ui.html
+- **OpenAPI spec (JSON):** <app_url>:8081/api/v1/v3/api-docs
 - **Javadoc:** generate with `./mvnw javadoc:javadoc` (from `finance_portal/`) → `target/site/apidocs/index.html`
 
 ### Endpoint Groups
@@ -342,20 +357,16 @@ Full **OpenTelemetry**-based observability across three pillars:
 | **Traces** | OpenTelemetry Java Agent → OTel Collector → **Tempo** → **Grafana** |
 | **Logs** | Log4j2 (JSON) → **Kafka** → **Logstash** → **OpenSearch** → OpenSearch Dashboards |
 
-**Dashboards:** Grafana at http://localhost:3000 (pre-provisioned dashboards under the **Finance Portal** folder) · OpenSearch Dashboards at http://localhost:5601
+**Dashboards:** Grafana at <app_url>:3000 (pre-provisioned dashboards under the **Finance Portal** folder) · OpenSearch Dashboards at <app_url>:5601
 
 > If the Grafana dashboard list looks empty, sign in with `admin` / `admin` (or run `docker compose restart grafana`).
 
-<div align="center">
-  <img src="assets/grafana_v1.png" alt="Grafana — Observability Overview" width="800"/>
-  <br/><em>Overview: Service Health, API Response Time (p50/p95/p99), Request Volume, Error Rate, JVM Heap, Active Alarms</em>
-  <br/><br/>
-  <img src="assets/grafana_v2.png" alt="Grafana — Logs & Trace Correlation" width="800"/>
-  <br/><em>Logs &amp; Trace Correlation: log levels, top log-producing services, trace_id/span_id</em>
-  <br/><br/>
-  <img src="assets/grafa_v3.png" alt="Grafana Tempo — Distributed Trace" width="800"/>
-  <br/><em>Distributed tracing in Tempo: end-to-end spans of a single request (e.g., crypto data sync)</em>
-</div>
+**Pre-provisioned dashboards** (Grafana → **Finance Portal** folder):
+
+| Dashboard | Key panels |
+|-----------|------------|
+| **Overview** | Service Health · Request Volume (req/s, per-endpoint) · Today's total requests · Error Rate (5xx) · API Response Time (p50 / p95 / p99) · JVM Heap · Active Alarms |
+| **Logs & Trace Correlation** | Total / INFO / WARN / ERROR counts · log volume by level · top log-producing services · live trace stream (`trace_id` / `span_id` → Tempo) |
 
 ---
 
@@ -368,17 +379,22 @@ Code quality and test coverage are measured with **SonarQube** + **JaCoCo**.
 ./mvnw verify
 
 # Static analysis with SonarQube
-docker compose --profile sonar up -d sonarqube      # start SonarQube (http://localhost:9000)
+docker compose --profile sonar up -d sonarqube      # start SonarQube (<app_url>:9000)
 ./mvnw -Psonar                                       # analyze & push results
 ```
 
-<div align="center">
-  <img src="assets/sonarqube_backend.png" alt="SonarQube — Backend Quality Gate" width="800"/>
-  <br/><em>Backend — SonarQube Quality Gate (coverage, bugs, vulnerabilities, code smells, duplications)</em>
-  <br/><br/>
-  <img src="assets/sonarqube_frontend.png" alt="SonarQube — Frontend Quality Gate" width="800"/>
-  <br/><em>Frontend — SonarQube Quality Gate</em>
-</div>
+**SonarQube Quality Gate — both projects Passed:**
+
+| Metric | Backend | Frontend |
+|--------|---------|----------|
+| **Quality Gate** | ✅ Passed | ✅ Passed |
+| **Coverage** | 80.2% | 86.3% |
+| Security | A (0 issues) | A (0 issues) |
+| Reliability | A (0 issues) | A (0 issues) |
+| Maintainability | A | A |
+| Security Hotspots | A (0) | A (0) |
+| Duplications | 2.7% | 1.5% |
+| Lines of Code | 13k | 22k |
 
 ---
 
