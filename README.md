@@ -372,6 +372,14 @@ Full **OpenTelemetry**-based observability across three pillars:
 
 ## Code Quality
 
+![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passed-brightgreen?logo=sonarqubeserver&logoColor=white)
+![Coverage](https://img.shields.io/badge/Coverage-BE%2080.2%25%20%C2%B7%20FE%2086.3%25-brightgreen?logo=sonarqubeserver&logoColor=white)
+![Maintainability](https://img.shields.io/badge/Maintainability-A-brightgreen?logo=sonarqubeserver&logoColor=white)
+![Reliability](https://img.shields.io/badge/Reliability-A-brightgreen?logo=sonarqubeserver&logoColor=white)
+![Security](https://img.shields.io/badge/Security-A-brightgreen?logo=sonarqubeserver&logoColor=white)
+![Duplications](https://img.shields.io/badge/Duplications-BE%202.7%25%20%C2%B7%20FE%201.5%25-brightgreen?logo=sonarqubeserver&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-1024%20passed-brightgreen?logo=junit5&logoColor=white)
+
 Code quality and test coverage are measured with **SonarQube** + **JaCoCo**.
 
 ```bash
