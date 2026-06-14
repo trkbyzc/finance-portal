@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Mobile-only fullscreen menu. Navbar'dan navConfig + iki ekstra direkt link (news/economic-calendar) alır,
@@ -9,6 +10,7 @@ import { X, ChevronDown } from 'lucide-react';
  * Açık iken body scroll lock, escape ile kapanır; route değiştiğinde de onClose tetiklenir.
  */
 export default function MobileMenu({ open, onClose, navConfig, extraLinks }) {
+    const { t } = useTranslation('navbar');
     const [expanded, setExpanded] = useState(null);
 
     useEffect(() => {
@@ -33,7 +35,7 @@ export default function MobileMenu({ open, onClose, navConfig, extraLinks }) {
                 aria-label="Mobile navigation"
             >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border sticky top-0 bg-surface z-10">
-                    <span className="text-sm font-bold uppercase tracking-wider text-text-muted">Menü</span>
+                    <span className="text-sm font-bold uppercase tracking-wider text-text-muted">{t('mobileMenuTitle')}</span>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-lg hover:bg-bg text-text-muted hover:text-text transition"

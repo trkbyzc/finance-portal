@@ -1,5 +1,6 @@
 import { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, AlertTriangle, XCircle, Info, X, Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 
 /**
@@ -125,6 +126,7 @@ function ToastViewport({ toasts, onClose }) {
 }
 
 function ToastCard({ toast, onClose }) {
+    const { t } = useTranslation('common');
     const meta = notificationTypeMeta(toast.type);
     const Icon = meta.icon;
     return (
@@ -142,7 +144,7 @@ function ToastCard({ toast, onClose }) {
             <button
                 onClick={onClose}
                 className="shrink-0 -mr-1 -mt-1 w-6 h-6 flex items-center justify-center rounded-md text-text-muted hover:text-text hover:bg-surface-hover transition-colors"
-                aria-label="Kapat"
+                aria-label={t('actions.close')}
             >
                 <X size={14} />
             </button>

@@ -8,6 +8,13 @@
   "login": "Log In",
   "register": "Sign Up",
   "openMenu": "Open Menu",
+  "mobileMenuTitle": "Menu",
+  "theme": {
+    "selector": "Theme selector",
+    "light": "Light Theme",
+    "hybrid": "Hybrid Theme",
+    "dark": "Dark Theme"
+  },
   "categories": {
     "stocks": "Stocks",
     "currencies": "Forex",

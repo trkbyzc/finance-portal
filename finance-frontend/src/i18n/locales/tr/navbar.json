@@ -8,6 +8,13 @@
   "login": "Giriş Yap",
   "register": "Kayıt Ol",
   "openMenu": "Menüyü Aç",
+  "mobileMenuTitle": "Menü",
+  "theme": {
+    "selector": "Tema seçici",
+    "light": "Açık Tema",
+    "hybrid": "Hibrit Tema",
+    "dark": "Koyu Tema"
+  },
   "categories": {
     "stocks": "Borsa",
     "currencies": "Döviz",
