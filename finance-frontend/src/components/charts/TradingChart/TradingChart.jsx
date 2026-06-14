@@ -291,6 +291,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
                             style={{ left: editingText.x, top: editingText.y }}
                             value={editingText.text}
                             onChange={(e) => setEditingText({ ...editingText, text: e.target.value })}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
                             onBlur={() => updateTextOverlay(editingText.text)}
                         />
                     )}
