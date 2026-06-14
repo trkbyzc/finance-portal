@@ -6,6 +6,7 @@ import { nativeCurrencyForType } from '../../../utils/currencyConversion';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 import { simulationApi } from '../../../services/api/simulationApi';
 import DatePicker from '../../common/DatePicker';
+import SelectMenu from '../../common/SelectMenu';
 
 /**
  * AddToPortfolioModal step 3 — adet + tutar (çift yönlü) + alış fiyatı + tarih.
@@ -141,15 +142,12 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
             {portfolios.length > 1 && (
                 <div className="mb-4">
                     <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.targetPortfolio', 'Hangi portföye?')}</label>
-                    <select
+                    <SelectMenu
                         value={targetPortfolioId}
-                        onChange={(e) => setTargetPortfolioId(e.target.value)}
-                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                    >
-                        {portfolios.map((p) => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                    </select>
+                        onChange={setTargetPortfolioId}
+                        options={portfolios.map((p) => ({ value: p.id, label: p.name }))}
+                        placeholder={t('portfolio:modal.targetPortfolio', 'Hangi portföye?')}
+                    />
                 </div>
             )}
 
