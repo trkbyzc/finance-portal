@@ -28,7 +28,8 @@
     "axisValue": "Değer (TRY)",
     "modeAbsolute": "Mutlak (₺)",
     "modeIndexed": "Endeks (100=başlangıç)",
-    "indexedHint": "Tüm varlıklar 100 puandan başlar. Farklı büyüklükteki varlıklar (örn. hisse 5 ₺ vs BTC 67.000 ₺) aynı eğri içinde net karşılaştırılabilir."
+    "indexedHint": "Tüm varlıklar 100 puandan başlar. Farklı büyüklükteki varlıklar (örn. hisse 5 ₺ vs BTC 67.000 ₺) aynı eğri içinde net karşılaştırılabilir.",
+    "sharedStartHint": "{{asset}} verisi bu tarihte başlıyor; daha öncesi olmadığı için karşılaştırma buradan başlatıldı."
   },
   "result": {
     "currentValue": "Bugünkü Değer",

@@ -28,7 +28,8 @@
     "axisValue": "Value (TRY)",
     "modeAbsolute": "Absolute (₺)",
     "modeIndexed": "Indexed (100=start)",
-    "indexedHint": "All assets start from 100 points. Assets of different magnitudes (e.g. a 5 ₺ stock vs 67,000 ₺ BTC) become directly comparable on the same curve."
+    "indexedHint": "All assets start from 100 points. Assets of different magnitudes (e.g. a 5 ₺ stock vs 67,000 ₺ BTC) become directly comparable on the same curve.",
+    "sharedStartHint": "{{asset}} data starts on this date; there is nothing earlier, so the comparison begins here."
   },
   "result": {
     "currentValue": "Current Value",

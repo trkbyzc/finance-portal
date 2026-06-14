@@ -15,12 +15,24 @@ export default function WhatIfResultCards({ result }) {
                 const positive = Number(a.pnlTry ?? 0) >= 0;
                 const color = PALETTE[idx % PALETTE.length];
                 return (
-                    <div key={a.key} className="bg-surface border border-border rounded-xl p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                            <span className="w-3 h-3 rounded-full" style={{ background: color }} />
-                            <div className="font-bold uppercase">{a.symbol}</div>
-                            <span className="text-xs text-text-muted">{t('common:assetTypes.' + a.assetType, a.assetType)}</span>
+                    <div
+                        key={a.key}
+                        className="group relative overflow-hidden bg-surface border border-border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                    >
+                        {/* Varlık rengiyle üst aksan şeridi */}
+                        <span className="absolute inset-x-0 top-0 h-1" style={{ background: color }} />
+
+                        <div className="flex items-center gap-2 mb-4">
+                            <span
+                                className="w-3 h-3 rounded-full shrink-0"
+                                style={{ background: color, boxShadow: `0 0 0 3px ${color}22` }}
+                            />
+                            <span className="font-bold uppercase tracking-wide">{a.symbol}</span>
+                            <span className="ml-auto text-[10px] uppercase tracking-wider text-text-muted border border-border rounded-full px-2 py-0.5">
+                                {t('common:assetTypes.' + a.assetType, a.assetType)}
+                            </span>
                         </div>
+
                         {a.warning ? (
                             <div className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-warning text-xs flex items-start gap-2">
                                 <Info size={12} className="mt-0.5 shrink-0" />
@@ -28,21 +40,23 @@ export default function WhatIfResultCards({ result }) {
                             </div>
                         ) : (
                             <>
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs text-text-muted">{t('whatIf:result.currentValue')}</span>
-                                    <span className="font-mono font-bold">{fmtTry(a.currentValue)} ₺</span>
+                                <div className="mb-4">
+                                    <div className="text-[11px] text-text-muted mb-1">{t('whatIf:result.currentValue')}</div>
+                                    <div className="font-mono text-2xl font-bold leading-none">
+                                        {fmtTry(a.currentValue)} <span className="text-base font-semibold text-text-muted">₺</span>
+                                    </div>
                                 </div>
-                                <div className={`flex items-center justify-between mt-2 pt-2 border-t border-border ${positive ? 'text-buy' : 'text-sell'}`}>
-                                    <span className="text-xs font-semibold inline-flex items-center gap-1">
-                                        {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                                        {t('whatIf:result.pnlPct')}
-                                    </span>
-                                    <span className="font-mono font-bold">
-                                        {positive ? '+' : ''}{Number(a.pnlPct ?? 0).toFixed(2)}%
-                                    </span>
-                                </div>
-                                <div className="text-[10px] text-text-muted text-right mt-1">
-                                    {positive ? '+' : ''}{fmtTry(a.pnlTry)} ₺
+                                <div>
+                                    <div className="text-[11px] text-text-muted mb-1">{t('whatIf:result.pnlPct')}</div>
+                                    <div className="flex items-end justify-between gap-2">
+                                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-bold ${positive ? 'bg-buy/10 text-buy' : 'bg-sell/10 text-sell'}`}>
+                                            {positive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                                            {positive ? '+' : ''}{Number(a.pnlPct ?? 0).toFixed(2)}%
+                                        </span>
+                                        <span className={`font-mono text-xs font-semibold ${positive ? 'text-buy' : 'text-sell'}`}>
+                                            {positive ? '+' : ''}{fmtTry(a.pnlTry)} ₺
+                                        </span>
+                                    </div>
                                 </div>
                             </>
                         )}

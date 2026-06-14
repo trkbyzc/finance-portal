@@ -1,21 +1,18 @@
 import { useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
-import { PALETTE, fmtTry } from '../whatIfHelpers';
+import { Info, CalendarClock } from 'lucide-react';
+import { PALETTE, fmtTry, buildComparisonSeries } from '../whatIfHelpers';
 import { formatChartDate } from '../../../utils/formatters/dateFormatter';
 
 /**
  * Multi-line karşılaştırma grafiği.
  *
- * Ortak başlangıç tarihi (sharedStart):
- *   Backend her asset için historical data'da investmentDate'e EN YAKIN >= ilk noktayı bulur.
- *   Bu nokta asset bazında farklı çıkabilir (ALTNY.IS 02.02, USD 01.01, THYAO.IS 04.02).
- *   Tek grafiğe ayrı tarihlerden başlayan çizgiler kullanıcıyı yanıltır — "USD 1 ay önden
- *   başladı" gibi gözükür. Çözüm: assetlerin ilk-dolu-tarihlerinin EN GEÇ olanı sharedStart;
- *   tüm assetler oradan başlatılır. Hepsinin de orada datası garanti var.
+ * Veri hazırlığı (interpolasyonla hizalama, sharedStart, endeks/mutlak) tamamen saf
+ * buildComparisonSeries() helper'ında — orada test ediliyor. Burada sadece render + tooltip.
  *
  * Mode toggle:
- *   - Endeks (default): sharedStart'taki değer 100, sonrası (v / base) * 100. Farklı
+ *   - Endeks (default): her varlık sharedStart'ta 100, sonrası (v / base) * 100. Farklı
  *     büyüklükteki varlıklar birebir karşılaştırılır.
  *   - Mutlak: ham TRY portföy değeri. Tek bir büyük varlık (BTC) küçükleri ezer.
  */
@@ -23,61 +20,11 @@ export default function WhatIfResultChart({ result }) {
     const { t } = useTranslation('whatIf');
     const [mode, setMode] = useState('indexed'); // 'absolute' | 'indexed'
 
-    const { chartData, sharedStart } = useMemo(() => {
-        if (!result || !result.assets || result.assets.length === 0) {
-            return { chartData: [], sharedStart: null };
-        }
-
-        // 1. Her asset'in ilk dolu noktasını bul.
-        const firstDateByKey = new Map();
-        result.assets.forEach((a) => {
-            const firstPoint = (a.series || []).find(
-                p => Number.isFinite(Number(p.value)) && Number(p.value) > 0
-            );
-            if (firstPoint) firstDateByKey.set(a.key, firstPoint.date);
-        });
-
-        // 2. sharedStart = en geç başlayan asset'in tarihi.
-        //    (ISO yyyy-MM-dd string compare doğru sıralama yapar.)
-        const firstDates = Array.from(firstDateByKey.values());
-        const sharedStart = firstDates.length > 0
-            ? firstDates.sort()[firstDates.length - 1]
-            : null;
-
-        // 3. Tarih bazında merge — sadece sharedStart >= satırlar.
-        const dateMap = new Map();
-        result.assets.forEach((a) => {
-            (a.series || []).forEach(p => {
-                if (sharedStart && p.date < sharedStart) return; // ortak başlangıç öncesini kes
-                if (!dateMap.has(p.date)) dateMap.set(p.date, { date: p.date });
-                dateMap.get(p.date)[a.key] = Number(p.value);
-            });
-        });
-        const sorted = Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
-
-        if (mode === 'absolute') return { chartData: sorted, sharedStart };
-
-        // 4. Endeks mode: her asset'in sharedStart'taki değerini base al.
-        //    sharedStart satırında her asset garantiyle var (en geç başlayan bile orada başlıyor).
-        const baseByKey = new Map();
-        if (sorted.length > 0) {
-            const firstRow = sorted[0];
-            result.assets.forEach((a) => {
-                const v = firstRow[a.key];
-                if (Number.isFinite(v) && v > 0) baseByKey.set(a.key, v);
-            });
-        }
-        const indexed = sorted.map(row => {
-            const next = { date: row.date };
-            result.assets.forEach((a) => {
-                const v = row[a.key];
-                const base = baseByKey.get(a.key);
-                if (Number.isFinite(v) && base) next[a.key] = (v / base) * 100;
-            });
-            return next;
-        });
-        return { chartData: indexed, sharedStart };
-    }, [result, mode]);
+    // Tüm transform (interpolasyonla hizalama + endeks) saf helper'da → test edilebilir.
+    const { chartData, sharedStart, limitingLabel } = useMemo(
+        () => buildComparisonSeries(result, mode),
+        [result, mode]
+    );
 
     const assetList = result?.assets || [];
 
@@ -124,15 +71,18 @@ export default function WhatIfResultChart({ result }) {
         );
     };
 
-    // Bazı asset'in sharedStart'ı diğerlerinden çok geç ise kullanıcıya not düş.
-    const sharedStartHint = useMemo(() => {
+    // sharedStart yatırım tarihinden geç ise: tarihi ayrı vurgulu chip'te, açıklamayı yanında göster.
+    const startHint = useMemo(() => {
         if (!sharedStart || !result?.investmentDate) return null;
         if (sharedStart === result.investmentDate) return null;
-        return t('chart.sharedStartHint', {
+        return {
             date: formatChartDate(sharedStart),
-            defaultValue: 'Karşılaştırma {{date}} tarihinden başlatıldı — bu tarihten önce bazı varlıkların verisi yok.'
-        });
-    }, [sharedStart, result, t]);
+            text: t('chart.sharedStartHint', {
+                asset: limitingLabel || '',
+                defaultValue: '{{asset}} verisi bu tarihte başlıyor; daha öncesi olmadığı için karşılaştırma buradan başlatıldı.'
+            })
+        };
+    }, [sharedStart, result, limitingLabel, t]);
 
     return (
         <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
@@ -140,10 +90,21 @@ export default function WhatIfResultChart({ result }) {
                 <div>
                     <h3 className="font-semibold">{t('chart.title')}</h3>
                     {mode === 'indexed' && (
-                        <p className="text-xs text-text-muted mt-1 max-w-xl">{t('chart.indexedHint')}</p>
+                        <p className="mt-1.5 flex items-start gap-1.5 text-xs text-text-subtle max-w-xl leading-relaxed">
+                            <Info size={13} className="mt-0.5 shrink-0" />
+                            <span>{t('chart.indexedHint')}</span>
+                        </p>
                     )}
-                    {sharedStartHint && (
-                        <p className="text-xs text-text-muted mt-1 max-w-xl">{sharedStartHint}</p>
+                    {startHint && (
+                        <div className="mt-2 flex items-start gap-2 rounded-lg border border-primary/25 bg-primary-soft px-3 py-2 max-w-xl">
+                            <CalendarClock size={15} className="mt-0.5 shrink-0 text-primary" />
+                            <p className="text-xs leading-relaxed text-text-muted">
+                                <span className="mr-1.5 inline-block rounded-md bg-primary px-1.5 py-0.5 align-middle font-mono text-[11px] font-bold text-primary-fg">
+                                    {startHint.date}
+                                </span>
+                                {startHint.text}
+                            </p>
+                        </div>
                     )}
                 </div>
                 <div className="inline-flex rounded-lg border border-border overflow-hidden text-xs font-semibold shrink-0">
@@ -167,7 +128,14 @@ export default function WhatIfResultChart({ result }) {
                 <ResponsiveContainer>
                     <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                        <XAxis dataKey="date" stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} tickFormatter={formatChartDate} />
+                        <XAxis
+                            dataKey="date"
+                            stroke="var(--color-text-muted)"
+                            tick={{ fontSize: 11 }}
+                            tickFormatter={formatChartDate}
+                            interval="preserveStartEnd"
+                            minTickGap={40}
+                        />
                         <YAxis
                             stroke="var(--color-text-muted)"
                             tick={{ fontSize: 11 }}
