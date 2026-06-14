@@ -35,6 +35,7 @@ import AdminPage from './pages/AdminPage/AdminPage.jsx';
 import GlobalTicker from './components/layout/MarketTicker/GlobalTicker';
 import ChatWidget from './components/chat/ChatWidget';
 import ScrollToTopButton from './components/layout/ScrollToTopButton';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 
 
@@ -44,6 +45,7 @@ function App() {
             <NotificationProvider>
             <CurrencyProvider>
                 <Router>
+                    <ScrollToTop />
                     <div className="min-h-screen bg-bg text-text font-sans selection:bg-primary selection:text-primary-fg">
                         <Navbar />
                         <GlobalTicker />
