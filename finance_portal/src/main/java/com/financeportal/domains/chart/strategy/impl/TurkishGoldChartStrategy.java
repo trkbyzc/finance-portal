@@ -57,7 +57,10 @@ public class TurkishGoldChartStrategy implements ChartDataStrategy {
                 || "GRAM_HAS_ALTIN".equals(upper)
                 || "CUMHURIYET_ALTINI".equals(upper)
                 || upper.contains("ALTIN")
-                || upper.contains("BILEZIK");
+                || upper.contains("BILEZIK")
+                // Karşılaştırma widget'ı her varlığı yahooSymbol ile çağırır; TR altın türlerinin
+                // hepsi "XAUTRY=X" kullanır (CommodityService). Bunu da gram altın gibi tanı.
+                || upper.contains("XAUTRY");
     }
 
     @Override
@@ -150,6 +153,8 @@ public class TurkishGoldChartStrategy implements ChartDataStrategy {
     private BigDecimal liveTurkishGoldPrice(String symbol) {
         try {
             String target = normalizeGoldSymbol(symbol);
+            // XAUTRY=X = gram altının yahooSymbol'ü → canlı fiyatını GRAM_ALTIN'den al.
+            if (target.contains("XAUTRY")) target = "GRAM_ALTIN";
             List<?> live = commodityService.getTurkishGold();
             if (live == null) return null;
             for (Object item : live) {
