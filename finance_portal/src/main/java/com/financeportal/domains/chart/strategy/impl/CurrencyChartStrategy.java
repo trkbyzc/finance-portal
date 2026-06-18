@@ -50,10 +50,13 @@ public class CurrencyChartStrategy implements ChartDataStrategy {
         // aksi halde range tanınmayıp son 30 güne düşüyordu (geçmiş tarih "fiyat bulunamadı" hatası).
         List<HistoricalDataDto> data = tcmbIntegrationClient.fetchCurrencyHistoryFromRedis(evdsSymbol, range, startDate, endDate);
 
-        if (data == null || data.isEmpty() || data.size() < 5) {
+        // SADECE EVDS tamamen boşsa Yahoo'ya düş. Eskiden "< 5" idi → kısa range'lerde (1d/5d) EVDS
+        // az nokta verince Yahoo USDTRY=X'e düşüyordu; o farklı kaynak (~%0.2 spread) header'daki TCMB
+        // canlı fiyatıyla uyuşmuyor + intraday verisi klinecharts crosshair/eksenini bozuyordu. Artık
+        // seyrek de olsa EVDS + canlı patch kullanılır → grafik son noktası header ile birebir.
+        if (data == null || data.isEmpty()) {
             String yahooSymbol = cleanSymbol.contains("=X") ? cleanSymbol : cleanSymbol + "TRY=X";
-            log.warn("[CHART STRATEGY] EVDS'de {} için yeterli veri yok ({} nokta), Yahoo fallback: {}",
-                    evdsSymbol, (data == null ? 0 : data.size()), yahooSymbol);
+            log.warn("[CHART STRATEGY] EVDS'de {} için veri yok, Yahoo fallback: {}", evdsSymbol, yahooSymbol);
             return yahooChartClient.fetchChartHistory(yahooSymbol, range, interval, startDate, endDate);
         }
 
