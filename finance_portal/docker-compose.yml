@@ -168,7 +168,6 @@ services:
     image: opensearchproject/logstash-oss-with-opensearch-output-plugin:8.9.0
     container_name: finance-logstash
     volumes:
-      - ./logs:/usr/share/logstash/logs
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     restart: unless-stopped
     depends_on:
