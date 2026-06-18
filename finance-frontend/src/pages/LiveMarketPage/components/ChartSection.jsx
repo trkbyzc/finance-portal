@@ -4,6 +4,7 @@ import { AreaChart, CandlestickChart, ExternalLink } from 'lucide-react';
 import { init, dispose } from 'klinecharts';
 import { useTranslation } from 'react-i18next';
 import { formatIndexName } from '../LiveMarketUtils';
+import { formatKlineDate } from '../../../utils/formatters/dateFormatter';
 import ChartOhlcvBar from '../../../components/charts/TradingChart/components/ChartOhlcvBar';
 
 const RANGE_KEYS = [
@@ -44,6 +45,10 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
         if (chartInstance.current) dispose(chartRef.current);
 
         chartInstance.current = init(chartRef.current, {
+            // Eksen/crosshair tarihleri Türk usulü + doğru saat (TradingChart ile aynı).
+            customApi: {
+                formatDate: (_dateTimeFormat, timestamp, format) => formatKlineDate(timestamp, format)
+            },
             grid: { show: false },
             xAxis: { axisLine: { show: false }, tickText: { color: '#868993', size: 10 } },
             yAxis: { position: 'right', axisLine: { show: false }, tickText: { color: '#868993', size: 10 } },
@@ -64,7 +69,9 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
                     }
                 });
                 const chartData = res.map(d => ({
-                    timestamp: new Date(d.date).getTime(),
+                    // d.timestamp = doğru intraday epoch (08:55, 09:00…). d.date sadece tarih (saat yok)
+                    // → new Date(d.date) UTC gece yarısı = TRY 03:00 olur, tüm eksen etiketleri 03:00 çıkardı.
+                    timestamp: d.timestamp ?? new Date(d.date).getTime(),
                     open: d.open, high: d.high, low: d.low, close: d.close
                 }));
 
