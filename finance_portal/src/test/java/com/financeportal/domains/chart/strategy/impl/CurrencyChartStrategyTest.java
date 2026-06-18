@@ -76,17 +76,24 @@ class CurrencyChartStrategyTest {
     }
 
     @Test
-    void fetch_evdsLessThan5Points_yahooFallback() {
-        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(List.of(
-                bar(LocalDate.now().minusDays(1), 33.0)));
+    void fetch_evdsSparseButNotEmpty_usesEvdsNotYahoo() {
+        // Eskiden "< 5 nokta" Yahoo'ya düşürürdü; artık az nokta da olsa EVDS kullanılır (kaynak
+        // tutarlılığı — grafik son noktası header'daki TCMB canlı fiyatıyla eşleşsin). Sadece EVDS
+        // tamamen boşsa Yahoo'ya düşeriz.
+        List<HistoricalDataDto> sparse = new ArrayList<>();
+        sparse.add(bar(LocalDate.now().minusDays(1), 33.0));
+        when(tcmbClient.fetchCurrencyHistoryFromRedis(anyString(), anyString(), any(), any())).thenReturn(sparse);
 
-        when(yahooClient.fetchChartHistory(anyString(), anyString(), anyString(), any(), any()))
-                .thenReturn(List.of(bar(LocalDate.now(), 34.0)));
+        CurrencyDto usd = new CurrencyDto();
+        usd.setCurrencyCode("USD");
+        usd.setForexSelling(new BigDecimal("34.55"));
+        when(currencyService.getCurrencyRates()).thenReturn(List.of(usd));
 
         List<HistoricalDataDto> result = strategy.fetchHistoricalData("USD", "1y", "1d", null, null);
 
-        assertEquals(1, result.size());
-        verify(yahooClient).fetchChartHistory(eq("USDTRY=X"), eq("1y"), eq("1d"), any(), any());
+        // Yahoo'ya düşmedi; EVDS + canlı patch kullanıldı (son nokta canlı kura çekildi).
+        verify(yahooClient, never()).fetchChartHistory(any(), any(), any(), any(), any());
+        assertEquals(new BigDecimal("34.55"), result.get(result.size() - 1).getClose());
     }
 
     @Test
