@@ -201,14 +201,22 @@ public class TcmbIntegrationClient {
 
     private LocalDate getCutoffDateByRange(String range) {
         LocalDate now = LocalDate.now();
-        if ("1w".equalsIgnoreCase(range)) return now.minusDays(7);
-        if ("1mo".equalsIgnoreCase(range)) return now.minusDays(30);
-        if ("3mo".equalsIgnoreCase(range)) return now.minusDays(90);
-        if ("6mo".equalsIgnoreCase(range)) return now.minusDays(180);
-        if ("1y".equalsIgnoreCase(range)) return now.minusDays(365);
-        if ("5y".equalsIgnoreCase(range)) return now.minusDays(1825);
-        if ("10y".equalsIgnoreCase(range)) return now.minusDays(3650);
-        if ("all".equalsIgnoreCase(range) || "max".equalsIgnoreCase(range)) return now.minusYears(100);
-        return now.minusDays(30);
+        if (range == null) return now.minusDays(30);
+        // ÖNEMLİ: 1d/5d/ytd eskiden buraya HİÇ tanınmıyordu → default 30 güne düşüyordu,
+        // yani 1G/1H/YBİ hepsi "1 ay" gösteriyordu. Artık her aralık kendi penceresine map'lenir.
+        return switch (range.toLowerCase()) {
+            case "1d" -> now.minusDays(1);
+            case "5d" -> now.minusDays(5);
+            case "1w" -> now.minusDays(7);
+            case "1mo", "1m", "1a" -> now.minusDays(30);
+            case "3mo", "3m", "3a" -> now.minusDays(90);
+            case "6mo", "6m", "6a" -> now.minusDays(180);
+            case "ytd" -> LocalDate.of(now.getYear(), 1, 1);
+            case "1y", "1yr" -> now.minusDays(365);
+            case "5y" -> now.minusDays(1825);
+            case "10y" -> now.minusDays(3650);
+            case "all", "max", "tum", "tüm" -> now.minusYears(100);
+            default -> now.minusDays(30);
+        };
     }
 }

@@ -68,6 +68,9 @@ public class CurrencyService {
         LocalDate now = LocalDate.now();
         if (range == null) return now.minusYears(5);
         return switch (range.toLowerCase()) {
+            case "1d" -> now.minusDays(1);   // 1d/5d/1w eskiden default'a (5 yıl) düşüyordu
+            case "5d" -> now.minusDays(5);
+            case "1w" -> now.minusDays(7);
             case "1mo", "1m", "1a" -> now.minusMonths(1);
             case "3mo", "3m", "3a" -> now.minusMonths(3);
             case "6mo", "6m", "6a" -> now.minusMonths(6);

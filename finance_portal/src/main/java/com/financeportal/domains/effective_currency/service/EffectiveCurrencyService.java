@@ -122,6 +122,9 @@ public class EffectiveCurrencyService {
         LocalDate now = LocalDate.now();
         if (range == null) return now.minusYears(5);
         return switch (range.toLowerCase()) {
+            case "1d" -> now.minusDays(1);   // 1d/5d/1w eskiden default 5 yıla düşüyordu (1G→5 yıl!)
+            case "5d" -> now.minusDays(5);
+            case "1w" -> now.minusDays(7);
             case "1mo", "1m" -> now.minusMonths(1);
             case "3mo", "3m" -> now.minusMonths(3);
             case "6mo", "6m" -> now.minusMonths(6);
