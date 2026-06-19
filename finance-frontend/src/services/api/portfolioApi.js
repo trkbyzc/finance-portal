@@ -22,6 +22,7 @@ export const portfolioApi = {
             quantity: data.quantity,
             price: data.averagePrice,
             contractSize: data.contractSize, // VİOP çarpanı (varsa); diğer varlıklarda backend 1 sayar
+            direction: data.direction, // VİOP pozisyon yönü (LONG/SHORT); diğer varlıklarda backend null sayar
             portfolioId: data.portfolioId, // hedef portföy (yoksa backend varsayılanı kullanır)
             purchaseDate: data.purchaseDate // alış tarihi → transaction.executedAt; reel K/Z / enflasyon bundan hesaplanır
         });
@@ -46,6 +47,7 @@ export const portfolioApi = {
                 // SellModal market price gönderir → backend SELL audit'i gerçek işlem fiyatıyla yazar.
                 // 0 veya yoksa backend fallback olarak averagePrice (cost-basis) kullanır.
                 price: data.averagePrice ?? 0,
+                direction: data.direction, // VİOP'ta hangi yönlü pozisyonun (LONG/SHORT) kapatılacağını belirler
                 portfolioId: data.portfolioId
             }
         });

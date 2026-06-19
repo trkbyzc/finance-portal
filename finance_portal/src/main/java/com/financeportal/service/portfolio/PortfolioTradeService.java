@@ -6,6 +6,7 @@ import com.financeportal.model.entity.Portfolio;
 import com.financeportal.model.entity.PortfolioItem;
 import com.financeportal.model.entity.Transaction;
 import com.financeportal.model.entity.User;
+import com.financeportal.model.enums.AssetType;
 import com.financeportal.model.enums.TradeSide;
 import com.financeportal.repository.PortfolioItemRepository;
 import com.financeportal.repository.TransactionRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -40,17 +42,24 @@ public class PortfolioTradeService {
     /**
      * Tek bir {@code @Transactional} sınırı içinde çağrılır (caller PortfolioService).
      * Hem portfolio_items aggregate hem transactions audit satırı aynı tx'te commit/rollback olur.
+     *
+     * <p>VİOP'ta pozisyon symbol + yön ile gruplanır: aynı sembolde ayrı bir LONG ve SHORT
+     * pozisyonu birlikte tutulabilir. BUY her zaman pozisyonu AÇAR/ARTIRIR (yön bağımsız);
+     * yön yalnızca değerlemede K/Z işaretini belirler.
      */
     public void executeManualEntry(UUID userId, Portfolio portfolio, TradeRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
-        PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol()).orElse(null);
+
+        String direction = normalizeDirection(request); // spot → null, VİOP → LONG/SHORT
+        PortfolioItem item = findPosition(portfolio.getId(), request.getSymbol(), direction).orElse(null);
+
+        // VİOP çarpanı ekleme anında snapshot'lanır (sonradan mock tablo değişse de pozisyon doğru kalır).
+        BigDecimal contractSize = (request.getContractSize() != null && request.getContractSize().signum() > 0)
+                ? request.getContractSize()
+                : BigDecimal.ONE;
 
         if (item == null) {
-            // VİOP çarpanı ekleme anında snapshot'lanır (sonradan mock tablo değişse de pozisyon doğru kalır).
-            BigDecimal contractSize = (request.getContractSize() != null && request.getContractSize().signum() > 0)
-                    ? request.getContractSize()
-                    : BigDecimal.ONE;
             item = new PortfolioItem();
             item.setId(UUID.randomUUID());
             item.setUser(user);
@@ -60,12 +69,15 @@ public class PortfolioTradeService {
             item.setQuantity(request.getQuantity());
             item.setAveragePrice(request.getPrice());
             item.setContractSize(contractSize);
+            item.setDirection(direction); // spot=null, VİOP=LONG/SHORT
         } else {
             BigDecimal oldTotal = item.getQuantity().multiply(item.getAveragePrice());
             BigDecimal newTotal = request.getQuantity().multiply(request.getPrice());
             BigDecimal totalQuantity = item.getQuantity().add(request.getQuantity());
             item.setAveragePrice(oldTotal.add(newTotal).divide(totalQuantity, 4, RoundingMode.HALF_UP));
             item.setQuantity(totalQuantity);
+            // Bu özellikten önce eklenmiş VİOP satırı direction=null ise LONG'a normalize et.
+            if (item.getDirection() == null && direction != null) item.setDirection(direction);
         }
 
         portfolioItemRepository.save(item);
@@ -74,11 +86,12 @@ public class PortfolioTradeService {
         // Alış tarihi verilmişse işlem tarihi olarak kullanılır (reel getiri/enflasyon doğru hesaplansın).
         LocalDateTime executedAt = request.getPurchaseDate() != null ? request.getPurchaseDate().atStartOfDay() : null;
         writeTx(user, request.getSymbol(), item.getAssetType(), TradeSide.BUY,
-                request.getQuantity(), request.getPrice(), null, executedAt);
+                request.getQuantity(), request.getPrice(), null, executedAt, item.getDirection(), item.getContractSize());
     }
 
     public void executeUpdateManualEntry(Portfolio portfolio, TradeRequestDto request) {
-        PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol())
+        String direction = normalizeDirection(request);
+        PortfolioItem item = findPosition(portfolio.getId(), request.getSymbol(), direction)
                 .orElseThrow(() -> new ResourceNotFoundException("Varlık bulunamadı: " + request.getSymbol()));
 
         BigDecimal oldQty = item.getQuantity();
@@ -96,12 +109,13 @@ public class PortfolioTradeService {
             BigDecimal absQty = delta.abs();
             String note = oldQty.compareTo(BigDecimal.ZERO) == 0 ? null : "Quantity edit (was " + oldQty + ")";
             writeTx(item.getUser(), request.getSymbol(), item.getAssetType(), side,
-                    absQty, request.getPrice(), note);
+                    absQty, request.getPrice(), note, null, item.getDirection(), item.getContractSize());
         }
     }
 
     public void executeRemoveFromPortfolio(Portfolio portfolio, TradeRequestDto request) {
-        PortfolioItem item = portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolio.getId(), request.getSymbol())
+        String direction = normalizeDirection(request);
+        PortfolioItem item = findPosition(portfolio.getId(), request.getSymbol(), direction)
                 .orElseThrow(() -> new ResourceNotFoundException("Varlık bulunamadı: " + request.getSymbol()));
 
         BigDecimal removed;
@@ -120,20 +134,35 @@ public class PortfolioTradeService {
                 ? request.getPrice()
                 : item.getAveragePrice();
         writeTx(item.getUser(), request.getSymbol(), item.getAssetType(), TradeSide.SELL,
-                removed, sellPrice, null);
+                removed, sellPrice, null, null, item.getDirection(), item.getContractSize());
     }
 
-    private void writeTx(User user, String symbol, com.financeportal.model.enums.AssetType assetType,
-                         TradeSide side, BigDecimal quantity, BigDecimal price, String notes) {
-        writeTx(user, symbol, assetType, side, quantity, price, notes, null);
+    /**
+     * VİOP (FUTURE) için yön normalize eder: null/boş/tanınmayan → "LONG"; "short" → "SHORT".
+     * VİOP dışı (spot) varlıklarda yön yoktur → null (eski davranış birebir korunur).
+     */
+    private String normalizeDirection(TradeRequestDto request) {
+        if (request.getAssetType() != AssetType.FUTURE) return null;
+        String d = request.getDirection();
+        return (d != null && "SHORT".equalsIgnoreCase(d.trim())) ? "SHORT" : "LONG";
     }
 
-    private void writeTx(User user, String symbol, com.financeportal.model.enums.AssetType assetType,
-                         TradeSide side, BigDecimal quantity, BigDecimal price, String notes, LocalDateTime executedAt) {
+    /**
+     * Pozisyonu bulur: VİOP (direction != null) → symbol + yön; spot (direction == null) → symbol (tek satır).
+     */
+    private Optional<PortfolioItem> findPosition(UUID portfolioId, String symbol, String direction) {
+        return direction != null
+                ? portfolioItemRepository.findByPortfolio_IdAndSymbolAndDirection(portfolioId, symbol, direction)
+                : portfolioItemRepository.findByPortfolio_IdAndSymbol(portfolioId, symbol);
+    }
+
+    private void writeTx(User user, String symbol, AssetType assetType, TradeSide side,
+                         BigDecimal quantity, BigDecimal price, String notes,
+                         LocalDateTime executedAt, String direction, BigDecimal contractSize) {
         if (!transactionWriteEnabled) return; // feature flag kapalı, audit yazmıyoruz
         Transaction tx = new Transaction(
                 UUID.randomUUID(), user, symbol, assetType, side, quantity, price,
-                executedAt != null ? executedAt : LocalDateTime.now(), notes
+                executedAt != null ? executedAt : LocalDateTime.now(), notes, direction, contractSize
         );
         transactionRepository.save(tx);
     }

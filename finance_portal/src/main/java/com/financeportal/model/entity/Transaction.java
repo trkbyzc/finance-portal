@@ -53,4 +53,12 @@ public class Transaction {
     /** Backfilled satırları işaretlemek için: 'Backfilled from portfolio_items'. */
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    /** VİOP pozisyon yönü (LONG/SHORT); null = LONG (VİOP dışı veya eski kayıtlar). */
+    @Column(name = "direction", length = 5)
+    private String direction;
+
+    /** VİOP çarpanı — kapanmış pozisyon K/Z geçmişi doğru hesaplansın; VİOP dışında 1. */
+    @Column(name = "contract_size", precision = 19, scale = 6)
+    private BigDecimal contractSize;
 }

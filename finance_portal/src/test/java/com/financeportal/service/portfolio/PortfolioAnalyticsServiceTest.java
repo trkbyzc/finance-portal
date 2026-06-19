@@ -1,5 +1,6 @@
 package com.financeportal.service.portfolio;
 
+import com.financeportal.domains.viop.config.ViopContractSpec;
 import com.financeportal.model.dto.portfolio.PortfolioItemDto;
 import com.financeportal.model.dto.portfolio.PortfolioSummaryDto;
 import com.financeportal.model.entity.PortfolioItem;
@@ -27,6 +28,9 @@ class PortfolioAnalyticsServiceTest {
 
     @Mock
     private PortfolioPriceService priceService;
+
+    @Mock
+    private ViopContractSpec viopContractSpec;
 
     @InjectMocks
     private PortfolioAnalyticsService analytics;
@@ -144,6 +148,62 @@ class PortfolioAnalyticsServiceTest {
         assertTrue(summary.getTotalProfitLossPct().compareTo(BigDecimal.ZERO) < 0);
     }
 
+    // -------- VİOP: teminat-bazlı değerleme (kaldıraç + yön) --------
+
+    @Test
+    void buildItems_viopLong_marginBasedValuationNotNotional() {
+        // 2 sözleşme × giriş 100 × çarpan 100; fiyat 100→110; teminat oranı %10
+        PortfolioItem item = makeViopItem("F_XU030", "2", "100", "100", "LONG");
+        when(priceService.getCurrentPrice("F_XU030", AssetType.FUTURE)).thenReturn(new BigDecimal("110"));
+        when(viopContractSpec.getSpec("F_XU030"))
+                .thenReturn(new ViopContractSpec.ViopSpec(new BigDecimal("100"), new BigDecimal("0.10"), "TRY"));
+
+        PortfolioItemDto dto = analytics.buildPortfolioItems(List.of(item)).get(0);
+
+        // notional = 2×110×100 = 22.000 (piyasada kontrol edilen tutar — maliyet DEĞİL)
+        assertEquals(0, new BigDecimal("22000").compareTo(dto.getNotional()));
+        // maliyet = bağlanan teminat = 2×100×100×0.10 = 2.000
+        assertEquals(0, new BigDecimal("2000").compareTo(dto.getMarginPosted()));
+        assertEquals(0, new BigDecimal("2000").compareTo(dto.getTotalCost()));
+        // pnl = 2×(110-100)×100 = +2.000 → portföye katkı = teminat + pnl = 4.000
+        assertEquals(0, new BigDecimal("2000").compareTo(dto.getProfitLoss()));
+        assertEquals(0, new BigDecimal("4000").compareTo(dto.getCurrentValue()));
+        // getiri yüzdesi teminata göre (kaldıraçlı): 2000/2000 = %100
+        assertEquals(0, new BigDecimal("100.0000").compareTo(dto.getProfitLossPct()));
+        // kaldıraç = notional/teminat = 22000/2000 = 11x
+        assertEquals(0, new BigDecimal("11.00").compareTo(dto.getLeverage()));
+        assertEquals("LONG", dto.getDirection());
+    }
+
+    @Test
+    void buildItems_viopShort_profitsWhenPriceFalls() {
+        PortfolioItem item = makeViopItem("F_XU030", "1", "100", "100", "SHORT");
+        when(priceService.getCurrentPrice("F_XU030", AssetType.FUTURE)).thenReturn(new BigDecimal("90"));
+        when(viopContractSpec.getSpec("F_XU030"))
+                .thenReturn(new ViopContractSpec.ViopSpec(new BigDecimal("100"), new BigDecimal("0.10"), "TRY"));
+
+        PortfolioItemDto dto = analytics.buildPortfolioItems(List.of(item)).get(0);
+
+        // SHORT, fiyat 100→90 (düşüş): pnl = 1×(90-100)×100×(-1) = +1.000 → short DÜŞÜŞTE kazanır
+        assertTrue(dto.getProfitLoss().signum() > 0);
+        assertEquals(0, new BigDecimal("1000").compareTo(dto.getProfitLoss()));
+        assertEquals("SHORT", dto.getDirection());
+    }
+
+    @Test
+    void buildItems_viopNullDirection_treatedAsLong() {
+        // Bu özellikten önce eklenmiş VİOP pozisyonu (direction=null) → LONG sayılır (geriye uyumlu)
+        PortfolioItem item = makeViopItem("F_XU030", "1", "100", "100", null);
+        when(priceService.getCurrentPrice("F_XU030", AssetType.FUTURE)).thenReturn(new BigDecimal("110"));
+        when(viopContractSpec.getSpec("F_XU030"))
+                .thenReturn(new ViopContractSpec.ViopSpec(new BigDecimal("100"), new BigDecimal("0.10"), "TRY"));
+
+        PortfolioItemDto dto = analytics.buildPortfolioItems(List.of(item)).get(0);
+
+        assertEquals("LONG", dto.getDirection());
+        assertTrue(dto.getProfitLoss().signum() > 0); // yükselişte LONG kazanır
+    }
+
     // -------- helper --------
 
     private PortfolioItem makeItem(String symbol, AssetType type, String qty, String avgPrice) {
@@ -152,6 +212,13 @@ class PortfolioAnalyticsServiceTest {
         item.setAssetType(type);
         item.setQuantity(new BigDecimal(qty));
         item.setAveragePrice(new BigDecimal(avgPrice));
+        return item;
+    }
+
+    private PortfolioItem makeViopItem(String symbol, String qty, String avgPrice, String contractSize, String direction) {
+        PortfolioItem item = makeItem(symbol, AssetType.FUTURE, qty, avgPrice);
+        item.setContractSize(new BigDecimal(contractSize));
+        item.setDirection(direction);
         return item;
     }
 }

@@ -88,6 +88,10 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
     // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
     const multiplier = Number(item.contractSize) || 1;
     const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;
+    // VİOP yön (LONG/SHORT) + kaldıraç — sembolün yanında renkli rozet
+    const isViop = item.assetType === 'FUTURE';
+    const isShort = String(item.direction || '').toUpperCase() === 'SHORT';
+    const leverage = Number(item.leverage) || 0;
     // Günlük değişim % (piyasadan) — sembolün yanında küçük renkli rozet
     const dc = (dailyChange != null && !Number.isNaN(Number(dailyChange))) ? Number(dailyChange) : null;
     const dcUp = dc != null && dc >= 0;
@@ -96,6 +100,11 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
             <td className="p-2 md:p-4 whitespace-nowrap">
                 <div className="flex items-center gap-2">
                     <span className="font-semibold text-sm md:text-base">{displaySymbol(item.symbol)}</span>
+                    {isViop && item.direction && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isShort ? 'bg-sell/15 text-sell' : 'bg-buy/15 text-buy'}`} title={t('portfolio:modal.direction', 'Pozisyon Yönü')}>
+                            {isShort ? 'SHORT' : 'LONG'}{leverage > 0 ? ` ${leverage.toFixed(0)}×` : ''}
+                        </span>
+                    )}
                     {dc != null && (
                         <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded ${dcUp ? 'text-buy bg-buy/10' : 'text-sell bg-sell/10'}`}>
                             {dcUp ? '+' : ''}{dc.toFixed(2)}%

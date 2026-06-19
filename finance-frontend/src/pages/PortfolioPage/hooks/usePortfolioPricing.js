@@ -111,6 +111,23 @@ export default function usePortfolioPricing(portfolio) {
         // para birimindeki değerler (USD kripto + TRY hisse) toplanırken tutarsızlık oluşuyordu.
         const native = nativeCurrencyForType(item.assetType, item.symbol);
         const rate = native === 'USD' ? (Number(usdRate) || 1) : 1; // native → TRY
+
+        // VİOP: tam nominal değil TEMİNAT bağlanır → portföye katkı = teminat + K/Z (notional DEĞİL).
+        // Yön (short) K/Z işaretini ters çevirir; yüzde bağlanan teminata göre = kaldıraçlı gerçek getiri.
+        // Teminat backend DTO'sundan (giriş fiyatına göre sabit) gelir; K/Z canlı fiyatla burada hesaplanır.
+        if (item.assetType === 'FUTURE') {
+            const dirSign = String(item.direction || '').toUpperCase() === 'SHORT' ? -1 : 1;
+            const pnlNative = ((Number(currentPrice) || 0) - (Number(item.averagePrice) || 0)) * item.quantity * multiplier * dirSign;
+            const marginNative = Number(item.marginPosted) > 0
+                ? Number(item.marginPosted)
+                : (Number(item.averagePrice) || 0) * item.quantity * multiplier; // teminat bilinmiyorsa nominal (defansif fallback)
+            const costValue = marginNative * rate;          // maliyet = bağlanan teminat (TRY)
+            const profitLoss = pnlNative * rate;            // K/Z (TRY)
+            const currentValue = costValue + profitLoss;    // portföye katkı = teminat + K/Z (TRY)
+            const profitLossPercent = marginNative > 0 ? (pnlNative / marginNative) * 100 : 0;
+            return { currentPrice, profitLoss, profitLossPercent, currentValue, costValue };
+        }
+
         const currentValue = (Number(currentPrice) || 0) * rate * item.quantity * multiplier; // TRY
         const costValue = (Number(item.averagePrice) || 0) * rate * item.quantity * multiplier; // TRY
         const profitLoss = currentValue - costValue; // TRY

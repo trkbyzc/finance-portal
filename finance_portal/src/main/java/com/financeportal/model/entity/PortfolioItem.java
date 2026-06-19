@@ -45,4 +45,10 @@ public class PortfolioItem {
     // VİOP dışı varlıklarda 1. Pozisyon ekleme anındaki değer snapshot'lanır.
     @Column(name = "contract_size", nullable = false, precision = 19, scale = 6)
     private BigDecimal contractSize;
+
+    // VİOP pozisyon yönü: "LONG" (uzun) veya "SHORT" (kısa/açığa satış).
+    // null = LONG (geriye uyumlu: VİOP dışı tüm varlıklar ve eski kayıtlar uzun sayılır).
+    // Pozisyonlar symbol + direction ile gruplanır → aynı sembolde ayrı LONG ve SHORT pozisyonu olabilir.
+    @Column(name = "direction", length = 5)
+    private String direction;
 }

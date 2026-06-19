@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Plus, Calendar } from 'lucide-react';
+import { Loader2, Plus, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
@@ -27,6 +27,8 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const [earliestLoading, setEarliestLoading] = useState(false);
     // Hedef portföy — varsayılan aktif portföy; birden fazla portföy varsa kullanıcı seçebilir.
     const [targetPortfolioId, setTargetPortfolioId] = useState(activePortfolioId || (portfolios[0]?.id ?? ''));
+    // VİOP pozisyon yönü — uzun (long, yükselişe) veya kısa (short, düşüşe). VİOP dışında kullanılmaz.
+    const [direction, setDirection] = useState('LONG');
 
     // VİOP'ta 1 sözleşme = çarpan kadar dayanak; nominal = fiyat × çarpan × adet
     const isViop = selectedType === 'VIOP' || selectedBackendValue === 'FUTURE';
@@ -99,7 +101,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 ...(targetPortfolioId ? { portfolioId: targetPortfolioId } : {}),
                 // Alış tarihi seçildiyse gönder — reel getiri/enflasyon işlem tarihinden hesaplanır
                 ...(purchaseDate ? { purchaseDate } : {}),
-                ...(isViop ? { contractSize } : {})
+                ...(isViop ? { contractSize, direction } : {})
             });
         } catch (error) {
             // Hata bildirimi parent mutation'ın onError'ında toast olarak gösterilir.
@@ -202,6 +204,31 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     </span>
                 )}
             </div>
+
+            {/* VİOP pozisyon yönü — uzun (long) / kısa (short) segment kontrolü */}
+            {isViop && (
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.direction', 'Pozisyon Yönü')}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setDirection('LONG')}
+                            className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition ${direction === 'LONG' ? 'border-buy bg-buy/10 text-buy' : 'border-border bg-bg text-text-muted hover:border-buy/50'}`}
+                        >
+                            <span className="flex items-center justify-center gap-1.5"><TrendingUp size={16} /> {t('portfolio:modal.directionLong', 'Uzun (Long)')}</span>
+                            <span className="block text-[10px] font-normal mt-0.5 opacity-80">{t('portfolio:modal.directionLongHint', 'Fiyat yükselince kazanırsın')}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setDirection('SHORT')}
+                            className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition ${direction === 'SHORT' ? 'border-sell bg-sell/10 text-sell' : 'border-border bg-bg text-text-muted hover:border-sell/50'}`}
+                        >
+                            <span className="flex items-center justify-center gap-1.5"><TrendingDown size={16} /> {t('portfolio:modal.directionShort', 'Kısa (Short)')}</span>
+                            <span className="block text-[10px] font-normal mt-0.5 opacity-80">{t('portfolio:modal.directionShortHint', 'Fiyat düşünce kazanırsın')}</span>
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Adet ↔ Tutar (çift yönlü; biri girilince diğeri fiyattan hesaplanır) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">

@@ -48,10 +48,18 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
     const qtyNum = Number.parseFloat(quantity);
     const isValid = qtyNum > 0 && qtyNum <= maxQty + 1e-9; // floating epsilon
     const isAllOut = qtyNum >= maxQty - 1e-9;
-    const total = isValid ? qtyNum * effectivePrice : 0;
-    const costBasis = isValid ? qtyNum * Number(asset.averagePrice ?? 0) : 0;
-    const pnl = total - costBasis;
-    const pnlPct = costBasis > 0 ? (pnl / costBasis) * 100 : 0;
+    // VİOP: çarpan (sözleşme büyüklüğü) + yön (short fiyat DÜŞÜŞÜNDE kazanır).
+    // Diğer varlıklarda çarpan = 1, dirSign = +1 → davranış birebir aynı kalır.
+    const multiplier = Number(asset?.contractSize) > 0 ? Number(asset.contractSize) : 1;
+    const isShort = String(asset?.direction || '').toUpperCase() === 'SHORT';
+    const dirSign = isShort ? -1 : 1;
+    const total = isValid ? qtyNum * effectivePrice * multiplier : 0;        // nominal işlem tutarı
+    const costBasis = isValid ? qtyNum * Number(asset.averagePrice ?? 0) * multiplier : 0;
+    const pnl = (total - costBasis) * dirSign;                                // short'ta işaret terslenir
+    // Yüzde tabanı: VİOP ise satılan kısma düşen TEMİNAT (kaldıraçlı gerçek getiri), değilse maliyet.
+    const soldMargin = (Number(asset?.marginPosted) > 0 && maxQty > 0) ? Number(asset.marginPosted) * (qtyNum / maxQty) : 0;
+    const pnlBase = soldMargin > 0 ? soldMargin : costBasis;
+    const pnlPct = pnlBase > 0 ? (pnl / pnlBase) * 100 : 0;
 
     const handleQtyChange = (val) => {
         // Negatif veya max üstünü engelle — kullanıcı yazdıkça clamp
@@ -113,7 +121,9 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                 assetType: asset.assetType,
                 quantity: qtyNum,
                 // averagePrice key kullanılıyor backend'de price'a maplenmesi için (portfolioApi.removeFromPortfolio'da)
-                averagePrice: effectivePrice
+                averagePrice: effectivePrice,
+                // VİOP'ta hangi yönlü pozisyonun (LONG/SHORT) kapatılacağını backend'e bildir
+                ...(asset.direction ? { direction: asset.direction } : {})
             });
             onClose();
         } catch (e) {
@@ -139,7 +149,14 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                             <Minus size={18} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold uppercase">{asset.symbol}</h2>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xl font-bold uppercase">{asset.symbol}</h2>
+                                {asset.direction && (
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isShort ? 'bg-sell/15 text-sell' : 'bg-buy/15 text-buy'}`}>
+                                        {isShort ? t('portfolio:modal.directionShort', 'Kısa (Short)') : t('portfolio:modal.directionLong', 'Uzun (Long)')}
+                                    </span>
+                                )}
+                            </div>
                             <p className="text-xs text-text-muted">{t('portfolio:trade.sellTitle')}</p>
                         </div>
                     </div>
