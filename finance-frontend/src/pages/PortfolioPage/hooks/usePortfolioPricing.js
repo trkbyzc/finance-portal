@@ -128,6 +128,21 @@ export default function usePortfolioPricing(portfolio) {
             return { currentPrice, profitLoss, profitLossPercent, currentValue, costValue };
         }
 
+        // Tahvil/eurobond: değerleme karmaşık (getiri↔temiz fiyat, kupon, vade) → BACKEND hesaplar
+        // (PortfolioAnalyticsService bond dalı). Frontend backend DTO değerlerini kullanır; DİBS TRY,
+        // eurobond USD → güncel kurla TRY'ye çevrilir (toplam/dağılım tutarlı olsun).
+        if (item.assetType === 'BOND') {
+            const isDibs = String(item.symbol || '').startsWith('TP.');
+            const bondRate = isDibs ? 1 : (Number(usdRate) || 1);
+            return {
+                currentPrice: Number(item.currentPrice) || 0, // DİBS → getiri, eurobond → temiz fiyat
+                profitLoss: (Number(item.profitLoss) || 0) * bondRate,
+                profitLossPercent: Number(item.profitLossPct) || 0,
+                currentValue: (Number(item.currentValue) || 0) * bondRate,
+                costValue: (Number(item.totalCost) || 0) * bondRate
+            };
+        }
+
         const currentValue = (Number(currentPrice) || 0) * rate * item.quantity * multiplier; // TRY
         const costValue = (Number(item.averagePrice) || 0) * rate * item.quantity * multiplier; // TRY
         const profitLoss = currentValue - costValue; // TRY
