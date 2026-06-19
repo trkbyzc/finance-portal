@@ -1,5 +1,6 @@
 package com.financeportal.service.portfolio;
 
+import com.financeportal.domains.bond.config.BondSpec;
 import com.financeportal.domains.viop.config.ViopContractSpec;
 import com.financeportal.model.dto.portfolio.PortfolioItemDto;
 import com.financeportal.model.dto.portfolio.PortfolioSummaryDto;
@@ -14,12 +15,14 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +34,9 @@ class PortfolioAnalyticsServiceTest {
 
     @Mock
     private ViopContractSpec viopContractSpec;
+
+    @Mock
+    private BondSpec bondSpec;
 
     @InjectMocks
     private PortfolioAnalyticsService analytics;
@@ -202,6 +208,51 @@ class PortfolioAnalyticsServiceTest {
 
         assertEquals("LONG", dto.getDirection());
         assertTrue(dto.getProfitLoss().signum() > 0); // yükselişte LONG kazanır
+    }
+
+    // -------- Sabit getirili (tahvil/eurobond): fiyat-bazlı değerleme --------
+
+    @Test
+    void bond_dibsFixed_yieldDown_capitalGain() {
+        // nominal 10.000, giriş getirisi %20, kupon FIXED %20, vade ~5y
+        PortfolioItem item = makeItem("TP.TRT070335K16", AssetType.BOND, "10000", "20");
+        when(priceService.getCurrentPrice("TP.TRT070335K16", AssetType.BOND)).thenReturn(new BigDecimal("18")); // getiri DÜŞTÜ
+        when(bondSpec.forSymbol(eq("TP.TRT070335K16"), any())).thenReturn(new BondSpec.BondInfo(
+                BondSpec.Kind.DIBS, "YIELD", new BigDecimal("20"), "FIXED", LocalDate.now().plusYears(5), "TRY", 2));
+
+        PortfolioItemDto dto = analytics.buildPortfolioItems(List.of(item)).get(0);
+
+        // kupon=getiri=20 → entryClean=par(100); getiri 18<kupon 20 → currentClean>100 → KAZANÇ (ters ilişki)
+        assertTrue(dto.getProfitLoss().signum() > 0, "getiri düştü → kapital kazanç");
+        assertTrue(dto.getCurrentValue().compareTo(new BigDecimal("10000")) > 0);
+        // 'adet×getiri' saçmalığı DEĞİL (o olsa 10000×18=180.000 olurdu); fiyat-bazlı ~10.000-12.000
+        assertTrue(dto.getCurrentValue().compareTo(new BigDecimal("12000")) < 0);
+    }
+
+    @Test
+    void bond_dibs_yieldUp_capitalLoss() {
+        PortfolioItem item = makeItem("TP.X", AssetType.BOND, "10000", "20");
+        when(priceService.getCurrentPrice("TP.X", AssetType.BOND)).thenReturn(new BigDecimal("25")); // getiri YÜKSELDİ
+        when(bondSpec.forSymbol(eq("TP.X"), any())).thenReturn(new BondSpec.BondInfo(
+                BondSpec.Kind.DIBS, "YIELD", new BigDecimal("20"), "FIXED", LocalDate.now().plusYears(5), "TRY", 2));
+
+        PortfolioItemDto dto = analytics.buildPortfolioItems(List.of(item)).get(0);
+        assertTrue(dto.getProfitLoss().signum() < 0, "getiri yükseldi → kapital zarar");
+    }
+
+    @Test
+    void bond_eurobond_priceBased() {
+        // eurobond fiyat-kotalı: giriş temiz fiyat 95, güncel 98 → değer = nominal × fiyat/100
+        PortfolioItem item = makeItem("US900123DV94", AssetType.BOND, "10000", "95");
+        when(priceService.getCurrentPrice("US900123DV94", AssetType.BOND)).thenReturn(new BigDecimal("98"));
+        when(bondSpec.forSymbol(eq("US900123DV94"), any())).thenReturn(new BondSpec.BondInfo(
+                BondSpec.Kind.EUROBOND, "PRICE", new BigDecimal("6.375"), "FIXED", LocalDate.now().plusYears(6), "USD", 2));
+
+        PortfolioItemDto dto = analytics.buildPortfolioItems(List.of(item)).get(0);
+        // cost=10000×95/100=9.500, value=10000×98/100=9.800, pnl=+300
+        assertEquals(0, new BigDecimal("9500").compareTo(dto.getTotalCost()));
+        assertEquals(0, new BigDecimal("9800").compareTo(dto.getCurrentValue()));
+        assertTrue(dto.getProfitLoss().signum() > 0);
     }
 
     // -------- helper --------

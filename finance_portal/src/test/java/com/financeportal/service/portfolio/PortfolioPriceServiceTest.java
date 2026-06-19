@@ -1,6 +1,7 @@
 package com.financeportal.service.portfolio;
 
 import com.financeportal.domains.bond.service.BondService;
+import com.financeportal.domains.eurobond.service.EurobondService;
 import com.financeportal.domains.commodity.dto.CommodityDto;
 import com.financeportal.domains.commodity.service.CommodityService;
 import com.financeportal.domains.crypto.dto.CryptoDto;
@@ -37,6 +38,7 @@ class PortfolioPriceServiceTest {
 
     @Mock private TurkishBondService turkishBondService;
     @Mock private BondService bondService;
+    @Mock private EurobondService eurobondService;
     @Mock private FutureService futureService;
     @Mock private CryptoService cryptoService;
     @Mock private CurrencyService currencyService;

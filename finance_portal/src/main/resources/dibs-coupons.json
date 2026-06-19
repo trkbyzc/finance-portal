@@ -1,0 +1,722 @@
+﻿{
+    "TRD010530K13":  {
+                         "coupon":  5.86,
+                         "type":  "REAL"
+                     },
+    "TRD020828T22":  {
+                         "coupon":  9.79,
+                         "type":  "FIXED"
+                     },
+    "TRD040832A17":  {
+                         "coupon":  8.07,
+                         "type":  "FIXED"
+                     },
+    "TRD040832T24":  {
+                         "coupon":  8.07,
+                         "type":  "FIXED"
+                     },
+    "TRD050128K17":  {
+                         "coupon":  16.7,
+                         "type":  "FIXED"
+                     },
+    "TRD050231K11":  {
+                         "coupon":  8.07,
+                         "type":  "FIXED"
+                     },
+    "TRD050826K12":  {
+                         "coupon":  9.79,
+                         "type":  "FIXED"
+                     },
+    "TRD060127K17":  {
+                         "coupon":  16.7,
+                         "type":  "FIXED"
+                     },
+    "TRD060230K29":  {
+                         "coupon":  15.15,
+                         "type":  "FIXED"
+                     },
+    "TRD070229K13":  {
+                         "coupon":  8.07,
+                         "type":  "FIXED"
+                     },
+    "TRD070432T17":  {
+                         "coupon":  0,
+                         "type":  "ZERO"
+                     },
+    "TRD070628K10":  {
+                         "coupon":  14.28,
+                         "type":  "FIXED"
+                     },
+    "TRD070933K10":  {
+                         "coupon":  13.19,
+                         "type":  "FIXED"
+                     },
+    "TRD070933T11":  {
+                         "coupon":  13.19,
+                         "type":  "FIXED"
+                     },
+    "TRD080927T26":  {
+                         "coupon":  5.09,
+                         "type":  "REAL"
+                     },
+    "TRD081128T21":  {
+                         "coupon":  16.48,
+                         "type":  "FIXED"
+                     },
+    "TRD100227K44":  {
+                         "coupon":  15.15,
+                         "type":  "FIXED"
+                     },
+    "TRD100327K19":  {
+                         "coupon":  5.09,
+                         "type":  "REAL"
+                     },
+    "TRD110827K21":  {
+                         "coupon":  18.41,
+                         "type":  "FIXED"
+                     },
+    "TRD111126K19":  {
+                         "coupon":  16.48,
+                         "type":  "FIXED"
+                     },
+    "TRD120428K23":  {
+                         "coupon":  14.26,
+                         "type":  "FIXED"
+                     },
+    "TRD130330K11":  {
+                         "coupon":  13.19,
+                         "type":  "FIXED"
+                     },
+    "TRD140329K21":  {
+                         "coupon":  15,
+                         "type":  "FIXED"
+                     },
+    "TRD160627K28":  {
+                         "coupon":  19.98,
+                         "type":  "FIXED"
+                     },
+    "TRD160926A10":  {
+                         "coupon":  8.4,
+                         "type":  "FIXED"
+                     },
+    "TRD160926K26":  {
+                         "coupon":  13.19,
+                         "type":  "FIXED"
+                     },
+    "TRD170129A14":  {
+                         "coupon":  14.34,
+                         "type":  "FIXED"
+                     },
+    "TRD170730T22":  {
+                         "coupon":  16.68,
+                         "type":  "FIXED"
+                     },
+    "TRD171127T13":  {
+                         "coupon":  19.9,
+                         "type":  "FIXED"
+                     },
+    "TRD200127T28":  {
+                         "coupon":  0,
+                         "type":  "ZERO"
+                     },
+    "TRD230233T18":  {
+                         "coupon":  5.71,
+                         "type":  "REAL"
+                     },
+    "TRD230632A16":  {
+                         "coupon":  9.04,
+                         "type":  "FIXED"
+                     },
+    "TRD230632T23":  {
+                         "coupon":  9.04,
+                         "type":  "FIXED"
+                     },
+    "TRD250232K16":  {
+                         "coupon":  5.71,
+                         "type":  "REAL"
+                     },
+    "TRD250631K13":  {
+                         "coupon":  9.04,
+                         "type":  "FIXED"
+                     },
+    "TRD261229K18":  {
+                         "coupon":  9.04,
+                         "type":  "FIXED"
+                     },
+    "TRD271032A16":  {
+                         "coupon":  5.86,
+                         "type":  "REAL"
+                     },
+    "TRD271032T23":  {
+                         "coupon":  5.86,
+                         "type":  "REAL"
+                     },
+    "TRD271130K15":  {
+                         "coupon":  1.59,
+                         "type":  "REAL"
+                     },
+    "TRD280531T12":  {
+                         "coupon":  1.59,
+                         "type":  "REAL"
+                     },
+    "TRD300828K19":  {
+                         "coupon":  5.71,
+                         "type":  "REAL"
+                     },
+    "TRT010328K11":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT011128K29":  {
+                         "coupon":  1.24,
+                         "type":  "REAL"
+                     },
+    "TRT020130A10":  {
+                         "coupon":  18.31,
+                         "type":  "FIXED"
+                     },
+    "TRT020529K25":  {
+                         "coupon":  1.24,
+                         "type":  "REAL"
+                     },
+    "TRT020926K24":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT021030A19":  {
+                         "coupon":  16.95,
+                         "type":  "FIXED"
+                     },
+    "TRT030129K28":  {
+                         "coupon":  18.31,
+                         "type":  "FIXED"
+                     },
+    "TRT030626K26":  {
+                         "coupon":  10.47,
+                         "type":  "FIXED"
+                     },
+    "TRT031029T10":  {
+                         "coupon":  16.97,
+                         "type":  "FIXED"
+                     },
+    "TRT040729T14":  {
+                         "coupon":  18.86,
+                         "type":  "FIXED"
+                     },
+    "TRT041126K44":  {
+                         "coupon":  1.24,
+                         "type":  "REAL"
+                     },
+    "TRT050428K16":  {
+                         "coupon":  16.97,
+                         "type":  "FIXED"
+                     },
+    "TRT050527T17":  {
+                         "coupon":  17.51,
+                         "type":  "FIXED"
+                     },
+    "TRT050630K10":  {
+                         "coupon":  18.77,
+                         "type":  "FIXED"
+                     },
+    "TRT050630T29":  {
+                         "coupon":  18.77,
+                         "type":  "FIXED"
+                     },
+    "TRT050728K21":  {
+                         "coupon":  18.31,
+                         "type":  "FIXED"
+                     },
+    "TRT050935A14":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT050935K12":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT050935T13":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT050935T21":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT051033K11":  {
+                         "coupon":  13.1,
+                         "type":  "FIXED"
+                     },
+    "TRT051229K15":  {
+                         "coupon":  18.77,
+                         "type":  "FIXED"
+                     },
+    "TRT060629K12":  {
+                         "coupon":  18.77,
+                         "type":  "FIXED"
+                     },
+    "TRT060928T11":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT060934K12":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT061027K34":  {
+                         "coupon":  16.95,
+                         "type":  "FIXED"
+                     },
+    "TRT061228K31":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT061228T16":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT070329T23":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT070335K16":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT070427K15":  {
+                         "coupon":  16.97,
+                         "type":  "FIXED"
+                     },
+    "TRT070727K12":  {
+                         "coupon":  1.45,
+                         "type":  "REAL"
+                     },
+    "TRT070933K20":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT071026K34":  {
+                         "coupon":  16.95,
+                         "type":  "FIXED"
+                     },
+    "TRT080131T12":  {
+                         "coupon":  2.65,
+                         "type":  "REAL"
+                     },
+    "TRT080328K22":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT080530K18":  {
+                         "coupon":  2.63,
+                         "type":  "REAL"
+                     },
+    "TRT080530T35":  {
+                         "coupon":  2.63,
+                         "type":  "REAL"
+                     },
+    "TRT080726K20":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT080932K20":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT081227K14":  {
+                         "coupon":  18.77,
+                         "type":  "FIXED"
+                     },
+    "TRT090130A13":  {
+                         "coupon":  18.6,
+                         "type":  "FIXED"
+                     },
+    "TRT090130K37":  {
+                         "coupon":  18.6,
+                         "type":  "FIXED"
+                     },
+    "TRT090333K24":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT090431K17":  {
+                         "coupon":  13.1,
+                         "type":  "FIXED"
+                     },
+    "TRT090627K52":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT091030K10":  {
+                         "coupon":  13.1,
+                         "type":  "FIXED"
+                     },
+    "TRT091226K22":  {
+                         "coupon":  18.77,
+                         "type":  "FIXED"
+                     },
+    "TRT100332T23":  {
+                         "coupon":  16.85,
+                         "type":  "FIXED"
+                     },
+    "TRT100430K15":  {
+                         "coupon":  13.1,
+                         "type":  "FIXED"
+                     },
+    "TRT100528K18":  {
+                         "coupon":  15.54,
+                         "type":  "FIXED"
+                     },
+    "TRT100730A14":  {
+                         "coupon":  17.05,
+                         "type":  "FIXED"
+                     },
+    "TRT100730K20":  {
+                         "coupon":  2.65,
+                         "type":  "REAL"
+                     },
+    "TRT100931K35":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT101029K10":  {
+                         "coupon":  13.1,
+                         "type":  "FIXED"
+                     },
+    "TRT110232K22":  {
+                         "coupon":  17.2,
+                         "type":  "FIXED"
+                     },
+    "TRT110429T26":  {
+                         "coupon":  2.5,
+                         "type":  "REAL"
+                     },
+    "TRT110729K14":  {
+                         "coupon":  17.05,
+                         "type":  "FIXED"
+                     },
+    "TRT110832K18":  {
+                         "coupon":  17.2,
+                         "type":  "FIXED"
+                     },
+    "TRT110930A11":  {
+                         "coupon":  3.06,
+                         "type":  "REAL"
+                     },
+    "TRT110930K27":  {
+                         "coupon":  16.85,
+                         "type":  "FIXED"
+                     },
+    "TRT110930T10":  {
+                         "coupon":  3.06,
+                         "type":  "REAL"
+                     },
+    "TRT111028K28":  {
+                         "coupon":  2.5,
+                         "type":  "REAL"
+                     },
+    "TRT120128T11":  {
+                         "coupon":  1.45,
+                         "type":  "REAL"
+                     },
+    "TRT120133K21":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT120231K22":  {
+                         "coupon":  17.2,
+                         "type":  "FIXED"
+                     },
+    "TRT120331K39":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT120626T18":  {
+                         "coupon":  0.85,
+                         "type":  "REAL"
+                     },
+    "TRT120826T16":  {
+                         "coupon":  18,
+                         "type":  "FIXED"
+                     },
+    "TRT120929K37":  {
+                         "coupon":  16.85,
+                         "type":  "FIXED"
+                     },
+    "TRT120929K45":  {
+                         "coupon":  3.06,
+                         "type":  "REAL"
+                     },
+    "TRT120929T12":  {
+                         "coupon":  15,
+                         "type":  "FIXED"
+                     },
+    "TRT130127K69":  {
+                         "coupon":  2.65,
+                         "type":  "REAL"
+                     },
+    "TRT130330K47":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT130629T14":  {
+                         "coupon":  2.25,
+                         "type":  "REAL"
+                     },
+    "TRT130629T48":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT130733T17":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT130831K25":  {
+                         "coupon":  17.2,
+                         "type":  "FIXED"
+                     },
+    "TRT130928K37":  {
+                         "coupon":  15,
+                         "type":  "FIXED"
+                     },
+    "TRT130928T12":  {
+                         "coupon":  16.85,
+                         "type":  "FIXED"
+                     },
+    "TRT131027K35":  {
+                         "coupon":  2.5,
+                         "type":  "REAL"
+                     },
+    "TRT131032A14":  {
+                         "coupon":  5.2,
+                         "type":  "REAL"
+                     },
+    "TRT131130A15":  {
+                         "coupon":  5.85,
+                         "type":  "REAL"
+                     },
+    "TRT131130K13":  {
+                         "coupon":  5.85,
+                         "type":  "REAL"
+                     },
+    "TRT140132K20":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT140229T17":  {
+                         "coupon":  0,
+                         "type":  "ZERO"
+                     },
+    "TRT140329K64":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT140427K40":  {
+                         "coupon":  18.39,
+                         "type":  "FIXED"
+                     },
+    "TRT140628K13":  {
+                         "coupon":  2.25,
+                         "type":  "REAL"
+                     },
+    "TRT140727K47":  {
+                         "coupon":  17.05,
+                         "type":  "FIXED"
+                     },
+    "TRT140830K25":  {
+                         "coupon":  17.2,
+                         "type":  "FIXED"
+                     },
+    "TRT141026K19":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT141129K15":  {
+                         "coupon":  5.85,
+                         "type":  "REAL"
+                     },
+    "TRT150131K20":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT150328K80":  {
+                         "coupon":  18.4,
+                         "type":  "FIXED"
+                     },
+    "TRT150829K27":  {
+                         "coupon":  17.2,
+                         "type":  "FIXED"
+                     },
+    "TRT150927K44":  {
+                         "coupon":  15,
+                         "type":  "FIXED"
+                     },
+    "TRT150927K85":  {
+                         "coupon":  15.03,
+                         "type":  "FIXED"
+                     },
+    "TRT151031K11":  {
+                         "coupon":  5.2,
+                         "type":  "REAL"
+                     },
+    "TRT151128K15":  {
+                         "coupon":  5.85,
+                         "type":  "REAL"
+                     },
+    "TRT151227K15":  {
+                         "coupon":  1.5,
+                         "type":  "REAL"
+                     },
+    "TRT160228K23":  {
+                         "coupon":  4.55,
+                         "type":  "REAL"
+                     },
+    "TRT160431A10":  {
+                         "coupon":  17.41,
+                         "type":  "FIXED"
+                     },
+    "TRT160431K18":  {
+                         "coupon":  5.2,
+                         "type":  "REAL"
+                     },
+    "TRT160431T27":  {
+                         "coupon":  17.41,
+                         "type":  "FIXED"
+                     },
+    "TRT160627A14":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT161030K11":  {
+                         "coupon":  5.2,
+                         "type":  "REAL"
+                     },
+    "TRT161226K49":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT170227K23":  {
+                         "coupon":  4.55,
+                         "type":  "REAL"
+                     },
+    "TRT170327K71":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT170730K23":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT171029K13":  {
+                         "coupon":  5.2,
+                         "type":  "REAL"
+                     },
+    "TRT171127K22":  {
+                         "coupon":  5.85,
+                         "type":  "REAL"
+                     },
+    "TRT180237T13":  {
+                         "coupon":  3897,
+                         "type":  "FIXED"
+                     },
+    "TRT180429K28":  {
+                         "coupon":  17.41,
+                         "type":  "FIXED"
+                     },
+    "TRT180729K25":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT180827A10":  {
+                         "coupon":  1.5,
+                         "type":  "REAL"
+                     },
+    "TRT181028K39":  {
+                         "coupon":  17.41,
+                         "type":  "FIXED"
+                     },
+    "TRT190128T22":  {
+                         "coupon":  9.96,
+                         "type":  "FIXED"
+                     },
+    "TRT190527K28":  {
+                         "coupon":  5.85,
+                         "type":  "REAL"
+                     },
+    "TRT190728A19":  {
+                         "coupon":  8.65,
+                         "type":  "FIXED"
+                     },
+    "TRT190728T26":  {
+                         "coupon":  8.65,
+                         "type":  "FIXED"
+                     },
+    "TRT190826T27":  {
+                         "coupon":  9.97,
+                         "type":  "FIXED"
+                     },
+    "TRT201027K51":  {
+                         "coupon":  16.63,
+                         "type":  "FIXED"
+                     },
+    "TRT210235T10":  {
+                         "coupon":  3169,
+                         "type":  "FIXED"
+                     },
+    "TRT210727K48":  {
+                         "coupon":  8.9,
+                         "type":  "FIXED"
+                     },
+    "TRT211229T16":  {
+                         "coupon":  18.86,
+                         "type":  "FIXED"
+                     },
+    "TRT220629K12":  {
+                         "coupon":  18.86,
+                         "type":  "FIXED"
+                     },
+    "TRT220726F11":  {
+                         "coupon":  2.55,
+                         "type":  "REAL"
+                     },
+    "TRT230628K12":  {
+                         "coupon":  18.86,
+                         "type":  "FIXED"
+                     },
+    "TRT260626K11":  {
+                         "coupon":  18.86,
+                         "type":  "FIXED"
+                     },
+    "TRT270934A19":  {
+                         "coupon":  13.85,
+                         "type":  "FIXED"
+                     },
+    "TRT270934K17":  {
+                         "coupon":  13.85,
+                         "type":  "FIXED"
+                     },
+    "TRT270934T18":  {
+                         "coupon":  13.85,
+                         "type":  "FIXED"
+                     },
+    "TRT270934T26":  {
+                         "coupon":  13.85,
+                         "type":  "FIXED"
+                     },
+    "TRT280432T22":  {
+                         "coupon":  10.75,
+                         "type":  "FIXED"
+                     },
+    "TRT280531T14":  {
+                         "coupon":  1.5,
+                         "type":  "REAL"
+                     },
+    "TRT300431K10":  {
+                         "coupon":  10.75,
+                         "type":  "FIXED"
+                     },
+    "TRT310332K19":  {
+                         "coupon":  13.85,
+                         "type":  "FIXED"
+                     }
+}

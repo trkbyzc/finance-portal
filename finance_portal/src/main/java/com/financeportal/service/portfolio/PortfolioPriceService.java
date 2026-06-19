@@ -1,6 +1,8 @@
 package com.financeportal.service.portfolio;
 
 import com.financeportal.domains.bond.service.BondService;
+import com.financeportal.domains.eurobond.dto.EurobondDto;
+import com.financeportal.domains.eurobond.service.EurobondService;
 import com.financeportal.domains.commodity.dto.CommodityDto;
 import com.financeportal.domains.commodity.service.CommodityService;
 import com.financeportal.domains.crypto.dto.CryptoDto;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -34,6 +37,7 @@ public class PortfolioPriceService {
 
     private final TurkishBondService turkishBondService;
     private final BondService bondService;
+    private final EurobondService eurobondService;
     private final FutureService futureService;
     private final CryptoService cryptoService;
     private final CurrencyService currencyService;
@@ -63,8 +67,19 @@ public class PortfolioPriceService {
                     if (commodityPrice.compareTo(BigDecimal.ZERO) > 0) return commodityPrice;
                     return extractPriceFromList(commodityService.getTurkishGold(), symbol);
                 case BOND:
+                    // 1) Gösterge listesinde doğrudan eşleşme (benchmark / dashboard)
                     BigDecimal trBondPrice = extractPriceFromList(turkishBondService.getTurkishBonds(), symbol);
                     if (trBondPrice.compareTo(BigDecimal.ZERO) > 0) return trBondPrice;
+                    // 2) DİBS (TP.*): bireysel tahvilin güncel GETİRİSİ = vade kovasının benchmark getirisi
+                    // (getCategorizedBonds her katalog tahvilini bucket getirisiyle döndürür).
+                    if (symbol.startsWith("TP.")) {
+                        BigDecimal dibsYield = extractDibsYield(turkishBondService.getCategorizedBonds(), symbol);
+                        if (dibsYield.compareTo(BigDecimal.ZERO) > 0) return dibsYield;
+                    }
+                    // Eurobond — USD temiz fiyat
+                    BigDecimal euroPrice = extractPriceFromList(eurobondService.getEurobondList(), symbol);
+                    if (euroPrice.compareTo(BigDecimal.ZERO) > 0) return euroPrice;
+                    // Global gösterge (^TNX vb. — getiri)
                     return extractPriceFromList(bondService.getGlobalBonds(), symbol);
                 case FUND:
                     BigDecimal trFundPrice = extractPriceFromList(fundService.getTrFunds(), symbol);
@@ -139,6 +154,20 @@ public class PortfolioPriceService {
                 return stock.getPrice() != null ? stock.getPrice() : BigDecimal.ZERO;
             } else if (obj instanceof FundDto fund && symbol.equals(fund.getSymbol())) {
                 return fund.getPrice() != null ? fund.getPrice() : BigDecimal.ZERO;
+            } else if (obj instanceof EurobondDto euro && symbol.equals(euro.getSymbol())) {
+                return euro.getPrice() != null ? euro.getPrice() : BigDecimal.ZERO;
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    /** DİBS (TP.*) güncel getirisi — getCategorizedBonds() içinde symbol eşleşmesiyle "yield" alanı. */
+    private BigDecimal extractDibsYield(List<Map<String, Object>> list, String symbol) {
+        if (list == null) return BigDecimal.ZERO;
+        for (Map<String, Object> m : list) {
+            if (symbol.equals(m.get("symbol"))) {
+                Object y = m.get("yield");
+                return (y instanceof Number n) ? new BigDecimal(n.toString()) : BigDecimal.ZERO;
             }
         }
         return BigDecimal.ZERO;
