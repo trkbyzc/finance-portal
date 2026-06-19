@@ -18,9 +18,23 @@ export function historicalCategory(assetType, symbol) {
     }
 }
 
-const toIso = (p) => Array.isArray(p.date)
-    ? `${p.date[0]}-${String(p.date[1]).padStart(2, '0')}-${String(p.date[2]).padStart(2, '0')}`
-    : p.date;
+const toIso = (p) => {
+    if (Array.isArray(p.date)) {
+        return `${p.date[0]}-${String(p.date[1]).padStart(2, '0')}-${String(p.date[2]).padStart(2, '0')}`;
+    }
+    if (p.date) return p.date;
+    // VİOP gibi `date` alanı boş, yalnızca epoch `timestamp` dönen seriler için: timestamp'i
+    // yerel takvim gününe çevir (kullanıcının seçtiği tarihle aynı zaman diliminde eşleşsin).
+    const ts = p.timestamp ?? p.time;
+    if (ts) {
+        const ms = Number(ts) < 1e12 ? Number(ts) * 1000 : Number(ts);
+        const d = new Date(ms);
+        if (!Number.isNaN(d.getTime())) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+    }
+    return null;
+};
 
 /**
  * Belirli bir tarihteki kapanış fiyatını döndürür (o tarih ya da öncesindeki en yakın gün).
