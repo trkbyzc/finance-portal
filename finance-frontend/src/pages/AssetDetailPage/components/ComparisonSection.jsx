@@ -36,7 +36,7 @@ export default function ComparisonSection({ asset, baseSymbol }) {
     const isPriceMode = mode === 'price';
 
     return (
-        <div className="mt-8 bg-surface border border-border rounded-xl p-4 md:p-6 shadow-2xl relative">
+        <div id="asset-comparison" className="mt-8 scroll-mt-24 bg-surface border border-border rounded-xl p-4 md:p-6 shadow-2xl relative">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <ComparisonChipBar
                     asset={asset}

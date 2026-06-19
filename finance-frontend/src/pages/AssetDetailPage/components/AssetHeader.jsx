@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown, Bell } from 'lucide-react';
+import { ArrowLeft, BarChart2, DollarSign, Plus, TrendingUp, TrendingDown, Bell, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -35,10 +35,14 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
 
     const changePercent = asset?.changePercent != null ? Number(asset.changePercent) : null;
     const isPositive = changePercent != null && changePercent >= 0;
-    const changeColor = isPositive ? 'var(--buy)' : 'var(--sell)';
 
     const isCurrency = asset?.assetCategory === 'CURRENCY';
     const showCurrencyToggle = !asset?.isYieldBased && !isCurrency;
+
+    // "Karşılaştır" → sayfadaki karşılaştırma grafiğine yumuşak kaydır.
+    const scrollToComparison = () => {
+        document.getElementById('asset-comparison')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     return (
         <>
@@ -95,8 +99,7 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
                                 </span>
                                 {changePercent != null && (
                                     <span
-                                        className="font-mono font-bold text-sm mt-1.5 flex items-center gap-1"
-                                        style={{ color: changeColor }}
+                                        className={`font-mono font-bold text-sm mt-1.5 flex items-center gap-1 ${isPositive ? 'text-buy' : 'text-sell'}`}
                                     >
                                         {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                                         {isPositive ? '+' : ''}{changePercent.toFixed(2)}%
@@ -121,24 +124,37 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
                         </div>
                     )}
 
-                    {isAuthenticated && (
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                                onClick={onAddPortfolioClick}
-                                className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-fg px-5 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all"
-                            >
-                                <Plus size={20} /> {t('asset:addToPortfolio')}
-                            </button>
-                            <button
-                                onClick={() => setAlarmOpen(true)}
-                                title={t('asset:setAlarm', 'Fiyat alarmı kur')}
-                                className="flex items-center gap-2 bg-surface-2 hover:bg-surface-hover border border-border hover:border-primary text-text px-4 py-3 rounded-2xl font-bold transition-all"
-                            >
-                                <Bell size={18} className="text-primary" />
-                                <span className="hidden sm:inline">{t('asset:setAlarm', 'Alarm Kur')}</span>
-                            </button>
-                        </div>
-                    )}
+                    {/* Aksiyonlar — giriş yapan: Ekle/Alarm/Karşılaştır; misafir: sadece Karşılaştır (küçük) */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {isAuthenticated && (
+                            <>
+                                <button
+                                    onClick={onAddPortfolioClick}
+                                    className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-fg px-5 py-3 rounded-2xl font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all"
+                                >
+                                    <Plus size={20} /> {t('asset:addToPortfolio')}
+                                </button>
+                                <button
+                                    onClick={() => setAlarmOpen(true)}
+                                    title={t('asset:setAlarm', 'Fiyat alarmı kur')}
+                                    className="flex items-center gap-2 bg-surface-2 hover:bg-surface-hover border border-border hover:border-primary text-text px-4 py-3 rounded-2xl font-bold transition-all"
+                                >
+                                    <Bell size={18} className="text-primary" />
+                                    <span className="hidden sm:inline">{t('asset:setAlarm', 'Alarm Kur')}</span>
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={scrollToComparison}
+                            title={t('asset:compare', 'Karşılaştır')}
+                            className={isAuthenticated
+                                ? 'flex items-center gap-2 bg-surface-2 hover:bg-surface-hover border border-border hover:border-primary text-text px-4 py-3 rounded-2xl font-bold transition-all'
+                                : 'flex items-center gap-1.5 bg-surface-2 hover:bg-surface-hover border border-border hover:border-primary text-text px-3 py-2 rounded-xl text-sm font-semibold transition-all'}
+                        >
+                            <GitCompare size={isAuthenticated ? 18 : 15} className="text-primary" />
+                            <span className={isAuthenticated ? 'hidden sm:inline' : ''}>{t('asset:compare', 'Karşılaştır')}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
