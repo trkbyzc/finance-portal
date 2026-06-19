@@ -45,6 +45,10 @@ export default function DistributionDonut({ portfolio, calculateProfitLoss, grou
 
     const labelFor = (name) => groupBy === 'symbol' ? name : (assetTypeNames[name] || name);
 
+    // SVG gradient id'si boşluk/özel karakter içeremez (ör. "GARAN Temmuz 2026 Vadeli") — aksi halde
+    // url(#...) referansı çözülmez ve dilim SİYAH render olur. Güvenli (alfanumerik) id'ye normalize et.
+    const gradIdFor = (name) => `grad-${groupBy}-${String(name).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+
     const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
         if (percent < 0.05) return null;
         const RADIAN = Math.PI / 180;
@@ -86,7 +90,7 @@ export default function DistributionDonut({ portfolio, calculateProfitLoss, grou
                             <defs>
                                 {distribution.map((entry, idx) => {
                                     const c = colorForDistEntry(entry, idx);
-                                    const gradId = `grad-${groupBy}-${entry.name}`;
+                                    const gradId = gradIdFor(entry.name);
                                     return (
                                         <radialGradient key={gradId} id={gradId} cx="50%" cy="50%" r="65%" fx="35%" fy="35%">
                                             <stop offset="0%" stopColor={c.light} stopOpacity={1} />
@@ -109,7 +113,7 @@ export default function DistributionDonut({ portfolio, calculateProfitLoss, grou
                                 onMouseLeave={() => setHovered(false)}
                             >
                                 {distribution.map((entry) => (
-                                    <Cell key={`cell-${entry.name}`} fill={`url(#grad-${groupBy}-${entry.name})`} />
+                                    <Cell key={`cell-${entry.name}`} fill={`url(#${gradIdFor(entry.name)})`} />
                                 ))}
                             </Pie>
                             <Tooltip
