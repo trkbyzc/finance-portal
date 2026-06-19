@@ -9,6 +9,7 @@ import { portfolioApi } from '../../services/api/portfolioApi';
 import { useNotify } from '../../context/NotificationContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { toBackendAssetType } from '../../utils/assetTypeMapper';
+import { isYieldCategory, yieldFieldLabelKey } from '../../utils/assetNature';
 
 import AssetHeader from './components/AssetHeader';
 import AssetChartArea from './components/AssetChartArea';
@@ -81,13 +82,21 @@ export default function AssetDetailPage() {
 
     // Varlığın native birimi; alış fiyatı seçili para biriminde gösterilir, kayıtta native'e çevrilir.
     const nativeCur = asset?.nativeCurrency || 'TRY';
+    // Tahvil/bono getiri-kotalı → "Adet→Nominal", fiyat alanı "Getiri (%)" (DİBS/global) / "Temiz Fiyat (%)" (eurobond).
+    const isYieldQuote = isYieldCategory(asset?.assetCategory);
+    const priceLabelKey = yieldFieldLabelKey(asset?.assetCategory);
+    const priceLabel = priceLabelKey
+        ? t(`portfolio:modal.${priceLabelKey}`, priceLabelKey === 'cleanPrice' ? 'Temiz Fiyat (%)' : 'Getiri (%)')
+        : `${t('portfolio:modal.purchasePrice')} (${CUR_SYMBOL[currency] || currency})`;
 
     const handleOpenModal = () => {
-        // Fiyatı seçili para birimine çevirip ön-doldur (header'da görünen fiyatla aynı)
-        const displayVal = asset?.displayPrice ? convertPrice(asset.displayPrice, nativeCur) : '';
+        // Getiri/temiz fiyat kotalı tahvilde ön-dolgu HAM (kur çevirme yok); diğerinde seçili birime çevir.
+        const displayVal = isYieldQuote
+            ? (asset?.displayPrice ?? '')
+            : (asset?.displayPrice ? convertPrice(asset.displayPrice, nativeCur) : '');
         setFormData({
             quantity: '1',
-            price: displayVal ? String(+Number(displayVal).toFixed(6)) : ''
+            price: displayVal === '' ? '' : String(+Number(displayVal).toFixed(6))
         });
         setTargetPortfolioId('');
         setDirection('LONG');
@@ -104,8 +113,8 @@ export default function AssetDetailPage() {
                 symbol: asset?.symbol || decodedSymbol,
                 assetType: toBackendAssetType(asset?.assetCategory),
                 quantity: Number.parseFloat(formData.quantity),
-                // Girilen fiyat seçili para biriminde → native'e çevrilip saklanır
-                averagePrice: toNative(Number.parseFloat(formData.price), nativeCur),
+                // Tahvil getiri/temiz fiyatı yüzdedir → kur çevirme YOK (ham saklanır); diğerinde native'e çevir.
+                averagePrice: isYieldQuote ? Number.parseFloat(formData.price) : toNative(Number.parseFloat(formData.price), nativeCur),
                 ...(pid ? { portfolioId: pid } : {}),
                 // VİOP'ta sözleşme büyüklüğü (çarpan) + pozisyon yönü (long/short) holding'e snapshot'lanır
                 ...(isViop ? { contractSize: Number(asset?.contractSize) || 1, direction } : {})
@@ -204,7 +213,7 @@ export default function AssetDetailPage() {
                             )}
 
                             <div>
-                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.quantity')}</label>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{isYieldQuote ? t('portfolio:modal.nominal', 'Nominal') : t('portfolio:modal.quantity')}</label>
                                 <input
                                     type="number"
                                     step="any"
@@ -218,7 +227,7 @@ export default function AssetDetailPage() {
                             </div>
 
                             <div>
-                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.purchasePrice')} ({CUR_SYMBOL[currency] || currency})</label>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{priceLabel}</label>
                                 <input
                                     type="number"
                                     step="any"

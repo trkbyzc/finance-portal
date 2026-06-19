@@ -22,6 +22,7 @@ import PortfolioRiskAnalytics from '../../components/portfolio/PortfolioRiskAnal
 import PortfolioSwitcher from '../../components/portfolio/PortfolioSwitcher';
 import usePortfolioPricing from './hooks/usePortfolioPricing';
 import usePortfolioTabs from './hooks/usePortfolioTabs';
+import { assetNature, NATURE_ORDER } from '../../utils/assetNature';
 
 /**
  * Portföy sayfası — orchestrator.
@@ -392,6 +393,36 @@ const PortfolioPage = () => {
                             <Plus size={20} /> {t('portfolio:holdings.addFirst')}
                         </button>
                     </div>
+                ) : activeTab === 'ALL' ? (
+                    // Tümü: varlık doğasına göre gruplanmış bölümler (her biri kendi sütun başlıklarıyla)
+                    NATURE_ORDER
+                        .filter((nat) => (portfolio || []).some((i) => assetNature(i.assetType) === nat))
+                        .map((nat, _i, arr) => {
+                            const list = (filteredPortfolio || []).filter((i) => assetNature(i.assetType) === nat);
+                            const label = nat === 'SPOT' ? t('portfolio:nature.spot', 'Spot')
+                                : nat === 'FIXED' ? t('portfolio:nature.fixed', 'Sabit Getiri')
+                                : t('portfolio:nature.deriv', 'Türev (VİOP)');
+                            return (
+                                <div key={nat} className="mb-5">
+                                    {arr.length > 1 && (
+                                        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 mt-1">
+                                            {label} <span className="opacity-60">· {list.length}</span>
+                                        </h3>
+                                    )}
+                                    <HoldingsTable
+                                        portfolio={list}
+                                        calculateProfitLoss={calculateProfitLoss}
+                                        getDailyChange={getDailyChange}
+                                        inflationFactorBySymbol={inflationFactorBySymbol}
+                                        hidden={hideBalances}
+                                        nature={nat}
+                                        onOpenHistory={setHistorySymbol}
+                                        onOpenBuy={setBuyMoreAsset}
+                                        onOpenSell={setSellAsset}
+                                    />
+                                </div>
+                            );
+                        })
                 ) : (
                     <HoldingsTable
                         portfolio={filteredPortfolio}
@@ -399,6 +430,7 @@ const PortfolioPage = () => {
                         getDailyChange={getDailyChange}
                         inflationFactorBySymbol={inflationFactorBySymbol}
                         hidden={hideBalances}
+                        nature={activeTab}
                         onOpenHistory={setHistorySymbol}
                         onOpenBuy={setBuyMoreAsset}
                         onOpenSell={setSellAsset}

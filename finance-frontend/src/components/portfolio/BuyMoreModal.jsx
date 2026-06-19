@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import { fetchPriceOnDate } from '../../utils/historicalPrice';
+import { isYieldBased } from '../../utils/assetNature';
 import DatePicker from '../common/DatePicker';
 
 /**
@@ -15,6 +16,15 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
     const native = nativeCurrencyForType(asset?.assetType, asset?.symbol);
+    // Tahvil (sabit getiri): "Adet→Nominal", fiyat alanı getiri/temiz fiyat (yüzde, KUR YOK), fiyat-bazlı "Toplam" gizli.
+    const isBond = isYieldBased(asset?.assetType);
+    const isDibs = isBond && String(asset?.symbol || '').startsWith('TP.');
+    const qtyLabel = isBond ? t('portfolio:modal.nominal', 'Nominal') : t('portfolio:trade.quantity');
+    const quoteLabel = isBond
+        ? (isDibs ? t('portfolio:modal.yield', 'Getiri (%)') : t('portfolio:modal.cleanPrice', 'Temiz Fiyat (%)'))
+        : `${t('portfolio:trade.price')} (${native})`;
+    // Tahvilde getiri/temiz fiyat yüzdedir → kur çevirme yok, '%X'/'X' ham göster; diğerinde formatPrice.
+    const fmtQuote = (v) => (isBond ? (isDibs ? `%${Number(v).toFixed(2)}` : Number(v).toFixed(2)) : formatPrice(v, native));
     const [quantity, setQuantity] = useState('');
     const [amount, setAmount] = useState('');
     const [price, setPrice] = useState('');
@@ -133,17 +143,22 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                         </div>
                     </div>
                     <div className="text-xs text-text-muted mb-5 mt-2">
-                        {t('portfolio:trade.holdingNow', {
-                            quantity: Number(asset.quantity ?? 0).toFixed(6),
-                            avgPrice: formatPrice(asset.averagePrice, native)
-                        })}
+                        {isBond
+                            ? t('portfolio:trade.holdingNowBond', 'Şu anki pozisyon: {{quantity}} nominal · Giriş getirisi {{avgPrice}}', {
+                                quantity: Number(asset.quantity ?? 0).toFixed(0),
+                                avgPrice: fmtQuote(asset.averagePrice)
+                            })
+                            : t('portfolio:trade.holdingNow', {
+                                quantity: Number(asset.quantity ?? 0).toFixed(6),
+                                avgPrice: fmtQuote(asset.averagePrice)
+                            })}
                     </div>
 
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className={`grid ${isBond ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
                             <div>
                                 <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                    {t('portfolio:trade.quantity')}
+                                    {qtyLabel}
                                 </label>
                                 <input
                                     type="number"
@@ -156,20 +171,22 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                                     autoFocus
                                 />
                             </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                    {t('portfolio:modal.amount', 'Tutar')} ({native})
-                                </label>
-                                <input
-                                    type="number"
-                                    value={amount}
-                                    onChange={(e) => handleAmount(e.target.value)}
-                                    placeholder="0.00"
-                                    min="0"
-                                    step="any"
-                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
-                                />
-                            </div>
+                            {!isBond && (
+                                <div>
+                                    <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                        {t('portfolio:modal.amount', 'Tutar')} ({native})
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={amount}
+                                        onChange={(e) => handleAmount(e.target.value)}
+                                        placeholder="0.00"
+                                        min="0"
+                                        step="any"
+                                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-primary"
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div>
@@ -185,7 +202,7 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                                 {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />}
                             </div>
                             {datePriceInfo?.ok && (
-                                <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}</p>
+                                <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {fmtQuote(datePriceInfo.price)}</p>
                             )}
                             {datePriceInfo && !datePriceInfo.ok && (
                                 <p className="text-[11px] text-text-muted mt-1">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</p>
@@ -194,14 +211,16 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
 
                         <div>
                             <label className="text-xs font-semibold text-text-muted mb-1 uppercase flex items-center justify-between">
-                                <span>{t('portfolio:trade.price')} ({native})</span>
+                                <span>{quoteLabel}</span>
                                 {currentPrice > 0 && (
                                     <button
                                         type="button"
                                         onClick={() => setPrice(String(currentPrice.toFixed(4)))}
                                         className="text-[10px] text-primary hover:underline normal-case"
                                     >
-                                        {t('portfolio:trade.useMarketPrice', { price: formatPrice(currentPrice, native) })}
+                                        {isBond
+                                            ? t('portfolio:trade.useMarket', 'Piyasa: {{v}} (uygula)', { v: fmtQuote(currentPrice) })
+                                            : t('portfolio:trade.useMarketPrice', { price: formatPrice(currentPrice, native) })}
                                     </button>
                                 )}
                             </label>
@@ -216,7 +235,7 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                             />
                         </div>
 
-                        {isValid && (
+                        {isValid && !isBond && (
                             <div className="bg-bg border border-border rounded-lg p-3 flex justify-between items-center text-sm">
                                 <span className="text-text-muted">{t('portfolio:trade.total')}</span>
                                 <span className="font-mono font-bold text-buy">+ {formatPrice(total, native)}</span>

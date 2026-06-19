@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import { fetchPriceOnDate } from '../../utils/historicalPrice';
+import { isYieldBased } from '../../utils/assetNature';
 import DatePicker from '../common/DatePicker';
 
 /**
@@ -17,6 +18,11 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
     const native = nativeCurrencyForType(asset?.assetType, asset?.symbol);
+    // Tahvil (sabit getiri): "Miktar→Nominal", satış getiri/temiz fiyat (yüzde, KUR YOK); fiyat-bazlı Tutar/K-Z gizli
+    // (gerçekçi K/Z getiri→temiz fiyat dönüşümüyle backend'de hesaplanır, frontend spot formülü yanıltıcı olur).
+    const isBond = isYieldBased(asset?.assetType);
+    const isDibs = isBond && String(asset?.symbol || '').startsWith('TP.');
+    const fmtQuote = (v) => (isBond ? (isDibs ? `%${Number(v).toFixed(2)}` : Number(v).toFixed(2)) : formatPrice(v, native));
     const [quantity, setQuantity] = useState('');
     const [priceOverride, setPriceOverride] = useState(null); // tarih seçilince o günün fiyatı
     const [sellDate, setSellDate] = useState('');
@@ -161,16 +167,21 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                         </div>
                     </div>
                     <div className="text-xs text-text-muted mb-5 mt-2">
-                        {t('portfolio:trade.holdingNow', {
-                            quantity: maxQty.toFixed(6),
-                            avgPrice: formatPrice(asset.averagePrice, native)
-                        })}
+                        {isBond
+                            ? t('portfolio:trade.holdingNowBond', 'Şu anki pozisyon: {{quantity}} nominal · Giriş getirisi {{avgPrice}}', {
+                                quantity: maxQty.toFixed(0),
+                                avgPrice: fmtQuote(asset.averagePrice)
+                            })
+                            : t('portfolio:trade.holdingNow', {
+                                quantity: maxQty.toFixed(6),
+                                avgPrice: fmtQuote(asset.averagePrice)
+                            })}
                     </div>
 
                     <div className="space-y-4">
                         <div>
                             <label className="text-xs font-semibold text-text-muted mb-1 uppercase flex items-center justify-between">
-                                <span>{t('portfolio:trade.sellQuantity')}</span>
+                                <span>{isBond ? t('portfolio:trade.sellNominal', 'Satılacak Nominal') : t('portfolio:trade.sellQuantity')}</span>
                                 <button
                                     type="button"
                                     onClick={() => setQuantity(String(maxQty))}
@@ -195,20 +206,22 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                             </p>
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
-                                {t('portfolio:modal.amount', 'Tutar')} ({native})
-                            </label>
-                            <input
-                                type="number"
-                                value={isValid ? String(+total.toFixed(2)) : ''}
-                                onChange={(e) => handleAmount(e.target.value)}
-                                placeholder="0.00"
-                                min="0"
-                                step="any"
-                                className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-sell"
-                            />
-                        </div>
+                        {!isBond && (
+                            <div>
+                                <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
+                                    {t('portfolio:modal.amount', 'Tutar')} ({native})
+                                </label>
+                                <input
+                                    type="number"
+                                    value={isValid ? String(+total.toFixed(2)) : ''}
+                                    onChange={(e) => handleAmount(e.target.value)}
+                                    placeholder="0.00"
+                                    min="0"
+                                    step="any"
+                                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 focus:outline-none focus:border-sell"
+                                />
+                            </div>
+                        )}
 
                         <div>
                             <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
@@ -223,7 +236,7 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
                                 {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />}
                             </div>
                             {datePriceInfo?.ok && (
-                                <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {formatPrice(datePriceInfo.price, native)}</p>
+                                <p className="text-[11px] text-buy mt-1">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}: {fmtQuote(datePriceInfo.price)}</p>
                             )}
                             {datePriceInfo && !datePriceInfo.ok && (
                                 <p className="text-[11px] text-text-muted mt-1">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, piyasa fiyatı kullanılır.')}</p>
@@ -232,14 +245,16 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
 
                         <div className="bg-bg border border-border rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-text-muted">{t('portfolio:trade.marketPrice')}</span>
-                                <span className="font-mono">{formatPrice(effectivePrice, native)}</span>
+                                <span className="text-text-muted">{isBond ? t('portfolio:trade.sellYield', 'Satış Getirisi') : t('portfolio:trade.marketPrice')}</span>
+                                <span className="font-mono">{fmtQuote(effectivePrice)}</span>
                             </div>
-                            <div className="flex justify-between border-t border-border pt-2">
-                                <span className="text-text-muted">{t('portfolio:trade.total')}</span>
-                                <span className="font-mono font-bold">{formatPrice(total, native)}</span>
-                            </div>
-                            {isValid && costBasis > 0 && (
+                            {!isBond && (
+                                <div className="flex justify-between border-t border-border pt-2">
+                                    <span className="text-text-muted">{t('portfolio:trade.total')}</span>
+                                    <span className="font-mono font-bold">{formatPrice(total, native)}</span>
+                                </div>
+                            )}
+                            {!isBond && isValid && costBasis > 0 && (
                                 <div className={`flex justify-between text-xs ${pnl >= 0 ? 'text-buy' : 'text-sell'}`}>
                                     <span>{t('portfolio:trade.estimatedPnl')}</span>
                                     <span className="font-mono font-semibold">

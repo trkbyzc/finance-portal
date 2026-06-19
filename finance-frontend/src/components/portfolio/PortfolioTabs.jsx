@@ -1,15 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Layers, Briefcase, Bitcoin, DollarSign, Gem, Landmark, PieChart, GitCompare } from 'lucide-react';
 
+// Sekmeler varlık DOĞASINA göre (Spot / Sabit Getiri / Türev) — fiyat-bazlı ve getiri-bazlı karışmasın.
 const TYPE_META = {
-    ALL:       { i18nKey: 'portfolio:tabs.all',       icon: Layers,    color: '#64748b' },
-    STOCK:     { i18nKey: 'common:assetTypes.STOCK',  icon: Briefcase, color: '#3b82f6' },
-    CRYPTO:    { i18nKey: 'common:assetTypes.CRYPTO', icon: Bitcoin,   color: '#f59e0b' },
-    CURRENCY:  { i18nKey: 'common:assetTypes.CURRENCY', icon: DollarSign, color: '#10b981' },
-    COMMODITY: { i18nKey: 'common:assetTypes.COMMODITY', icon: Gem,    color: '#eab308' },
-    BOND:      { i18nKey: 'common:assetTypes.BOND',   icon: Landmark,  color: '#8b5cf6' },
-    FUND:      { i18nKey: 'common:assetTypes.FUND',   icon: PieChart,  color: '#ec4899' },
-    FUTURE:    { i18nKey: 'markets:categories.viop',  icon: GitCompare, color: '#06b6d4' }
+    ALL:   { i18nKey: 'portfolio:tabs.all',     icon: Layers,     color: '#64748b' },
+    SPOT:  { i18nKey: 'portfolio:nature.spot',  icon: Briefcase,  color: '#3b82f6' },
+    FIXED: { i18nKey: 'portfolio:nature.fixed', icon: Landmark,   color: '#8b5cf6' },
+    DERIV: { i18nKey: 'portfolio:nature.deriv', icon: GitCompare, color: '#06b6d4' }
 };
 
 const PortfolioTabs = ({ tabs, counts, activeTab, onChange }) => {

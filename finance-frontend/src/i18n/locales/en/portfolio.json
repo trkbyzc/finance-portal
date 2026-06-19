@@ -95,6 +95,11 @@
   "tabs": {
     "all": "All"
   },
+  "nature": {
+    "spot": "Spot",
+    "fixed": "Fixed Income",
+    "deriv": "Derivatives (VİOP)"
+  },
   "holdings": {
     "title": "Holdings",
     "noHoldings": "You haven't added any assets yet",
@@ -108,6 +113,9 @@
       "pnl": "P/L",
       "pnlPercent": "P/L %",
       "realPnl": "Real P/L",
+      "nominal": "Nominal",
+      "entryYield": "Entry Yield",
+      "currentYield": "Current Yield",
       "actions": "Actions"
     }
   },
@@ -119,6 +127,9 @@
     "quantity": "Quantity",
     "amount": "Amount",
     "purchasePrice": "Purchase Price",
+    "yield": "Yield (%)",
+    "cleanPrice": "Clean Price (%)",
+    "nominal": "Nominal",
     "purchaseDate": "Purchase Date",
     "datePriceFound": "Price on that date",
     "datePriceMissing": "No price found for this date, you can enter it manually.",
@@ -159,6 +170,10 @@
     "buyMoreTitle": "Add to position",
     "sellTitle": "Sell from this position",
     "holdingNow": "Current position: {{quantity}} units · Avg cost {{avgPrice}} ₺",
+    "holdingNowBond": "Current position: {{quantity}} nominal · Entry yield {{avgPrice}}",
+    "sellNominal": "Nominal to Sell",
+    "sellYield": "Sell Yield",
+    "useMarket": "Market: {{v}} (apply)",
     "quantity": "Quantity to Buy",
     "sellQuantity": "Quantity to Sell",
     "sellDate": "Sell Date",
@@ -189,6 +204,8 @@
       "side": "Side",
       "qty": "Quantity",
       "price": "Price",
+      "yield": "Yield",
+      "nominal": "Nominal",
       "notes": "Notes"
     }
   }

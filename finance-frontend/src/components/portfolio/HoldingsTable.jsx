@@ -16,10 +16,15 @@ import { displaySymbol } from '../../utils/symbolDisplay';
  *   - lg+:       Ort. Maliyet, Toplam Değer
  * Mobile kullanıcı varlığın altında ek detay görür (asset cell içinde gizli kolonların özet rozetleri).
  */
-export default function HoldingsTable({ portfolio, calculateProfitLoss, getDailyChange, inflationFactorBySymbol = null, onOpenHistory, onOpenBuy, onOpenSell, hidden = false }) {
+export default function HoldingsTable({ portfolio, calculateProfitLoss, getDailyChange, inflationFactorBySymbol = null, onOpenHistory, onOpenBuy, onOpenSell, hidden = false, nature = null }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
     const showReal = !!inflationFactorBySymbol;
+    // Sabit getiri (tahvil): fiyat sütunları yerine GETİRİ başlıkları (Nominal / Giriş Getirisi / Güncel Getiri).
+    const isFixed = nature === 'FIXED';
+    const qtyLabel = isFixed ? t('portfolio:holdings.cols.nominal', 'Nominal') : t('portfolio:holdings.cols.quantity');
+    const avgLabel = isFixed ? t('portfolio:holdings.cols.entryYield', 'Giriş Getirisi') : t('portfolio:holdings.cols.avgPrice');
+    const curLabel = isFixed ? t('portfolio:holdings.cols.currentYield', 'Güncel Getiri') : t('portfolio:holdings.cols.currentPrice');
 
     if (!portfolio || portfolio.length === 0) {
         return (
@@ -37,9 +42,9 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, getDaily
                     <tr>
                         <th className="text-left p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.asset')}</th>
                         <th className="hidden md:table-cell text-left p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('common:labels.type')}</th>
-                        <th className="hidden sm:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.quantity')}</th>
-                        <th className="hidden lg:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.avgPrice')}</th>
-                        <th className="text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.currentPrice')}</th>
+                        <th className="hidden sm:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{qtyLabel}</th>
+                        <th className="hidden lg:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{avgLabel}</th>
+                        <th className="text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{curLabel}</th>
                         <th className="hidden lg:table-cell text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.totalValue')}</th>
                         <th className="text-right p-2 md:p-4 text-text-muted text-xs md:text-sm font-semibold whitespace-nowrap">{t('portfolio:holdings.cols.pnl')}</th>
                         {showReal && (
@@ -92,6 +97,18 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
     const isViop = item.assetType === 'FUTURE';
     const isShort = String(item.direction || '').toUpperCase() === 'SHORT';
     const leverage = Number(item.leverage) || 0;
+    // Tahvil: fiyat sütunları getiri/temiz fiyat KOTASYONUDUR (para değil) — kurla çevrilmez.
+    const isBond = item.assetType === 'BOND';
+    const isDibs = isBond && String(item.symbol || '').startsWith('TP.');
+    const quoteFmt = (v) => {
+        if (hidden) return MASK;
+        const n = Number(v) || 0;
+        return isDibs ? `%${n.toFixed(2)}` : n.toFixed(2); // DİBS getiri (%) · eurobond temiz fiyat
+    };
+    // Tip etiketi: DİBS/Eurobond ayır (assetType jenerik BOND, "Küresel Tahvil" yanıltıcı).
+    const tipLabel = isDibs ? 'DİBS'
+        : (isBond && !String(item.symbol || '').startsWith('^')) ? 'Eurobond'
+        : t('common:assetTypes.' + item.assetType, item.assetType);
     // Günlük değişim % (piyasadan) — sembolün yanında küçük renkli rozet
     const dc = (dailyChange != null && !Number.isNaN(Number(dailyChange))) ? Number(dailyChange) : null;
     const dcUp = dc != null && dc >= 0;
@@ -113,17 +130,17 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
                 </div>
                 {/* Mobile-only: tip + adet özet rozeti (md altında gizli kolonların yerine) */}
                 <div className="md:hidden mt-0.5 text-[10px] text-text-muted">
-                    {t('common:assetTypes.' + item.assetType, item.assetType)}
+                    {tipLabel}
                     <span className="sm:hidden"> · {item.quantity}{showMultiplier ? ` × ${multiplier}` : ''}</span>
                 </div>
             </td>
-            <td className="hidden md:table-cell p-2 md:p-4 text-text-muted whitespace-nowrap">{t('common:assetTypes.' + item.assetType, item.assetType)}</td>
+            <td className="hidden md:table-cell p-2 md:p-4 text-text-muted whitespace-nowrap">{tipLabel}</td>
             <td className="hidden sm:table-cell p-2 md:p-4 text-right whitespace-nowrap">
                 {item.quantity}
                 {showMultiplier && <span className="text-text-muted text-[11px] ml-1" title={t('portfolio:modal.contractSize')}>× {multiplier}</span>}
             </td>
-            <td className="hidden lg:table-cell p-2 md:p-4 text-right whitespace-nowrap">{money(item.averagePrice)}</td>
-            <td className="p-2 md:p-4 text-right text-sm md:text-base whitespace-nowrap">{money(calc.currentPrice)}</td>
+            <td className="hidden lg:table-cell p-2 md:p-4 text-right whitespace-nowrap">{isBond ? quoteFmt(item.averagePrice) : money(item.averagePrice)}</td>
+            <td className="p-2 md:p-4 text-right text-sm md:text-base whitespace-nowrap">{isBond ? quoteFmt(calc.currentPrice) : money(calc.currentPrice)}</td>
             <td className="hidden lg:table-cell p-2 md:p-4 text-right font-semibold whitespace-nowrap">{money2(calc.currentValue)}</td>
             <td className={`p-2 md:p-4 text-right font-semibold text-sm md:text-base whitespace-nowrap ${positive ? 'text-buy' : 'text-sell'}`}>
                 {/* Mobile: sadece yüzde; md+: hem tutar hem yüzde */}

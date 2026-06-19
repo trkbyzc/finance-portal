@@ -53,6 +53,14 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
     // Tahvil/bono getiri (%) bazlı — para birimi/çevrim uygulanmaz. Diğerlerinde native birim.
     const isYield = YIELD_CATS.has((cat || '').toUpperCase());
     const native = nativeCurrencyForType(cat, symbol);
+    // Sabit getiri (tahvil) şablonu: "Adet→Nominal", "Alış Fiyatı→Getiri (%)" (DİBS/global) / "Temiz Fiyat (%)" (eurobond).
+    const upperCat = (cat || '').toUpperCase();
+    const qtyLabel = isYield ? t('portfolio:modal.nominal', 'Nominal') : t('portfolio:modal.quantity');
+    const priceLabel = upperCat === 'EUROBOND'
+        ? t('portfolio:modal.cleanPrice', 'Temiz Fiyat (%)')
+        : isYield
+            ? t('portfolio:modal.yield', 'Getiri (%)')
+            : `${t('portfolio:modal.purchasePrice')} (${CUR_SYMBOL[currency] || currency})`;
 
     const openAdd = () => {
         const raw = derivePrice(asset);
@@ -153,7 +161,7 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
                             )}
 
                             <div>
-                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.quantity')}</label>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{qtyLabel}</label>
                                 <input
                                     type="number" step="any" required min="0.000001"
                                     value={form.quantity}
@@ -165,7 +173,7 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
 
                             <div>
                                 <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">
-                                    {t('portfolio:modal.purchasePrice')}{isYield ? '' : ` (${CUR_SYMBOL[currency] || currency})`}
+                                    {priceLabel}
                                 </label>
                                 <input
                                     type="number" step="any" required min="0.000001"

@@ -95,6 +95,11 @@
   "tabs": {
     "all": "Tümü"
   },
+  "nature": {
+    "spot": "Spot",
+    "fixed": "Sabit Getiri",
+    "deriv": "Türev (VİOP)"
+  },
   "holdings": {
     "title": "Holdings",
     "noHoldings": "Henüz hiç varlık eklemediniz",
@@ -108,6 +113,9 @@
       "pnl": "K/Z",
       "pnlPercent": "K/Z %",
       "realPnl": "Reel K/Z",
+      "nominal": "Nominal",
+      "entryYield": "Giriş Getirisi",
+      "currentYield": "Güncel Getiri",
       "actions": "İşlemler"
     }
   },
@@ -119,6 +127,9 @@
     "quantity": "Adet",
     "amount": "Tutar",
     "purchasePrice": "Alış Fiyatı",
+    "yield": "Getiri (%)",
+    "cleanPrice": "Temiz Fiyat (%)",
+    "nominal": "Nominal",
     "purchaseDate": "Alış Tarihi",
     "datePriceFound": "O tarihteki fiyat",
     "datePriceMissing": "Bu tarih için fiyat bulunamadı, elle girebilirsiniz.",
@@ -159,6 +170,10 @@
     "buyMoreTitle": "Üzerine alım yap",
     "sellTitle": "Bu varlıktan sat",
     "holdingNow": "Şu anki pozisyon: {{quantity}} adet · Ort. maliyet {{avgPrice}} ₺",
+    "holdingNowBond": "Şu anki pozisyon: {{quantity}} nominal · Giriş getirisi {{avgPrice}}",
+    "sellNominal": "Satılacak Nominal",
+    "sellYield": "Satış Getirisi",
+    "useMarket": "Piyasa: {{v}} (uygula)",
     "quantity": "Alınacak Miktar",
     "sellQuantity": "Satılacak Miktar",
     "sellDate": "Satış Tarihi",
@@ -189,6 +204,8 @@
       "side": "İşlem",
       "qty": "Miktar",
       "price": "Fiyat",
+      "yield": "Getiri",
+      "nominal": "Nominal",
       "notes": "Not"
     }
   }

@@ -3,6 +3,7 @@ import { Loader2, Plus, Calendar, TrendingUp, TrendingDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
+import { isYieldCategory, yieldFieldLabelKey } from '../../../utils/assetNature';
 import { fetchPriceOnDate } from '../../../utils/historicalPrice';
 import { simulationApi } from '../../../services/api/simulationApi';
 import DatePicker from '../../common/DatePicker';
@@ -33,6 +34,12 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     // VİOP'ta 1 sözleşme = çarpan kadar dayanak; nominal = fiyat × çarpan × adet
     const isViop = selectedType === 'VIOP' || selectedBackendValue === 'FUTURE';
     const contractSize = isViop ? (Number(selectedAsset.contractSize) || 1) : 1;
+    // Sabit getiri (tahvil) şablonu: "Adet→Nominal", "Alış Fiyatı→Getiri (%)/Temiz Fiyat (%)", "Tutar" alanı gizli.
+    const isBond = isYieldCategory(selectedType) || isYieldCategory(selectedBackendValue);
+    const priceLabelKey = yieldFieldLabelKey(selectedType) || yieldFieldLabelKey(selectedBackendValue);
+    const priceLabel = priceLabelKey
+        ? t(`portfolio:modal.${priceLabelKey}`, priceLabelKey === 'cleanPrice' ? 'Temiz Fiyat (%)' : 'Getiri (%)')
+        : t('portfolio:modal.purchasePrice');
     const symbol = selectedAsset.symbol || selectedAsset.currencyCode;
     const backendType = selectedBackendValue || selectedType;
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -134,7 +141,11 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     <div className="shrink-0 bg-surface border border-border rounded-lg px-3 py-2 text-right">
                         <div className="text-[10px] uppercase tracking-wider text-text-muted">{t('common:labels.price')}</div>
                         <div className="font-semibold text-base mt-0.5">
-                            {currentPrice > 0 ? formatNative(currentPrice, native) : '—'}
+                            {currentPrice > 0
+                                ? (isBond
+                                    ? (priceLabelKey === 'cleanPrice' ? Number(currentPrice).toFixed(2) : `%${Number(currentPrice).toFixed(2)}`)
+                                    : formatNative(currentPrice, native))
+                                : '—'}
                         </div>
                     </div>
                 </div>
@@ -168,7 +179,7 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchasePrice')}</label>
+                    <label className="block text-sm font-semibold mb-2">{priceLabel}</label>
                     <input
                         type="number"
                         step="0.01"
@@ -230,10 +241,10 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 </div>
             )}
 
-            {/* Adet ↔ Tutar (çift yönlü; biri girilince diğeri fiyattan hesaplanır) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+            {/* Adet ↔ Tutar (çift yönlü). Tahvilde "Tutar" gizli — nominal × temiz fiyat değeri backend'de hesaplanır. */}
+            <div className={`grid grid-cols-1 ${isBond ? '' : 'md:grid-cols-2'} gap-3 mb-6`}>
                 <div>
-                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.quantity')}</label>
+                    <label className="block text-sm font-semibold mb-2">{isBond ? t('portfolio:modal.nominal', 'Nominal') : t('portfolio:modal.quantity')}</label>
                     <input
                         type="number"
                         step="0.00000001"
@@ -245,17 +256,19 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                         autoFocus
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.amount', 'Tutar')}</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        value={amount}
-                        onChange={(e) => handleAmount(e.target.value)}
-                        placeholder="4550"
-                        className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
-                    />
-                </div>
+                {!isBond && (
+                    <div>
+                        <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.amount', 'Tutar')}</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            value={amount}
+                            onChange={(e) => handleAmount(e.target.value)}
+                            placeholder="4550"
+                            className="w-full bg-bg border border-border rounded-lg px-4 py-3 focus:outline-none focus:border-primary"
+                        />
+                    </div>
+                )}
             </div>
 
             {isViop && (

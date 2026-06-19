@@ -24,6 +24,8 @@ export default function TransactionHistoryModal({ isOpen, onClose, symbol }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const [page, setPage] = useState(0);
     const size = 10;
+    // DİBS (TP.*): işlem "fiyatı" aslında GETİRİDİR → sütun "Getiri" + "%X" (₺ değil), miktar = nominal.
+    const isDibs = String(symbol || '').startsWith('TP.');
 
     const { data, isLoading, isFetching } = useQuery({
         queryKey: ['transactions', symbol, page, size],
@@ -79,10 +81,10 @@ export default function TransactionHistoryModal({ isOpen, onClose, symbol }) {
                                                 {t('portfolio:transactions.cols.side')}
                                             </th>
                                             <th className="p-3 text-right text-xs font-bold text-text-muted uppercase tracking-wider">
-                                                {t('portfolio:transactions.cols.qty')}
+                                                {isDibs ? t('portfolio:transactions.cols.nominal', 'Nominal') : t('portfolio:transactions.cols.qty')}
                                             </th>
                                             <th className="p-3 text-right text-xs font-bold text-text-muted uppercase tracking-wider">
-                                                {t('portfolio:transactions.cols.price')}
+                                                {isDibs ? t('portfolio:transactions.cols.yield', 'Getiri') : t('portfolio:transactions.cols.price')}
                                             </th>
                                             <th className="p-3 text-left text-xs font-bold text-text-muted uppercase tracking-wider">
                                                 {t('portfolio:transactions.cols.notes')}
@@ -103,8 +105,8 @@ export default function TransactionHistoryModal({ isOpen, onClose, symbol }) {
                                                             {isBuy ? t('portfolio:transactions.sideBuy') : t('portfolio:transactions.sideSell')}
                                                         </span>
                                                     </td>
-                                                    <td className="p-3 text-right font-mono">{fmtNum(tx.quantity, 6)}</td>
-                                                    <td className="p-3 text-right font-mono">{fmtNum(tx.price)} ₺</td>
+                                                    <td className="p-3 text-right font-mono">{fmtNum(tx.quantity, isDibs ? 0 : 6)}</td>
+                                                    <td className="p-3 text-right font-mono">{isDibs ? `%${fmtNum(tx.price)}` : `${fmtNum(tx.price)} ₺`}</td>
                                                     <td className="p-3">
                                                         {isBackfilled ? (
                                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-warning/10 text-warning border border-warning/30">

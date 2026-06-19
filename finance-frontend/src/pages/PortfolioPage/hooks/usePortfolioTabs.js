@@ -1,23 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
-
-/** Tab sırası — sadece kullanıcının elinde bulunan tipler görünür, "Tümü" her zaman ilk. */
-const ASSET_TYPE_ORDER = ['STOCK', 'CRYPTO', 'CURRENCY', 'COMMODITY', 'BOND', 'FUND', 'FUTURE'];
+import { assetNature, NATURE_ORDER } from '../../../utils/assetNature';
 
 /**
- * Portföy tab state'i + filtreleme. Aktif tab'taki son varlık satıldığında
- * otomatik "Tümü"ne döner. PortfolioPage'in tab boilerplate'i tek hook'a indirgendi.
+ * Portföy sekme state'i + filtreleme — varlık DOĞASINA göre (Spot / Sabit Getiri / Türev).
+ * Tek sütun setinde fiyat-bazlı (spot) ve getiri-bazlı (tahvil) karışmasın diye doğa-bazlı gruplama.
+ * Aktif sekmedeki son varlık satıldığında otomatik "Tümü"ne döner.
  */
 export default function usePortfolioTabs(portfolio) {
     const [activeTab, setActiveTab] = useState('ALL');
 
     const tabsState = useMemo(() => {
         const counts = { ALL: portfolio?.length || 0 };
-        ASSET_TYPE_ORDER.forEach(t => { counts[t] = 0; });
+        NATURE_ORDER.forEach(n => { counts[n] = 0; });
         (portfolio || []).forEach(item => {
-            if (counts[item.assetType] !== undefined) counts[item.assetType]++;
+            const nat = assetNature(item.assetType);
+            if (counts[nat] !== undefined) counts[nat]++;
         });
-        const presentTypes = ASSET_TYPE_ORDER.filter(t => counts[t] > 0);
-        return { tabs: ['ALL', ...presentTypes], counts };
+        const presentNatures = NATURE_ORDER.filter(n => counts[n] > 0);
+        return { tabs: ['ALL', ...presentNatures], counts };
     }, [portfolio]);
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export default function usePortfolioTabs(portfolio) {
 
     const filteredPortfolio = useMemo(() => {
         if (activeTab === 'ALL') return portfolio || [];
-        return (portfolio || []).filter(item => item.assetType === activeTab);
+        return (portfolio || []).filter(item => assetNature(item.assetType) === activeTab);
     }, [portfolio, activeTab]);
 
     return { activeTab, setActiveTab, tabsState, filteredPortfolio };

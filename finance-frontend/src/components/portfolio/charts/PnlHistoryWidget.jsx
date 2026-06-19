@@ -23,7 +23,9 @@ const RANGE_LABELS = { '1mo': '1A', '3mo': '3A', '6mo': '6A', '1y': '1Y' };
 export default function PnlHistoryWidget({ portfolio, calculateProfitLoss }) {
     const { t } = useTranslation('portfolio');
     const { currency, convertPrice, usdRate } = useCurrency();
-    const list = portfolio || [];
+    // Getiri-bazlı (tahvil) varlıklar hariç — onlar için zaman-içi "fiyat K/Z" grafiği anlamsız/yanıltıcı
+    // (değerleme getiri→temiz fiyat dönüşümüyle backend'de yapılır; spot serisi saçma sonuç verir).
+    const list = (portfolio || []).filter((it) => it.assetType !== 'BOND');
     const [selectedSymbol, setSelectedSymbol] = useState(list[0]?.symbol ?? null);
     const [range, setRange] = useState('3mo');
 
