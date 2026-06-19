@@ -31,7 +31,7 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, getDaily
     }
 
     return (
-        <div className="bg-surface-2 rounded-lg overflow-hidden">
+        <div className="bg-surface-2 rounded-lg overflow-x-auto">
             <table className="w-full">
                 <thead className="bg-bg border-b border-border">
                     <tr>
@@ -130,12 +130,13 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
                 <span className="md:hidden">
                     {hidden ? MASK : `${calc.profitLossPercent >= 0 ? '+' : ''}${calc.profitLossPercent.toFixed(2)}%`}
                 </span>
-                <span className="hidden md:inline">
+                {/* md+: tutar üstte, yüzde altta (alt alta → daha dar sütun, yatay kaydırma gerekmez) */}
+                <span className="hidden md:flex md:flex-col md:items-end md:leading-tight">
                     {hidden ? MASK : (
                         <>
-                            {positive ? '+' : '-'}{money2(Math.abs(calc.profitLoss))}
-                            <span className="text-sm ml-1">
-                                ({calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%)
+                            <span>{positive ? '+' : '-'}{money2(Math.abs(calc.profitLoss))}</span>
+                            <span className="text-xs font-medium opacity-80">
+                                {calc.profitLossPercent >= 0 ? '+' : ''}{calc.profitLossPercent.toFixed(2)}%
                             </span>
                         </>
                     )}
@@ -144,12 +145,12 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
             {showReal && (
                 <td className={`hidden md:table-cell p-2 md:p-4 text-right font-semibold text-sm md:text-base whitespace-nowrap ${hasReal ? (realPositive ? 'text-buy' : 'text-sell') : 'text-text-muted'}`}>
                     {hidden ? MASK : hasReal ? (
-                        <>
-                            {realPositive ? '+' : '-'}{money2(Math.abs(realPnl))}
-                            <span className="text-sm ml-1">
-                                ({realPct >= 0 ? '+' : ''}{realPct.toFixed(2)}%)
+                        <span className="flex flex-col items-end leading-tight">
+                            <span>{realPositive ? '+' : '-'}{money2(Math.abs(realPnl))}</span>
+                            <span className="text-xs font-medium opacity-80">
+                                {realPct >= 0 ? '+' : ''}{realPct.toFixed(2)}%
                             </span>
-                        </>
+                        </span>
                     ) : '—'}
                 </td>
             )}

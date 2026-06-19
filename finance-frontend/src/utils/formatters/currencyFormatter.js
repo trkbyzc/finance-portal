@@ -8,6 +8,9 @@ export const formatCurrency = (value, currencyCode = 'TRY', minDecimals = 2, max
     return new Intl.NumberFormat(getLocale(), {
         style: 'currency',
         currency: currencyCode,
+        // İngilizce locale'de TRY için sembol yok → "TRY 53.21" (geniş). narrowSymbol ile her
+        // dilde kısa sembol (₺/$) kullanılır; hem dar (tablo kaymaz) hem TR ile tutarlı.
+        currencyDisplay: 'narrowSymbol',
         minimumFractionDigits: minDecimals,
         maximumFractionDigits: maxDecimals
     }).format(value);
