@@ -1,4 +1,4 @@
-import { Activity, TrendingDown, Gauge, ShieldCheck, Loader2, Sigma, Layers } from 'lucide-react';
+import { Activity, TrendingDown, Gauge, ShieldCheck, Loader2, Sigma, Layers, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useRiskAnalytics from '../../pages/PortfolioPage/hooks/useRiskAnalytics';
 
@@ -44,6 +44,32 @@ function RiskCard({ icon: Icon, label, value, tone = 'neutral', positive = true,
     );
 }
 
+/** Risk analizine dahil edilmeyen varlıklar için uyarı (vadeli/türev veya yetersiz geçmiş). */
+function ExcludedNote({ excluded, t }) {
+    if (!excluded?.length) return null;
+    const deriv = excluded.filter(e => e.reason === 'derivative').map(e => shortSym(e.symbol));
+    const short = excluded.filter(e => e.reason === 'shortHistory').map(e => shortSym(e.symbol));
+    return (
+        <div className="flex items-start gap-2 rounded-xl p-3 bg-warning/10 border border-warning/25 text-xs mb-4">
+            <Info size={15} className="text-warning shrink-0 mt-0.5" />
+            <div className="text-text-muted space-y-0.5">
+                {deriv.length > 0 && (
+                    <div>
+                        <span className="font-semibold text-text">{deriv.join(', ')}</span>
+                        {' — '}{t('risk.excludedDerivative', 'vadeli/türev ürünler analize dahil edilmez (kaldıraçlı; spot risk metrikleri yanıltıcı olur).')}
+                    </div>
+                )}
+                {short.length > 0 && (
+                    <div>
+                        <span className="font-semibold text-text">{short.join(', ')}</span>
+                        {' — '}{t('risk.excludedShort', 'yeterli ortak geçmiş veri yok (~1 ay gerekir).')}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function RiskWrapper({ title, subtitle, children }) {
     return (
         <div className="bg-surface-2 rounded-2xl p-6 border border-border/50 mt-6">
@@ -68,7 +94,7 @@ function betaHint(t, beta) {
  */
 export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss, hidden = false }) {
     const { t } = useTranslation(['portfolio', 'common']);
-    const { loading, ready, insufficient, metrics, correlation } = useRiskAnalytics(portfolio, calculateProfitLoss, !hidden);
+    const { loading, ready, insufficient, metrics, correlation, excluded } = useRiskAnalytics(portfolio, calculateProfitLoss, !hidden);
 
     if (hidden) return null;
 
@@ -78,7 +104,12 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
     if (loading) return <RiskWrapper title={title} subtitle={subtitle}><div className="h-40 flex items-center justify-center text-text-muted"><Loader2 className="animate-spin" size={26} /></div></RiskWrapper>;
     if (!ready) return null;
     if (insufficient || !metrics) {
-        return <RiskWrapper title={title} subtitle={subtitle}><div className="py-8 text-center text-sm text-text-muted">{t('risk.insufficient', 'Risk metrikleri için yeterli geçmiş veri yok (en az ~1 ay ortak veri gerekir).')}</div></RiskWrapper>;
+        return (
+            <RiskWrapper title={title} subtitle={subtitle}>
+                <ExcludedNote excluded={excluded} t={t} />
+                <div className="py-8 text-center text-sm text-text-muted">{t('risk.insufficient', 'Risk metrikleri için yeterli geçmiş veri yok (en az ~1 ay ortak veri gerekir).')}</div>
+            </RiskWrapper>
+        );
     }
 
     const m = metrics;
@@ -86,6 +117,7 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
 
     return (
         <RiskWrapper title={title} subtitle={subtitle}>
+            <ExcludedNote excluded={excluded} t={t} />
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
                 <RiskCard
                     icon={Activity}
