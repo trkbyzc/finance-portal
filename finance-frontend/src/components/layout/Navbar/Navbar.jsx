@@ -16,7 +16,7 @@ import { goToLogin, goToRegister } from '../../../utils/keycloak';
 
 export default function Navbar() {
     const { isAuthenticated, user } = useAuth();
-    const { t } = useTranslation(['navbar', 'common']);
+    const { t } = useTranslation(['navbar', 'common', 'markets']);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const avatarId = useProfileAvatar();
@@ -89,17 +89,19 @@ export default function Navbar() {
                     {/* SOL: Logo + nav links. Boşluklar sıkılaştırıldı (md:gap-4 lg:gap-5)
                         ki nav linkleri sağdaki aksiyon grubunun (CANLI PİYASA) üstüne binmesin.
                         NOT: burada overflow-hidden KULLANMA — dropdown flyout'ları kırpar. */}
-                    <div className="flex items-center gap-3 md:gap-4 lg:gap-5 min-w-0">
-                        {/* Hamburger — sadece mobile/tablet */}
-                        <button
-                            type="button"
-                            onClick={() => setMobileMenuOpen(true)}
-                            className="md:hidden p-2 -ml-2 rounded-lg text-nav-text/80 hover:text-nav-text hover:bg-nav-text/10 transition"
-                            aria-label={t('navbar:openMenu', 'Menüyü aç')}
-                        >
-                            <Menu size={22} />
-                        </button>
+                    {/* Hamburger — sadece mobile/tablet; AYRI flex öğesi, solda sabit. */}
+                    <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen(true)}
+                        className="md:hidden shrink-0 p-2 -ml-2 rounded-lg text-nav-text/80 hover:text-nav-text hover:bg-nav-text/10 transition"
+                        aria-label={t('navbar:openMenu', 'Menüyü aç')}
+                    >
+                        <Menu size={22} />
+                    </button>
 
+                    {/* Logo + nav links. Mobilde flex-1 + justify-center → logo, hamburger ile sağdaki
+                        aksiyon grubunun (TR/EN…) ortasına gelir. Masaüstünde natural, sola yaslı (değişmez). */}
+                    <div className="flex items-center gap-3 md:gap-4 lg:gap-5 min-w-0 flex-1 justify-center md:flex-none md:justify-start">
                         <NavLogo />
 
                         <div className="hidden md:flex items-center gap-0 mr-1">
@@ -179,6 +181,7 @@ export default function Navbar() {
                 open={mobileMenuOpen}
                 onClose={() => setMobileMenuOpen(false)}
                 navConfig={navConfig}
+                liveLink={{ to: '/markets/live', label: t('markets:ticker.live') }}
                 extraLinks={[
                     { to: '/news', label: t('navbar:news') },
                     { to: '/markets/economy', label: t('navbar:economy') },

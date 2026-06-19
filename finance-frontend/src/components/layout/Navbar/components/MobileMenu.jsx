@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  *
  * Açık iken body scroll lock, escape ile kapanır; route değiştiğinde de onClose tetiklenir.
  */
-export default function MobileMenu({ open, onClose, navConfig, extraLinks }) {
+export default function MobileMenu({ open, onClose, navConfig, extraLinks, liveLink }) {
     const { t } = useTranslation('navbar');
     const [expanded, setExpanded] = useState(null);
 
@@ -46,6 +46,19 @@ export default function MobileMenu({ open, onClose, navConfig, extraLinks }) {
                 </div>
 
                 <nav className="flex-1 px-2 py-2">
+                    {liveLink && (
+                        <Link
+                            to={liveLink.to}
+                            onClick={onClose}
+                            className="mb-2 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-sell/10 text-sell border border-sell/20 hover:bg-sell/20 text-sm font-bold uppercase tracking-wider transition"
+                        >
+                            <span className="relative flex h-2 w-2 shrink-0">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sell opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-sell"></span>
+                            </span>
+                            {liveLink.label}
+                        </Link>
+                    )}
                     {navConfig.map((cat, idx) => {
                         const isOpen = expanded === idx;
                         return (
