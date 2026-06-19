@@ -60,12 +60,22 @@ public class EurobondService {
 
     private List<EurobondDto> buildList() {
         List<EurobondDto> result = new ArrayList<>();
+        int consecutiveFailures = 0;
         for (EurobondCatalog.CatalogEntry entry : catalog.getEntries()) {
             BusinessInsiderBondDetail detail = client.fetchDetail(entry.getSlug());
             if (detail == null) {
                 log.warn("[EUROBOND] Detay alınamadı, atlanıyor: {}", entry.getIsin());
+                // FAIL-FAST: BusinessInsider bot-tarpit'i kaynağı erişilemez kılabiliyor (TCP açılır, yanıt
+                // hiç gelmez → her istek read-timeout). İlk 2 istek üst üste düşer ve hâlâ veri yoksa kaynağı
+                // "down" say, kalan ~N bono'yu N×timeout kadar bekletme → endpoint hızlı boş döner.
+                if (++consecutiveFailures >= 2 && result.isEmpty()) {
+                    log.warn("[EUROBOND] Kaynak erişilemez görünüyor ({} ardışık hata, veri yok) — fail-fast, kalan bonolar atlanıyor.",
+                            consecutiveFailures);
+                    break;
+                }
                 continue;
             }
+            consecutiveFailures = 0;
             String currency = detail.getCurrency() != null ? detail.getCurrency() : entry.getCurrency();
             result.add(EurobondDto.builder()
                     .symbol(entry.getIsin())

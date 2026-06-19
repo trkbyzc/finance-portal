@@ -57,7 +57,11 @@ export default function EurobondList({ bonds, loading }) {
                         {loading ? (
                             <tr><td colSpan="6" className="p-10 text-center text-text-muted">{t('common:status.loading')}</td></tr>
                         ) : !filtered.length ? (
-                            <tr><td colSpan="6" className="p-10 text-center text-text-muted">{t('markets:common.noResults')}</td></tr>
+                            <tr><td colSpan="6" className="p-10 text-center text-text-muted">
+                                {query.trim()
+                                    ? t('markets:common.noResults')
+                                    : t('markets:eurobonds.sourceUnavailable', 'Eurobond veri sağlayıcısına şu an ulaşılamıyor (sağlayıcı erişimi geçici olarak engelliyor). Lütfen daha sonra tekrar deneyin.')}
+                            </td></tr>
                         ) : (
                             filtered.map((b) => {
                                 const change = b.changePercent != null ? Number(b.changePercent) : null;

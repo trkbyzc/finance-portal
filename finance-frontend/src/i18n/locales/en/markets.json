@@ -240,6 +240,7 @@
   "eurobonds": {
     "headerTitle": "Turkey Treasury Eurobonds",
     "headerSubtitle": "USD-denominated TR Treasury eurobonds — click a bond to see its price chart",
+    "sourceUnavailable": "The eurobond data provider is currently unreachable (the provider is temporarily blocking access). Please try again later.",
     "cols": {
       "bond": "Bond",
       "coupon": "Coupon",

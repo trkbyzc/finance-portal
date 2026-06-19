@@ -240,6 +240,7 @@
   "eurobonds": {
     "headerTitle": "Türkiye Hazine Eurobondları",
     "headerSubtitle": "USD cinsi TR Hazine eurobondları — bir bonoya tıklayıp fiyat grafiğini görün",
+    "sourceUnavailable": "Eurobond veri sağlayıcısına şu an ulaşılamıyor (sağlayıcı erişimi geçici olarak engelliyor). Lütfen daha sonra tekrar deneyin.",
     "cols": {
       "bond": "Bono",
       "coupon": "Kupon",
