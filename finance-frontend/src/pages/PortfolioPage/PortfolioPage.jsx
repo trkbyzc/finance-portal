@@ -17,6 +17,7 @@ import PortfolioTabs from '../../components/portfolio/PortfolioTabs';
 import TransactionHistoryModal from '../../components/portfolio/TransactionHistoryModal';
 import HoldingsTable from '../../components/portfolio/HoldingsTable';
 import PortfolioActivityCharts from '../../components/portfolio/charts/PortfolioActivityCharts';
+import PnlHistoryWidget from '../../components/portfolio/charts/PnlHistoryWidget';
 import PortfolioRiskAnalytics from '../../components/portfolio/PortfolioRiskAnalytics';
 import PortfolioSwitcher from '../../components/portfolio/PortfolioSwitcher';
 import usePortfolioPricing from './hooks/usePortfolioPricing';
@@ -411,6 +412,16 @@ const PortfolioPage = () => {
                             portfolio={filteredPortfolio}
                             calculateProfitLoss={calculateProfitLoss}
                             getDailyChange={getDailyChange}
+                        />
+                    </div>
+                )}
+
+                {/* K/Z Grafikleri — varlık seç, zaman içindeki kâr/zararını gör */}
+                {filteredPortfolio && filteredPortfolio.length > 0 && (
+                    <div className={hideBalances ? 'blur-md select-none pointer-events-none transition' : 'transition'}>
+                        <PnlHistoryWidget
+                            portfolio={filteredPortfolio}
+                            calculateProfitLoss={calculateProfitLoss}
                         />
                     </div>
                 )}
