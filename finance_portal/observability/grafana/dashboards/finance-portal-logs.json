@@ -7,6 +7,27 @@
   "time": { "from": "now-15m", "to": "now" },
   "timezone": "browser",
   "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "name": "level",
+        "type": "custom",
+        "label": "Seviye",
+        "description": "Canlı log akışını seviyeye göre filtrele",
+        "multi": false,
+        "includeAll": false,
+        "query": "*,level:INFO,level:WARN,level:ERROR,level:DEBUG",
+        "current": { "selected": true, "text": "Tümü", "value": "*" },
+        "options": [
+          { "selected": true, "text": "Tümü", "value": "*" },
+          { "selected": false, "text": "INFO", "value": "level:INFO" },
+          { "selected": false, "text": "WARN", "value": "level:WARN" },
+          { "selected": false, "text": "ERROR", "value": "level:ERROR" },
+          { "selected": false, "text": "DEBUG", "value": "level:DEBUG" }
+        ]
+      }
+    ]
+  },
   "title": "Finance Portal — Loglar & Trace Korelasyonu",
   "uid": "finance-portal-logs",
   "panels": [
@@ -73,7 +94,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
       "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch" },
       "targets": [
-        { "refId": "A", "queryType": "lucene", "query": "*", "timeField": "@timestamp",
+        { "refId": "A", "queryType": "lucene", "query": "NOT level:DEBUG", "timeField": "@timestamp",
           "metrics": [ { "id": "1", "type": "count", "settings": {} } ],
           "bucketAggs": [
             { "id": "3", "type": "terms", "field": "level.keyword", "settings": { "size": "6", "order": "desc", "orderBy": "_count", "min_doc_count": "0" } },
@@ -96,7 +117,7 @@
       "gridPos": { "h": 8, "w": 6, "x": 12, "y": 4 },
       "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch" },
       "targets": [
-        { "refId": "A", "queryType": "lucene", "query": "*", "timeField": "@timestamp",
+        { "refId": "A", "queryType": "lucene", "query": "NOT level:DEBUG", "timeField": "@timestamp",
           "metrics": [ { "id": "1", "type": "count", "settings": {} } ],
           "bucketAggs": [ { "id": "2", "type": "terms", "field": "level.keyword", "settings": { "size": "10", "order": "desc", "orderBy": "_count" } } ] }
       ],
@@ -123,7 +144,7 @@
       "gridPos": { "h": 13, "w": 24, "x": 0, "y": 12 },
       "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch" },
       "targets": [
-        { "refId": "A", "queryType": "lucene", "query": "*", "timeField": "@timestamp",
+        { "refId": "A", "queryType": "lucene", "query": "${level:raw}", "timeField": "@timestamp",
           "metrics": [ { "id": "1", "type": "raw_data", "settings": { "size": "200" } } ], "bucketAggs": [] }
       ],
       "transformations": [
@@ -165,6 +186,21 @@
           ] }
         ]
       }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "DEBUG (ayrı widget — root=info iken 0)",
+      "description": "Debug logları ortak grafikleri şişirmesin diye ayrı. Root seviyesi 'info' olduğundan şu an 0; debug açılırsa burada dolar.",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 25 },
+      "datasource": { "type": "grafana-opensearch-datasource", "uid": "opensearch" },
+      "targets": [
+        { "refId": "A", "queryType": "lucene", "query": "level:DEBUG", "timeField": "@timestamp",
+          "metrics": [ { "id": "1", "type": "count", "settings": {} } ],
+          "bucketAggs": [ { "id": "2", "type": "date_histogram", "field": "@timestamp", "settings": { "interval": "auto", "min_doc_count": "0" } } ] }
+      ],
+      "options": { "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "area", "textMode": "value" },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0, "color": { "mode": "fixed", "fixedColor": "purple" } } }
     }
   ]
 }
