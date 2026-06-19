@@ -41,7 +41,10 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
     const qtyNum = Number.parseFloat(quantity);
     const priceNum = Number.parseFloat(price);
     const isValid = qtyNum > 0 && priceNum > 0;
-    const total = isValid ? qtyNum * priceNum : 0;
+    // VİOP: çarpan nominal'e yansır + mevcut pozisyonun yönü (LONG/SHORT) korunur. Diğerlerinde çarpan = 1.
+    const multiplier = Number(asset?.contractSize) > 0 ? Number(asset.contractSize) : 1;
+    const isShort = String(asset?.direction || '').toUpperCase() === 'SHORT';
+    const total = isValid ? qtyNum * priceNum * multiplier : 0;
 
     const unitPrice = () => (priceNum > 0 ? priceNum : (currentPrice > 0 ? currentPrice : 0));
     const handleQuantity = (v) => {
@@ -90,7 +93,9 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                 symbol: asset.symbol,
                 assetType: asset.assetType,
                 quantity: qtyNum,
-                averagePrice: priceNum
+                averagePrice: priceNum,
+                // VİOP'ta mevcut pozisyonun yönünü koru → ek alım doğru LONG/SHORT pozisyona eklenir
+                ...(asset.direction ? { direction: asset.direction } : {})
             });
             onClose();
         } catch (e) {
@@ -116,7 +121,14 @@ export default function BuyMoreModal({ isOpen, onClose, onSubmit, asset, current
                             <Plus size={18} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold uppercase">{asset.symbol}</h2>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xl font-bold uppercase">{asset.symbol}</h2>
+                                {asset.direction && (
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isShort ? 'bg-sell/15 text-sell' : 'bg-buy/15 text-buy'}`}>
+                                        {isShort ? t('portfolio:modal.directionShort', 'Kısa (Short)') : t('portfolio:modal.directionLong', 'Uzun (Long)')}
+                                    </span>
+                                )}
+                            </div>
                             <p className="text-xs text-text-muted">{t('portfolio:trade.buyMoreTitle')}</p>
                         </div>
                     </div>

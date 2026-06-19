@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, TrendingUp, TrendingDown } from 'lucide-react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { useAssetDetails } from '../../hooks/useAssetDetails';
@@ -33,6 +33,7 @@ export default function AssetDetailPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [formData, setFormData] = useState({ quantity: '', price: '' });
     const [targetPortfolioId, setTargetPortfolioId] = useState('');
+    const [direction, setDirection] = useState('LONG'); // VİOP pozisyon yönü (uzun/kısa); VİOP dışında kullanılmaz
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Hedef portföy seçici için portföyler (modal açıkken çekilir; detay sayfası public olabilir)
@@ -89,6 +90,7 @@ export default function AssetDetailPage() {
             price: displayVal ? String(+Number(displayVal).toFixed(6)) : ''
         });
         setTargetPortfolioId('');
+        setDirection('LONG');
         setIsAddModalOpen(true);
     };
 
@@ -105,8 +107,8 @@ export default function AssetDetailPage() {
                 // Girilen fiyat seçili para biriminde → native'e çevrilip saklanır
                 averagePrice: toNative(Number.parseFloat(formData.price), nativeCur),
                 ...(pid ? { portfolioId: pid } : {}),
-                // VİOP'ta sözleşme büyüklüğü (çarpan) holding'e snapshot'lanır
-                ...(isViop ? { contractSize: Number(asset?.contractSize) || 1 } : {})
+                // VİOP'ta sözleşme büyüklüğü (çarpan) + pozisyon yönü (long/short) holding'e snapshot'lanır
+                ...(isViop ? { contractSize: Number(asset?.contractSize) || 1, direction } : {})
             };
 
             await portfolioApi.addManualEntry(payload);
@@ -228,6 +230,30 @@ export default function AssetDetailPage() {
                                     placeholder="150.25"
                                 />
                             </div>
+
+                            {asset?.assetCategory === 'VIOP' && (
+                                <div>
+                                    <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.direction', 'Pozisyon Yönü')}</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setDirection('LONG')}
+                                            className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition ${direction === 'LONG' ? 'border-buy bg-buy/10 text-buy' : 'border-border bg-surface-2 text-text-muted hover:border-buy/50'}`}
+                                        >
+                                            <span className="flex items-center justify-center gap-1.5"><TrendingUp size={16} /> {t('portfolio:modal.directionLong', 'Uzun (Long)')}</span>
+                                            <span className="block text-[10px] font-normal mt-0.5 opacity-80">{t('portfolio:modal.directionLongHint', 'Fiyat yükselince kazanırsın')}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setDirection('SHORT')}
+                                            className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition ${direction === 'SHORT' ? 'border-sell bg-sell/10 text-sell' : 'border-border bg-surface-2 text-text-muted hover:border-sell/50'}`}
+                                        >
+                                            <span className="flex items-center justify-center gap-1.5"><TrendingDown size={16} /> {t('portfolio:modal.directionShort', 'Kısa (Short)')}</span>
+                                            <span className="block text-[10px] font-normal mt-0.5 opacity-80">{t('portfolio:modal.directionShortHint', 'Fiyat düşünce kazanırsın')}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                             {asset?.assetCategory === 'VIOP' && (
                                 <div className="bg-surface-2 border border-border rounded-xl p-3 text-xs">
