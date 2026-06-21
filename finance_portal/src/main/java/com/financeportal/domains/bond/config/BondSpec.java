@@ -1,6 +1,7 @@
 package com.financeportal.domains.bond.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.domains.eurobond.config.EurobondCatalog;
 import com.financeportal.domains.turkish_bond.config.TurkishBondCatalog;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,9 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Sabit getirili enstrüman metadata sağlayıcısı (sembol → kotasyon tipi, kupon, vade, para birimi).
@@ -43,13 +46,16 @@ public class BondSpec {
 
     private final ObjectMapper objectMapper;
     private final TurkishBondCatalog dibsCatalog;
+    private final EurobondCatalog eurobondCatalog;
 
     private Map<String, CouponEntry> coupons = Map.of();
     private final Map<String, LocalDate> maturityByIsin = new HashMap<>();
+    private final Set<String> eurobondIsins = new HashSet<>();
 
-    public BondSpec(ObjectMapper objectMapper, TurkishBondCatalog dibsCatalog) {
+    public BondSpec(ObjectMapper objectMapper, TurkishBondCatalog dibsCatalog, EurobondCatalog eurobondCatalog) {
         this.objectMapper = objectMapper;
         this.dibsCatalog = dibsCatalog;
+        this.eurobondCatalog = eurobondCatalog;
     }
 
     private record CouponEntry(BigDecimal coupon, String type) {}
@@ -69,6 +75,10 @@ public class BondSpec {
                 maturityByIsin.put(e.getIsin(), LocalDate.parse(e.getMaturity()));
             } catch (Exception ignored) { /* hatalı tarih satırı atlanır */ }
         }
+        for (EurobondCatalog.CatalogEntry e : eurobondCatalog.getEntries()) {
+            if (e.getIsin() != null) eurobondIsins.add(e.getIsin());
+        }
+        log.info("[BOND-SPEC] {} eurobond ISIN yüklendi.", eurobondIsins.size());
     }
 
     /** Sembol + kategoriden tahvil metadata'sı. DİBS için coupon/maturity dolu; eurobond canlı DTO'dan. */
@@ -85,6 +95,12 @@ public class BondSpec {
             BigDecimal coupon = ce != null ? ce.coupon() : null;
             String type = ce != null ? ce.type() : "REAL"; // kupon bilinmiyorsa güvenli: par-at-entry
             return new BondInfo(Kind.DIBS, "YIELD", coupon, type, maturityByIsin.get(isin), "TRY", DEFAULT_FREQ);
+        }
+
+        // Eurobond ISIN (katalog) — fiyat-kotalı; category gelmese de tanı (valuateBond null geçiyor,
+        // aksi halde EUROBOND yerine INDEX'e düşüp getiri sanılır → K/Z hep 0 çıkardı).
+        if (symbol != null && eurobondIsins.contains(symbol)) {
+            return new BondInfo(Kind.EUROBOND, "PRICE", null, "FIXED", null, "USD", DEFAULT_FREQ);
         }
 
         // Global ^TNX/^TY vb. — getiri endeksi, gerçek tahvil pozisyonu değil.

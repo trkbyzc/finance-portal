@@ -79,7 +79,7 @@ export default function EurobondList({ bonds, loading }) {
                                         <td className="p-5 text-right font-mono text-sm text-text whitespace-nowrap">{fmt(b.coupon)}%</td>
                                         <td className="p-5 text-right font-mono text-sm text-text-muted whitespace-nowrap">{b.maturity || '—'}</td>
                                         <td className="p-5 text-right font-mono text-sm font-bold text-text whitespace-nowrap">{ccySymbol(b.currency)}{fmt(b.price)}</td>
-                                        <td className="p-5 text-right font-mono text-sm text-primary whitespace-nowrap">{fmt(b.bondYield)}%</td>
+                                        <td className="p-5 text-right font-mono text-sm text-primary whitespace-nowrap">{fmt(b.yield)}%</td>
                                         <td className="p-5 text-right font-mono text-sm font-bold whitespace-nowrap">
                                             {change == null ? <span className="text-text-muted">—</span> : (
                                                 <span className={isPositive ? 'text-buy' : 'text-sell'}>{isPositive ? '+' : ''}{change.toFixed(2)}%</span>

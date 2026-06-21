@@ -116,6 +116,10 @@
       "nominal": "Nominal",
       "entryYield": "Entry Yield",
       "currentYield": "Current Yield",
+      "entryCleanPrice": "Entry Clean Price",
+      "currentCleanPrice": "Current Clean Price",
+      "entryQuote": "Entry Value",
+      "currentQuote": "Current Value",
       "actions": "Actions"
     }
   },
@@ -205,6 +209,7 @@
       "qty": "Quantity",
       "price": "Price",
       "yield": "Yield",
+      "cleanPrice": "Clean Price",
       "nominal": "Nominal",
       "notes": "Notes"
     }

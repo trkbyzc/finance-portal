@@ -116,6 +116,10 @@
       "nominal": "Nominal",
       "entryYield": "Giriş Getirisi",
       "currentYield": "Güncel Getiri",
+      "entryCleanPrice": "Giriş Temiz Fiyatı",
+      "currentCleanPrice": "Güncel Temiz Fiyat",
+      "entryQuote": "Giriş Değeri",
+      "currentQuote": "Güncel Değer",
       "actions": "İşlemler"
     }
   },
@@ -205,6 +209,7 @@
       "qty": "Miktar",
       "price": "Fiyat",
       "yield": "Getiri",
+      "cleanPrice": "Temiz Fiyat",
       "nominal": "Nominal",
       "notes": "Not"
     }

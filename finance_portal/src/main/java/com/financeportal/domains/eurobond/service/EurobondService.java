@@ -3,6 +3,7 @@ package com.financeportal.domains.eurobond.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient.BusinessInsiderBondDetail;
+import com.financeportal.domains.bond.config.BondMath;
 import com.financeportal.domains.eurobond.config.EurobondCatalog;
 import com.financeportal.domains.eurobond.dto.EurobondDto;
 import com.financeportal.service.cache.CacheService;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +80,7 @@ public class EurobondService {
             }
             consecutiveFailures = 0;
             String currency = detail.getCurrency() != null ? detail.getCurrency() : entry.getCurrency();
+            BigDecimal bondYield = resolveYield(detail);
             result.add(EurobondDto.builder()
                     .symbol(entry.getIsin())
                     .isin(entry.getIsin())
@@ -84,7 +88,7 @@ public class EurobondService {
                     .currency(currency)
                     .coupon(detail.getCoupon())
                     .maturity(detail.getMaturity())
-                    .bondYield(detail.getBondYield())
+                    .bondYield(bondYield)
                     .price(detail.getPrice())
                     .changePercent(detail.getChangePercent())
                     .tkData(detail.getTkData())
@@ -94,6 +98,27 @@ public class EurobondService {
         }
         log.info("[EUROBOND] {} eurobond derlendi (katalog: {}).", result.size(), catalog.getEntries().size());
         return result;
+    }
+
+    /**
+     * Getiri (%): BI'nin hesaplanmış "yield of X%" cümlesi scrape'e gelirse onu kullan; gelmezse
+     * (başlıksız isteğe locale-bağımlı bu cümle gelmiyor) elimizdeki temiz fiyat + kupon + vade'den
+     * YTM hesapla (BondMath, indicative — yıllık bileşik varsayımı; BI'nin yarı-yıllık kotasyonundan
+     * birkaç bp sapabilir). Hesaplanamazsa null (sütun "—" kalır).
+     */
+    private BigDecimal resolveYield(BusinessInsiderBondDetail detail) {
+        if (detail.getBondYield() != null) return detail.getBondYield(); // BI'nin kotaladığı getiri (asıl kaynak)
+        // Getiri scrape'e gelmediyse (partial parse) temiz fiyat + kupon + vade'den YTM hesapla (indicative fallback).
+        if (detail.getPrice() == null || detail.getCoupon() == null || detail.getMaturity() == null) return null;
+        try {
+            double years = BondMath.yearsBetween(LocalDate.now(), LocalDate.parse(detail.getMaturity()));
+            if (years <= 0) return null;
+            double ytm = BondMath.yieldFromCleanPrice(detail.getPrice().doubleValue(),
+                    detail.getCoupon().doubleValue(), years);
+            return BigDecimal.valueOf(ytm).setScale(2, RoundingMode.HALF_UP);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** "Türkiye %6.375 2031 (USD)" — kupon/vade yoksa makul fallback. */

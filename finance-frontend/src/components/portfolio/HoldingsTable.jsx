@@ -20,11 +20,21 @@ export default function HoldingsTable({ portfolio, calculateProfitLoss, getDaily
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatPrice } = useCurrency();
     const showReal = !!inflationFactorBySymbol;
-    // Sabit getiri (tahvil): fiyat sütunları yerine GETİRİ başlıkları (Nominal / Giriş Getirisi / Güncel Getiri).
+    // Sabit getiri (tahvil): fiyat sütunları yerine kotasyon başlıkları (Nominal / Giriş / Güncel).
+    // Grup DİBS (getiri-kotalı) + eurobond (temiz fiyat-kotalı) karışık olabilir → başlığı içeriğe göre seç.
     const isFixed = nature === 'FIXED';
+    const fixedRows = isFixed ? (portfolio || []) : [];
+    const allDibs = isFixed && fixedRows.length > 0 && fixedRows.every((it) => String(it.symbol || '').startsWith('TP.'));
+    const allEuro = isFixed && fixedRows.length > 0 && fixedRows.every((it) => it.assetType === 'BOND' && !String(it.symbol || '').startsWith('TP.') && !String(it.symbol || '').startsWith('^'));
     const qtyLabel = isFixed ? t('portfolio:holdings.cols.nominal', 'Nominal') : t('portfolio:holdings.cols.quantity');
-    const avgLabel = isFixed ? t('portfolio:holdings.cols.entryYield', 'Giriş Getirisi') : t('portfolio:holdings.cols.avgPrice');
-    const curLabel = isFixed ? t('portfolio:holdings.cols.currentYield', 'Güncel Getiri') : t('portfolio:holdings.cols.currentPrice');
+    const avgLabel = !isFixed ? t('portfolio:holdings.cols.avgPrice')
+        : allEuro ? t('portfolio:holdings.cols.entryCleanPrice', 'Giriş Temiz Fiyatı')
+        : allDibs ? t('portfolio:holdings.cols.entryYield', 'Giriş Getirisi')
+        : t('portfolio:holdings.cols.entryQuote', 'Giriş Değeri');
+    const curLabel = !isFixed ? t('portfolio:holdings.cols.currentPrice')
+        : allEuro ? t('portfolio:holdings.cols.currentCleanPrice', 'Güncel Temiz Fiyat')
+        : allDibs ? t('portfolio:holdings.cols.currentYield', 'Güncel Getiri')
+        : t('portfolio:holdings.cols.currentQuote', 'Güncel Değer');
 
     if (!portfolio || portfolio.length === 0) {
         return (
