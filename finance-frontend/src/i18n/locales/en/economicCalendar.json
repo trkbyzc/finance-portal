@@ -19,7 +19,8 @@
     "estimate": "Estimate",
     "actual": "Actual"
   },
-  "eventsLabel": "events",
+  "eventsLabel_one": "{{count}} event",
+  "eventsLabel_other": "{{count}} events",
   "empty": {
     "title": "No events match the filter",
     "subtitle": "Widen the date range or relax the country filter."

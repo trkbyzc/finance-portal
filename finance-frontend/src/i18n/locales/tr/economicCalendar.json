@@ -19,7 +19,8 @@
     "estimate": "Beklenti",
     "actual": "Açıklanan"
   },
-  "eventsLabel": "olay",
+  "eventsLabel_one": "{{count}} olay",
+  "eventsLabel_other": "{{count}} olay",
   "empty": {
     "title": "Filtreye uyan olay yok",
     "subtitle": "Tarih aralığını genişlet veya ülke filtresini gevşet."
