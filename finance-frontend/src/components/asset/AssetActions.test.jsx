@@ -117,10 +117,10 @@ describe('AssetActions', () => {
         expect(container.innerHTML).toContain('px-3 py-2');
     });
 
-    it('BOND varlığı (yield) → fiyat label\'ında para birimi YOK', () => {
+    it('BOND varlığı (yield) → fiyat label\'ı "Getiri", para birimi YOK', () => {
         render(<AssetActions asset={{ symbol: 'TR2030', yield: 25, assetCategory: 'BOND' }} />, { wrapper: wrap() });
         fireEvent.click(screen.getByText('Portföye Ekle'));
-        const label = screen.getByText('portfolio:modal.purchasePrice');
-        expect(label.textContent).toBe('portfolio:modal.purchasePrice');
+        const label = screen.getByText('Getiri (%)');
+        expect(label.textContent).toBe('Getiri (%)');
     });
 });

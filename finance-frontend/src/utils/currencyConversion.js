@@ -64,6 +64,7 @@ export const nativeCurrencyForType = (typeKey, symbol) => {
                 || sym.includes('GÜMÜŞ') || sym.includes('BILEZIK')) ? 'TRY' : 'USD';
         case 'CRYPTO':
         case 'BOND':
+        case 'EUROBOND':
             return 'USD';
         default:
             // CURRENCY, GOLD, BOND_TR, FUND, TR_BOND, TR_FUND → TRY (TR bazlı veya forexSelling = TRY karşılığı)

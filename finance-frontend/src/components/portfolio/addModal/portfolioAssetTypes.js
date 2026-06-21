@@ -12,6 +12,7 @@ export const PORTFOLIO_ASSET_TYPES = [
     { uiKey: 'GOLD',      backendValue: 'COMMODITY', endpoint: '/market-data/turkish-gold' },
     { uiKey: 'COMMODITY', backendValue: 'COMMODITY', endpoint: '/market-data/commodities' },
     { uiKey: 'BOND_TR',   backendValue: 'BOND',      endpoint: '/market-data/tr-bonds' },
+    { uiKey: 'EUROBOND',  backendValue: 'BOND',      endpoint: '/market-data/eurobonds' },
     { uiKey: 'BOND',      backendValue: 'BOND',      endpoint: '/market-data/bonds' },
     { uiKey: 'FUND',      backendValue: 'FUND',      endpoint: '/market-data/tr-funds' },
     { uiKey: 'VIOP',      backendValue: 'FUTURE',    endpoint: '/market-data/viop' }

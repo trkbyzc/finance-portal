@@ -3,7 +3,7 @@ import { PORTFOLIO_ASSET_TYPES } from './portfolioAssetTypes';
 
 describe('PORTFOLIO_ASSET_TYPES', () => {
     it('9 type içerir (Stock, Crypto, Currency, Gold, Commodity, Bond_TR, Bond, Fund, Viop)', () => {
-        expect(PORTFOLIO_ASSET_TYPES).toHaveLength(9);
+        expect(PORTFOLIO_ASSET_TYPES).toHaveLength(10);
     });
 
     it('her tip için uiKey + backendValue + endpoint', () => {

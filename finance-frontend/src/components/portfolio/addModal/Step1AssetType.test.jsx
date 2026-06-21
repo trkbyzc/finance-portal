@@ -10,7 +10,7 @@ import Step1AssetType from './Step1AssetType';
 describe('Step1AssetType', () => {
     it('9 portfolio tipi için buton render', () => {
         const { container } = render(<Step1AssetType onSelect={() => {}} />);
-        expect(container.querySelectorAll('button')).toHaveLength(9);
+        expect(container.querySelectorAll('button')).toHaveLength(10);
     });
 
     it('butona tık → onSelect(uiKey)', () => {
