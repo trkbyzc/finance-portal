@@ -45,7 +45,7 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
         <div className="relative group">
             <div className="absolute -inset-0.5 bg-linear-to-br from-primary/20 via-transparent to-buy/20 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500 pointer-events-none" />
 
-            <div className="relative bg-surface border border-border rounded-2xl shadow-xl overflow-hidden flex flex-col h-105">
+            <div className="relative bg-surface border border-border rounded-2xl shadow-xl overflow-hidden flex flex-col h-96 sm:h-105">
                 <div className="flex bg-surface-2 border-b border-border overflow-x-auto hide-scrollbar">
                     {tabs.map(tab => {
                         const active = activeTab === tab.id;
@@ -122,22 +122,22 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
                                         onClick={() => navigate(target)}
                                         className="hover:bg-surface-hover cursor-pointer transition-colors group/row"
                                     >
-                                        <td className="p-3.5 pl-4">
+                                        <td className="p-2.5 sm:p-3.5 pl-3 sm:pl-4">
                                             <div className="flex items-center gap-2.5">
                                                 <AssetIcon src={asset.image} symbol={symbol} size={28} />
                                                 <div className="flex flex-col min-w-0">
                                                     <span className="text-sm font-bold text-text group-hover/row:text-primary transition-colors">{symbol}</span>
-                                                    <span className="text-[10px] text-text-muted truncate max-w-45">{asset.name || asset.currencyName}</span>
+                                                    <span className="text-[10px] text-text-muted truncate max-w-32 sm:max-w-45">{asset.name || asset.currencyName}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="p-3.5 text-right font-mono text-sm font-semibold text-text">
+                                        <td className="p-2.5 sm:p-3.5 text-right font-mono text-sm font-semibold text-text whitespace-nowrap">
                                             {price != null ? price.toLocaleString(locale) : '-'}
                                         </td>
-                                        <td className={`p-3.5 text-right font-mono text-xs font-bold ${isUp ? 'text-buy' : 'text-sell'}`}>
+                                        <td className={`p-2.5 sm:p-3.5 text-right font-mono text-xs font-bold whitespace-nowrap ${isUp ? 'text-buy' : 'text-sell'}`}>
                                             {formatPercent(asset.changePercent || 0)}
                                         </td>
-                                        <td className="pr-4 text-right text-border group-hover/row:text-primary transition-colors">
+                                        <td className="pr-3 sm:pr-4 text-right text-border group-hover/row:text-primary transition-colors">
                                             <ChevronRight size={16}/>
                                         </td>
                                     </tr>

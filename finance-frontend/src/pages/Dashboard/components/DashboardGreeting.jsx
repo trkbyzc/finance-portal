@@ -18,10 +18,10 @@ export default function DashboardGreeting({ name }) {
     const displayName = name || '';
 
     return (
-        <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-text flex items-center gap-3">
+        <div className="mb-8 min-w-0 flex-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-text flex items-center gap-3 min-w-0">
                 <span className="w-2 h-9 bg-primary rounded-full shrink-0"></span>
-                <span>
+                <span className="min-w-0 wrap-break-word">
                     {greeting}{displayName ? ', ' : ''}
                     <span className="text-primary">{displayName}</span>
                 </span>

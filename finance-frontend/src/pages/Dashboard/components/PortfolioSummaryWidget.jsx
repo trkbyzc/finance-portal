@@ -86,14 +86,14 @@ export default function PortfolioSummaryWidget() {
 
     return (
         <DashboardWidgetCard {...shellProps}>
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div className="bg-surface-2 border border-border rounded-xl p-4">
                     <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">{t('dashboard:widgets.totalValue')}</p>
-                    <p className="text-xl font-mono font-black text-text">₺{formatNumber(stats.totalValue, 2, 2)}</p>
+                    <p className="text-lg sm:text-xl font-mono font-black text-text truncate">₺{formatNumber(stats.totalValue, 2, 2)}</p>
                 </div>
                 <div className="bg-surface-2 border border-border rounded-xl p-4">
                     <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">{t('dashboard:widgets.totalPnl')}</p>
-                    <p className={`text-xl font-mono font-black flex items-center gap-1 ${pnlUp ? 'text-buy' : 'text-sell'}`}>
+                    <p className={`text-lg sm:text-xl font-mono font-black flex flex-wrap items-center gap-x-1 min-w-0 ${pnlUp ? 'text-buy' : 'text-sell'}`}>
                         {pnlUp ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                         {pnlUp ? '+' : ''}{formatNumber(stats.totalPnl, 2, 2)} ₺
                         <span className="text-xs">({pnlUp ? '+' : ''}{stats.pnlPercent.toFixed(2)}%)</span>

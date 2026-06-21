@@ -214,7 +214,7 @@ export default function MarketSummaryStrip() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
                 {cards.map((card) => {
                     const hasData = !card.missing && card.value != null;
                     const change = Number(card.change || 0);
@@ -224,10 +224,10 @@ export default function MarketSummaryStrip() {
                             key={card.key}
                             onClick={card.onClick}
                             disabled={card.missing}
-                            className="text-left bg-surface border border-border rounded-2xl p-5 hover:border-primary/50 hover:shadow-lg transition-all group disabled:opacity-50"
+                            className="text-left bg-surface border border-border rounded-2xl p-3 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-all group disabled:opacity-50"
                         >
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-text-muted text-[11px] font-bold uppercase tracking-wider truncate">{card.label}</span>
+                            <div className="flex items-center justify-between mb-2 gap-1">
+                                <span className="text-text-muted text-[11px] font-bold uppercase tracking-wider truncate min-w-0">{card.label}</span>
                                 {hasData && (
                                     <span className={`flex items-center gap-0.5 text-xs font-bold shrink-0 ${isUp ? 'text-buy' : 'text-sell'}`}>
                                         {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -235,7 +235,7 @@ export default function MarketSummaryStrip() {
                                     </span>
                                 )}
                             </div>
-                            <div className="text-xl font-mono font-black text-text group-hover:text-primary transition-colors">
+                            <div className="text-base sm:text-xl font-mono font-black text-text group-hover:text-primary transition-colors truncate">
                                 {hasData ? `${card.prefix}${formatNumber(card.value, 2, 2)}` : '—'}
                             </div>
                         </button>
