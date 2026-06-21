@@ -12,6 +12,16 @@ const formatCryptoPrice = (price) => {
     return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: maxFractionDigits });
 };
 
+/** 24s hacmi kısa USD formatla: $2.43T / $18.7B / $950M. Veri yoksa em-dash. */
+const formatVolume = (volume) => {
+    const n = Number(volume) || 0;
+    if (n <= 0) return '—';
+    if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
+    if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+    if (n >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
+    return `$${Math.round(n).toLocaleString('en-US')}`;
+};
+
 export default function CryptoTable({ data, loading }) {
     const navigate = useNavigate();
     const { t } = useTranslation('markets');
@@ -30,6 +40,7 @@ export default function CryptoTable({ data, loading }) {
                     <tr>
                         <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider">{t('stocks.tableCols.symbol')}</th>
                         <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('stocks.tableCols.price')}</th>
+                        <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('crypto.change24h')}</th>
                         <th className="p-5 text-xs font-bold text-text-muted uppercase tracking-wider text-right">{t('crypto.volume24h')}</th>
                         <th className="p-5"></th>
                     </tr>
@@ -48,6 +59,7 @@ export default function CryptoTable({ data, loading }) {
                             const displayName = fullName.replace('Kripto - ', '');
                             const price = coin?.forexBuying || 0;
                             const change = coin?.changePercent || 0;
+                            const volume = coin?.volume24h || 0;
                             const isPositive = change > 0;
 
                             return (
@@ -103,6 +115,9 @@ export default function CryptoTable({ data, loading }) {
                                             {isPositive ? '+' : ''}{Number(change).toFixed(2)}%
                                         </div>
                                     </td>
+                                    <td className="p-5 text-right font-mono font-semibold text-text-muted">
+                                        {formatVolume(volume)}
+                                    </td>
                                     <td className="p-5 text-right">
                                         <ChevronRight size={18} className="text-text-muted group-hover:text-primary transition" />
                                     </td>
@@ -111,7 +126,7 @@ export default function CryptoTable({ data, loading }) {
                         })
                     ) : (
                         <tr>
-                            <td colSpan="4" className="p-10 text-center text-text-muted">{t('common.noResults')}</td>
+                            <td colSpan="5" className="p-10 text-center text-text-muted">{t('common.noResults')}</td>
                         </tr>
                     )}
                     </tbody>

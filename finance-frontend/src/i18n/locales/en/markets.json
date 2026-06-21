@@ -118,6 +118,7 @@
     "headerTitle": "Crypto Market",
     "headerSubtitle": "Top 100 cryptocurrencies, live data",
     "marketCap": "Market Cap",
+    "change24h": "24h Change",
     "volume24h": "24h Volume",
     "btcDominance": "BTC Dominance",
     "activeCoins": "Active Coins",
