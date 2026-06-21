@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, X, TrendingUp, TrendingDown } from 'lucide-react';
+import { Loader2, X, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { useAssetDetails } from '../../hooks/useAssetDetails';
 import { portfolioApi } from '../../services/api/portfolioApi';
+import { simulationApi } from '../../services/api/simulationApi';
 import { useNotify } from '../../context/NotificationContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { toBackendAssetType } from '../../utils/assetTypeMapper';
 import { isYieldCategory, yieldFieldLabelKey } from '../../utils/assetNature';
+import { fetchPriceOnDate } from '../../utils/historicalPrice';
+import DatePicker from '../../components/common/DatePicker';
 
 import AssetHeader from './components/AssetHeader';
 import AssetChartArea from './components/AssetChartArea';
@@ -36,6 +39,11 @@ export default function AssetDetailPage() {
     const [targetPortfolioId, setTargetPortfolioId] = useState('');
     const [direction, setDirection] = useState('LONG'); // VİOP pozisyon yönü (uzun/kısa); VİOP dışında kullanılmaz
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [purchaseDate, setPurchaseDate] = useState('');
+    const [earliestDate, setEarliestDate] = useState(null);
+    const [earliestLoading, setEarliestLoading] = useState(false);
+    const [priceLoading, setPriceLoading] = useState(false);
+    const [datePriceInfo, setDatePriceInfo] = useState(null);
 
     // Hedef portföy seçici için portföyler (modal açıkken çekilir; detay sayfası public olabilir)
     const { data: portfolios = [] } = useQuery({
@@ -43,6 +51,20 @@ export default function AssetDetailPage() {
         queryFn: portfolioApi.getPortfolios,
         enabled: isAddModalOpen
     });
+
+    // Modal açılınca bu varlık için en erken seçilebilir tarihi çek (DatePicker min'i + ibare) — simülasyondaki gibi.
+    const addSymbol = asset?.symbol || decodedSymbol;
+    const addBackendType = asset?.assetCategory ? toBackendAssetType(asset.assetCategory) : null;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    useEffect(() => {
+        if (!isAddModalOpen || !addSymbol || !addBackendType) return;
+        setEarliestLoading(true);
+        setEarliestDate(null);
+        simulationApi.getEarliestDate(addSymbol, addBackendType)
+            .then(res => setEarliestDate(res?.earliestDate || null))
+            .catch(() => setEarliestDate(null))
+            .finally(() => setEarliestLoading(false));
+    }, [isAddModalOpen, addSymbol, addBackendType]);
 
     if (loading) return (
         <div className="min-h-screen bg-bg">
@@ -100,7 +122,29 @@ export default function AssetDetailPage() {
         });
         setTargetPortfolioId('');
         setDirection('LONG');
+        setPurchaseDate('');
+        setDatePriceInfo(null);
         setIsAddModalOpen(true);
+    };
+
+    // Tarih seçilince o tarihteki fiyatı çekip alış fiyatını doldur (handleOpenModal ile aynı kur/getiri mantığı).
+    const handleDate = async (v) => {
+        setPurchaseDate(v);
+        setDatePriceInfo(null);
+        if (!v || !addSymbol || !addBackendType) return;
+        setPriceLoading(true);
+        try {
+            const p = await fetchPriceOnDate(addSymbol, addBackendType, v);
+            if (p != null && p > 0) {
+                const shown = isYieldQuote ? p : convertPrice(Number(p), nativeCur);
+                setFormData(f => ({ ...f, price: String(+Number(shown).toFixed(6)) }));
+                setDatePriceInfo({ ok: true });
+            } else {
+                setDatePriceInfo({ ok: false });
+            }
+        } finally {
+            setPriceLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -116,6 +160,7 @@ export default function AssetDetailPage() {
                 // Tahvil getiri/temiz fiyatı yüzdedir → kur çevirme YOK (ham saklanır); diğerinde native'e çevir.
                 averagePrice: isYieldQuote ? Number.parseFloat(formData.price) : toNative(Number.parseFloat(formData.price), nativeCur),
                 ...(pid ? { portfolioId: pid } : {}),
+                ...(purchaseDate ? { purchaseDate } : {}),
                 // VİOP'ta sözleşme büyüklüğü (çarpan) + pozisyon yönü (long/short) holding'e snapshot'lanır
                 ...(isViop ? { contractSize: Number(asset?.contractSize) || 1, direction } : {})
             };
@@ -211,6 +256,20 @@ export default function AssetDetailPage() {
                                     </select>
                                 </div>
                             )}
+
+                            <div>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
+                                <div className="relative">
+                                    <DatePicker value={purchaseDate} onChange={handleDate} min={earliestDate || undefined} max={todayStr} />
+                                    {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />}
+                                </div>
+                                <div className="min-h-4 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
+                                    {datePriceInfo?.ok && <span className="text-buy">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}</span>}
+                                    {datePriceInfo && !datePriceInfo.ok && <span className="text-text-muted">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</span>}
+                                    {earliestLoading && <span className="inline-flex items-center gap-1 text-text-muted"><Loader2 className="animate-spin" size={11} />{t('portfolio:modal.earliestLoading', 'Tarih aralığı kontrol ediliyor…')}</span>}
+                                    {!earliestLoading && earliestDate && <span className="inline-flex items-center gap-1 text-text-muted"><Calendar size={11} />{t('portfolio:modal.earliestAvailable', { date: earliestDate, defaultValue: 'Bu varlık için en erken tarih: {{date}}' })}</span>}
+                                </div>
+                            </div>
 
                             <div>
                                 <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{isYieldQuote ? t('portfolio:modal.nominal', 'Nominal') : t('portfolio:modal.quantity')}</label>

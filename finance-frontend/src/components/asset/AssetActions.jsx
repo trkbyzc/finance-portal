@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Plus, Bell, X, Loader2 } from 'lucide-react';
+import { Plus, Bell, X, Loader2, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useNotify } from '../../context/NotificationContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { portfolioApi } from '../../services/api/portfolioApi';
+import { simulationApi } from '../../services/api/simulationApi';
 import { toBackendAssetType } from '../../utils/assetTypeMapper';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { fetchPriceOnDate } from '../../utils/historicalPrice';
+import DatePicker from '../common/DatePicker';
 import AlarmModal from '../alarm/AlarmModal';
 
 const CUR_SYMBOL = { TRY: '₺', USD: '$' };
@@ -38,6 +41,11 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
     const [submitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({ quantity: '1', price: '' });
     const [targetPortfolioId, setTargetPortfolioId] = useState('');
+    const [purchaseDate, setPurchaseDate] = useState('');
+    const [earliestDate, setEarliestDate] = useState(null);
+    const [earliestLoading, setEarliestLoading] = useState(false);
+    const [priceLoading, setPriceLoading] = useState(false);
+    const [datePriceInfo, setDatePriceInfo] = useState(null);
 
     const { data: portfolios = [] } = useQuery({
         queryKey: ['portfolios'],
@@ -45,10 +53,23 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
         enabled: isAuthenticated && addOpen
     });
 
-    if (!isAuthenticated || !asset) return null;
+    const cat = assetCategory || asset?.assetCategory;
+    const symbol = asset?.symbol || asset?.currencyCode;
+    const backendType = cat ? toBackendAssetType(cat) : null;
+    const todayStr = new Date().toISOString().slice(0, 10);
 
-    const cat = assetCategory || asset.assetCategory;
-    const symbol = asset.symbol || asset.currencyCode;
+    // Modal açılınca bu varlık için en erken seçilebilir tarihi çek (DatePicker min'i + ibare) — simülasyondaki gibi.
+    useEffect(() => {
+        if (!addOpen || !symbol || !backendType) return;
+        setEarliestLoading(true);
+        setEarliestDate(null);
+        simulationApi.getEarliestDate(symbol, backendType)
+            .then(res => setEarliestDate(res?.earliestDate || null))
+            .catch(() => setEarliestDate(null))
+            .finally(() => setEarliestLoading(false));
+    }, [addOpen, symbol, backendType]);
+
+    if (!isAuthenticated || !asset) return null;
     const effectiveAsset = { ...asset, assetCategory: cat, currentPrice: derivePrice(asset) };
     // Tahvil/bono getiri (%) bazlı — para birimi/çevrim uygulanmaz. Diğerlerinde native birim.
     const isYield = YIELD_CATS.has((cat || '').toUpperCase());
@@ -70,7 +91,29 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
         const price = shown === '' ? '' : String(+Number(shown).toFixed(6));
         setForm({ quantity: '1', price });
         setTargetPortfolioId('');
+        setPurchaseDate('');
+        setDatePriceInfo(null);
         setAddOpen(true);
+    };
+
+    // Tarih seçilince o tarihteki fiyatı çekip alış fiyatını doldur (openAdd ile aynı kur/getiri mantığı).
+    const handleDate = async (v) => {
+        setPurchaseDate(v);
+        setDatePriceInfo(null);
+        if (!v || !symbol || !backendType) return;
+        setPriceLoading(true);
+        try {
+            const p = await fetchPriceOnDate(symbol, backendType, v);
+            if (p != null && p > 0) {
+                const shown = isYield ? p : convertPrice(Number(p), native);
+                setForm(f => ({ ...f, price: String(+Number(shown).toFixed(6)) }));
+                setDatePriceInfo({ ok: true });
+            } else {
+                setDatePriceInfo({ ok: false });
+            }
+        } finally {
+            setPriceLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -84,7 +127,8 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
                 quantity: Number.parseFloat(form.quantity),
                 // Getiri ise olduğu gibi; değilse girilen (seçili birim) fiyat native'e çevrilir
                 averagePrice: isYield ? Number.parseFloat(form.price) : toNative(Number.parseFloat(form.price), native),
-                ...(pid ? { portfolioId: pid } : {})
+                ...(pid ? { portfolioId: pid } : {}),
+                ...(purchaseDate ? { purchaseDate } : {})
             });
             setAddOpen(false);
             const pname = portfolios.find(p => p.id === pid)?.name;
@@ -159,6 +203,20 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
                                     </select>
                                 </div>
                             )}
+
+                            <div>
+                                <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
+                                <div className="relative">
+                                    <DatePicker value={purchaseDate} onChange={handleDate} min={earliestDate || undefined} max={todayStr} />
+                                    {priceLoading && <Loader2 className="animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={16} />}
+                                </div>
+                                <div className="min-h-4 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px]">
+                                    {datePriceInfo?.ok && <span className="text-buy">{t('portfolio:modal.datePriceFound', 'O tarihteki fiyat')}</span>}
+                                    {datePriceInfo && !datePriceInfo.ok && <span className="text-text-muted">{t('portfolio:modal.datePriceMissing', 'Bu tarih için fiyat bulunamadı, elle girebilirsiniz.')}</span>}
+                                    {earliestLoading && <span className="inline-flex items-center gap-1 text-text-muted"><Loader2 className="animate-spin" size={11} />{t('portfolio:modal.earliestLoading', 'Tarih aralığı kontrol ediliyor…')}</span>}
+                                    {!earliestLoading && earliestDate && <span className="inline-flex items-center gap-1 text-text-muted"><Calendar size={11} />{t('portfolio:modal.earliestAvailable', { date: earliestDate, defaultValue: 'Bu varlık için en erken tarih: {{date}}' })}</span>}
+                                </div>
+                            </div>
 
                             <div>
                                 <label className="block text-text-muted text-[10px] uppercase tracking-wider font-bold mb-2">{qtyLabel}</label>
