@@ -11,6 +11,7 @@ import useBenchmarkOverlay from './hooks/useBenchmarkOverlay';
 import { normalizeSymbol, getDisplayName, getChartType, isTurkishBond, isTurkishGold } from './utils/symbolUtils';
 import { useCurrency } from '../../../context/CurrencyContext';
 import { useNotify } from '../../../context/NotificationContext';
+import { useAuth } from '../../../context/AuthContext';
 import { detectNativeCurrency, isYieldAsset } from '../../../utils/currencyConversion';
 import { computePricePrecision, computePriceLabelDigits } from '../../../utils/priceFormat';
 import { CRYPTO_OPTIONS } from './tradingChartConstants';
@@ -41,6 +42,7 @@ registerCustomOverlays();
 function TradingChart({ asset, initialRange = '1y' }) {
     const klineContainer = useRef();
     const { t } = useTranslation('charts');
+    const { isAuthenticated } = useAuth();
     const [searchParams] = useSearchParams();
     const savedChartId = searchParams.get('saved');
 
@@ -259,7 +261,7 @@ function TradingChart({ asset, initialRange = '1y' }) {
 
             <div className="flex flex-1 overflow-hidden relative">
                 {!useRechartsFinal && (
-                    <ChartSidebar onDraw={createOverlay} onRemoveAll={removeAllOverlays} onSave={handleSaveChart} saving={saving} />
+                    <ChartSidebar onDraw={createOverlay} onRemoveAll={removeAllOverlays} onSave={isAuthenticated ? handleSaveChart : undefined} saving={saving} />
                 )}
 
                 <div className="flex-1 w-full bg-surface relative p-2">
