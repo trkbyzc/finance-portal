@@ -29,13 +29,18 @@ export default function PortfolioSummaryWidget() {
 
     const stats = useMemo(() => {
         if (!portfolio || portfolio.length === 0) return null;
-        const totalInvestment = portfolio.reduce((s, it) => s + (it.averagePrice * it.quantity), 0);
+        // Maliyet ve değer AYNI tabandan gelmeli: ikisini de calculateProfitLoss'tan topla.
+        // Ham averagePrice×quantity kullanmak tahvilde (getiri-kotalı), VİOP'ta (teminat) ve
+        // USD varlıklarda (kur) yanlış maliyet üretip K/Z'yi bozuyordu — PortfolioStats ile aynı desen.
         let totalValue = 0;
+        let totalInvestment = 0;
         const byType = {};
         portfolio.forEach((it) => {
-            const { currentValue } = calculateProfitLoss(it);
+            const { currentValue, costValue } = calculateProfitLoss(it);
             const val = Number.isFinite(currentValue) ? currentValue : 0;
+            const cost = Number.isFinite(costValue) ? costValue : 0;
             totalValue += val;
+            totalInvestment += cost;
             byType[it.assetType] = (byType[it.assetType] || 0) + val;
         });
         const totalPnl = totalValue - totalInvestment;
@@ -87,7 +92,7 @@ export default function PortfolioSummaryWidget() {
                     <p className="text-xl font-mono font-black text-text">₺{formatNumber(stats.totalValue, 2, 2)}</p>
                 </div>
                 <div className="bg-surface-2 border border-border rounded-xl p-4">
-                    <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">{t('dashboard:widgets.dailyPnl')}</p>
+                    <p className="text-text-muted text-[10px] font-bold uppercase tracking-wider mb-1">{t('dashboard:widgets.totalPnl')}</p>
                     <p className={`text-xl font-mono font-black flex items-center gap-1 ${pnlUp ? 'text-buy' : 'text-sell'}`}>
                         {pnlUp ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                         {pnlUp ? '+' : ''}{formatNumber(stats.totalPnl, 2, 2)} ₺
