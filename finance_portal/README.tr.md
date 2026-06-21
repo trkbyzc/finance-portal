@@ -55,7 +55,7 @@ Geçersiz kılma sırası: profil dosyası > `application.yaml` > kod varsayıla
 
 ## Yapılandırma (önemli env var'lar)
 
-`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` · `REDIS_HOST`, `REDIS_PORT` · `KAFKA_BOOTSTRAP_SERVERS` · `ELASTICSEARCH_URI` · `KEYCLOAK_ISSUER_URI`, `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_SERVER_URL` · `EVDS_API_KEY`, `FRED_API_KEY`, `FMP_API_KEY`, `FINNHUB_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` · `MAIL_USERNAME`, `MAIL_PASSWORD`. (Tüm dış API anahtarları opsiyonel — eksik olanlar yalnızca kendi özelliğini kapatır.)
+`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` · `REDIS_HOST`, `REDIS_PORT` · `KAFKA_BOOTSTRAP_SERVERS` · `ELASTICSEARCH_URI` · `KEYCLOAK_ISSUER_URI`, `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_SERVER_URL` · `EVDS_API_KEY`, `FRED_API_KEY`, `FMP_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` · `MAIL_USERNAME`, `MAIL_PASSWORD`. (Tüm dış API anahtarları opsiyonel — eksik olanlar yalnızca kendi özelliğini kapatır.)
 
 ## Dokümantasyon, Testler & Kalite
 

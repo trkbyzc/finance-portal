@@ -65,7 +65,9 @@ USER app
 
 # JVM ayarları + Spring profile container için + OTel Java Agent
 # Agent OTEL_EXPORTER_OTLP_ENDPOINT env'ini okur (compose'da set edildi → otel-collector:4317)
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -javaagent:/app/otel-agent.jar" \
+# -Dsun.net.http.allowRestrictedHeaders=true: JDK HttpURLConnection "Origin" header'ını varsayılan
+# olarak kısıtlı sayıp düşürür; TradingView ekonomik takvim feed'i Origin ZORUNLU (yoksa 403) → izin ver.
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Dsun.net.http.allowRestrictedHeaders=true -javaagent:/app/otel-agent.jar" \
     SPRING_PROFILES_ACTIVE=docker
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

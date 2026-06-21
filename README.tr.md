@@ -222,7 +222,7 @@ Dış entegrasyonları etkinleştirmek için `finance_portal/.env` oluştur. **T
 EVDS_API_KEY=          # TCMB EVDS (döviz & ekonomi geçmişi)
 FRED_API_KEY=          # ABD ekonomik verisi (TÜFE)
 FMP_API_KEY=           # Financial Modeling Prep
-FINNHUB_API_KEY=       # Ekonomik takvim
+# Ekonomik takvim TradingView'in ücretsiz beslemesini kullanır — API anahtarı gerekmez
 
 # YZ asistanı (sohbet) — Gemini birincil, Groq yedek
 GEMINI_API_KEY=

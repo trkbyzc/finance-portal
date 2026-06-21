@@ -217,7 +217,7 @@ Create `finance_portal/.env` to enable external integrations. **All keys are opt
 EVDS_API_KEY=          # TCMB EVDS (FX & economy history)
 FRED_API_KEY=          # US economic data (CPI)
 FMP_API_KEY=           # Financial Modeling Prep
-FINNHUB_API_KEY=       # Economic calendar
+# Economic calendar uses TradingView's free feed — no API key required
 
 # AI assistant (chat) — Gemini primary, Groq fallback
 GEMINI_API_KEY=

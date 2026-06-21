@@ -55,7 +55,7 @@ Override order: profile file > `application.yaml` > code default.
 
 ## Configuration (key env vars)
 
-`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` · `REDIS_HOST`, `REDIS_PORT` · `KAFKA_BOOTSTRAP_SERVERS` · `ELASTICSEARCH_URI` · `KEYCLOAK_ISSUER_URI`, `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_SERVER_URL` · `EVDS_API_KEY`, `FRED_API_KEY`, `FMP_API_KEY`, `FINNHUB_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` · `MAIL_USERNAME`, `MAIL_PASSWORD`. (All external API keys are optional — missing ones only disable their feature.)
+`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` · `REDIS_HOST`, `REDIS_PORT` · `KAFKA_BOOTSTRAP_SERVERS` · `ELASTICSEARCH_URI` · `KEYCLOAK_ISSUER_URI`, `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_SERVER_URL` · `EVDS_API_KEY`, `FRED_API_KEY`, `FMP_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` · `MAIL_USERNAME`, `MAIL_PASSWORD`. (All external API keys are optional — missing ones only disable their feature.)
 
 ## Documentation, Tests & Quality
 

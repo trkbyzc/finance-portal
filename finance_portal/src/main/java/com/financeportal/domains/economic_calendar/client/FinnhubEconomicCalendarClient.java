@@ -26,7 +26,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FinnhubEconomicCalendarClient {
+public class FinnhubEconomicCalendarClient implements EconomicCalendarClient {
 
     private final RestTemplate restTemplate;
 
