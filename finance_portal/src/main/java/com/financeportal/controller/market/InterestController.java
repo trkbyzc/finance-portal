@@ -1,5 +1,6 @@
 package com.financeportal.controller.market;
 
+import com.financeportal.model.dto.account.DepositRatePointDto;
 import com.financeportal.model.dto.account.InterestYieldDto;
 import com.financeportal.service.market.InterestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,5 +27,13 @@ public class InterestController {
             @RequestParam(defaultValue = "32") int days) {
 
         return ResponseEntity.ok(interestService.calculateDepositYields(amount, days));
+    }
+
+    @GetMapping("/deposit-series")
+    @Operation(summary = "TRY Mevduat Faizi Tarihsel Serisi (1 yıla kadar, EVDS) — Performans karşılaştırması için")
+    public ResponseEntity<List<DepositRatePointDto>> depositSeries(
+            @RequestParam(defaultValue = "5y") String range) {
+
+        return ResponseEntity.ok(interestService.getDepositRateSeries(range));
     }
 }

@@ -1,5 +1,9 @@
 package com.financeportal.service.market;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.client.EvdsClient;
+import com.financeportal.model.dto.account.DepositRatePointDto;
 import com.financeportal.model.dto.account.InterestYieldDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,13 +15,17 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +36,12 @@ class InterestServiceTest {
 
     @Mock
     private ValueOperations<String, String> valueOps;
+
+    @Mock
+    private EvdsClient evdsClient;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private InterestService service;
@@ -108,5 +122,22 @@ class InterestServiceTest {
         // totalPayment = anapara + net
         assertTrue(fibabanka.getTotalPayment().compareTo(amount) > 0,
                 "Toplam ödeme anaparadan büyük olmalı");
+    }
+
+    @Test
+    void getDepositRateSeries_parsesEvdsNodes_normalizesDateToIso() throws Exception {
+        when(valueOps.get(anyString())).thenReturn(null); // cache miss → EVDS'ye git
+        ObjectMapper realOm = new ObjectMapper();
+        JsonNode node = realOm.readTree("{\"Tarih\":\"15-01-2024\",\"TP_TRY_MT04\":\"45.5\"}");
+        when(evdsClient.fetchSeriesPaginated(any(), any(LocalDate.class), any(LocalDate.class), anyInt()))
+                .thenReturn(List.of(node));
+        when(evdsClient.extractValueFromNode(any(JsonNode.class), eq("TP.TRY.MT04"))).thenReturn(45.5);
+
+        List<DepositRatePointDto> series = service.getDepositRateSeries("1y");
+
+        assertNotNull(series);
+        assertEquals(1, series.size());
+        assertEquals("2024-01-15", series.get(0).date(), "EVDS dd-MM-yyyy → ISO yyyy-MM-dd");
+        assertEquals(45.5, series.get(0).rate(), 0.001);
     }
 }
