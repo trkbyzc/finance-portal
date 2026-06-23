@@ -1,4 +1,14 @@
 {
+  "perf": {
+    "title": "Performans",
+    "subtitle": "Seçili dönemde getiri karşılaştırması",
+    "bist": "BIST 100",
+    "deposit": "Mevduat Faizi",
+    "gold": "Altın",
+    "usd": "Dolar",
+    "loading": "Yükleniyor…",
+    "noData": "Bu dönem için yeterli veri yok"
+  },
   "header": {
     "live": "CANLI",
     "chartType": "Grafik Tipi",

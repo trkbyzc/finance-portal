@@ -1,4 +1,14 @@
 {
+  "perf": {
+    "title": "Performance",
+    "subtitle": "Return comparison over the selected period",
+    "bist": "BIST 100",
+    "deposit": "Deposit Rate",
+    "gold": "Gold",
+    "usd": "Dollar",
+    "loading": "Loading…",
+    "noData": "Not enough data for this period"
+  },
   "header": {
     "live": "LIVE",
     "chartType": "Chart Type",

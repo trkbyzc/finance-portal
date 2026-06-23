@@ -18,6 +18,7 @@ import AssetHeader from './components/AssetHeader';
 import AssetChartArea from './components/AssetChartArea';
 import BondDetailView from './components/BondDetailView';
 import ComparisonSection from './components/ComparisonSection';
+import PerformanceWidget from './components/PerformanceWidget';
 import StockFundamentals from './components/StockFundamentals';
 import CryptoFundamentals from './components/CryptoFundamentals';
 import FearGreedPanel from './components/fearGreed/FearGreedPanel';
@@ -203,6 +204,7 @@ export default function AssetDetailPage() {
                 <AssetChartArea asset={asset} isViop={isViop} />
                 {asset?.assetCategory === 'CRYPTO' && <FearGreedPanel />}
                 <ComparisonSection asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
+                <PerformanceWidget asset={asset} baseSymbol={asset?.yahooSymbol || asset?.symbol} />
                 <RelatedNews symbol={asset?.symbol || asset?.currencyCode || asset?.yahooSymbol} />
             </div>
 

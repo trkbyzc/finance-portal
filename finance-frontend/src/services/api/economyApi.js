@@ -14,5 +14,9 @@ export const economyApi = {
     getEconomyUsHistorical: (range) =>
         apiClient.get('/market-data/economy-us/historical', { params: { metric: 'usdInflationRate', range } }),
     calculateInterest: (amount, days) =>
-        apiClient.get('/interest/calculate', { params: { amount, days } })
+        apiClient.get('/interest/calculate', { params: { amount, days } }),
+    // TRY mevduat faizi (1 yıla kadar) tarihsel serisi → [{date, rate}, ...] — Performans widget'ı
+    // bu seriyi dönem boyunca bileşikleyerek "mevduata koysaydın" getirisini hesaplar.
+    getDepositSeries: (range = '5y') =>
+        apiClient.get('/interest/deposit-series', { params: { range } })
 };
