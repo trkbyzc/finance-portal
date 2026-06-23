@@ -72,7 +72,7 @@ const depositReturn = (series, cutoff) => {
     return (factor - 1) * 100;
 };
 
-export function usePerformanceComparison(assetSymbol, assetCategory, labels) {
+export function usePerformanceComparison(assetSymbol, assetCategory, labels, currencyCode, rawSymbol) {
     const [period, setPeriod] = useState('1y');
 
     const assetQ = useQuery({
@@ -112,14 +112,24 @@ export function usePerformanceComparison(assetSymbol, assetCategory, labels) {
 
     const rows = useMemo(() => {
         const cutoff = cutoffStr(period);
+        const cc  = (currencyCode || '').toUpperCase();
+        const raw = (rawSymbol   || '').toUpperCase();
+
+        // Symbol eşleşmesi (raw backend sembolü, yahooSymbol değil):
+        const skipBenchmark = {
+            bist: raw === 'XU100.IS',
+            gold: raw === 'GRAM_ALTIN',
+            usd:  cc  === 'USD',
+        };
+
         return [
-            { key: 'asset', label: labels.asset, ret: priceReturn(norm.asset, cutoff), kind: 'asset' },
-            { key: 'bist', label: labels.bist, ret: priceReturn(norm.bist, cutoff), kind: 'bench' },
+            { key: 'asset',   label: labels.asset,   ret: priceReturn(norm.asset, cutoff),   kind: 'asset' },
+            !skipBenchmark.bist    && { key: 'bist',    label: labels.bist,    ret: priceReturn(norm.bist, cutoff),    kind: 'bench' },
             { key: 'deposit', label: labels.deposit, ret: depositReturn(norm.deposit, cutoff), kind: 'bench' },
-            { key: 'gold', label: labels.gold, ret: priceReturn(norm.gold, cutoff), kind: 'bench' },
-            { key: 'usd', label: labels.usd, ret: priceReturn(norm.usd, cutoff), kind: 'bench' },
-        ].filter(r => r.ret != null && Number.isFinite(r.ret)).sort((a, b) => b.ret - a.ret);
-    }, [norm, period, labels]);
+            !skipBenchmark.gold    && { key: 'gold',    label: labels.gold,    ret: priceReturn(norm.gold, cutoff),    kind: 'bench' },
+            !skipBenchmark.usd     && { key: 'usd',     label: labels.usd,     ret: priceReturn(norm.usd, cutoff),     kind: 'bench' },
+        ].filter(r => r && r.ret != null && Number.isFinite(r.ret)).sort((a, b) => b.ret - a.ret);
+    }, [norm, period, labels, currencyCode, rawSymbol]);
 
     const isLoading = assetQ.isLoading || bistQ.isLoading || goldQ.isLoading || usdQ.isLoading || depositQ.isLoading;
     return { rows, period, setPeriod, isLoading };

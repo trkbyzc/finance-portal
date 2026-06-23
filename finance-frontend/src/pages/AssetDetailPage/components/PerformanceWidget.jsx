@@ -19,12 +19,14 @@ const PERIODS = [
 export default function PerformanceWidget({ asset, baseSymbol }) {
     const { t, i18n } = useTranslation(['charts', 'common']);
 
-    const { symbol, category, label } = useMemo(() => {
+    const { symbol, category, label, currencyCode, rawSymbol } = useMemo(() => {
         const a = asset || {};
         return {
-            symbol: a.yahooSymbol || a.symbol || a.currencyCode || baseSymbol,
-            category: a.assetCategory || a.category || 'UNKNOWN',
-            label: a.name || a.currencyName || a.symbol || baseSymbol,
+            symbol:       a.yahooSymbol || a.symbol || a.currencyCode || baseSymbol,
+            category:     a.assetCategory || a.category || 'UNKNOWN',
+            label:        a.name || a.currencyName || a.symbol || baseSymbol,
+            currencyCode: a.currencyCode || null,
+            rawSymbol:    a.symbol || null,
         };
     }, [asset, baseSymbol]);
 
@@ -36,7 +38,7 @@ export default function PerformanceWidget({ asset, baseSymbol }) {
         usd: t('charts:perf.usd', 'Dolar'),
     }), [label, t]);
 
-    const { rows, period, setPeriod, isLoading } = usePerformanceComparison(symbol, category, labels);
+    const { rows, period, setPeriod, isLoading } = usePerformanceComparison(symbol, category, labels, currencyCode, rawSymbol);
 
     const isTr = (i18n.language || 'tr').startsWith('tr');
     const fmtPct = (v) => {
@@ -88,7 +90,7 @@ export default function PerformanceWidget({ asset, baseSymbol }) {
                                 <div className="flex-1 min-w-0 h-2.5 bg-surface-2 rounded-full overflow-hidden">
                                     <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${Math.max(2, w)}%` }} />
                                 </div>
-                                <div className={`w-[72px] sm:w-24 shrink-0 text-right text-sm font-bold tabular-nums ${valColor}`}>
+                                <div className={`w-18 sm:w-24 shrink-0 text-right text-sm font-bold tabular-nums ${valColor}`}>
                                     {fmtPct(r.ret)}
                                 </div>
                             </div>
