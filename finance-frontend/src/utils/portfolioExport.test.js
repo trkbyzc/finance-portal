@@ -27,6 +27,9 @@ vi.mock('jspdf', () => {
                 setFont: vi.fn(),
                 setFontSize: vi.fn(),
                 setTextColor: vi.fn(),
+                setFillColor: vi.fn(),
+                setDrawColor: vi.fn(),
+                roundedRect: vi.fn(),
                 text: vi.fn(),
                 addFileToVFS: vi.fn(),
                 addFont: vi.fn(),
@@ -42,22 +45,36 @@ vi.mock('jspdf-autotable', () => ({ default: autoTableMock }));
 
 import { exportPortfolioExcel, exportPortfolioPdf, loadLogoDataUrl } from './portfolioExport';
 
-const baseRows = [
-    { symbol: 'BTC', type: 'CRYPTO', quantity: 1, avgPrice: 50000, currentPrice: 60000,
-      currentValue: 60000, pnl: 10000, pnlPct: 20, currency: 'USD' }
-];
-const baseSummary = { totalCost: 50000, totalValue: 60000, totalPnl: 10000, returnRate: 20 };
-const baseMeta = {
+// Yeni sectioned giriş: { sections, summary: { cards, hasReal }, meta }
+const spotSection = (showReal = false) => ({
+    key: 'SPOT', label: 'Spot', count: 1, isFixed: false, showReal,
+    headers: { asset: 'Varlık', type: 'Tip', qty: 'Adet', avg: 'Ort. Maliyet', cur: 'Anlık Fiyat', value: 'Toplam Değer', pnl: 'K/Z', realPnl: 'Reel K/Z' },
+    rows: [
+        { asset: 'BTC', type: 'Kripto', qty: '1', avg: '$50.000,00', cur: '$60.000,00', value: '₺60.000,00',
+          pnl: '+₺10.000,00', pnlPct: '+20,00%', pnlPositive: true,
+          realPnl: showReal ? '+₺9.000,00' : '—', realPct: showReal ? '+18,00%' : '', realPositive: true },
+    ],
+});
+
+const baseMeta = (showReal = false) => ({
     title: 'Portföy', subtitle: 'altbaşlık', date: '2026-06-01', dateLabel: 'Tarih',
-    fileBase: 'portfoy_2026',
-    headers: {
-        asset: 'Varlık', type: 'Tip', quantity: 'Adet', avgPrice: 'Ort.', currentPrice: 'Fiyat',
-        value: 'Değer', pnl: 'K/Z', pnlPct: '%', currency: 'Para',
-        totalCost: 'Top.Maliyet', totalValue: 'Top.Değer', totalPnl: 'Top.K/Z', returnRate: 'Getiri %',
-        realPnl: 'Reel K/Z', realReturnRate: 'Reel %', inflationFactor: 'Enf.×',
-    },
-    footer: 'FP'
-};
+    fileBase: 'portfoy_2026', footer: 'FP', showReal,
+});
+
+const baseSummary = (hasReal = false) => ({
+    hasReal,
+    cards: [
+        { label: 'Maliyet', value: '₺50.000,00' },
+        { label: 'Değer', value: '₺60.000,00' },
+        { label: 'K/Z', value: '+₺10.000,00', positive: true },
+        { label: 'Getiri', value: '+20,00%', positive: true },
+        ...(hasReal ? [{ label: 'Reel K/Z', value: '+₺9.000,00', positive: true, sub: '+18,00% (Enflasyon ~×1,10)' }] : []),
+    ],
+});
+
+const baseData = (real = false) => ({
+    meta: baseMeta(real), summary: baseSummary(real), sections: [spotSection(real)],
+});
 
 beforeEach(() => {
     Object.values(xlsxMock.utils).forEach(fn => fn.mockClear());
@@ -67,52 +84,64 @@ beforeEach(() => {
 
 describe('exportPortfolioExcel', () => {
     it('aoa_to_sheet çağrılır + writeFile filename', () => {
-        exportPortfolioExcel(baseRows, baseSummary, baseMeta);
+        exportPortfolioExcel(baseData());
         expect(xlsxMock.utils.aoa_to_sheet).toHaveBeenCalled();
         expect(xlsxMock.writeFile).toHaveBeenCalledWith(expect.anything(), 'portfoy_2026.xlsx');
     });
 
-    it('realPnl varsa 3 ek satır + inflationFactor toFixed çağrılır', () => {
-        const summary = { ...baseSummary, realPnl: 5000, realReturnRate: 10, inflationFactor: 1.345 };
-        exportPortfolioExcel(baseRows, summary, baseMeta);
+    it('özet kartlar + bölüm başlık/satırları aoa içinde', () => {
+        exportPortfolioExcel(baseData());
         const aoa = xlsxMock.utils.aoa_to_sheet.mock.calls[0][0];
-        expect(aoa.some(row => row[0] === 'Reel K/Z')).toBe(true);
-        expect(aoa.some(row => row[0] === 'Enf.×')).toBe(true);
+        expect(aoa.some(row => row[0] === 'Maliyet')).toBe(true);          // özet kart
+        expect(aoa.some(row => row[0] === 'Spot · 1')).toBe(true);          // bölüm başlığı
+        expect(aoa.some(row => row[0] === 'BTC')).toBe(true);               // veri satırı
+    });
+
+    it('showReal → Reel K/Z + % kolonları eklenir (10 sütun)', () => {
+        exportPortfolioExcel(baseData(true));
+        const aoa = xlsxMock.utils.aoa_to_sheet.mock.calls[0][0];
+        const header = aoa.find(row => row[0] === 'Varlık');
+        expect(header).toHaveLength(10);
+        expect(header).toContain('Reel K/Z');
     });
 
     it('book_append_sheet "Portföy" sheet name', () => {
-        exportPortfolioExcel(baseRows, baseSummary, baseMeta);
+        exportPortfolioExcel(baseData());
         expect(xlsxMock.utils.book_append_sheet).toHaveBeenCalledWith(expect.anything(), expect.anything(), 'Portföy');
     });
 });
 
 describe('exportPortfolioPdf', () => {
-    it('autoTable çağrılır + doc.save filename', async () => {
-        await exportPortfolioPdf(baseRows, baseSummary, baseMeta, null);
-        expect(autoTableMock).toHaveBeenCalled();
+    it('her bölüm için autoTable + doc.save filename', async () => {
+        let docRef;
+        pdfMock.mockImplementationOnce((doc) => { docRef = doc; });
+        const data = baseData();
+        data.sections = [spotSection(), { ...spotSection(), key: 'FIXED', label: 'Sabit Getiri' }];
+        await exportPortfolioPdf(data, null);
+        expect(autoTableMock).toHaveBeenCalledTimes(2); // 2 bölüm → 2 tablo
+        expect(docRef.save).toHaveBeenCalledWith('portfoy_2026.pdf');
+    });
+
+    it('özet kartları + bölüm başlıkları için roundedRect/text çağrılır', async () => {
+        let docRef;
+        pdfMock.mockImplementationOnce((doc) => { docRef = doc; });
+        await exportPortfolioPdf(baseData(), null);
+        expect(docRef.roundedRect).toHaveBeenCalled();          // özet kart kutuları
+        expect(docRef.text.mock.calls.length).toBeGreaterThan(6);
     });
 
     it('logoDataUrl yoksa addImage çağrılmaz', async () => {
         let docRef;
         pdfMock.mockImplementationOnce((doc) => { docRef = doc; });
-        await exportPortfolioPdf(baseRows, baseSummary, baseMeta, null);
+        await exportPortfolioPdf(baseData(), null);
         expect(docRef.addImage).not.toHaveBeenCalled();
     });
 
     it('logoDataUrl varsa addImage çağrılır', async () => {
         let docRef;
         pdfMock.mockImplementationOnce((doc) => { docRef = doc; });
-        await exportPortfolioPdf(baseRows, baseSummary, baseMeta, 'data:image/png;base64,xxx');
+        await exportPortfolioPdf(baseData(), 'data:image/png;base64,xxx');
         expect(docRef.addImage).toHaveBeenCalled();
-    });
-
-    it('realPnl varsa Reel blok yazılır (doc.text çağrı sayısı artar)', async () => {
-        let docRef;
-        pdfMock.mockImplementationOnce((doc) => { docRef = doc; });
-        const summary = { ...baseSummary, realPnl: 5000, realReturnRate: 10, inflationFactor: 1.5 };
-        await exportPortfolioPdf(baseRows, summary, baseMeta, null);
-        // Reel blok için en az 3 text çağrısı ek olur
-        expect(docRef.text.mock.calls.length).toBeGreaterThan(6);
     });
 });
 

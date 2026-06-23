@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useNotify } from '../../context/NotificationContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
+import { displaySymbol } from '../../utils/symbolDisplay';
 import { exportPortfolioExcel, exportPortfolioPdf, loadLogoDataUrl } from '../../utils/portfolioExport';
 import { portfolioApi } from '../../services/api/portfolioApi';
 import { economyApi } from '../../services/api';
@@ -40,7 +41,7 @@ const PortfolioPage = () => {
     const [sellAsset, setSellAsset] = useState(null);
     const [historySymbol, setHistorySymbol] = useState(null);
     const queryClient = useQueryClient();
-    const { currency, toggleCurrency } = useCurrency();
+    const { currency, toggleCurrency, formatPrice } = useCurrency();
     const notify = useNotify();
 
     // Bakiye gizleme (göz ikonu) — localStorage'da kalıcı
@@ -149,35 +150,124 @@ const PortfolioPage = () => {
     // Excel / PDF dışa aktarma — aktif sekmedeki holding'leri sisteme uygun belgeye döker
     const buildExportData = () => {
         const list = filteredPortfolio || [];
-        const rows = list.map(item => {
-            const calc = calculateProfitLoss(item);
-            return {
-                symbol: item.symbol,
-                type: t('common:assetTypes.' + item.assetType, item.assetType),
-                quantity: item.quantity,
-                avgPrice: item.averagePrice,
-                currentPrice: calc.currentPrice,
-                currentValue: calc.currentValue,
-                pnl: calc.profitLoss,
-                pnlPct: calc.profitLossPercent,
-                currency: nativeCurrencyForType(item.assetType, item.symbol)
-            };
-        });
-        // Maliyet de TRY bazlı (calculateProfitLoss.costValue) — değer/K-Z ile tutarlı olsun
+
+        // Ekrandaki formatlayıcılar (PortfolioStats / HoldingsTable ile birebir): birim fiyatlar
+        // varlığın KENDİ para biriminde; toplam değer / K-Z TRY bazlı; tahvil kotasyonu para değil.
+        const moneyTRY = (v) => formatPrice(v, 'TRY', 2, 2);
+        const moneyNative = (v, nat) => formatPrice(v, nat);
+        const signedTRY = (v) => `${v >= 0 ? '+' : '-'}${formatPrice(Math.abs(v), 'TRY', 2, 2)}`;
+        const pctStr = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
+
+        // --- Üst özet kartlar (PortfolioStats ile aynı hesap) ---
         const totalCost = list.reduce((s, i) => s + (calculateProfitLoss(i).costValue || 0), 0);
-        const totalValue = rows.reduce((s, r) => s + (r.currentValue || 0), 0);
+        const totalValue = list.reduce((s, i) => s + (calculateProfitLoss(i).currentValue || 0), 0);
         const totalPnl = totalValue - totalCost;
         const returnRate = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
-
-        // Enflasyona göre düzeltilmiş reel K/Z (varsa) — her varlık KENDİ alış tarihi faktörüyle
-        // düzeltilir; export'taki çarpan bunların ağırlıklı ortalamasıdır (realCost / totalCost).
+        const pnlUp = totalPnl >= 0;
         const hasReal = inflationFactorBySymbol != null && totalCost > 0;
         const realCost = hasReal
             ? list.reduce((s, i) => s + (calculateProfitLoss(i).costValue || 0) * (inflationFactorBySymbol[i.symbol] || 1), 0)
             : null;
+        const avgFactor = hasReal && totalCost > 0 ? realCost / totalCost : null;
+        const realIsFlat = hasReal && avgFactor <= 1.005;
         const realPnl = hasReal ? totalValue - realCost : null;
         const realReturnRate = hasReal && realCost > 0 ? (realPnl / realCost) * 100 : null;
-        const inflationFactor = hasReal && totalCost > 0 ? realCost / totalCost : null;
+        const realUp = hasReal && realPnl >= 0;
+
+        const cards = [
+            { label: t('portfolio:stats.totalCost'), value: moneyTRY(totalCost) },
+            { label: t('portfolio:stats.totalValue'), value: moneyTRY(totalValue) },
+            { label: t('portfolio:stats.totalPnl'), value: signedTRY(totalPnl), positive: pnlUp },
+            { label: t('portfolio:stats.totalPnlPercent'), value: pctStr(returnRate), positive: pnlUp },
+        ];
+        if (hasReal) {
+            const note = realIsFlat
+                ? `(${t('portfolio:stats.recentBuy', 'yakın tarihli alım')})`
+                : `(${t('portfolio:stats.inflation', 'Enflasyon')} ~×${avgFactor.toFixed(2)})`;
+            cards.push({
+                label: `${t('portfolio:stats.realPnl', 'Reel')} K/Z`,
+                value: signedTRY(realPnl),
+                positive: realUp,
+                sub: `${pctStr(realReturnRate)} ${note}`,
+            });
+        }
+
+        // --- Satır kurucu (HoldingRow ile birebir: rozetler, kotasyon, çarpan, reel K/Z) ---
+        const buildRow = (item) => {
+            const calc = calculateProfitLoss(item);
+            const native = nativeCurrencyForType(item.assetType, item.symbol);
+            const isBond = item.assetType === 'BOND';
+            const isDibs = isBond && String(item.symbol || '').startsWith('TP.');
+            const isViop = item.assetType === 'FUTURE';
+            const isShort = String(item.direction || '').toUpperCase() === 'SHORT';
+            const leverage = Number(item.leverage) || 0;
+            const multiplier = Number(item.contractSize) || 1;
+            const showMultiplier = isViop && multiplier > 1;
+            const tipLabel = isDibs ? 'DİBS'
+                : (isBond && !String(item.symbol || '').startsWith('^')) ? 'Eurobond'
+                : t('common:assetTypes.' + item.assetType, item.assetType);
+            const quoteFmt = (v) => { const n = Number(v) || 0; return isDibs ? `%${n.toFixed(2)}` : n.toFixed(2); };
+            // Varlık etiketi: sembol + (VİOP yön/kaldıraç rozeti) + (günlük değişim %)
+            const dcRaw = getDailyChange ? getDailyChange(item.symbol, item.assetType) : null;
+            const dc = (dcRaw != null && !Number.isNaN(Number(dcRaw))) ? Number(dcRaw) : null;
+            let asset = displaySymbol(item.symbol);
+            if (isViop && item.direction) asset += `  ${isShort ? 'SHORT' : 'LONG'}${leverage > 0 ? ` ${leverage.toFixed(0)}×` : ''}`;
+            if (dc != null) asset += `  (${dc >= 0 ? '+' : ''}${dc.toFixed(2)}%)`;
+            // Reel K/Z (per satır) — maliyet varlığın kendi alış tarihi faktörüyle bugünkü liraya.
+            const f = inflationFactorBySymbol?.[item.symbol];
+            const hasRealRow = f != null && f > 0 && (calc.costValue || 0) > 0;
+            const realCostRow = hasRealRow ? (calc.costValue || 0) * f : null;
+            const realPnlRow = hasRealRow ? (calc.currentValue || 0) - realCostRow : null;
+            const realPctRow = hasRealRow && realCostRow > 0 ? (realPnlRow / realCostRow) * 100 : null;
+            return {
+                asset,
+                type: tipLabel,
+                qty: `${item.quantity}${showMultiplier ? ` × ${multiplier}` : ''}`,
+                avg: isBond ? quoteFmt(item.averagePrice) : moneyNative(item.averagePrice, native),
+                cur: isBond ? quoteFmt(calc.currentPrice) : moneyNative(calc.currentPrice, native),
+                value: moneyTRY(calc.currentValue),
+                pnl: signedTRY(calc.profitLoss),
+                pnlPct: pctStr(calc.profitLossPercent),
+                pnlPositive: calc.profitLoss >= 0,
+                realPnl: realPnlRow == null ? '—' : signedTRY(realPnlRow),
+                realPct: realPctRow == null ? '' : pctStr(realPctRow),
+                realPositive: realPnlRow != null && realPnlRow >= 0,
+            };
+        };
+
+        // --- Doğa bazlı bölümler (HoldingsTable kolon başlıklarıyla; FIXED dinamik başlık) ---
+        const sections = NATURE_ORDER
+            .filter((nat) => list.some((i) => assetNature(i.assetType) === nat))
+            .map((nat) => {
+                const items = list.filter((i) => assetNature(i.assetType) === nat);
+                const isFixed = nat === 'FIXED';
+                const allDibs = isFixed && items.every((it) => String(it.symbol || '').startsWith('TP.'));
+                const allEuro = isFixed && items.every((it) => it.assetType === 'BOND' && !String(it.symbol || '').startsWith('TP.') && !String(it.symbol || '').startsWith('^'));
+                const qtyLabel = isFixed ? t('portfolio:holdings.cols.nominal', 'Nominal') : t('portfolio:holdings.cols.quantity');
+                const avgLabel = !isFixed ? t('portfolio:holdings.cols.avgPrice')
+                    : allEuro ? t('portfolio:holdings.cols.entryCleanPrice', 'Giriş Temiz Fiyatı')
+                    : allDibs ? t('portfolio:holdings.cols.entryYield', 'Giriş Getirisi')
+                    : t('portfolio:holdings.cols.entryQuote', 'Giriş Değeri');
+                const curLabel = !isFixed ? t('portfolio:holdings.cols.currentPrice')
+                    : allEuro ? t('portfolio:holdings.cols.currentCleanPrice', 'Güncel Temiz Fiyat')
+                    : allDibs ? t('portfolio:holdings.cols.currentYield', 'Güncel Getiri')
+                    : t('portfolio:holdings.cols.currentQuote', 'Güncel Değer');
+                const label = nat === 'SPOT' ? t('portfolio:nature.spot', 'Spot')
+                    : nat === 'FIXED' ? t('portfolio:nature.fixed', 'Sabit Getiri')
+                    : t('portfolio:nature.deriv', 'Türev (VİOP)');
+                return {
+                    key: nat, label, count: items.length, isFixed, showReal: hasReal,
+                    headers: {
+                        asset: t('portfolio:holdings.cols.asset'),
+                        type: t('common:labels.type'),
+                        qty: qtyLabel, avg: avgLabel, cur: curLabel,
+                        value: t('portfolio:holdings.cols.totalValue'),
+                        pnl: t('portfolio:holdings.cols.pnl'),
+                        realPnl: t('portfolio:holdings.cols.realPnl', 'Reel K/Z'),
+                    },
+                    rows: items.map(buildRow),
+                };
+            });
 
         const meta = {
             title: t('portfolio:pageTitle'),
@@ -186,41 +276,20 @@ const PortfolioPage = () => {
             dateLabel: t('common:labels.date'),
             fileBase: `finansportal-portfoy-${new Date().toISOString().slice(0, 10)}`,
             footer: 'FinansPortal',
-            headers: {
-                asset: t('portfolio:holdings.cols.asset'),
-                type: t('common:labels.type'),
-                quantity: t('portfolio:holdings.cols.quantity'),
-                avgPrice: t('portfolio:holdings.cols.avgPrice'),
-                currentPrice: t('portfolio:holdings.cols.currentPrice'),
-                value: t('portfolio:holdings.cols.totalValue'),
-                pnl: t('portfolio:holdings.cols.pnl'),
-                pnlPct: t('portfolio:stats.totalPnlPercent'),
-                currency: t('common:labels.currency'),
-                totalCost: t('portfolio:stats.totalCost'),
-                totalValue: t('portfolio:stats.totalValue'),
-                totalPnl: t('portfolio:stats.totalPnl'),
-                returnRate: t('portfolio:stats.totalPnlPercent'),
-                realPnl: `${t('portfolio:stats.realPnl', 'Reel')} ${t('portfolio:stats.totalPnl')}`,
-                realReturnRate: `${t('portfolio:stats.realPnl', 'Reel')} ${t('portfolio:stats.totalPnlPercent')}`,
-                inflationFactor: t('portfolio:stats.inflation', 'Enflasyon Çarpanı')
-            }
+            showReal: hasReal,
         };
-        const summary = {
-            totalCost, totalValue, totalPnl, returnRate,
-            ...(hasReal && { realPnl, realReturnRate, inflationFactor })
-        };
-        return { rows, summary, meta };
+        return { sections, summary: { cards, hasReal }, meta };
     };
 
     const onExportExcel = () => {
-        const { rows, summary, meta } = buildExportData();
-        if (rows.length) exportPortfolioExcel(rows, summary, meta);
+        const data = buildExportData();
+        if (data.sections.length) exportPortfolioExcel(data);
     };
     const onExportPdf = async () => {
-        const { rows, summary, meta } = buildExportData();
-        if (!rows.length) return;
+        const data = buildExportData();
+        if (!data.sections.length) return;
         const logo = await loadLogoDataUrl();
-        await exportPortfolioPdf(rows, summary, meta, logo);
+        await exportPortfolioPdf(data, logo);
     };
 
     const addAssetMutation = useMutation({
