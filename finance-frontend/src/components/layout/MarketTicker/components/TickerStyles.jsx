@@ -9,7 +9,8 @@ export default function TickerStyles() {
             .ticker-container {
                 display: flex;
                 width: max-content;
-                animation: ticker-scroll 40s linear infinite;
+                animation: ticker-scroll linear infinite;
+                will-change: transform;
             }
             .ticker-wrap:hover .ticker-container {
                 animation-play-state: paused;
