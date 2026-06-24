@@ -19,16 +19,9 @@ public class UserDto {
     private String username;
     private String email;
 
-    /** Geçici ban aktif mi (bannedUntil > now). */
     private boolean isBanned;
-
-    /** Kalıcı ban bayrağı. */
     private boolean banPermanent;
-
-    /** Geçici ban bitiş zamanı (varsa). */
     private LocalDateTime bannedUntil;
-
-    /** Lokal DB rolü (USER / ADMIN). */
     private Role role;
 
     /**

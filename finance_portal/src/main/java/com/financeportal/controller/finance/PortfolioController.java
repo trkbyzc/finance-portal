@@ -30,8 +30,6 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
 
-    // ---------- Portföy yönetimi (çoklu adlandırılmış portföy) ----------
-
     @GetMapping("/list")
     @Operation(summary = "Portföylerim", description = "Kullanıcının adlandırılmış portföyleri (en az 'Ana Portföy').")
     public ResponseEntity<List<PortfolioDto>> listPortfolios() {

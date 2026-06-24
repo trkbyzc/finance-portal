@@ -94,8 +94,6 @@ public class GeminiClient implements LlmClient {
         }
     }
 
-    // ---------- request build ----------
-
     private ObjectNode buildRequestBody(LlmRequest req) {
         ObjectNode root = objectMapper.createObjectNode();
 
@@ -178,8 +176,6 @@ public class GeminiClient implements LlmClient {
             case SYSTEM -> "user"; // ulaşmaz — yukarıda filtrelendi
         };
     }
-
-    // ---------- response parse ----------
 
     private LlmResponse parseResponse(String body) {
         try {

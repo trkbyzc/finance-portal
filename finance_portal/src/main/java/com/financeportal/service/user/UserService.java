@@ -76,14 +76,12 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    /** Kullanıcının e-posta bildirim tercihi (default true). */
     public boolean isEmailNotificationsEnabled(UUID userId) {
         return userRepository.findById(userId)
                 .map(User::isEmailNotificationsEnabled)
                 .orElse(false);
     }
 
-    /** Tercihler sayfasından çağrılır — e-posta bildirimini aç/kapat. */
     @Transactional
     public void setEmailNotificationsEnabled(UUID userId, boolean enabled) {
         User user = findUserEntityById(userId);
@@ -116,12 +114,11 @@ public class UserService {
         User user = findUserEntityById(userId);
         String username = user.getUsername();
 
-        // 1) Eski şifre doğru mu?
         if (!keycloakAdminService.verifyPassword(username, oldPassword)) {
             throw new IllegalArgumentException("Mevcut şifre yanlış.");
         }
 
-        // 2) Keycloak user id'si (DB userId = JWT sub = Keycloak user id)
+        // DB userId == JWT sub == Keycloak user UUID; string dönüşümü yeterli
         keycloakAdminService.setPassword(userId.toString(), newPassword);
         log.info("[USER] {} şifresini değiştirdi.", username);
     }

@@ -20,7 +20,7 @@ public class BistIndexChartStrategy implements ChartDataStrategy {
 
     @Override
     public boolean supports(String category, String symbol) {
-        // 🚀 Artık isim listesinde aramıyoruz! Frontend "TR_INDEX" dediyse olay bitmiştir.
+        // Kategori bazlı yönlendirme: sembol listesi yerine "TR_INDEX" category etiketiyle dispatch ediliyor.
         return "TR_INDEX".equalsIgnoreCase(category);
     }
 
@@ -31,7 +31,6 @@ public class BistIndexChartStrategy implements ChartDataStrategy {
 
         log.info("[CHART STRATEGY] BIST Endeks grafiği kendi client'ımızdan çekiliyor: {}", cleanSymbol);
 
-        // 🚀 Yahoo'ya DEĞİL, senin yazdığın BistStockClient'a gidiyor!
         return bistStockClient.fetchIndexHistory(cleanSymbol, range);
     }
 }

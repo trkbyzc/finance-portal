@@ -77,7 +77,6 @@ public class NewsEntityTagger {
         return s.toLowerCase(Locale.of("tr", "TR")).replace('ı', 'i');
     }
 
-    /** Verilen sembol+ad için alias kalıplarını kelime-sınırlı olarak ekler. */
     private void add(String category, String symbol, String name, String... aliases) {
         Related related = new Related(symbol, name, category);
         for (String alias : aliases) {
@@ -90,7 +89,6 @@ public class NewsEntityTagger {
     }
 
     private void buildBistStocks() {
-        // Bankalar
         add(STOCK, "GARAN.IS", "Garanti BBVA", "garanti bbva", "garanti bankası", "garanti");
         add(STOCK, "AKBNK.IS", "Akbank", "akbank");
         add(STOCK, "ISCTR.IS", "İş Bankası", "türkiye iş bankası", "iş bankası", "işbank");
@@ -98,7 +96,6 @@ public class NewsEntityTagger {
         add(STOCK, "VAKBN.IS", "VakıfBank", "vakıfbank", "vakıflar bankası");
         add(STOCK, "HALKB.IS", "Halkbank", "halkbank", "halk bankası");
         add(STOCK, "TSKB.IS", "TSKB", "tskb");
-        // Holdingler
         add(STOCK, "KCHOL.IS", "Koç Holding", "koç holding");
         add(STOCK, "SAHOL.IS", "Sabancı Holding", "sabancı holding", "hacı ömer sabancı");
         add(STOCK, "DOHOL.IS", "Doğan Holding", "doğan holding");
@@ -106,7 +103,6 @@ public class NewsEntityTagger {
         add(STOCK, "ALARK.IS", "Alarko Holding", "alarko");
         add(STOCK, "ENKAI.IS", "Enka İnşaat", "enka inşaat", "enka");
         add(STOCK, "GSDHO.IS", "GSD Holding", "gsd holding");
-        // Sanayi / otomotiv / savunma
         add(STOCK, "ASELS.IS", "Aselsan", "aselsan");
         add(STOCK, "THYAO.IS", "Türk Hava Yolları", "türk hava yolları", "turkish airlines", "thy");
         add(STOCK, "PGSUS.IS", "Pegasus", "pegasus hava", "pegasus");
@@ -128,22 +124,18 @@ public class NewsEntityTagger {
         add(STOCK, "KONTR.IS", "Kontrolmatik", "kontrolmatik");
         add(STOCK, "SMRTG.IS", "Smart Güneş", "smart güneş");
         add(STOCK, "ASTOR.IS", "Astor Enerji", "astor enerji", "astor");
-        // Madencilik
         add(STOCK, "KOZAL.IS", "Koza Altın", "koza altın");
         add(STOCK, "KOZAA.IS", "Koza Anadolu", "koza anadolu");
         add(STOCK, "IPEKE.IS", "İpek Doğal Enerji", "ipek enerji");
-        // Telekom / teknoloji
         add(STOCK, "TCELL.IS", "Turkcell", "turkcell");
         add(STOCK, "TTKOM.IS", "Türk Telekom", "türk telekom");
         add(STOCK, "LOGO.IS", "Logo Yazılım", "logo yazılım");
         add(STOCK, "KAREL.IS", "Karel Elektronik", "karel elektronik");
-        // Enerji
         add(STOCK, "ENJSA.IS", "Enerjisa", "enerjisa");
         add(STOCK, "AKSEN.IS", "Aksa Enerji", "aksa enerji");
         add(STOCK, "ZOREN.IS", "Zorlu Enerji", "zorlu enerji");
         add(STOCK, "AYGAZ.IS", "Aygaz", "aygaz");
         add(STOCK, "TRGYO.IS", "Torunlar GYO", "torunlar gyo");
-        // Perakende / gıda / içecek
         add(STOCK, "BIMAS.IS", "BİM", "bim mağazaları", "bim birleşik mağazalar");
         add(STOCK, "MGROS.IS", "Migros", "migros");
         add(STOCK, "SOKM.IS", "ŞOK Marketler", "şok marketler", "şok market");
@@ -152,11 +144,9 @@ public class NewsEntityTagger {
         add(STOCK, "AEFES.IS", "Anadolu Efes", "anadolu efes");
         add(STOCK, "TATGD.IS", "Tat Gıda", "tat gıda");
         add(STOCK, "TUKAS.IS", "Tukaş", "tukaş");
-        // Çimento / inşaat
         add(STOCK, "CIMSA.IS", "Çimsa", "çimsa");
         add(STOCK, "AKCNS.IS", "Akçansa", "akçansa");
         add(STOCK, "OYAKC.IS", "Oyak Çimento", "oyak çimento");
-        // GYO
         add(STOCK, "EKGYO.IS", "Emlak Konut GYO", "emlak konut");
         add(STOCK, "ISGYO.IS", "İş GYO", "iş gyo");
     }

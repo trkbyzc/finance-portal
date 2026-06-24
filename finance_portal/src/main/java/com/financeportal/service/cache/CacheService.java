@@ -11,13 +11,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Redis cache işlemlerini merkezileştiren service
- * Tüm cache read/write işlemleri bu service üzerinden yapılır
- *
- * Avantajlar:
- * - Cache logic bir yerde
- * - Exception handling merkezileştirilmiş
- * - getOrFetch pattern ile kod tekrarı ortadan kalkar
+ * Redis cache işlemlerini merkezileştiren service; exception handling ve getOrFetch
+ * pattern burada tutulur, çağıran kod cache varlığından habersiz kalır.
  */
 @Service
 @RequiredArgsConstructor
@@ -26,13 +21,6 @@ public class CacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    /**
-     * Cache'e veri yazma
-     *
-     * @param key Cache anahtarı
-     * @param data Saklanacak veri
-     * @param durationInMinutes Cache süresi (dakika cinsinden)
-     */
     public void save(String key, Object data, long durationInMinutes) {
         try {
             redisTemplate.opsForValue().set(key, data, Duration.ofMinutes(durationInMinutes));
@@ -42,12 +30,6 @@ public class CacheService {
         }
     }
 
-    /**
-     * Cache'ten veri okuma
-     *
-     * @param key Cache anahtarı
-     * @return Cached veri (varsa), yoksa boş ArrayList
-     */
     @SuppressWarnings("unchecked")
     public <T> List<T> get(String key) {
         try {
@@ -64,34 +46,20 @@ public class CacheService {
     }
 
     /**
-     * Cache'ten getir, yoksa fetcher'ı çalıştır ve cache'e yaz
-     *
-     * Pattern:
-     * List<Data> result = cacheService.getOrFetch(
-     *     "cache:key",
-     *     () -> apiClient.fetchData(),
-     *     60  // 60 dakika cache
-     * );
-     *
-     * @param key Cache anahtarı
-     * @param fetcher Cache'de yoksa çalıştırılacak supplier
-     * @param durationInMinutes Cache süresi
-     * @return Cached ya da yeni fetch edilen veri
+     * Cache'te varsa döner, yoksa fetcher supplier'ını çalıştırıp sonucu cache'e yazar.
+     * Örnek: cacheService.getOrFetch("market:bist", () -> api.fetchBist(), 60)
      */
     public <T> List<T> getOrFetch(String key, Supplier<List<T>> fetcher, long durationInMinutes) {
         try {
-            // Önce cache'te kontrol et
             List<T> cached = get(key);
             if (!cached.isEmpty()) {
                 log.debug("📦 Cache kullanılıyor: {}", key);
                 return cached;
             }
 
-            // Cache'te yoksa, veri çek
             log.debug("🔄 Cache boş, veri çekiliyor: {}", key);
             List<T> fresh = fetcher.get();
 
-            // Yeni veriyi cache'e yaz
             if (!fresh.isEmpty()) {
                 save(key, fresh, durationInMinutes);
                 log.info("✨ Yeni veri çekildi ve cache'e yazıldı: {}", key);
@@ -104,11 +72,6 @@ public class CacheService {
         }
     }
 
-    /**
-     * Belirli bir key'i cache'ten sil
-     *
-     * @param key Silinecek cache anahtarı
-     */
     public void delete(String key) {
         try {
             redisTemplate.delete(key);
@@ -118,11 +81,7 @@ public class CacheService {
         }
     }
 
-    /**
-     * Pattern ile matching cache'leri sil
-     *
-     * @param pattern Redis pattern (ör: "cache:*")
-     */
+    // Redis glob pattern (ör: "market:*") ile eşleşen tüm key'leri siler.
     public void deletePattern(String pattern) {
         try {
             var keys = redisTemplate.keys(pattern);
@@ -135,9 +94,6 @@ public class CacheService {
         }
     }
 
-    /**
-     * Cache'te bir key'in var olup olmadığını kontrol et
-     */
     public boolean exists(String key) {
         try {
             Boolean exists = redisTemplate.hasKey(key);
@@ -148,9 +104,6 @@ public class CacheService {
         }
     }
 
-    /**
-     * Cache'in TTL (Time To Live) süresini al
-     */
     public long getTtl(String key) {
         try {
             Long ttl = redisTemplate.getExpire(key);

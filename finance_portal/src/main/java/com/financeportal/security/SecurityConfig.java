@@ -29,7 +29,7 @@ import java.util.Map;
 public class SecurityConfig {
 
     private final UserBanFilter userBanFilter;
-    private final UserSyncFilter userSyncFilter; // 🚀 EKLENDİ - Senkronizasyon filtremiz
+    private final UserSyncFilter userSyncFilter;
     private final SessionRevocationFilter sessionRevocationFilter; // Admin force-logout için
 
     /**
@@ -55,8 +55,6 @@ public class SecurityConfig {
                         .requestMatchers("/news/**").permitAll()
                         .requestMatchers("/interest/**").permitAll()
                         .requestMatchers("/economic-calendar/**").permitAll()
-                        // 🚀 DİKKAT: "/api/auth/**" ve "POST /api/users" silindi!
-                        // Artık Keycloak harici arka kapıdan kimse kayıt veya token isteği atamaz.
                         .anyRequest().authenticated()
                 )
                 // 1. Token Geçerli mi? (Spring Security arka planda Keycloak ile kontrol eder)
@@ -95,8 +93,6 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Origin listesi env var'dan (CORS_ALLOWED_ORIGINS). "*" YASAK — allowCredentials=true ile
-        // CSRF zafiyeti yaratır. Default sadece localhost (any port) dev için.
         configuration.setAllowedOriginPatterns(Arrays.asList(corsAllowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));

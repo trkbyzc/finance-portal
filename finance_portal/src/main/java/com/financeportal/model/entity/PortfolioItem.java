@@ -19,7 +19,7 @@ public class PortfolioItem {
     @Id
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Performans için Lazy yapılması önerilir
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -36,10 +36,10 @@ public class PortfolioItem {
     private AssetType assetType;
 
     @Column(nullable = false, precision = 19, scale = 6)
-    private BigDecimal quantity; // Adet veya Miktar
+    private BigDecimal quantity;
 
     @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal averagePrice; // Ortalama Alış Maliyeti
+    private BigDecimal averagePrice;
 
     // VİOP sözleşme büyüklüğü (çarpan): nominal = fiyat × çarpan × adet.
     // VİOP dışı varlıklarda 1. Pozisyon ekleme anındaki değer snapshot'lanır.

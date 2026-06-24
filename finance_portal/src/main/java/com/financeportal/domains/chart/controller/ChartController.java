@@ -27,7 +27,6 @@ public class ChartController {
     @Operation(summary = "Varlıklar İçin Detaylı Tarihsel Fiyat Verilerini Getir")
     public ResponseEntity<List<HistoricalDataDto>> getHistoricalData(
             @RequestParam String symbol,
-            // 🚀 DÜZELTME 1: Kategori parametresi eklendi!
             @RequestParam(required = false, defaultValue = "UNKNOWN") String category,
             @RequestParam(defaultValue = "1mo") String range,
             @RequestParam(defaultValue = "1d") String interval,

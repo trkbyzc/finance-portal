@@ -36,7 +36,7 @@ public class TurkishBondSyncService {
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class) // Sistem ayağa kalktığında ilk verileri çeker
-    @Scheduled(cron = "0 30 16 * * ?") // Her gün 16:30'da
+    @Scheduled(cron = "0 30 16 * * ?")
     public void syncTurkishBonds() {
         try {
         log.info("[EVDS-TR-BOND] Türk Tahvil verileri çekiliyor...");
@@ -73,7 +73,9 @@ public class TurkishBondSyncService {
                                 "date", cleanDate, "time", cleanDate,
                                 "close", val, "value", val, "rate", val
                         ));
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                        // EVDS bazen "dd-MM-yyyy" dışı format döndürür; geçersiz satır atlanır.
+                    }
                 }
             }
 

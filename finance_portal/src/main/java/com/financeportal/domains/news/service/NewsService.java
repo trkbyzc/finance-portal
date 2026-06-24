@@ -197,7 +197,6 @@ public class NewsService {
         return requestedTr != null && newsCategory.equalsIgnoreCase(requestedTr);
     }
 
-    /** EN kategori adını TR canonical'a çevirir. */
     private String canonicalTr(String value) {
         if (value == null) return null;
         return switch (value.toLowerCase()) {

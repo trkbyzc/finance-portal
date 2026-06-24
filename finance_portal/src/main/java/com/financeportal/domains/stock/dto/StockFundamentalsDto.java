@@ -24,7 +24,6 @@ public class StockFundamentalsDto {
     private String sector;       // İş Yatırım (örn. "Savunma", "Banka")
     private String currency;     // Yahoo (örn. "TRY")
 
-    // Yahoo chart meta
     private Double price;
     private Double previousClose;
     private Double dayLow;
@@ -33,7 +32,6 @@ public class StockFundamentalsDto {
     private Double week52High;
     private Long volume;
 
-    // İş Yatırım Özet
     private Double marketCapTl;   // gerçek TL (mn TL × 1e6)
     private Double marketCapUsd;  // gerçek USD (mn $ × 1e6)
     private Double freeFloatPct;  // halka açıklık %

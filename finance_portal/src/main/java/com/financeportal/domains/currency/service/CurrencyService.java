@@ -55,7 +55,9 @@ public class CurrencyService {
                 try {
                     LocalDate d = LocalDate.parse(dateStr);
                     if (!d.isBefore(cutoff)) filtered.add(point);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                    // Bozuk tarih formatı (null/boş olmayan ama parse edilemeyen) veriyi sessizce atla; tek hatalı kayıt tüm seriyi kesmemeli.
+                }
             }
             return filtered;
         } catch (Exception e) {

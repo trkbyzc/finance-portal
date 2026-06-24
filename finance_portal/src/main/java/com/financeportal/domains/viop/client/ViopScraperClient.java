@@ -1,4 +1,4 @@
-package com.financeportal.domains.viop.client;
+﻿package com.financeportal.domains.viop.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +36,9 @@ public class ViopScraperClient {
                     String upperName = fullName.toUpperCase(new Locale("tr", "TR"));
 
                     if (!fullName.isEmpty()) {
+                        // Opsiyon satırlarını atla; yalnızca vadeli işlem (futures) kontratlarını işle
                         if (upperName.contains("ALIM") || upperName.contains("SATIM") || upperName.matches(".*\\sC\\s.*") || upperName.matches(".*\\sP\\s.*") || upperName.contains("OPSİYON") || upperName.contains("PUT") || upperName.contains("CALL")) continue;
+                        // Vade ifadesi içermeyen satırlar tablo başlığı veya grup etiketi; geç
                         if (!upperName.contains("VADE") && !upperName.matches(".*(OCAK|ŞUBAT|MART|NİSAN|MAYIS|HAZİRAN|TEMMUZ|AĞUSTOS|EYLÜL|EKİM|KASIM|ARALIK).*")) continue;
 
                         String priceStr = cols.get(1).text().replace(".", "").replace(",", ".").trim();
@@ -55,6 +57,7 @@ public class ViopScraperClient {
                             String baseStockCode = fullName.split(" ")[0].trim();
                             dto.setSymbol(fullName);
                             dto.setName(fullName);
+                            // Endeks/emtia/döviz bazlı kontratlar Yahoo sembolünde ".IS" suffix almaz
                             dto.setYahooSymbol((baseStockCode.equals("BİST") || baseStockCode.equals("ONS") || baseStockCode.equals("DOLAR/TL") || baseStockCode.equals("EURO/TL")) ? baseStockCode : baseStockCode + ".IS");
                             viopList.add(dto);
                         }
@@ -98,6 +101,7 @@ public class ViopScraperClient {
                     HistoricalDataDto dto = new HistoricalDataDto();
                     dto.setTimestamp(point.get(0).asLong());
                     BigDecimal price = BigDecimal.valueOf(point.get(1).asDouble());
+                    // IsYatirim chart endpoint tek fiyat noktası döndürür; OHLC aynı değere eşitlenir
                     dto.setOpen(price); dto.setHigh(price); dto.setLow(price); dto.setClose(price); dto.setVolume(0L);
                     history.add(dto);
                 }
@@ -109,6 +113,7 @@ public class ViopScraperClient {
         return history;
     }
 
+    /** IsYatirim grafik API'sinin beklediği "F_<BASE><MM><YY>" formatına çevirir (örn. "XU030 HAZİRAN 2025 VADELI" → "F_XU03006025"). */
     private String convertToIsYatirimFormat(String fullName) {
         try {
             fullName = fullName.toUpperCase(new Locale("tr", "TR"));
@@ -130,6 +135,7 @@ public class ViopScraperClient {
             String year = String.valueOf(LocalDateTime.now().getYear()).substring(2);
             for (String part : fullName.split(" ")) { if (part.matches("\\d{4}")) { year = part.substring(2); break; } }
             return "F_" + base + month + year;
+        // Parse hatası durumunda orijinal adı döndür; upstream log zaten hatayı yakalar
         } catch (Exception e) { return fullName; }
     }
 

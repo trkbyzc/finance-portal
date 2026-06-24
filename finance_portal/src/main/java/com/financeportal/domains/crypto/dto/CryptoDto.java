@@ -10,15 +10,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CryptoDto {
-    private String currencyCode; // Örn: BTC, ETH
-    private String currencyName; // Örn: Kripto - Bitcoin
+    private String currencyCode;
+    private String currencyName;
     private BigDecimal forexBuying;
     private BigDecimal forexSelling; // Anlık Fiyat (Frontend ve Portföy burayı okuyor)
     private BigDecimal changePercent;
 
     private String yahooSymbol;   // Örn: BTC-USD (Grafikler için)
-    private String chartType;     // "CANDLE"
-    private String assetCategory; // "CRYPTO"
+    private String chartType;
+    private String assetCategory;
 
     private String image;         // CoinGecko coin logo URL'i (gerçek ikon — CDN tahmini yerine)
     private String geckoId;       // CoinGecko coin id'si (örn. "bitcoin") — OHLC grafik fallback'i için

@@ -78,7 +78,6 @@ public class TurkishGoldChartStrategy implements ChartDataStrategy {
             return List.of();
         }
 
-        // USDTRY'yi date'e göre indexle (O(1) lookup).
         Map<LocalDate, BigDecimal> usdMap = new HashMap<>();
         for (HistoricalDataDto p : usd) {
             if (p.getDate() != null && p.getClose() != null && p.getClose().signum() > 0) {

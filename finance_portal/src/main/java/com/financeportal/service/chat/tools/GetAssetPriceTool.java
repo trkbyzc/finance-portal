@@ -12,10 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Bir varlığın anlık fiyatını döner.
- * Kullanıcı "BTC ne kadar", "Apple hissesi kaç dolar" gibi sorularda bunu çağırır.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

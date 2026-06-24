@@ -61,7 +61,6 @@ public class BistStockClient {
                     if (values != null && values.size() >= 3) {
                         Object priceObj = values.get(0).get("v");
                         // close null ise (kapalı seans / Fintables veri yok) atla — StockService last-good cache'e düşer.
-                        // Tek continue: hem priceObj instanceof Number değilse hem fiyat <= 0 ise.
                         boolean validPrice = priceObj instanceof Number
                                 && new BigDecimal(priceObj.toString()).compareTo(BigDecimal.ZERO) > 0;
                         if (!validPrice) continue;
@@ -71,7 +70,7 @@ public class BistStockClient {
                         dto.setSymbol(symbol + ".IS");
                         dto.setYahooSymbol(symbol + ".IS");
                         dto.setName(symbol);
-                        dto.setImage(logoClient.bistLogo(symbol)); // TradingView şirket logosu (yoksa null)
+                        dto.setImage(logoClient.bistLogo(symbol));
                         dto.setAssetType("HİSSE SENEDİ");
                         dto.setAssetCategory("STOCK");
                         dto.setChartType("CANDLE");

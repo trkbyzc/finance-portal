@@ -10,17 +10,16 @@ public class PortfolioItemDto {
     private String symbol;
     private String assetType;
     private BigDecimal quantity;
-    private BigDecimal averagePrice;    // Maliyetimiz (Alış)
+    private BigDecimal averagePrice;
     private BigDecimal contractSize;    // VİOP çarpanı (diğer varlıklarda 1)
     private BigDecimal totalCost;       // Adet * Çarpan * Maliyet (Toplam Maliyet)
 
-    // -- YENİ EKLENEN (İSTERLER 4. MADDE) --
-    private BigDecimal currentPrice;    // Anlık Piyasa Fiyatı
+    private BigDecimal currentPrice;
     private BigDecimal currentValue;    // Güncel Değer (Adet * Anlık Fiyat)
     private BigDecimal profitLoss;      // Kar/Zarar (TL bazlı)
     private BigDecimal profitLossPct;   // Kar/Zarar (Yüzde bazlı)
 
-    // -- VİOP UZANTISI (yalnızca FUTURE pozisyonlarda dolu; VİOP dışında null) --
+    // VİOP uzantısı — yalnızca FUTURE pozisyonlarda dolu; diğer varlık türlerinde null
     private String direction;           // Pozisyon yönü: LONG / SHORT
     private BigDecimal notional;        // Notional = adet × güncelFiyat × çarpan (piyasada kontrol edilen tutar)
     private BigDecimal marginPosted;    // Bağlanan teminat (VİOP'ta gerçek maliyet — totalCost bununla aynı)

@@ -77,8 +77,6 @@ public class PriceAlarmService {
         alarmRepo.delete(requireOwned(alarmId));
     }
 
-    // ---------- internal ----------
-
     private void validate(CreatePriceAlarmRequest req) {
         if (req.getSymbol() == null || req.getSymbol().isBlank()) {
             throw new IllegalArgumentException("symbol boş olamaz");
@@ -90,6 +88,7 @@ public class PriceAlarmService {
         }
     }
 
+    // Sahiplik hatası da ResourceNotFoundException fırlatır: başkasının alarm ID'sinin varlığını sızdırmamak için.
     private PriceAlarm requireOwned(UUID alarmId) {
         UUID userId = securityUtils.getCurrentUserId();
         PriceAlarm a = alarmRepo.findById(alarmId)

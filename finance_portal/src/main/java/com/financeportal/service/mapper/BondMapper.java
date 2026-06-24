@@ -14,8 +14,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BondMapper {
 
-    // 🚀 ÇÖZÜM: RedisTemplate yerine StringRedisTemplate kullanıyoruz!
-    // Bu sayede Python'dan gelen saf JSON string'ini hiç bozulmadan alıyoruz.
+    // RedisTemplate yerine StringRedisTemplate kullanılır; Python tarafından yazılan saf JSON string'i
+    // deserialize edilmeden doğrudan okunur, böylece veri bozulması önlenir.
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -25,7 +25,6 @@ public class BondMapper {
 
 
         Map<String, String[]> bondConfig = new LinkedHashMap<>();
-        // 🚀 ÇÖZÜM: Yeni seçtiğimiz kodlar ve gerçek vade tarihleri
         bondConfig.put("evds:benchmark:1m",  new String[]{"Kısa Vadeli", "TP.TRD080726K10", "8 Tem 2026"});
         bondConfig.put("evds:benchmark:3m",  new String[]{"1+ Yıl",      "TP.TRD070727K10", "7 Tem 2027"});
         bondConfig.put("evds:benchmark:6m",  new String[]{"2+ Yıl",      "TP.TRT050728K21", "5 Tem 2028"});
@@ -63,7 +62,6 @@ public class BondMapper {
         log.warn("⚠️ Tahvil verisi boş, yeni fallback verileri kullanılıyor");
         List<Map<String, Object>> bonds = new ArrayList<>();
 
-        // 🚀 DÜZELTME: Fallback verilerini senin seçtiğin yeni kodlarla güncelledik
         String[] displayNames = {"Kısa Vadeli", "1+ Yıl", "2+ Yıl", "3+ Yıl", "4+ Yıl", "5 Yıl+", "10 Yıl+"};
         String[] symbols = {"TP.TRD080726K10", "TP.TRD070727K10", "TP.TRT050728K21", "TP.TRT040729K21", "TP.TRT020130K18", "TP.TRT120331K39", "TP.TRT070335K16"};
         String[] dates = {"8 Tem 2026", "7 Tem 2027", "5 Tem 2028", "4 Tem 2029", "2 Oca 2030", "12 Mar 2031", "7 Mar 2035"};

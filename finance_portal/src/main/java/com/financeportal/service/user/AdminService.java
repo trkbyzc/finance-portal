@@ -32,8 +32,6 @@ public class AdminService {
     private final KeycloakAdminService keycloakAdminService;
     private final SecurityUtils securityUtils;
 
-    // ---------- LISTING ----------
-
     @Transactional(readOnly = true)
     public Page<UserDto> searchUsers(String q, String roleFilter, Boolean bannedFilter, int page, int size) {
         Pageable pageable = PageRequest.of(
@@ -81,8 +79,6 @@ public class AdminService {
         };
     }
 
-    // ---------- BAN OPERATIONS ----------
-
     @Transactional
     public void banUser(UUID userId, int days) {
         User user = findOrThrow(userId);
@@ -112,8 +108,6 @@ public class AdminService {
         log.info("[ADMIN] {} kullanıcısının banı kaldırıldı.", user.getUsername());
     }
 
-    // ---------- SESSION ----------
-
     /**
      * İki katmanlı revocation:
      *   (1) Keycloak'ta refresh token'lar iptal edilir (yeni token üretilemez).
@@ -131,8 +125,6 @@ public class AdminService {
                 user.getUsername(), ok ? "OK" : "BAŞARISIZ");
         return ok;
     }
-
-    // ---------- DELETE ----------
 
     /**
      * Kullanıcıyı hem Keycloak'tan hem DB'den siler. Keycloak'ta yoksa
@@ -163,8 +155,6 @@ public class AdminService {
     }
 
     public record DeleteResult(boolean dbDeleted, boolean keycloakDeleted, String username) {}
-
-    // ---------- HELPERS ----------
 
     private User findOrThrow(UUID userId) {
         return userRepository.findById(userId)

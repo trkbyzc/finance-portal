@@ -11,12 +11,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Order(9999) // 🚀 KESİNLİKLE EN SON ÇALIŞACAK! Diğer özel kurallardan kaçanlar buraya düşer.
+@Order(9999) // Catch-all fallback: diğer tüm stratejilerden sonra çalışır; özel kuralı olmayan semboller buraya düşer.
 @RequiredArgsConstructor
 @Slf4j
 public class YahooDefaultChartStrategy implements ChartDataStrategy {
 
-    // 🚀 DİKKAT: YahooSymbolResolver'ı BURADAN SİLDİK! Artık tahmin/varsayım yok.
     private final YahooChartClient yahooChartClient;
 
     @Override
@@ -30,7 +29,7 @@ public class YahooDefaultChartStrategy implements ChartDataStrategy {
         String clean = (symbol != null) ? symbol.trim().toUpperCase() : "UNKNOWN";
         log.info("[CHART STRATEGY] Yahoo Default grafiği çekiliyor. Gelen Saf Sembol: {}", clean);
 
-        // 🚀 Frontend'den nasıl geldiyse (AAPL, PEPE-USD, GC=F) DOĞRUDAN Yahoo'ya gidiyor!
+        // Sembol herhangi bir dönüşüm yapılmadan (AAPL, PEPE-USD, GC=F) Yahoo'ya doğrudan iletilir.
         return yahooChartClient.fetchChartHistory(clean, range, interval, startDate, endDate);
     }
 }

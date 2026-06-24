@@ -42,7 +42,7 @@ public class FredClient {
     @Value("${external-api.fred.api-key:}")
     private String apiKey;
 
-    private static final DateTimeFormatter FRED_DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
+    private static final DateTimeFormatter FRED_DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public List<Map<String, Object>> fetchObservations(String seriesId, LocalDate start, LocalDate end) {
         if (apiKey == null || apiKey.isBlank()) {
@@ -79,7 +79,9 @@ public class FredClient {
                                 "label", parsedDate.format(DateTimeFormatter.ofPattern("yyyy-MM")),
                                 "value", value
                         ));
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                        // Geçersiz tarih veya sayı formatındaki tek bir gözlemi atlayıp devam et; tüm batch iptal edilmemeli.
+                    }
                 }
                 log.info("[FRED] {} için {} gözlem alındı.", seriesId, result.size());
                 return result;

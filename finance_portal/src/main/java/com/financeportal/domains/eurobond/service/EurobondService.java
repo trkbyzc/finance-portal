@@ -31,7 +31,7 @@ import java.util.Locale;
 public class EurobondService {
 
     private static final String CACHE_KEY = "cache:eurobonds";
-    private static final long CACHE_TTL_MINUTES = 360; // 6 saat
+    private static final long CACHE_TTL_MINUTES = 360;
 
     private final EurobondCatalog catalog;
     private final BusinessInsiderBondClient client;
@@ -117,6 +117,7 @@ public class EurobondService {
                     detail.getCoupon().doubleValue(), years);
             return BigDecimal.valueOf(ytm).setScale(2, RoundingMode.HALF_UP);
         } catch (Exception e) {
+            // YTM hesabı parse veya matematik hatasıyla sonuçlanırsa getiri sütunu "—" kalır; fiyat/kupon yine gösterilir.
             return null;
         }
     }

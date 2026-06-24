@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Order(1) // 🚀 İlk sırada çalışıp VİOP'u yakalayacak
+@Order(1) // Strategy chain'de ilk sıraya alındı; VIOP sembollerini diğer stratejiler denemeden yakalar
 @RequiredArgsConstructor
 @Slf4j
 public class ViopChartStrategy implements ChartDataStrategy {
@@ -20,7 +20,6 @@ public class ViopChartStrategy implements ChartDataStrategy {
 
     @Override
     public boolean supports(String category, String symbol) {
-        // 🚀 Kategori bazlı mimari: Sadece VIOP gelirse devreye girer
         boolean isMatch = "VIOP".equalsIgnoreCase(category);
 
         if (isMatch) {
@@ -33,7 +32,6 @@ public class ViopChartStrategy implements ChartDataStrategy {
     @Override
     public List<HistoricalDataDto> fetchHistoricalData(String symbol, String range, String interval, String startDate, String endDate) {
         log.info("[CHART STRATEGY] VİOP grafiği çekiliyor: {}", symbol);
-        // Servise orijinal sembolü trim'leyerek gönderiyoruz
         return viopScraperClient.fetchViopHistoryFromIsYatirim(symbol != null ? symbol.trim() : "", range);
     }
 }

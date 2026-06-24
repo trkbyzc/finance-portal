@@ -58,15 +58,13 @@ public class CurrencySyncService {
             Map.entry("RUB", "TP.DK.RUB.S.YTL")
     );
 
-    @EventListener(ApplicationReadyEvent.class) // PROJE AÇILIR AÇILMAZ ÇALIŞTIR!
+    @EventListener(ApplicationReadyEvent.class)
     @Scheduled(fixedRate = 3600000)
     public void fetchAndCacheCurrencyRates() {
         long startTime = System.currentTimeMillis();
         try {
-            // 1. Önce EVDS'den tarihçeleri (5 yıllık) çekip Redis'e basalım
             syncEvdsCurrencyHistories();
 
-            // 2. Ardından bugünün canlı verisini çekelim (Redis hesaplayacak)
             List<CurrencyDto> rates = tcmbIntegrationClient.fetchTcmbCurrencyRates();
             if (rates != null && !rates.isEmpty()) {
                 cacheService.save("cache:currencies", rates, 60);
@@ -108,7 +106,9 @@ public class CurrencySyncService {
                         try {
                             LocalDate date = LocalDate.parse(dateStr, formatter);
                             historyList.add(Map.of("date", date.toString(), "close", val));
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                            // EVDS zaman zaman "YYYY-MM" veya boş tarih döner; parse edilemeyen noktalar atlanır.
+                        }
                     }
                 }
 

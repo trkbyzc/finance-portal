@@ -41,8 +41,6 @@ public class PortfolioService {
     private final PortfolioTradeService tradeService;
     private final PortfolioAnalyticsService analyticsService;
 
-    // ---------- Portföy yönetimi (çoklu adlandırılmış portföy) ----------
-
     @Transactional
     public List<PortfolioDto> listPortfolios() {
         UUID userId = securityUtils.getCurrentUserId();
@@ -109,8 +107,6 @@ public class PortfolioService {
         }
         return getOrCreateDefault(userId);
     }
-
-    // ---------- İşlemler (portföy bazlı) ----------
 
     @Transactional(rollbackFor = Exception.class)
     public void addManualEntry(TradeRequestDto request) {

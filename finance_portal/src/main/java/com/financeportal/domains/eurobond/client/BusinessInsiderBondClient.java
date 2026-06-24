@@ -45,7 +45,6 @@ public class BusinessInsiderBondClient {
         this.restTemplate = restTemplate;
     }
 
-    // --- Regex desenleri (doğrulanmış HTML yapısına göre) ---
     private static final Pattern P_TKDATA = Pattern.compile("TKData\"\\s*:\\s*\"([0-9,]+)\"");
     private static final Pattern P_CURRENCY = Pattern.compile("\"Currency\"\\s*:\\s*\"([A-Z]{3})\"");
     private static final Pattern P_COUPON = Pattern.compile("coupon of\\s*([0-9.,]+)\\s*%", Pattern.CASE_INSENSITIVE);

@@ -36,12 +36,11 @@ public class TradingViewLogoClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    // BİST: ticker(UPPER) → logoid
     // S3077: volatile referans concurrent write'ı korumaz; thread-safe Map kullan.
     private final java.util.concurrent.ConcurrentMap<String, String> bistCache = new java.util.concurrent.ConcurrentHashMap<>();
     private final java.util.concurrent.atomic.AtomicLong bistLastFetch = new java.util.concurrent.atomic.AtomicLong(0L);
 
-    // ABD: ticker(UPPER) → logoid ("" = logosu yok, tekrar sorgulanmasın)
+    // "" sentinel: logosu olmayan semboller tekrar sorgulanmasın diye boş string ile işaretlenir.
     private final java.util.concurrent.ConcurrentMap<String, String> usCache = new java.util.concurrent.ConcurrentHashMap<>();
     private final java.util.concurrent.atomic.AtomicLong usLastFetch = new java.util.concurrent.atomic.AtomicLong(0L);
 
@@ -53,7 +52,6 @@ public class TradingViewLogoClient {
         return code == null ? null : code.trim().toUpperCase().replace(".IS", "");
     }
 
-    // ---------------------------------------------------------------- BİST
     /** BİST sembolüne (ASELS / ASELS.IS) göre logo URL'i; yoksa null. */
     public String bistLogo(String code) {
         if (code == null) return null;
@@ -73,12 +71,11 @@ public class TradingViewLogoClient {
         }
     }
 
-    // ---------------------------------------------------------------- ABD
     /** Verilen ABD sembolleri için {sembol → logoUrl} (logosu olmayanlar haritada yer almaz). */
     public synchronized Map<String, String> usLogos(Collection<String> symbols) {
         if (symbols == null || symbols.isEmpty()) return Map.of();
         if (System.currentTimeMillis() - usLastFetch.get() >= REFRESH_MS) {
-            usCache.clear(); // 24s'te bir tazele
+            usCache.clear();
         }
         List<String> missing = symbols.stream().map(this::norm)
                 .filter(Objects::nonNull).distinct()
@@ -153,7 +150,6 @@ public class TradingViewLogoClient {
         }
     }
 
-    // ---------------------------------------------------------------- Emtia
     // Yahoo futures sembolü → TradingView logo slug'ı.
     private static final Map<String, String> COMMODITY_SLUGS = Map.ofEntries(
             Map.entry("GC=F", "metal/gold"),
@@ -184,7 +180,6 @@ public class TradingViewLogoClient {
         return slug != null ? LOGO_BASE + slug + ".svg" : null;
     }
 
-    // ---------------------------------------------------------------- ortak
     private Map<String, String> fetchScanner(String market, String body) {
         try {
             HttpHeaders h = new HttpHeaders();

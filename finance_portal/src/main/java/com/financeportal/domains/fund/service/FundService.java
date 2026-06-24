@@ -20,8 +20,7 @@ import java.util.Map;
 public class FundService {
 
     private final TefasFundClient tefasFundClient;
-    // ŞUNA DÖNÜŞTÜRÜN:
-    private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
+    private final YahooQuoteClient yahooFinanceClient;
     private final CacheService cacheService;
     private final TradingViewLogoClient logoClient;
 
@@ -43,11 +42,13 @@ public class FundService {
         return cacheService.getOrFetch("cache:tr_funds", tefasFundClient::fetchTefasFunds, 60);
     }
 
+    // Her saat cache'i önceden doldurmak için global ETF fiyatlarını Yahoo'dan çeker.
     @Scheduled(fixedRate = 3600000)
     public void syncGlobalFunds() {
         getGlobalFunds();
     }
 
+    // Her saat TEFAS'tan TR fon fiyatlarını çekip cache'e yazar; boş yanıt gelirse mevcut cache korunur.
     @Scheduled(fixedRate = 3600000)
     public void syncTrFunds() {
         List<FundDto> list = tefasFundClient.fetchTefasFunds();

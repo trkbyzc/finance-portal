@@ -1,7 +1,7 @@
 package com.financeportal.domains.economy.controller;
 
 import com.financeportal.domains.economy.dto.EconomyDto;
-import com.financeportal.domains.economy.service.EconomyService; // 🚀 DİKKAT: SyncService DEĞİL!
+import com.financeportal.domains.economy.service.EconomyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Tag(name = "Makro Ekonomi", description = "Türkiye Enflasyon, İşsizlik ve Faiz Verileri")
 public class EconomyController {
 
-    private final EconomyService economyService; // 🚀 BURASI DÜZELTİLDİ
+    private final EconomyService economyService;
 
     @GetMapping("/economy")
     @Operation(summary = "Temel Ekonomik Göstergeleri Getir (Canlı)")

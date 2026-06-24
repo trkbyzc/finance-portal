@@ -30,7 +30,7 @@ public class IpoService {
         return cacheService.getOrFetch(CACHE_KEY, ipoScraperClient::scrapeIPOCalendar, 60);
     }
 
-    // initialDelay=5sn → startup'tan sonra hemen ilk fetch.
+    // Startup'tan 5 sn sonra başlar, saatte bir IPO takvimini scrape edip cache'i günceller.
     @Scheduled(initialDelay = 5000, fixedRate = 3600000)
     public void fetchIPOs() {
         try {

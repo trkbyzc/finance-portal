@@ -20,9 +20,7 @@ public class TurkishBondChartStrategy implements ChartDataStrategy {
 
     @Override
     public boolean supports(String category, String symbol) {
-        // 🚀 İKİLİ KONTROL:
-        // 1. Eğer açıkça TR_BOND dediyse direkt al.
-        // 2. Eğer genel BOND dediyse, bir de sembole bak: TP. ile başlıyorsa bu kesin Türk tahvilidir, bunu da al!
+        // TR_BOND açıkça belirtilmişse eşleşir; genel BOND kategorisinde TP. prefix'i Türk tahvilini ayırt eder.
         boolean isMatch = "TR_BOND".equalsIgnoreCase(category) ||
                 ("BOND".equalsIgnoreCase(category) && symbol != null && symbol.startsWith("TP."));
 

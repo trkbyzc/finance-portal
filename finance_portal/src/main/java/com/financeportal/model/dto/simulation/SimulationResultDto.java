@@ -23,7 +23,6 @@ public class SimulationResultDto {
     /** O tarihte alınabilecek varlık miktarı (amountTry / entryPrice). */
     private BigDecimal unitsBought;
 
-    /** Geçmiş'te entry tarihindeki birim fiyat (alındığı an). */
     private BigDecimal entryPrice;
 
     /**
@@ -43,7 +42,6 @@ public class SimulationResultDto {
     /** Kar/Zarar TL cinsinden (currentValue - amountTry). */
     private BigDecimal pnlTry;
 
-    /** Kar/Zarar yüzdesi. */
     private BigDecimal pnlPct;
 
     /** entry tarihinden bugüne yatırımın değer eğrisi (her gün için TRY karşılığı). */

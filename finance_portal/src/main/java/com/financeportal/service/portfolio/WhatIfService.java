@@ -72,10 +72,6 @@ public class WhatIfService {
         return new WhatIfResultDto(req.getInvestmentDate(), req.getAmountTry(), result);
     }
 
-    /**
-     * Erken-çıkış doğrulaması: request geçersizse boş sonuç döner, geçerliyse null.
-     * Cognitive complexity'yi compare()'den ayırmak için ayrı method.
-     */
     private WhatIfResultDto validateOrEmpty(WhatIfRequestDto req) {
         if (req == null || req.getInvestmentDate() == null
                 || req.getAssets() == null || req.getAssets().isEmpty()) {
@@ -110,7 +106,7 @@ public class WhatIfService {
         out.setKey(keyOf(ref));
         out.setSymbol(ref.getSymbol());
         out.setAssetType(ref.getAssetType());
-        out.setLabel(ref.getSymbol()); // basit; frontend görünür isim üretmek isterse map eder
+        out.setLabel(ref.getSymbol());
         out.setCurrentValue(sim.getCurrentValue());
         out.setPnlTry(sim.getPnlTry());
         out.setPnlPct(sim.getPnlPct());

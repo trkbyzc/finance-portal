@@ -151,10 +151,8 @@ public class KeycloakAdminService {
     }
 
     /**
-     * Kullanıcının 2FA'sını kapatır:
-     * 1. Tüm OTP credential'ları (otp tipinde) siler — varsa kayıtlı authenticator kalmasın
-     * 2. CONFIGURE_TOTP required action'ı kaldırır — bir sonraki login'de istemez
-     * Sonuçta kullanıcı sadece şifreyle girer.
+     * 2FA'yı tamamen kaldırır: kayıtlı OTP credential'larini siler ve CONFIGURE_TOTP
+     * required action'ini temizler; kullanici bir sonraki girişte sadece şifreyle doğrulanır.
      */
     public void disable2FA(String userId) {
         try {
@@ -190,11 +188,6 @@ public class KeycloakAdminService {
         }
     }
 
-    /**
-     * Kullanıcı için 2FA "aktif" mi? Aktif = en az 1 OTP credential kayıtlı.
-     * CONFIGURE_TOTP required action sadece "kullanıcıdan kurmasını iste" demektir; gerçek
-     * aktivasyon credential kaydedilince olur.
-     */
     /**
      * 2FA durumu — UI toggle'ın yansıtması gereken kullanıcı niyeti.
      *   true  → OTP credential KURULU veya CONFIGURE_TOTP required action var
@@ -250,8 +243,6 @@ public class KeycloakAdminService {
         }
     }
 
-    // ⬇️ YENİ METHODLAR ⬇️
-
     public String getRealm() {
         return realm;
     }
@@ -287,17 +278,10 @@ public class KeycloakAdminService {
         byte[] buffer = new byte[20];
         SECURE_RANDOM.nextBytes(buffer);
 
-        // Base32 encoder oluştur
         Base32 base32 = new Base32();
-
-        // Encode et ve padding karakterlerini kaldır
         String encoded = base32.encodeAsString(buffer);
         return encoded.replaceAll("=", "");
     }
-
-    // ============================================================
-    // ADMIN PANEL UPGRADES (Phase 2)
-    // ============================================================
 
     /**
      * Kullanıcının tüm Keycloak oturumlarını sonlandırır. Refresh token'lar invalide olur;
@@ -335,10 +319,6 @@ public class KeycloakAdminService {
             return Collections.emptyList();
         }
     }
-
-    // ============================================================
-    // ŞİFRE DEĞİŞİMİ
-    // ============================================================
 
     /**
      * Kullanıcının mevcut şifresini Keycloak token endpoint'inde doğrular.

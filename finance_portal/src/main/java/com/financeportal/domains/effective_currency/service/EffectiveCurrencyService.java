@@ -69,7 +69,7 @@ public class EffectiveCurrencyService {
                 try {
                     LocalDate d = LocalDate.parse(dateStr);
                     if (!d.isBefore(cutoff)) filtered.add(p);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) { /* Bozuk tarih string'i → satırı atla, diğer kayıtlar etkilenmesin */ }
             }
             return filtered;
         } catch (Exception e) {

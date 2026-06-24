@@ -8,10 +8,8 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * Provider'dan bağımsız bir tool tanımı.
- * parametersJsonSchema: argümanların JSON Schema gösterimi (OpenAI/Gemini ikisi de bunu bekler).
- *
- * Phase 1'de tool listesi boş kalır; Phase 2'de gerçek tool'larla dolar.
+ * Provider'dan bağımsız tool tanımı.
+ * parametersJsonSchema: argümanların JSON Schema gösterimi — OpenAI ve Gemini her ikisi de bu formatı bekler.
  */
 @Data
 @NoArgsConstructor

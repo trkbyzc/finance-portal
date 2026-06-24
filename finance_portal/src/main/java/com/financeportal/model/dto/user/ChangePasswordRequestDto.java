@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Self-service şifre değiştirme isteği.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

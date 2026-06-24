@@ -18,7 +18,8 @@ import java.util.UUID;
 public class User {
 
     @Id
-    private UUID id; // @GeneratedValue kaldırdık! ID'yi Keycloak verecek.
+    // @GeneratedValue kullanılmıyor; ID Keycloak tarafından atanır, senkronizasyonda doğrudan set edilir.
+    private UUID id;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -68,12 +69,9 @@ public class User {
     @Column(name = "email_notifications_enabled", nullable = false)
     private boolean emailNotificationsEnabled;
 
-    // 🚀 2FA ALANLARI TAMAMEN SİLİNDİ! (Artık Keycloak ilgileniyor)
-
-    // 🚀 RICH DOMAIN MODEL: Kendi kendini başlatan "Zengin" metod
     public static User createNewUser(UUID id, String username, String email) {
         User user = new User();
-        user.setId(id); // ID doğrudan Keycloak'tan gelecek
+        user.setId(id);
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword("MANAGED_BY_KEYCLOAK"); // Şifreyi kendi DB'mizde tutmuyoruz

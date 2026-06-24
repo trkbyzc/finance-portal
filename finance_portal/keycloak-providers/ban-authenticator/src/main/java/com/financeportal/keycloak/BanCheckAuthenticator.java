@@ -29,7 +29,6 @@ public class BanCheckAuthenticator implements Authenticator {
 
     private static final DateTimeFormatter UNTIL_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
-    /** Ban durumu: yasak yoksa {@code null} döner. */
     private record BanStatus(boolean permanent, LocalDateTime until) {}
 
     @Override
@@ -81,7 +80,7 @@ public class BanCheckAuthenticator implements Authenticator {
 
             if (row[1] == null) return null;
             LocalDateTime until = ((Timestamp) row[1]).toLocalDateTime();
-            return LocalDateTime.now().isBefore(until) ? new BanStatus(false, until) : null; // geçici ban hâlâ sürüyor mu?
+            return LocalDateTime.now().isBefore(until) ? new BanStatus(false, until) : null;
         } catch (Exception e) {
             // DB okunamazsa fail-open: girişi bloklama (uygulama tarafındaki UserBanFilter yine yakalar).
             return null;
@@ -105,7 +104,6 @@ public class BanCheckAuthenticator implements Authenticator {
 
     @Override
     public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
-        // Kullanıcı kurulumu gerektirmez.
     }
 
     @Override

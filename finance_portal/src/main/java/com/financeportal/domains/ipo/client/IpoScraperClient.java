@@ -65,7 +65,9 @@ public class IpoScraperClient {
                                 price = words[0];
                                 if (words.length > 1 && (words[1].equalsIgnoreCase("TL") || words[1].equals("₺"))) price += " " + words[1];
                             }
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                            // Fiyat metni parse edilemezse "Belirsiz" kalır, arz yine listelenir.
+                        }
                     }
 
                     if (price.toLowerCase().contains("belirsiz") && url != null && !url.isEmpty()) {
@@ -84,7 +86,9 @@ public class IpoScraperClient {
                                     }
                                 }
                             }
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                            // Detay sayfası erişilemezse fiyat "Belirsiz" kalır; arz yine listelenir.
+                        }
                     }
 
                     if (isFutureOrPresentIpo(dateStr, today)) {

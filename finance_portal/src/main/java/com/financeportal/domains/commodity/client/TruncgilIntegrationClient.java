@@ -54,11 +54,11 @@ public class TruncgilIntegrationClient {
                         dto.setSymbol(targetGolds[i].toUpperCase(java.util.Locale.ROOT).replace("-", "_"));
                         dto.setName(targetNames[i]);
                         dto.setAssetType("TÜRK ALTINI");
-                        dto.setAssetCategory("COMMODITY"); // Emtia!
-                        dto.setChartType("CANDLE"); // Mum Grafik!
+                        dto.setAssetCategory("COMMODITY");
+                        dto.setChartType("CANDLE");
 
-                        // 🚀 İŞTE BÜYÜ BURADA: Trunçgil'den gelen Altın'ın da Yahoo grafiği XAUTRY=X'tir!
-                        // Artık GC=F diyerek Ons Altın'ın kimliğini çalmıyoruz.
+                        // Tüm Türk altın çeşitleri için Yahoo grafiği XAUTRY=X (TRY cinsinden Gram Altın).
+                        // GC=F (Ons Altın, USD) kullanılırsa yanlış grafik gösterilir.
                         dto.setYahooSymbol("XAUTRY=X");
 
                         String sellStr = goldData.get("Selling");

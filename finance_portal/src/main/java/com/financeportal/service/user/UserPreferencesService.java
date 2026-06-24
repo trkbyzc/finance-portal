@@ -59,7 +59,6 @@ public class UserPreferencesService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
-        // Validation
         List<TickerSymbolDto> incoming = request.getTickers() != null ? request.getTickers() : List.of();
         if (incoming.size() > MAX_TICKERS) {
             throw new IllegalArgumentException("En fazla " + MAX_TICKERS + " ticker eklenebilir.");

@@ -22,13 +22,13 @@ public class ViopService {
         return cacheService.getOrFetch("cache:viop", () -> withContractSize(viopScraperClient.scrapeViopData()), 5);
     }
 
+    // Her 5 dakikada bir VİOP verilerini scrape ederek Redis cache'ini tazeler.
     @Scheduled(fixedRate = 300000)
     public void fetchViopData() {
         List<ViopDto> list = withContractSize(viopScraperClient.scrapeViopData());
         if (list != null && !list.isEmpty()) cacheService.save("cache:viop", list, 5);
     }
 
-    /** Her sözleşmeye dayanak bazlı çarpanı (sözleşme büyüklüğü) ekler. */
     private List<ViopDto> withContractSize(List<ViopDto> list) {
         if (list == null) return java.util.Collections.emptyList();
         for (ViopDto v : list) {

@@ -1,4 +1,4 @@
-package com.financeportal.model.enums; // Kendi paket ismine göre ayarla
+package com.financeportal.model.enums;
 
 public enum Role {
     USER,

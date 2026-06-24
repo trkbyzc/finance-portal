@@ -21,8 +21,7 @@ import java.util.Map;
 public class StockService {
 
     private final BistStockClient bistStockClient;
-    // ŞUNA DÖNÜŞTÜRÜN:
-    private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
+    private final YahooQuoteClient yahooFinanceClient;
     private final CacheService cacheService;
     private final TradingViewLogoClient logoClient;
 
@@ -91,22 +90,24 @@ public class StockService {
             Map<String, String> usLogos = logoClient.usLogos(List.of(GLOBAL_STOCK_SYMBOLS));
             allStocks.addAll(globalRaw.stream().map(m -> {
                 StockDto s = mapToStockDto(m);
-                s.setImage(usLogos.get(s.getSymbol())); // ABD hisse logosu (yoksa null)
+                s.setImage(usLogos.get(s.getSymbol()));
                 return s;
             }).toList());
         }
         return allStocks;
     }
 
+    // Her 5 dakikada bir BIST + global hisse önbelleğini yeniler.
     @Scheduled(fixedRate = 300000)
     public void syncStocks() {
         List<StockDto> list = fetchAndCombineStocks();
         if (!list.isEmpty()) cacheService.save("cache:stocks", list, 5);
     }
 
+    // Her 5 dakikada bir endeks önbelleğini yeniler.
     @Scheduled(fixedRate = 300000)
     public void syncIndices() {
-        getIndices(); // Cache'i tetikler ve günceller
+        getIndices();
     }
 
     private StockDto mapToStockDto(MarketAssetDto m) {

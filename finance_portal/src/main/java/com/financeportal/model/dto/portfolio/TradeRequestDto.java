@@ -11,10 +11,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 public class TradeRequestDto {
-    private String symbol;       // THYAO.IS, BTC vb.
-    private AssetType assetType; // STOCK, CRYPTO vb.
-    private BigDecimal quantity; // Kaç adet/miktar alınacak?
-    private BigDecimal price;    // Anlık alış fiyatı
+    private String symbol;
+    private AssetType assetType;
+    private BigDecimal quantity;
+    private BigDecimal price;
     private BigDecimal contractSize; // VİOP sözleşme büyüklüğü (çarpan); opsiyonel, yoksa 1
     private String direction;    // VİOP pozisyon yönü: LONG/SHORT; null/boş = LONG (geriye uyumlu)
     private UUID portfolioId;    // Hedef portföy; yoksa kullanıcının varsayılan portföyü

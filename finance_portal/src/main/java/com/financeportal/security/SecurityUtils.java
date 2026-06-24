@@ -13,8 +13,7 @@ import java.util.UUID;
 @Slf4j
 public class SecurityUtils {
 
-    // TEST İÇİN SABİT KULLANICI ID'si (Veritabanındaki mevcut bir user'ın ID'sini buraya koyabilirsin)
-    // Eğer DB'de user yoksa, UserService üzerinden bir user oluşturup onun ID'sini kullan.
+    // JWT token yoksa (geliştirme/test ortamı) fallback olarak kullanılan sabit UUID.
     private static final UUID MOCK_USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     public UUID getCurrentUserId() {
@@ -29,6 +28,6 @@ public class SecurityUtils {
         }
 
         log.warn("DIKKAT: Güvenlik token'ı bulunamadı! Geliştirme modu aktif, Mock User ID dönülüyor.");
-        return MOCK_USER_ID; // Patlamasın diye test ID'si dönüyoruz
+        return MOCK_USER_ID;
     }
 }

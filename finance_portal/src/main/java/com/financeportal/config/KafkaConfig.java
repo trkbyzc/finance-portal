@@ -8,7 +8,6 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
-    // 1. Topic (Kanal): Kullanıcılarla ilgili olayların akacağı kanal
     @Bean
     public NewTopic userEventsTopic() {
         return TopicBuilder.name("user-events")
@@ -17,7 +16,6 @@ public class KafkaConfig {
                 .build();
     }
 
-    // 2. Topic (Kanal): Portföy/Piyasa olaylarının akacağı kanal
     @Bean
     public NewTopic marketEventsTopic() {
         return TopicBuilder.name("market-events")

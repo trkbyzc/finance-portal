@@ -18,7 +18,6 @@ import java.util.Locale;
 @Component
 public class ViopContractSpec {
 
-    /** VİOP sözleşme metadata'sı: çarpan, başlangıç teminat oranı, para birimi. */
     public record ViopSpec(BigDecimal multiplier, BigDecimal marginRate, String currency) {}
 
     // multiplier · başlangıç teminat oranı (mock — gerçek BİST oranlarına göre ayarlanabilir) · para birimi

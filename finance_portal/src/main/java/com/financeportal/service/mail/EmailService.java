@@ -46,7 +46,6 @@ public class EmailService {
         this.mailSender = mailSenderProvider.getIfAvailable();
     }
 
-    /** Mail gönderim altyapısı şu an aktif mi? */
     public boolean isEnabled() {
         return enabled && mailSender != null;
     }

@@ -16,10 +16,8 @@ public interface PortfolioItemRepository extends BaseRepository<PortfolioItem, U
     // User nesnesinin içindeki id'ye ulaşmak için User_Id şeklinde alt çizgi kullanılır
     Optional<PortfolioItem> findByUser_IdAndSymbol(UUID userId, String symbol);
 
-    // Kullanıcının tüm portföyünü getirir
     List<PortfolioItem> findByUser_Id(UUID userId);
 
-    // Belirli bir portföydeki varlıklar
     List<PortfolioItem> findByPortfolio_Id(UUID portfolioId);
 
     // Tip bazında tüm pozisyonlar — VİOP vade uzlaşma cron'u FUTURE'ları tarar

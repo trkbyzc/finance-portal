@@ -33,7 +33,6 @@ public class MarketChartService {
         log.info("[CHART DEBUG] Stratejiler sıralandı. Liste boyutu: {}", this.chartStrategies.size());
     }
 
-    // 🚀 DÜZELTME 3: Category parametresi metoda eklendi
     public List<HistoricalDataDto> getHistoricalDataWithEvdsFallback(
             String symbol, String category, String range, String interval, String startDate, String endDate, int maPeriod) {
 
@@ -42,7 +41,6 @@ public class MarketChartService {
 
         log.info("🔍 [DEBUG] Gelen Sembol: '{}', Kategori: '{}'", cleanSymbol, safeCategory);
 
-        // 🚀 DÜZELTME 4: Cache key'ine kategoriyi ekledik! Çakışmaları önler.
         String cacheKey = "hist:" + safeCategory + ":" + cleanSymbol + ":" + range;
         // Custom (özel tarih) aralığında startDate/endDate cache key'e girmeli — aksi halde
         // tüm farklı tarih aralıkları aynı "...:custom" anahtarını paylaşıp yanlış veri döner.
@@ -55,7 +53,6 @@ public class MarketChartService {
             boolean found = false;
 
             for (ChartDataStrategy strategy : chartStrategies) {
-                // 🚀 DÜZELTME 5: Stratejiye artık kategoriyi de vererek soruyoruz!
                 if (strategy.supports(safeCategory, cleanSymbol)) {
                     log.info("✅ [DEBUG] Sembol '{}' (Kategori: '{}') için '{}' stratejisi devreye girdi.",
                             cleanSymbol, safeCategory, strategy.getClass().getSimpleName());

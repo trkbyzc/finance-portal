@@ -122,7 +122,6 @@ public class NewsSyncService {
         }
     }
 
-    /** Tüm RSS kaynaklarını dolaşıp yeni description'lı item'ları masterList'e ekler. */
     private int addFreshArticles(List<NewsDto> masterList, Set<String> processedLinks) {
         int addedCount = 0;
         for (Map.Entry<String, String> entry : SOURCES.entrySet()) {
@@ -131,7 +130,6 @@ public class NewsSyncService {
         return addedCount;
     }
 
-    /** Tek kaynak için RSS çek + filtre + dedupe; hata olursa log'la 0 dön. */
     private int fetchFromSourceSafely(String url, String sourceName, List<NewsDto> masterList, Set<String> processedLinks) {
         try {
             List<NewsDto> fetched = rssIntegrationClient.fetchNewsFromSource(url, sourceName);
@@ -168,7 +166,6 @@ public class NewsSyncService {
         return retagged;
     }
 
-    /** Item kabul kriteri: kullanılabilir description + henüz işlenmemiş link. */
     private boolean acceptArticle(NewsDto news, Set<String> processedLinks) {
         return hasUsableDescription(news.getDescription()) && !processedLinks.contains(news.getLink());
     }
@@ -186,7 +183,6 @@ public class NewsSyncService {
         return purgedCount;
     }
 
-    /** Değişiklik varsa cache'e yaz, yoksa atla. */
     private void persistIfChanged(List<NewsDto> masterList, int newlyAdded, int translated, int purged, long startTime) {
         if (newlyAdded == 0 && translated == 0 && purged == 0) return;
         try {
@@ -226,8 +222,6 @@ public class NewsSyncService {
             return 0;
         }
         int translated = 0;
-        // Tek break: cap'e ulaşınca çık. continue yerine nested if'lerle akışı yönetiyoruz
-        // (S135: tur başına en fazla 1 break/continue önerisi).
         for (NewsDto news : newsList) {
             if (translated >= MAX_TRANSLATIONS_PER_RUN) break;
             if (news.getTitleEn() == null && translateOne(news)) {

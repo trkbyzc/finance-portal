@@ -36,7 +36,6 @@ public class EconomyService {
         return list;
     }
 
-    // Redis'ten anlık makro verileri okur
     public EconomyDto getMacroEconomyData() {
         try {
             String jsonStr = stringRedisTemplate.opsForValue().get("market:economy:turkey");
@@ -49,7 +48,6 @@ public class EconomyService {
         return new EconomyDto(50.00, 67.03, 8.70, LocalDate.now().toString());
     }
 
-    // Redis'ten 10 yıllık veriyi okur ve RANGE'e göre filtreler
     public List<Map<String, Object>> getEconomyHistory(String metric, String range) {
         List<Map<String, Object>> result = new ArrayList<>();
         try {
@@ -60,13 +58,11 @@ public class EconomyService {
                 List<Map<String, Object>> fullHistory = objectMapper.readValue(jsonStr, new TypeReference<>() {});
                 LocalDate cutoffDate = getCutoffDateByRange(range);
 
-                // Gelen datayı istenen tarihe göre kes
                 for (Map<String, Object> dataPoint : fullHistory) {
                     String dateStr = (String) dataPoint.get("date");
                     if (dateStr != null) {
                         try {
                             LocalDate pointDate = LocalDate.parse(dateStr);
-                            // Sadece kesim tarihinden SONRAKİ verileri listeye ekle
                             if (!pointDate.isBefore(cutoffDate)) {
                                 result.add(dataPoint);
                             }
@@ -81,7 +77,6 @@ public class EconomyService {
         return result;
     }
 
-    // Range parametresini tarihe çeviren yardımcı metod
     private LocalDate getCutoffDateByRange(String range) {
         LocalDate now = LocalDate.now();
         if (range == null) return now.minusYears(10);

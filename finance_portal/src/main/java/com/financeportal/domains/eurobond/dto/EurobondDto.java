@@ -25,15 +25,15 @@ public class EurobondDto {
     private String symbol;        // = ISIN
     private String isin;
     private String name;          // örn. "Türkiye %6.375 2031 (USD)"
-    private String currency;      // "USD" / "EUR"
-    private BigDecimal coupon;    // kupon oranı (%)
+    private String currency;
+    private BigDecimal coupon;
     private String maturity;      // vade tarihi "yyyy-MM-dd"
     @JsonProperty("yield")
     private BigDecimal bondYield;  // getiri (%) — JSON'da "yield" olarak serialize edilir (frontend coin.yield okur)
     private BigDecimal price;     // güncel temiz fiyat
-    private BigDecimal changePercent; // günlük değişim (%)
+    private BigDecimal changePercent;
     private String tkData;        // businessinsider grafik kimliği "1,<id>,<type>,<market>"
 
-    private String chartType;     // "LINE"
-    private String assetCategory; // "EUROBOND"
+    private String chartType;
+    private String assetCategory;
 }

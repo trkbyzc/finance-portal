@@ -12,7 +12,6 @@ public class FintablesChartResponse {
     private List<Long> t; // Zaman damgaları (Timestamp)
     private List<BigDecimal> c; // Kapanış (Close) fiyatları
 
-    // 🚀 AŞAĞIDAKİLER EKSİKTİ, BUNLARI EKLEYİN:
     private List<BigDecimal> o; // Açılış (Open) fiyatları
     private List<BigDecimal> h; // En yüksek (High) fiyatlar
     private List<BigDecimal> l; // En düşük (Low) fiyatlar

@@ -11,8 +11,8 @@ public class JacksonConfig {
 
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
-        // 🚀 DİKKAT: Spring Boot'un ObjectMapper'ını ezmiyoruz,
-        // sadece araya girip kendi ayarlarımızı ekliyoruz!
+        // Spring Boot'un auto-configure ettiği ObjectMapper'ı ezmek yerine
+        // Customizer ile genişletiyoruz; böylece diğer auto-config özellikleri korunur.
         return builder -> {
             builder.modulesToInstall(new JavaTimeModule());
             builder.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

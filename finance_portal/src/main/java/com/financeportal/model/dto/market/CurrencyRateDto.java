@@ -9,24 +9,22 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CurrencyRateDto {
-    private String currencyCode; // Örn: USD, EUR
-    private String currencyName; // Örn: ABD Doları
+    private String currencyCode;
+    private String currencyName;
 
-    // 🚀 HESAPKURDU'NDAKİ 'bid' VE 'ask' DEĞERLERİ BURAYA MAPLENİR
+    // Kaynak feed'deki bid/ask değerleri bu alanlara map edilir
     private BigDecimal forexBuying;  // Alış (bid)
     private BigDecimal forexSelling; // Satış (ask)
     private BigDecimal changePercent;
 
-    // 🚀 BANKA / DÖVİZ BÜROSU BİLGİLERİ
     private String bankName;      // Örn: Garanti BBVA, Akbank, Harem Döviz
-    private String exchangeType;  // Örn: "Bank" veya "ExchOffice" (Serbest Piyasa ayrımı için)
+    private String exchangeType;  // "Bank" veya "ExchOffice" — banka vs. serbest piyasa ayrımı
 
-    // 🚀 META VERİLER
     private String yahooSymbol;   // Örn: TRY=X
-    private String chartType;     // "LINE" veya "CANDLE"
+    private String chartType;
     private String assetCategory; // "BANK_CURRENCY", "CURRENCY", "CRYPTO"
 
-    // TARİHSEL DEĞİŞİM VERİLERİ (EVDS'DEN GELENLER)
+    // EVDS'den gelen tarihsel değişim yüzdeleri
     private BigDecimal changeWeek;
     private BigDecimal changeMonth;
     private BigDecimal change6Month;

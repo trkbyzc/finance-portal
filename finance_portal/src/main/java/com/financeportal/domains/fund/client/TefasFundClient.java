@@ -27,6 +27,7 @@ public class TefasFundClient {
 
     private final RestTemplate restTemplate;
 
+    // Fintables API bot kontrolünü aşmak için tarayıcı gibi görünen User-Agent ve Referer zorunlu.
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
@@ -90,7 +91,7 @@ public class TefasFundClient {
 
                 for (int i = 0; i < times.size(); i++) {
                     HistoricalDataDto dto = new HistoricalDataDto();
-                    dto.setTimestamp(times.get(i) * 1000);
+                    dto.setTimestamp(times.get(i) * 1000); // Fintables epoch saniye döndürür; frontend milisaniye bekler.
                     dto.setDate(Instant.ofEpochMilli(dto.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDate());
                     BigDecimal price = prices.get(i);
                     dto.setClose(price); dto.setPrice(price); dto.setOpen(price); dto.setHigh(price); dto.setLow(price); dto.setVolume(0L);

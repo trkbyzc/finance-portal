@@ -51,6 +51,8 @@ public class ToolExecutor {
             if (json == null || json.isBlank()) return new HashMap<>();
             return objectMapper.readValue(json, Map.class);
         } catch (Exception e) {
+            // Bozuk JSON argümanı tool'u tamamen patlatmak yerine boş map ile devam ettirir;
+            // tool zaten eksik argüman için kendi hatasını üretir.
             return new HashMap<>();
         }
     }

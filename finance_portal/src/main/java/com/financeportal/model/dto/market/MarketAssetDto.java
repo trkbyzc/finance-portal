@@ -13,12 +13,11 @@ public class MarketAssetDto {
     private String symbol;
     private String name;
     private String assetType;
-    private BigDecimal price;      // SATIŞ FİYATI
-    private BigDecimal buyPrice;   // 🚀 YENİ EKLENDİ: GERÇEK ALIŞ FİYATI
+    private BigDecimal price;      // satış (ask) fiyatı
+    private BigDecimal buyPrice;   // alış (bid) fiyatı
     private BigDecimal changePercent;
     private Long volume;
 
-    // 🚀 OTOMASYON ALANLARI
     private String yahooSymbol;
     private String chartType;
     private String assetCategory;
@@ -27,9 +26,7 @@ public class MarketAssetDto {
     private boolean inBist50;
     private boolean inBist100;
 
-    // 🚀 HAYAT KURTARAN CONSTRUCTOR
-    // Sistemin başka yerlerinde hala eski usul (6 parametreli) obje oluşturan
-    // kodların patlamaması için bu özel constructor'ı ekliyoruz.
+    // Geriye dönük uyumluluk: 6 parametreli eski çağrı noktalarının derlenmesi için korunuyor.
     public MarketAssetDto(String symbol, String name, String assetType, BigDecimal price, BigDecimal changePercent, Long volume) {
         this.symbol = symbol;
         this.name = name;

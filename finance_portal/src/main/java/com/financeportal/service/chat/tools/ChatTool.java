@@ -31,7 +31,6 @@ public interface ChatTool {
      */
     Object execute(Map<String, Object> args);
 
-    /** Tool'u LLM-bağımsız LlmTool DTO'suna çevirir. */
     default LlmTool toLlmTool() {
         return LlmTool.builder()
                 .name(name())

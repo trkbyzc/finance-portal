@@ -55,7 +55,9 @@ public class EconomyUsService {
                 try {
                     LocalDate pointDate = LocalDate.parse(dateStr);
                     if (!pointDate.isBefore(cutoff)) result.add(point);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                    // Bozuk tarih formatındaki nokta atlanır; geçerli noktalar döndürülmeye devam eder
+                }
             }
         } catch (Exception e) {
             log.error("[ECONOMY-US] History read failed: {}", e.getMessage());

@@ -48,7 +48,6 @@ public class TurkishBondService {
      * (bireysel tahvil getirisi açık kaynakta yok; aynı vadedekiler benchmark'ı yakından izler).
      */
     public List<Map<String, Object>> getCategorizedBonds() {
-        // Benchmark label → yield haritası
         Map<String, Double> yieldByLabel = new LinkedHashMap<>();
         for (Map<String, Object> b : getTurkishBonds()) {
             Object lbl = b.get("label");
@@ -159,13 +158,13 @@ public class TurkishBondService {
             LocalDate mat = LocalDate.of(y, m, d);
             double years = ChronoUnit.DAYS.between(LocalDate.now(), mat) / 365.25;
             if (years < 0) return null;
-            if (years < 1) return "evds:benchmark:1m";   // Kısa Vadeli
-            if (years < 2) return "evds:benchmark:3m";   // 1+ Yıl
-            if (years < 3) return "evds:benchmark:6m";   // 2+ Yıl
-            if (years < 4) return "evds:benchmark:1y";   // 3+ Yıl
-            if (years < 5) return "evds:benchmark:2y";   // 4+ Yıl
-            if (years < 8) return "evds:benchmark:5y";   // 5 Yıl+ (katalog Y5 kovası ile aynı sınır)
-            return "evds:benchmark:10y";                 // 10 Yıl+ (8 yıl ve üzeri uzun vade)
+            if (years < 1) return "evds:benchmark:1m";
+            if (years < 2) return "evds:benchmark:3m";
+            if (years < 3) return "evds:benchmark:6m";
+            if (years < 4) return "evds:benchmark:1y";
+            if (years < 5) return "evds:benchmark:2y";
+            if (years < 8) return "evds:benchmark:5y";
+            return "evds:benchmark:10y";
         } catch (Exception e) {
             return null;
         }

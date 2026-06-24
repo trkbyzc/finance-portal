@@ -20,7 +20,7 @@ public class TurkishStockChartStrategy implements ChartDataStrategy {
 
     @Override
     public boolean supports(String category, String symbol) {
-        // 🚀 Sadece frontend'den TR_STOCK kategorisi gelirse çalışır (Fintables hisseleri)
+        // Sadece frontend'den TR_STOCK kategorisi gelirse çalışır (Fintables hisseleri)
         return "TR_STOCK".equalsIgnoreCase(category);
     }
 

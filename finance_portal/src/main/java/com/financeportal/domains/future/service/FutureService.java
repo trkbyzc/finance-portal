@@ -18,8 +18,7 @@ import java.util.List;
 @Slf4j
 public class FutureService {
 
-    // ŞUNA DÖNÜŞTÜRÜN:
-    private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
+    private final YahooQuoteClient yahooFinanceClient;
     private final CacheService cacheService;
 
     /**
@@ -37,9 +36,7 @@ public class FutureService {
             "6E=F", "6B=F", "6J=F"
     };
 
-    // v2 — symbol listesi 4 emtia ağırlıklı setten 10 endeks/tahvil/döviz setine yeniden düzenlendi.
-    // Versiyonlama, eski "cache:futures" payload'ı Redis'te kalsa bile yeni kodun taze key'den
-    // okumasını garantiler — Redis flush gerekmez, code-driven invalidation.
+    // Key versiyonlama: Redis'teki eski payload geçersiz kılınmadan yeni sembol seti yayınlanır — code-driven invalidation.
     private static final String CACHE_KEY = "cache:futures:v2";
     private static final int CACHE_TTL_MIN = 5;
 
@@ -56,7 +53,7 @@ public class FutureService {
      * cache temizlemesi gerekmez.
      */
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(fixedRate = 300_000) // 5 dakika
+    @Scheduled(fixedRate = 300_000)
     public void syncFutures() {
         List<FutureDto> fresh = fetchFromYahoo();
         if (fresh != null && !fresh.isEmpty()) {

@@ -26,6 +26,7 @@ public class CommoditySyncService {
 
     private static final String[] COMMODITY_SYMBOLS = { "GC=F", "SI=F", "PL=F", "PA=F", "CL=F", "BZ=F", "NG=F", "HG=F", "ZW=F", "ZC=F", "KC=F", "CC=F", "CT=F" };
 
+    // Her 5 dakikada bir Yahoo Finance'tan emtia fiyatlarını çekip cache'e yazar.
     @Scheduled(fixedRate = 300000)
     public void fetchCommodities() {
         List<MarketAssetDto> rawList = yahooFinanceClient.fetchQuotes(COMMODITY_SYMBOLS, "EMTİA");
@@ -35,6 +36,7 @@ public class CommoditySyncService {
         }
     }
 
+    // Her 5 dakikada bir Truncgil'den gram/çeyrek/cumhuriyet altın fiyatlarını çekip cache'e yazar.
     @Scheduled(fixedRate = 300000)
     public void fetchTurkishGoldData() {
         List<CommodityDto> goldList = truncgilIntegrationClient.fetchLiveTurkishGold();

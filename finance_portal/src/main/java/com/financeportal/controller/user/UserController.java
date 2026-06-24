@@ -32,14 +32,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-    // Admin için listeleme
     @GetMapping
     @Operation(summary = "Tüm Kullanıcıları Listele (Admin)")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // -------- 2FA Yönetimi --------
     // 2FA durumu Keycloak'ta tutulur (DB'de değil). Buradaki endpoint'ler ince proxy.
 
     @GetMapping("/me/2fa")
@@ -70,8 +68,6 @@ public class UserController {
         ));
     }
 
-    // -------- E-posta Bildirimi --------
-
     @GetMapping("/me/email-notifications")
     @Operation(summary = "E-posta Bildirim Durumum")
     public ResponseEntity<Map<String, Boolean>> getEmailNotifications() {
@@ -87,8 +83,6 @@ public class UserController {
         userService.setEmailNotificationsEnabled(userId, enabled);
         return ResponseEntity.ok(Map.of("enabled", enabled));
     }
-
-    // -------- Şifre Değiştir (self-service) --------
 
     @PostMapping("/me/password")
     @Operation(summary = "Şifremi Değiştir",

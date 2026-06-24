@@ -12,9 +12,7 @@ public class HttpHeadersUtil {
         // Utility class, instantiation yapılmaz
     }
 
-    /**
-     * Standard HTTP headers döndürür (User-Agent, vb.)
-     */
+    // Bot-detection bypass: bazı API'ler (Yahoo Finance vb.) JDK default User-Agent'ı reddeder; gerçek browser UA zorunlu.
     public static HttpHeaders getStandardHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
@@ -24,36 +22,24 @@ public class HttpHeadersUtil {
         return headers;
     }
 
-    /**
-     * CoinGecko API için özelleştirilmiş headers
-     */
     public static HttpHeaders getCoinGeckoHeaders() {
         HttpHeaders headers = getStandardHeaders();
         headers.set("Accept", "application/json");
         return headers;
     }
 
-    /**
-     * Yahoo Finance API için özelleştirilmiş headers
-     */
     public static HttpHeaders getYahooFinanceHeaders() {
         HttpHeaders headers = getStandardHeaders();
         headers.set("Accept", "application/json, text/plain, */*");
         return headers;
     }
 
-    /**
-     * TCMB API için özelleştirilmiş headers
-     */
     public static HttpHeaders getTcmbHeaders() {
         HttpHeaders headers = getStandardHeaders();
         headers.set("Accept", "application/xml, text/xml, */*");
         return headers;
     }
 
-    /**
-     * EVDS API (Türkiye Merkez Bankası) için özelleştirilmiş headers
-     */
     public static HttpHeaders getEvdsHeaders() {
         HttpHeaders headers = getStandardHeaders();
         headers.set("Accept", "application/json");

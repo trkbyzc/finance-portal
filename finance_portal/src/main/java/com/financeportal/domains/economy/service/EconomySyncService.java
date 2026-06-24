@@ -40,13 +40,12 @@ public class EconomySyncService {
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class) // Sistem ayağa kalktığında ilk verileri çeker
-    @Scheduled(cron = "0 45 16 * * ?") // 16:45'te çalışsın
+    @Scheduled(cron = "0 45 16 * * ?")
     public void syncMacroEconomy() {
         try {
         log.info("[EVDS-ECONOMY] Makro ekonomi verileri çekiliyor...");
         LocalDate today = LocalDate.now();
 
-        // 1. CANLI KART VERİLERİ (Son 180 güne bakıp en güncelini al)
         Map<String, Object> macroData = new HashMap<>();
 
         // TP.APIFON4: BIST Repo-Reverse Repo Pazarı Ortalama Faiz Oranı.
@@ -66,7 +65,6 @@ public class EconomySyncService {
             log.info("[EVDS-ECONOMY] Anlık ekonomi verileri Redis'e yazıldı.");
         } catch (Exception e) { log.error("Macro JSON Error", e); }
 
-        // 2. 10 YILLIK GRAFİK GEÇMİŞİ — gösterge kayıt defterindeki tüm EVDS serileri
         LocalDate tenYearsAgo = today.minusDays(3650);
         for (EconomyIndicators.Indicator ind : EconomyIndicators.ALL) {
             saveHistory(ind.code(), ind.key(), tenYearsAgo, today, ind.formula(), ind.frequency());

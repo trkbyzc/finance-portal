@@ -34,7 +34,6 @@ public class EconomyUsController {
     public ResponseEntity<List<Map<String, Object>>> getEconomyHistory(
             @RequestParam(required = false) String metric,
             @RequestParam(defaultValue = "5y") String range) {
-        // metric parametresi şimdilik sadece "usdInflationRate" için anlamlı; ileride başka FRED serisi eklenirse switch.
         return ResponseEntity.ok(economyUsService.getEconomyHistory(range));
     }
 }

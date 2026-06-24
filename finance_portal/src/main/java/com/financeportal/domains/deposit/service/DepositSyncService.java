@@ -32,8 +32,9 @@ public class DepositSyncService {
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
+    // Uygulama ayağa kalktığında bir kez (bootstrap) ve her gün 17:00'da çalışır; EVDS'ten son mevduat faizlerini çekip Redis'e yazar.
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(cron = "0 0 17 * * ?") // 17:00'da çalışsın
+    @Scheduled(cron = "0 0 17 * * ?")
     public void syncDeposits() {
         try {
         log.info("[EVDS-DEPOSIT] Mevduat faizleri çekiliyor...");
@@ -53,14 +54,13 @@ public class DepositSyncService {
 
         depositsDict.forEach((code, redisKey) -> {
             Double latestValue = null;
-            // Listeyi gezip en son geçerli olan veriyi bul
             for (JsonNode node : nodes) {
                 Double val = evdsClient.extractValueFromNode(node, code);
                 if (val != null) latestValue = val;
             }
 
             if (latestValue != null) {
-                // Python'daki gibi sadece rakamı string olarak basıyoruz, JSON array değil!
+                // Sadece ham sayısal değer yazılır; JSON array formatı istemci tarafında parse hatası yaratır.
                 redisTemplate.opsForValue().set(redisKey, String.valueOf(latestValue), 86400, TimeUnit.SECONDS);
                 log.info("[EVDS-DEPOSIT] {} -> %{} Redis'e yazıldı.", code, latestValue);
             }

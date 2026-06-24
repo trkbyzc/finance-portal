@@ -9,25 +9,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Grafik verilerini transform eden service
- *
- * Görev:
- * - Moving average hesapla
- * - Döviz dönüştürmesi yap (USD → TRY gibi)
- * - Tarihsel veri temizliği/dönüştürmesi
- */
 @Service
 @Slf4j
 public class ChartMapper {
 
-    /**
-     * Moving Average hesapla
-     *
-     * @param dataList Tarihsel veri listesi
-     * @param maPeriod MA dönem (örn: 20 günü MA)
-     * @return MA'nın hesaplanmış hali
-     */
     public List<HistoricalDataDto> calculateMovingAverage(List<HistoricalDataDto> dataList, int maPeriod) {
         if (dataList == null || dataList.isEmpty()) {
             return dataList;
@@ -39,7 +24,6 @@ public class ChartMapper {
             if (i >= maPeriod - 1) {
                 BigDecimal sum = BigDecimal.ZERO;
 
-                // Son 'maPeriod' kadarının ortalamasını al
                 for (int j = 0; j < maPeriod; j++) {
                     sum = sum.add(dataList.get(i - j).getClose());
                 }
@@ -53,16 +37,7 @@ public class ChartMapper {
         return dataList;
     }
 
-    /**
-     * Grafik verilerini döviz oranı ile çarp
-     *
-     * Kullanım: USD → TRY dönüştürmek için
-     * Örn: USD/TRY = 32.50 ise, AAPL (USD cinsinden) fiyatını 32.50 ile çarp
-     *
-     * @param baseChart Base grafik (örn: USD cinsinden)
-     * @param multiplier Döviz kuru (örn: USD/TRY = 32.50)
-     * @return Dönüştürülmüş grafik
-     */
+    /** USD cinsinden grafiği hedef dövize çevirir; örn: USD/TRY = 32.50 ise tüm OHLC değerleri bu çarpanla ölçeklenir. */
     public List<HistoricalDataDto> convertCurrencyChart(List<HistoricalDataDto> baseChart, BigDecimal multiplier) {
         if (baseChart == null || baseChart.isEmpty() || multiplier.compareTo(BigDecimal.ZERO) <= 0) {
             return baseChart;
@@ -82,18 +57,10 @@ public class ChartMapper {
         return baseChart;
     }
 
-    /**
-     * 3 karakterli sembol (para kodu) için dönüştürme çarpanını hesapla
-     *
-     * @param symbol 3-karakterli kod (örn: "EUR", "GBP")
-     * @param currencyRates Tüm döviz oranları
-     * @return Dönüştürme çarpanı (örn: EUR/TRY = 35.20)
-     */
     public BigDecimal calculateCurrencyMultiplier(String symbol, List<CurrencyRateDto> currencyRates) {
         BigDecimal symbolPrice = null;
         BigDecimal usdPrice = null;
 
-        // Sembol ve USD fiyatlarını bul
         for (CurrencyRateDto rate : currencyRates) {
             if (rate.getCurrencyCode().equalsIgnoreCase(symbol)) {
                 symbolPrice = rate.getForexSelling();
@@ -114,14 +81,6 @@ public class ChartMapper {
         return BigDecimal.ONE;
     }
 
-    /**
-     * Grafiği 3-karakterli kod (EUR, GBP gibi) için dönüştür
-     *
-     * @param baseChart Base grafik (USD cinsinden)
-     * @param symbol Hedef para kodu
-     * @param currencyRates Tüm döviz oranları
-     * @return Dönüştürülmüş grafik
-     */
     public List<HistoricalDataDto> transformChartForCurrency(List<HistoricalDataDto> baseChart, String symbol, List<CurrencyRateDto> currencyRates) {
         BigDecimal multiplier = calculateCurrencyMultiplier(symbol, currencyRates);
         return convertCurrencyChart(baseChart, multiplier);

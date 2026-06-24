@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * LlmGateway'in döndürdüğü cevap.
  * content: assistant'ın text yanıtı (null/boş olabilir — tool çağrısı varsa)
- * toolCalls: assistant'ın çağırmak istediği tool'lar (Phase 2'de işlenir)
+ * toolCalls: assistant'ın çağırmak istediği tool'lar (boş liste = sadece text yanıt)
  * provider/model: hangi provider/model'in ürettiği (audit + UI gösterimi)
  */
 @Data

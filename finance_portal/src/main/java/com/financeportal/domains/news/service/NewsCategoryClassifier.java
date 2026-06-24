@@ -30,7 +30,6 @@ public class NewsCategoryClassifier {
             GENEL, "Economy"
     );
 
-    /** Kanonik TR kategori adını locale'e çevirir; bilinmiyorsa olduğu gibi döner. */
     public static String localize(String trCategory, String lang) {
         if (trCategory == null) return null;
         if ("en".equalsIgnoreCase(lang)) {

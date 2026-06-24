@@ -13,7 +13,6 @@ import java.util.Set;
  */
 public class BistConstants {
 
-    // BIST 30 Hisseleri
     public static final Set<String> BIST_30 = Set.of(
             "AKBNK", "ALARK", "ASELS", "ASTOR", "BIMAS", "BRSAN", "CVPAM", "DOAS",
             "EKGYO", "ENKAI", "EREGL", "FROTO", "GARAN", "GUBRF", "HEKTS", "ISCTR",

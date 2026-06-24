@@ -72,16 +72,13 @@ public class BanCheckAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public void init(Config.Scope config) {
-        // Konfigürasyon yok.
     }
 
     @Override
     public void postInit(KeycloakSessionFactory factory) {
-        // Başlangıç işlemi yok.
     }
 
     @Override
     public void close() {
-        // Kapatılacak kaynak yok.
     }
 }

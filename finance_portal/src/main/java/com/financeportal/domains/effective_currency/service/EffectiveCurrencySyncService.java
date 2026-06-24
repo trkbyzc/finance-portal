@@ -185,7 +185,9 @@ public class EffectiveCurrencySyncService {
                         try {
                             LocalDate d = LocalDate.parse(dateStr, formatter);
                             history.add(Map.of("date", d.toString(), "close", val));
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                            // EVDS zaman zaman "DD-MM-YYYY" dışı format döner; tek nokta atlanır, sync durmamalı.
+                        }
                     }
                 }
                 if (!history.isEmpty()) {

@@ -36,9 +36,6 @@ import java.util.UUID;
  * FinansPortal chatbot servisi.
  * - Conversation CRUD (kullanıcı sahipliği guard'lı)
  * - Mesaj gönder → LLM çağrısı → yanıtı persist → DTO döndür
- *
- * Phase 1: tool'lar boş listede geçer, sadece system + chat history + user mesajı LLM'e gider.
- * Phase 2: tool registry buraya enjekte edilecek.
  */
 @Service
 @RequiredArgsConstructor
@@ -100,7 +97,6 @@ public class ChatService {
                 ? createConversation(user, req.getMessage())
                 : requireOwned(req.getConversationId());
 
-        // 1) Kullanıcı mesajını persist
         LocalDateTime now = LocalDateTime.now();
         ChatMessage userMsg = ChatMessage.builder()
                 .conversation(conv)
@@ -132,7 +128,7 @@ public class ChatService {
 
             List<LlmToolCall> calls = llm.getToolCalls();
             if (calls == null || calls.isEmpty()) {
-                break; // assistant text yanıtı verdi, döngüden çık
+                break;
             }
 
             // Assistant'ın tool-call mesajını context'e ekle (LLM bunu bekler)
@@ -142,7 +138,6 @@ public class ChatService {
                     .toolCalls(calls)
                     .build());
 
-            // Her tool çağrısını execute et ve sonucu hem context'e hem DB'ye ekle
             for (LlmToolCall call : calls) {
                 String resultJson = toolExecutor.execute(call);
                 LocalDateTime ts = LocalDateTime.now();
@@ -167,7 +162,6 @@ public class ChatService {
             throw new IllegalStateException("LLM yanıt vermedi");
         }
 
-        // 4) Final assistant yanıtını persist
         String content = llm.getContent() != null ? llm.getContent() : "";
         ChatMessage asstMsg = ChatMessage.builder()
                 .conversation(conv)
@@ -188,8 +182,6 @@ public class ChatService {
                 .model(llm.getModel())
                 .build();
     }
-
-    // ---------- internal ----------
 
     private ChatConversation createConversation(User user, String firstUserMessage) {
         // Başlık: ilk mesajın ilk 60 karakteri
@@ -215,7 +207,6 @@ public class ChatService {
         // Son N mesajı (yeni→eski) çek, ters çevir, sırayla ekle
         List<ChatMessage> recent = msgRepo.findTop20ByConversation_IdOrderByCreatedAtDesc(conv.getId());
         Collections.reverse(recent);
-        // history-max config'i için dilim
         int from = Math.max(0, recent.size() - historyMax);
         List<ChatMessage> windowed = recent.subList(from, recent.size());
 

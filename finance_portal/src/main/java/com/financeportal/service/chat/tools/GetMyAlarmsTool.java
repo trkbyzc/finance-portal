@@ -9,10 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Kullanıcının kurduğu tüm fiyat alarmlarını döner.
- * Kullanıcı "alarmlarım", "BTC için alarm kurmuş muyum" gibi sorduğunda.
- */
 @Component
 @RequiredArgsConstructor
 public class GetMyAlarmsTool implements ChatTool {

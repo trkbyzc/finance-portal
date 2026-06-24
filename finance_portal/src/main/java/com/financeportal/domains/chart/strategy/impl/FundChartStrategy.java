@@ -12,17 +12,16 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Order(5) // 🚀 Döviz kurlarından (Order 2) sonra çalışacak
+@Order(5) // Döviz kurlarından (Order 2) sonra çalışacak
 @RequiredArgsConstructor
 @Slf4j
 public class FundChartStrategy implements ChartDataStrategy {
 
     private final TefasFundClient tefasFundClient;
-    private final FundService fundService; // İlerde başka işlemlerde lazım olursa diye korundu
+    private final FundService fundService;
 
     @Override
     public boolean supports(String category, String symbol) {
-        // 🚀 AĞIR DÖNGÜ SİLİNDİ! Artık sadece kategoriye bakıyoruz.
         boolean isMatch = "TR_FUND".equalsIgnoreCase(category);
 
         if (isMatch) {

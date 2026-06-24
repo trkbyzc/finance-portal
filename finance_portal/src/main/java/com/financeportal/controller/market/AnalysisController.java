@@ -29,7 +29,6 @@ public class AnalysisController {
             @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "5") int maPeriod) {
 
-        // Service metodu 7 parametre bekliyor, hepsini doğru sırayla iletiyoruz
         return ResponseEntity.ok(marketDataService.getHistoricalDataWithEvdsFallback(
                 symbol, category, range, interval, startDate, endDate, maPeriod));
     }

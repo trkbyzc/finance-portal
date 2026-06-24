@@ -65,7 +65,6 @@ public class PriceAlarmEvaluationService {
         }
     }
 
-    /** Tek alarm: koşul karşılanırsa tetikle ve state güncelle. */
     boolean evaluateOne(PriceAlarm alarm) {
         BigDecimal current = safePrice(alarm);
         if (current == null || current.signum() <= 0) return false;

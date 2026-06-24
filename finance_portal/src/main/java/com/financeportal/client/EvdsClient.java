@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator; // 🚀 EKSİK OLAN IMPORT BURADA
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -54,7 +54,7 @@ public class EvdsClient {
     public List<JsonNode> fetchSeries(List<String> seriesCodes, LocalDate startDate, LocalDate endDate, String formulas, Integer frequency) {
         String start = startDate.format(EVDS_DATE_FMT);
         String end = endDate.format(EVDS_DATE_FMT);
-        String seriesParam = String.join("-", seriesCodes); // Birden fazla kod varsa araya tire koyar
+        String seriesParam = String.join("-", seriesCodes);
 
         String url = baseUrl.stripTrailing() + "/series=" + seriesParam + "&startDate=" + start + "&endDate=" + end + "&type=json";
         if (formulas != null && !formulas.isEmpty()) {
@@ -87,7 +87,7 @@ public class EvdsClient {
                 if (attempt == maxRetries) {
                     log.error("[EVDS] TCMB sunucularına ulaşılamadı. Seriler: {}", seriesParam);
                 } else {
-                    try { Thread.sleep(5000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; } // Python'daki gibi 5 sn bekle
+                    try { Thread.sleep(5000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
                 }
             }
         }
@@ -140,7 +140,7 @@ public class EvdsClient {
         return all;
     }
 
-    // 🚀 AKILLI KOLON BULUCU: EVDS formül eklendiğinde kolon adını değiştirir, bu yüzden "contains" mantığı şart!
+    // EVDS formül parametresi (örn. Formula=3) eklendiğinde kolon adı değişir; "contains" mantığı bu yüzden zorunlu.
     public Double extractValueFromNode(JsonNode node, String seriesCode) {
         String baseColumnName = seriesCode.replace(".", "_");
 

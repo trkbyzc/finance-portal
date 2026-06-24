@@ -18,7 +18,6 @@ public class BondService {
     public List<MarketAssetDto> getGlobalBonds() {
         log.info("[GLOBAL-BOND] Yahoo Finance üzerinden küresel tahvil verileri çekiliyor...");
 
-        // Yahoo Finance küresel abd / global tahvil sembolleri (Array formatında)
         String[] globalBondSymbols = {
                 "^IRX",    // ABD 13 Haftalık Hazine Bonosu
                 "^FVX",    // ABD 5 Yıllık Hazine Tahvili
@@ -26,7 +25,6 @@ public class BondService {
                 "^TYX"     // ABD 30 Yıllık Hazine Tahvili
         };
 
-        // YahooQuoteClient'daki asıl metot fetchQuotes ve (String[] symbols, String assetType) parametreleri bekliyor.
         return yahooQuoteClient.fetchQuotes(globalBondSymbols, "BOND");
     }
 }

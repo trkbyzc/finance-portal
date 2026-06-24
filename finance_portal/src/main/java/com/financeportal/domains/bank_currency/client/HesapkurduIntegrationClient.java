@@ -31,6 +31,7 @@ public class HesapkurduIntegrationClient {
 
         try {
             HttpHeaders headers = new HttpHeaders();
+            // Hesapkurdu API, standart Java User-Agent ile 403 döndürüyor; tarayıcı User-Agent zorunlu.
             headers.set("User-Agent", "Mozilla/5.0");
             headers.set("Accept", "application/json");
             HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -45,6 +46,7 @@ public class HesapkurduIntegrationClient {
                     for (JsonNode node : dataNode) {
                         String exchangeType = node.path("exchange").asText("");
 
+                        // Yalnızca banka ve döviz bürosu kayıtları alınır; diğer tipler (merkez bankası vb.) atlanır.
                         if ("Bank".equals(exchangeType) || "ExchOffice".equals(exchangeType)) {
                             String bankName = node.path("exchangeDisplayName").asText("Bilinmeyen");
                             String code = node.path("shortCode").asText("");
@@ -69,6 +71,7 @@ public class HesapkurduIntegrationClient {
                 log.info("[HESAPKURDU] Fetched {} live bank/exchange rates in {} ms.", bankRates.size(), (System.currentTimeMillis() - startTime));
             }
         } catch (Exception e) {
+            // Dış servis geçici olarak erişilemez olabilir; uygulama akışını kesmeden boş liste döndürülür.
             log.error("[HESAPKURDU] Failed to fetch bank rates: {}", e.getMessage());
         }
         return bankRates;

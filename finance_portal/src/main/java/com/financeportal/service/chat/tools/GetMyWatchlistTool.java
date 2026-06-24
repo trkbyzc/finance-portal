@@ -9,9 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Kullanıcının takip listesindeki (watchlist) varlıklar.
- */
 @Component
 @RequiredArgsConstructor
 public class GetMyWatchlistTool implements ChatTool {

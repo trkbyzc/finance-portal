@@ -1,7 +1,7 @@
 package com.financeportal.model.dto.market;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // 🚀 BUNU EKLEDİK
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true) // 🚀 İŞTE HAYAT KURTARAN O SİHİRLİ SATIR
+@JsonIgnoreProperties(ignoreUnknown = true) // Upstream API yanıtlarındaki ekstra alanlar deserializasyonu bozmasın
 public class HistoricalDataDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
@@ -20,7 +20,7 @@ public class HistoricalDataDto {
     private BigDecimal open;
     private BigDecimal high;
     private BigDecimal low;
-    private BigDecimal close; // Python'dan gelen değer buraya otomatik maplenecek
+    private BigDecimal close;
     private BigDecimal price;
     private Long volume;
     private BigDecimal movingAverage;

@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * Chatbot'un kullanıcıya yanıtı.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

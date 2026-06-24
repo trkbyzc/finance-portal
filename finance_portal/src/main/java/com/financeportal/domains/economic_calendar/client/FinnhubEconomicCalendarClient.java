@@ -82,6 +82,7 @@ public class FinnhubEconomicCalendarClient implements EconomicCalendarClient {
             try {
                 time = LocalDateTime.parse(timeStr, FH_DATETIME);
             } catch (Exception e) {
+                // Finnhub zaman zaman eksik/bozuk timestamp döndürür; parse edilemeyen event'i atla.
                 return null;
             }
 
@@ -97,6 +98,7 @@ public class FinnhubEconomicCalendarClient implements EconomicCalendarClient {
             dto.setUnit(textOrEmpty(node, "unit"));
             return dto;
         } catch (Exception ignored) {
+            // Tek bir event'in parse hatası tüm listeyi kesmemeli; hatalı event sessizce atlanır.
             return null;
         }
     }

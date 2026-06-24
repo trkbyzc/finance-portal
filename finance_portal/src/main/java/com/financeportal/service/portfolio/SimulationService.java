@@ -46,8 +46,6 @@ public class SimulationService {
     private final SecurityUtils securityUtils;
     private final MarketChartService marketChartService;
 
-    // ---------- Public API ----------
-
     public List<SimulationDto> getMyList() {
         UUID userId = securityUtils.getCurrentUserId();
         List<Simulation> sims = simulationRepository.findByUser_IdOrderByCreatedAtDesc(userId);
@@ -108,8 +106,6 @@ public class SimulationService {
         simulationRepository.delete(sim);
         log.info("[SIM] Silindi: {} (user={})", simId, userId);
     }
-
-    // ---------- compute ----------
 
     /**
      * Tek-asset what-if hesabı. Cache'lenmiş historical veri'den entry tarihindeki birim fiyatı bulup
@@ -222,8 +218,6 @@ public class SimulationService {
         BigDecimal amountTry = quantity.multiply(entryPrice).setScale(4, RoundingMode.HALF_UP);
         return compute(symbol, assetType, investmentDate, amountTry);
     }
-
-    // ---------- helpers ----------
 
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {
         try {

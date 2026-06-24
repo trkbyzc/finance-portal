@@ -92,8 +92,6 @@ public class GroqClient implements LlmClient {
         }
     }
 
-    // ---------- request build ----------
-
     private ObjectNode buildRequestBody(LlmRequest req) {
         ObjectNode root = objectMapper.createObjectNode();
         root.put("model", model);
@@ -158,8 +156,6 @@ public class GroqClient implements LlmClient {
             case TOOL -> "tool";
         };
     }
-
-    // ---------- response parse ----------
 
     private LlmResponse parseResponse(String body) {
         try {

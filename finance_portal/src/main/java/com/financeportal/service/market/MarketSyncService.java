@@ -15,10 +15,10 @@ import java.util.List;
 @Slf4j
 public class MarketSyncService {
 
-    // ŞUNA DÖNÜŞTÜRÜN:
-    private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
+    private final YahooQuoteClient yahooFinanceClient;
     private final CacheService cacheService;
 
+    // Her saat Yahoo Finance'ten tahvil/bono fiyatlarını çeker ve 60 dakika TTL ile cache'e yazar.
     @Scheduled(fixedRate = 3600000)
     public void fetchBonds() {
         String[] bondSymbols = {"^TNX", "^IRX", "^TYX", "^FVX", "TLT", "IEF", "SHY", "BND", "AGG", "LQD", "HYG"};
@@ -26,6 +26,7 @@ public class MarketSyncService {
         if (list != null && !list.isEmpty()) cacheService.save("cache:bonds", list, 60);
     }
 
+    // Her 5 dakikada vadeli işlem (futures) fiyatlarını çeker; daha kısa TTL (5 dk) ile cache'e yazar.
     @Scheduled(fixedRate = 300000)
     public void fetchFutures() {
         List<MarketAssetDto> list = yahooFinanceClient.fetchQuotes(new String[]{"ES=F", "NQ=F", "GC=F", "CL=F"}, "VIOP / VADELİ İŞLEM");

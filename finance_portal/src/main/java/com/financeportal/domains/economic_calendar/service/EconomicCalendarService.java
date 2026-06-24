@@ -46,6 +46,7 @@ public class EconomicCalendarService {
                     .sorted(Comparator.comparing(EconomicEventDto::getTime))
                     .collect(Collectors.toList());
         } catch (Exception e) {
+            // Cache bozuk/deserialize hatası UI'yi çökertmemeli; boş liste dönerek graceful degrade edilir.
             log.error("[ECONOMIC-CALENDAR] read failed: {}", e.getMessage());
             return List.of();
         }

@@ -13,10 +13,9 @@ public class FintablesYieldResult {
 
     private String title;
 
-    @JsonAlias({"yield_1m", "getiri1A", "yield1m"}) // Ne olur ne olmaz getiriyi de sağlama alalım
+    @JsonAlias({"yield_1m", "getiri1A", "yield1m"})
     private BigDecimal yield_1m;
 
-    // 🚀 SİHİRLİ DOKUNUŞ: Fiyatı hangi isimle yollarsa yollasın yakalayacak zırh!
     @JsonAlias({"price", "last_price", "lastPrice", "nav", "current_nav", "fiyat", "value"})
     private BigDecimal price;
 }

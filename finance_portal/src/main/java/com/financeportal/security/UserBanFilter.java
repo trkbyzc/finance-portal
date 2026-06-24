@@ -38,12 +38,14 @@ public class UserBanFilter extends OncePerRequestFilter {
                         try {
                             sendBanResponse(response, user);
                         } catch (IOException e) {
+                            // ifPresent lambda'dan checked exception fırlatılamaz; hata zaten response'a yazılamadı, logluyoruz.
                             e.printStackTrace();
                         }
                     }
                 });
             }
 
+            // lambda içinden filter chain durdurulamadığı için 403 yazıldıysa burada erken çıkıyoruz.
             if (response.getStatus() == HttpServletResponse.SC_FORBIDDEN) return;
         }
 

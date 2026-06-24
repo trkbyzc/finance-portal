@@ -23,10 +23,9 @@ import java.util.Map;
 @Slf4j
 public class CommodityService {
 
-    // ŞUNA DÖNÜŞTÜRÜN:
-    private final YahooQuoteClient yahooFinanceClient; // (Veya ismini yahooQuoteClient yapın)
+    private final YahooQuoteClient yahooFinanceClient;
     private final TruncgilIntegrationClient truncgilIntegrationClient;
-    private final CurrencyService currencyService; // 🚀 Domainler arası ilk iletişim!
+    private final CurrencyService currencyService;
     private final CacheService cacheService;
     private final TradingViewLogoClient logoClient;
 
@@ -60,7 +59,7 @@ public class CommodityService {
         return cacheService.getOrFetch("cache:turkish_gold", () -> {
             List<CommodityDto> list = truncgilIntegrationClient.fetchLiveTurkishGold();
             List<CommodityDto> result = (list != null && !list.isEmpty()) ? list : calculateGoldMathematically();
-            result.forEach(c -> c.setImage(commodityImage(c))); // altın/gümüş logosu
+            result.forEach(c -> c.setImage(commodityImage(c)));
             return result;
         }, 5);
     }
@@ -103,13 +102,11 @@ public class CommodityService {
         dto.setName(name);
         dto.setAssetType("TÜRK ALTINI");
 
-        // 🚀 ÖZÜMÜZE DÖNDÜK: Altın bir emtiadır ve mum grafiği çizecektir!
         dto.setAssetCategory("COMMODITY");
         dto.setChartType("CANDLE");
 
-        // 🚀 ÇAKIŞMA KÖKÜNDEN ÇÖZÜLDÜ:
-        // Artık Gram Altın yedeği "GC=F" kimliğini kullanmıyor! "XAUTRY=X" kullanıyor.
-        // Böylece global Ons Altın (GC=F) kendi bağımsızlığını ilan etmiş oluyor.
+        // Yedek altın DTO'su GC=F yerine XAUTRY=X kullanır; böylece global Ons Altın (GC=F)
+        // ile sembol çakışması önlenir ve grafik verileri birbirini ezmez.
         dto.setYahooSymbol("XAUTRY=X");
 
         BigDecimal sellPrice = gramPrice.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);

@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> {
 
-    /** Bir sohbetin tüm mesajları, kronolojik. */
     List<ChatMessage> findByConversation_IdOrderByCreatedAtAsc(UUID conversationId);
 
     /** Son N mesajı çekmek için (kronolojik tersinde — sonra app'te ters çevrilir). */

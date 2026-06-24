@@ -6,12 +6,12 @@ import java.util.List;
 
 @Data
 public class PortfolioSummaryDto {
-    private BigDecimal totalAssetCost;  // Varlıkların Bize Maliyeti
-    private BigDecimal totalAssetValue; // Varlıkların GÜNCEL Değeri
-    private BigDecimal grandTotal;      // Toplam Güncel Değer
+    private BigDecimal totalAssetCost;
+    private BigDecimal totalAssetValue;
+    private BigDecimal grandTotal;
 
-    private BigDecimal totalProfitLoss;    // Toplam Kar/Zarar (TL)
-    private BigDecimal totalProfitLossPct; // Toplam Kar/Zarar (%)
+    private BigDecimal totalProfitLoss;
+    private BigDecimal totalProfitLossPct;
 
     private List<AssetDistributionDto> distribution;
 }

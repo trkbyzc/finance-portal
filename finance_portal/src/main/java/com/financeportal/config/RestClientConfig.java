@@ -10,19 +10,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
-/**
- * RestTemplate bean'ı merkezi olarak konfigüre edilir
- * Tüm HTTP API çağrıları bu bean'ı kullanırlar
- */
 @Configuration
 @Slf4j
 public class RestClientConfig {
 
-    /**
-     * Optimized RestTemplate bean'ı
-     * - Timeout: 10 saniye
-     * - Connection handling
-     */
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
@@ -32,14 +23,11 @@ public class RestClientConfig {
                 .build();
     }
 
-    /**
-     * HTTP request factory (connection timeout ayarı)
-     * Spring 6.1+ compatible
-     */
+    // Spring 6.1+ ile uyumlu SimpleClientHttpRequestFactory kullanımı (HttpComponentsClientHttpRequestFactory deprecated)
     private ClientHttpRequestFactory clientHttpRequestFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(10000);  // 10 saniye
-        factory.setReadTimeout(10000);      // 10 saniye
+        factory.setConnectTimeout(10000);
+        factory.setReadTimeout(10000);
 
         log.debug("RestTemplate ClientHttpRequestFactory konfigürasyonu yapıldı: 10s timeout");
 

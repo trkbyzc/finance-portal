@@ -9,7 +9,6 @@ public interface LlmClient {
     /** Provider adı — config'teki primary/fallback değerleriyle eşleşir ("groq", "gemini"). */
     String name();
 
-    /** Bu provider'ın bir API key'i var mı, yani kullanılabilir mi. */
     boolean isConfigured();
 
     /**
