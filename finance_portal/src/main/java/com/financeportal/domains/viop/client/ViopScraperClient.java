@@ -1,4 +1,4 @@
-﻿package com.financeportal.domains.viop.client;
+package com.financeportal.domains.viop.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
