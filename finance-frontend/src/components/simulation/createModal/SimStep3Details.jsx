@@ -37,7 +37,6 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
     // Geçerli birim fiyat (tutar ↔ miktar dönüşümü için). Tarih seçilmeden bilinmez.
     const priceNum = (typeof datePrice === 'number' && datePrice > 0) ? datePrice : 0;
 
-    // Tutar girilince miktarı, miktar girilince tutarı fiyattan hesapla (çift yönlü).
     const handleAmount = (v) => {
         setAmountTry(v);
         setPreviewResult(null);
@@ -70,7 +69,6 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
         }
     };
 
-    // Earliest historical date — backend'den asset'in en eski tarihini çek
     useEffect(() => {
         if (!selectedAsset || !backendType) return;
         const sym = selectedAsset.symbol || selectedAsset.currencyCode;
@@ -135,7 +133,6 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
 
     return (
         <div className="space-y-4">
-            {/* Asset card — symbol+name solda, sembol kodu mono chip olarak sağda */}
             <div className="bg-bg border border-border rounded-lg p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                     <div className="font-semibold truncate">
@@ -147,7 +144,6 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
                 </div>
             </div>
 
-            {/* Yatırım Tarihi + altta info chip'leri (her biri ayrı badge, iç içe geçmez) */}
             <div>
                 <label className="block text-sm font-semibold mb-1">{t('simulation:modal.investmentDate')}</label>
                 <DatePicker
@@ -158,7 +154,6 @@ export default function SimStep3Details({ selectedAsset, backendType, onPreview,
                 />
                 <p className="text-xs text-text-muted mt-1">{t('simulation:modal.investmentDateHint')}</p>
 
-                {/* Bilgi rozetleri — her biri bağımsız chip, flex-wrap ile ikiniciye iner */}
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-xs">
                     {datePriceLoading && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface border border-border text-text-muted">

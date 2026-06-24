@@ -72,7 +72,6 @@ export default function StockFundamentals({ symbol }) {
                 )}
             </div>
 
-            {/* 52 hafta aralık çubuğu */}
             {hasRange && (
                 <div className="mb-5">
                     <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-text-muted mb-1.5">
@@ -94,7 +93,6 @@ export default function StockFundamentals({ symbol }) {
                 </div>
             )}
 
-            {/* Temel oranlar / veriler */}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                 <Stat label={t('asset:fundamentals.marketCap', 'Piyasa Değeri')} value={data.marketCapTl == null ? null : fmtBig(data.marketCapTl, '₺')} />
                 <Stat label={t('asset:fundamentals.marketCapUsd', 'Piyasa Değeri ($)')} value={data.marketCapUsd == null ? null : fmtBig(data.marketCapUsd, '$')} />

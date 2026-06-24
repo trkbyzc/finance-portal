@@ -23,7 +23,6 @@ export default function BankCurrenciesPage() {
         staleTime: 60 * 1000
     });
 
-    // Sadece izinli 12 kurdan veride mevcut olanlar, TCMB sırasında
     const availableCurrencies = useMemo(() => {
         const present = new Set(rates.map(r => r.currencyCode).filter(Boolean));
         return ALLOWED.filter(code => present.has(code));

@@ -84,7 +84,6 @@ export default function PreferencesPage() {
         }
     });
 
-    // E-posta bildirimleri durumu
     const { data: emailNotifStatus, isLoading: emailNotifLoading } = useQuery({
         queryKey: ['user-email-notifications'],
         queryFn: userApi.getEmailNotifications,
@@ -112,13 +111,11 @@ export default function PreferencesPage() {
         }
     });
 
-    // Mevcut tercihler
     const { data: prefs, isLoading: prefsLoading } = useQuery({
         queryKey: ['user-preferences'],
         queryFn: preferencesApi.getMyPreferences
     });
 
-    // Asset pool — tüm market verileri
     const { data: allMarkets, isLoading: marketsLoading } = useQuery({
         queryKey: ['preferences-all-markets'],
         queryFn: aggregateApi.getAllMarkets,
@@ -181,7 +178,6 @@ export default function PreferencesPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Section: Ticker Listesi */}
                         <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">
                             <div className="flex items-center gap-2 mb-1">
                                 <BarChart3 size={18} className="text-primary" />
@@ -201,7 +197,6 @@ export default function PreferencesPage() {
                             />
                         </section>
 
-                        {/* Section: Görünürlük */}
                         <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">
                             <div className="flex items-center gap-2 mb-1">
                                 <Eye size={18} className="text-primary" />
@@ -299,7 +294,6 @@ export default function PreferencesPage() {
                         </section>
                         )}
 
-                        {/* Section: Bildirimler (E-posta) */}
                         <section className="bg-surface-2 border border-border rounded-2xl p-4 md:p-6 mb-6">
                             <div className="flex items-center gap-2 mb-1">
                                 {emailNotifEnabled
@@ -350,7 +344,6 @@ export default function PreferencesPage() {
                             </div>
                         </section>
 
-                        {/* Save button */}
                         <div className="flex items-center justify-end gap-3 sticky bottom-4 bg-bg/95 backdrop-blur p-3 rounded-xl border border-border z-10">
                             {saveMutation.isSuccess && !dirty && (
                                 <span className="text-xs text-buy font-semibold">

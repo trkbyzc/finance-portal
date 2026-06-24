@@ -89,7 +89,6 @@ export default function EconomyDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Sol: gösterge listesi (kategorili) */}
                 <aside className="lg:col-span-1 bg-surface border border-border rounded-2xl p-4 shadow-xl max-h-[720px] overflow-y-auto custom-scrollbar">
                     {grouped.map(group => (
                         <div key={group.category} className="mb-4">
@@ -113,7 +112,6 @@ export default function EconomyDashboard() {
                     ))}
                 </aside>
 
-                {/* Sağ: grafik */}
                 <section className="lg:col-span-3 bg-surface border border-border rounded-2xl p-5 md:p-6 shadow-2xl flex flex-col">
                     <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
                         <div className="flex items-center gap-2">

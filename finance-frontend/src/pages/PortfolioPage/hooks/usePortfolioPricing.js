@@ -84,7 +84,6 @@ export default function usePortfolioPricing(portfolio) {
         }
     };
 
-    // Varlığın GÜNLÜK değişim % — piyasa verisinden (günlük durum grafiği için)
     const getDailyChange = (symbol, assetType) => {
         if (!marketData) return null;
         try {
@@ -121,9 +120,9 @@ export default function usePortfolioPricing(portfolio) {
             const marginNative = Number(item.marginPosted) > 0
                 ? Number(item.marginPosted)
                 : (Number(item.averagePrice) || 0) * item.quantity * multiplier; // teminat bilinmiyorsa nominal (defansif fallback)
-            const costValue = marginNative * rate;          // maliyet = bağlanan teminat (TRY)
-            const profitLoss = pnlNative * rate;            // K/Z (TRY)
-            const currentValue = costValue + profitLoss;    // portföye katkı = teminat + K/Z (TRY)
+            const costValue = marginNative * rate;
+            const profitLoss = pnlNative * rate;
+            const currentValue = costValue + profitLoss;
             const profitLossPercent = marginNative > 0 ? (pnlNative / marginNative) * 100 : 0;
             return { currentPrice, profitLoss, profitLossPercent, currentValue, costValue };
         }
@@ -143,9 +142,9 @@ export default function usePortfolioPricing(portfolio) {
             };
         }
 
-        const currentValue = (Number(currentPrice) || 0) * rate * item.quantity * multiplier; // TRY
-        const costValue = (Number(item.averagePrice) || 0) * rate * item.quantity * multiplier; // TRY
-        const profitLoss = currentValue - costValue; // TRY
+        const currentValue = (Number(currentPrice) || 0) * rate * item.quantity * multiplier;
+        const costValue = (Number(item.averagePrice) || 0) * rate * item.quantity * multiplier;
+        const profitLoss = currentValue - costValue;
         const profitLossPercent = item.averagePrice
             ? ((currentPrice - item.averagePrice) / item.averagePrice) * 100
             : 0;

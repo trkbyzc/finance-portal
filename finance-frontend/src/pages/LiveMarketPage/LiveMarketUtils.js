@@ -2,7 +2,7 @@ export const formatIndexName = (symbol) => {
     if (!symbol) return '';
     if (symbol.includes('XU100')) return 'BIST 100';
     if (symbol.includes('XU030')) return 'BIST 30';
-    if (symbol.includes('XU050')) return 'BIST 50'; // 🚀 Eklendi!
+    if (symbol.includes('XU050')) return 'BIST 50';
     if (symbol.includes('XBANK')) return 'BIST BANKA';
     if (symbol.includes('XUSIN')) return 'BIST SINAİ';
     return symbol.replace('.IS', '');

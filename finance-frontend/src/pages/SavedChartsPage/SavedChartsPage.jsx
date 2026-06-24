@@ -9,7 +9,7 @@ import Modal from '../../components/layout/Modal';
 import { useNotify } from '../../context/NotificationContext';
 
 /**
- * "Hesabım" — Kullanıcının çizim araçlarıyla kaydettiği grafiklerin listesi.
+ * Kullanıcının çizim araçlarıyla kaydettiği grafiklerin listesi.
  * Kart'a tıklayınca grafik açılıp çizimler geri yüklenir (?saved=id).
  */
 export default function SavedChartsPage() {
@@ -52,6 +52,7 @@ export default function SavedChartsPage() {
 
     const fmtDate = (d) => {
         if (!d) return '';
+        // Backend LocalDate JSON'ı [year, month, day] dizisi olarak gelebilir; ISO string'e normalize ediyoruz.
         const iso = Array.isArray(d) ? `${d[0]}-${String(d[1]).padStart(2, '0')}-${String(d[2]).padStart(2, '0')}` : d;
         try { return new Date(iso).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' }); }
         catch { return iso; }

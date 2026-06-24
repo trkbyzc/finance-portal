@@ -51,6 +51,7 @@ export default function SimStep2AssetList({ selectedType, onSelect, onBack }) {
                 ) : filtered.map((asset, idx) => {
                     const symbol = asset.symbol || asset.currencyCode;
                     const name = asset.name || asset.currencyName;
+                    // Farklı asset tipleri (hisse, döviz, fon, emtia) farklı fiyat alanları döner; ilk dolu alan kullanılır.
                     const price = asset.price || asset.forexSelling || asset.value || asset.lastPrice || asset.unitPrice || 0;
                     return (
                         <button

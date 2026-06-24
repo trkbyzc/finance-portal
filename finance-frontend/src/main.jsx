@@ -6,14 +6,13 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import './i18n';
 import './index.css';
 
-// React Query İstemcisini oluşturuyoruz
-// refetchOnWindowFocus: false diyerek, kullanıcı her sekmeye döndüğünde API'ye gereksiz istek atmasını engelliyoruz
+// refetchOnWindowFocus kapalı: sekme değiştirme olayında gereksiz API isteği atılmasını engeller
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             refetchOnWindowFocus: false,
-            retry: 1, // Hata olursa sadece 1 kez tekrar dener
-            staleTime: 60 * 1000, // Veriler 60 saniye boyunca taze kabul edilir, 1 dakika dolmadan arka planda istek atılmaz (Performans artışı)
+            retry: 1,
+            staleTime: 60 * 1000, // 60 sn boyunca taze kabul edilir; süre dolmadan arka planda yeniden istek atılmaz
         },
     },
 });

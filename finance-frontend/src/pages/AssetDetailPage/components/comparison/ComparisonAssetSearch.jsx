@@ -12,6 +12,7 @@ export default function ComparisonAssetSearch({ allAssets, primaryYahoo, compari
     const [searchQuery, setSearchQuery] = useState('');
     const dropdownRef = useRef(null);
 
+    // Boş sorguda popüler 6 sembolü, yazılı sorguda tüm asset listesini filtreler; zaten seçili ve primary olanlar dışlanır.
     const filteredAssets = useMemo(() => {
         const query = searchQuery.toLowerCase().trim();
         if (!query) {

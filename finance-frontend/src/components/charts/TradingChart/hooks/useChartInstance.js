@@ -3,22 +3,11 @@ import { init, dispose } from 'klinecharts';
 import { getChartStyles } from '../utils/chartConfig';
 import { formatKlineDate } from '../../../../utils/formatters/dateFormatter';
 
-/**
- * 🎨 Chart Instance Hook
- * KlineCharts instance'ını yönetir
- * 
- * @param {React.RefObject} containerRef - Chart container ref
- * @param {string} chartType - Chart tipi (candle_solid, area, vb.)
- * @param {boolean} isLineChart - Line chart mı?
- * @param {boolean} isNone - Chart yok mu?
- * @returns {React.RefObject} Chart instance ref
- */
 export const useChartInstance = (containerRef, chartType, isLineChart, isNone, onCrosshairChange) => {
     const chartInstance = useRef(null);
 
     useEffect(() => {
         if (isLineChart || isNone || !containerRef.current) {
-            // Line chart veya None ise klinecharts kullanma
             if (chartInstance.current) {
                 dispose(containerRef.current);
                 chartInstance.current = null;
@@ -26,7 +15,6 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
             return;
         }
 
-        // Önceki instance'ı temizle
         if (chartInstance.current) {
             dispose(containerRef.current);
             chartInstance.current = null;
@@ -77,7 +65,6 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
 
         chartInstance.current = chart;
 
-        // Resize handler
         const handleResize = () => {
             if (chartInstance.current) {
                 chartInstance.current.resize();
@@ -92,7 +79,6 @@ export const useChartInstance = (containerRef, chartType, isLineChart, isNone, o
         const resizeObserver = new ResizeObserver(handleResize);
         resizeObserver.observe(containerRef.current);
 
-        // Cleanup
         return () => {
             window.removeEventListener('resize', handleResize);
             resizeObserver.disconnect();

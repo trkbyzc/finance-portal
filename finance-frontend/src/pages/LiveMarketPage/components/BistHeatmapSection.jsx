@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, Loader2 } from 'lucide-react';
 
-const TOP_N = 40; // okunabilirlik için en yüksek hacimli ilk N hisse
+const TOP_N = 40; // haritada gösterilecek en yüksek hacimli hisse sayısı
 
 const shortSym = (s) => (s || '').replace('.IS', '');
 

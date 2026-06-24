@@ -10,6 +10,9 @@ const CallbackPage = () => {
     const { t } = useTranslation('auth');
     const hasRun = useRef(false);
 
+    // hasRun ref: React StrictMode'da effect iki kez tetiklenir; auth code tek kullanımlık
+    // olduğundan çift çağrı token alışverişini bozar. Dependency array kasıtlı boş —
+    // mount'ta bir kez çalışması yeterli.
     useEffect(() => {
         if (hasRun.current) return;
         hasRun.current = true;

@@ -32,7 +32,6 @@ export default function AuthenticatedDashboard() {
     const [editing, setEditing] = useState(false);
     const [dragKey, setDragKey] = useState(null);
 
-    // Widget registry — key, başlık, geniş mi (2 sütun), render fonksiyonu
     const registry = useMemo(() => ({
         marketSummary: { titleKey: 'dashboard:widgets.marketTitle', wide: true, render: () => <MarketSummaryStrip /> },
         portfolio: { titleKey: 'dashboard:widgets.portfolioTitle', wide: true, render: () => <PortfolioSummaryWidget /> },

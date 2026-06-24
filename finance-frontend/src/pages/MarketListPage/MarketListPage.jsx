@@ -11,11 +11,11 @@ export default function MarketListPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 🚀 Önceki sayfadan (LiveMarket) gelen bir filtre varsa onu yakala (Örn: "BIST50")
+    // LiveMarket sayfasından state üzerinden gelen filtre (ör. "BIST50") varsa başlangıç tab'ı olarak kullan
     const incomingFilter = location.state?.filter || 'ALL';
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState(incomingFilter); // 🚀 Aktif Sekme State'i
+    const [activeTab, setActiveTab] = useState(incomingFilter);
 
     const endpointMap = {
         'tr-stocks': '/stocks', 'us-stocks': '/stocks', 'crypto': '/crypto-currencies',
@@ -79,17 +79,14 @@ export default function MarketListPage() {
         staleTime: 30 * 1000
     });
 
-    // 🚀 Frontend Filtrelemesi (Hem Arama Hem de BIST Tabları)
+    // Tab filtresi backend'den gelen inBistXX boolean flag'lerine, arama filtresi ise birden fazla alana bakıyor
     const filteredData = data.filter(item => {
-        // 1. Endeks Filtresi Kontrolü (Artık backend'den gelen boolean değerlere bakıyoruz)
-        // 1. Endeks Filtresi Kontrolü (Artık backend'den gelen boolean değerlere bakıyoruz)
         if (activeTab && activeTab !== 'ALL') {
             if (activeTab === 'BIST30' && !item.inBist30) return false;
             if (activeTab === 'BIST50' && !item.inBist50) return false;
             if (activeTab === 'BIST100' && !item.inBist100) return false;
         }
 
-        // 2. Arama Çubuğu Kontrolü
         if (!searchTerm) return true;
         const searchStr = `${item.symbol} ${item.name} ${item.currencyCode} ${item.currencyName}`.toLowerCase();
         return searchStr.includes(searchTerm.toLowerCase());
@@ -114,7 +111,6 @@ export default function MarketListPage() {
         <div className="min-h-screen bg-bg text-text">
             <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
 
-                {/* HEADERS */}
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
                     <div className="flex items-center gap-4">
                         <button onClick={() => navigate(-1)} className="p-2 bg-surface-2 border border-border rounded-lg hover:text-text text-text-muted transition">
@@ -134,7 +130,6 @@ export default function MarketListPage() {
                     </div>
                 </div>
 
-                {/* 🚀 YENİ EKLENEN BIST TABLARI (Sadece tr-stocks kategorisinde görünür) */}
                 {category === 'tr-stocks' && (
                     <div className="flex gap-2 overflow-x-auto mb-6 pb-2 hide-scrollbar">
                         {['ALL', 'BIST100', 'BIST50', 'BIST30'].map(tab => (
@@ -153,7 +148,6 @@ export default function MarketListPage() {
                     </div>
                 )}
 
-                {/* TABLE */}
                 <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">

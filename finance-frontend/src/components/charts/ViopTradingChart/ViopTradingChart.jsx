@@ -8,13 +8,11 @@ import ViopHeader from './components/ViopHeader';
 import ViopControls from './components/ViopControls';
 import ViopChartArea from './components/ViopChartArea';
 
-// 🚀 FAZA 1: Veri çekme useEffect'i kaldırıldı, custom hook kullanılıyor
 export default function ViopTradingChart({ asset }) {
     const chartContainerRef = useRef(null);
     const chartInstance = useRef(null);
     const [range, setRange] = useState('1mo');
 
-    // 🚀 FAZA 1: Tarih hesaplama useMemo ile derived state
     const { fromDate, toDate } = useMemo(() => ({
         fromDate: getPastDate(30),
         toDate: getPastDate(0)
@@ -30,15 +28,14 @@ export default function ViopTradingChart({ asset }) {
         if (newRange === '1y') setCustomFromDate(getPastDate(365));
     };
 
-    // ✅ React Query ile veri çekme - range parametresi eklendi
     const { data: rawChartData = [], isLoading: loading } = useViopChartData(
         asset?.symbol,
         customFromDate,
         customToDate,
-        range  // ✅ range parametresi gönderiliyor
+        range
     );
 
-    // 🆕 TRY/USD para birimi conversion — global currency context'i
+    // Global currency context'e göre TRY/USD dönüşümü; VIOP kontratları TRY bazlı olduğundan nativeCurrency her zaman TRY'dir
     const { currency, convertPrice } = useCurrency();
     const nativeCurrency = useMemo(() => detectNativeCurrency({ ...asset, assetCategory: 'VIOP' }), [asset]);
     const shouldConvert = currency !== nativeCurrency;
@@ -54,7 +51,7 @@ export default function ViopTradingChart({ asset }) {
         }));
     }, [rawChartData, shouldConvert, nativeCurrency, convertPrice]);
 
-    // Chart instance kurulumu (DOM manipulation)
+    // Mount öncesi dispose: React Strict Mode'da çift mount olursa önceki instance'ı temizler
     useEffect(() => {
         if (!chartContainerRef.current) return;
         dispose(chartContainerRef.current);
@@ -91,7 +88,7 @@ export default function ViopTradingChart({ asset }) {
         };
     }, []);
 
-    // Chart data güncelleme (side effect) + currency-aware precision
+    // Fiyat aralığına göre ondalık hassasiyeti dinamik ayarlar; düşük fiyatlı kontratlar için gerekli
     useEffect(() => {
         if (!chartInstance.current) return;
         if (chartData.length > 0) {

@@ -4,10 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { COMPARISON_COLORS, formatPriceLabel } from './comparisonHelpers';
 import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
 
-/**
- * Recharts multi-line karşılaştırma grafiği. Asset'ler solid line, enflasyon overlay'leri kesik çizgi.
- * Boş state: orta yerde GitCompare ikonu + "henüz karşılaştırma yok" mesajı.
- */
+// Asset line'ları solid, enflasyon overlay'leri kesik çizgi (strokeDasharray) olarak çizilir.
 export default function ComparisonChart({
     allActiveAssets, inflationSeries, chartData, isLoading, isPriceMode, currency
 }) {

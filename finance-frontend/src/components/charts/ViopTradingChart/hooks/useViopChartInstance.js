@@ -3,10 +3,6 @@ import { init, dispose } from 'klinecharts';
 import { getViopChartStyles } from '../utils/viopChartConfig';
 import { formatKlineDate } from '../../../../utils/formatters/dateFormatter';
 
-/**
- * 🚀 FAZA 2: ViopTradingChart için chart instance yönetimi
- * Chart kurulumu ve temizleme işlemlerini yönetir
- */
 export const useViopChartInstance = (containerRef) => {
     const chartInstance = useRef(null);
 
@@ -24,10 +20,9 @@ export const useViopChartInstance = (containerRef) => {
             return;
         }
 
-        // Önceki instance'ı temizle
+        // Re-render'da stale instance kalmaması için mount öncesi dispose edilir
         dispose(containerRef.current);
 
-        // Yeni chart instance oluştur
         try {
             chartInstance.current = init(containerRef.current, {
                 styles: getViopChartStyles(),
@@ -40,14 +35,13 @@ export const useViopChartInstance = (containerRef) => {
             console.error('❌ ViopChart instance creation failed:', error);
         }
 
-        // Cleanup
         return () => {
-            console.warn('🧹 ViopChart cleanup');
             if (chartInstance.current && containerRef.current) {
                 dispose(containerRef.current);
                 chartInstance.current = null;
             }
         };
+    // Chart yalnızca bir kez DOM'a bağlandığında init edilir; dep array kasıtlı boş
     }, []);
 
     return chartInstance;

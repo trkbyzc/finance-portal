@@ -75,7 +75,6 @@ export const useTickerData = () => {
     const tickerData = useMemo(() => {
         if (!allMarkets) return [];
 
-        // Kullanıcı kendi listesini seçtiyse onu kullan
         const customList = preferences?.tickers;
         if (customList && customList.length > 0) {
             return customList
@@ -83,7 +82,6 @@ export const useTickerData = () => {
                 .filter(Boolean);
         }
 
-        // Yoksa varsayılan 5
         const allItems = [
             ...(allMarkets.indices || []),
             ...(allMarkets.currencies || []),

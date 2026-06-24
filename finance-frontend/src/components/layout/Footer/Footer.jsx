@@ -9,9 +9,6 @@ import { useAuth } from '../../../context/AuthContext';
  * 3 link kolonu (Piyasalar / Araçlar / Kurumsal) + marka kolonu, altta yasal uyarı
  * (yatırım tavsiyesi değildir) ve veri kaynakları atıfı. Tüm metinler `footer` i18n
  * namespace'inden gelir; tema token'larıyla (bg-surface, border, text-muted) çalışır.
- *
- * Kurumsal linkler (Hakkımızda/İletişim/KVKK/Koşullar) henüz sayfa olmadığı için
- * placeholder `#` — ilgili sayfalar açıldığında `to` ile değiştirilir.
  */
 const MARKET_LINKS = [
     { key: 'trStocks', to: '/markets/tr-stocks' },
@@ -32,7 +29,6 @@ const TOOL_LINKS = [
     { key: 'news', to: '/news' }
 ];
 
-// Henüz sayfası olmayan kurumsal linkler — placeholder
 const CORPORATE_LINKS = ['about', 'contact', 'privacy', 'terms'];
 
 function FooterColumn({ title, children }) {
@@ -51,7 +47,6 @@ export default function Footer() {
 
     const linkClass = 'text-text-muted hover:text-primary text-sm transition-colors';
 
-    // Giriş gerektiren araçları, oturum yoksa listeden çıkar
     const toolLinks = TOOL_LINKS.filter((link) => !link.auth || isAuthenticated);
 
     return (
@@ -60,7 +55,6 @@ export default function Footer() {
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
 
-                    {/* Marka kolonu */}
                     <div className="col-span-2 lg:col-span-1">
                         <Link to="/" className="flex items-center gap-0 group w-fit">
                             <img
@@ -77,7 +71,6 @@ export default function Footer() {
                         </p>
                     </div>
 
-                    {/* Piyasalar */}
                     <FooterColumn title={t('footer:columns.markets')}>
                         {MARKET_LINKS.map(({ key, to }) => (
                             <li key={key}>
@@ -86,7 +79,6 @@ export default function Footer() {
                         ))}
                     </FooterColumn>
 
-                    {/* Araçlar */}
                     <FooterColumn title={t('footer:columns.tools')}>
                         {toolLinks.map(({ key, to }) => (
                             <li key={key}>
@@ -95,7 +87,6 @@ export default function Footer() {
                         ))}
                     </FooterColumn>
 
-                    {/* Kurumsal (placeholder) */}
                     <FooterColumn title={t('footer:columns.corporate')}>
                         {CORPORATE_LINKS.map((key) => (
                             <li key={key}>
@@ -105,7 +96,6 @@ export default function Footer() {
                     </FooterColumn>
                 </div>
 
-                {/* Yasal uyarı */}
                 <div className="mt-10 flex items-start gap-3 bg-surface-2 border border-border rounded-xl p-4">
                     <AlertTriangle size={18} className="text-warning shrink-0 mt-0.5" />
                     <p className="text-text-muted text-xs leading-relaxed">
@@ -113,7 +103,6 @@ export default function Footer() {
                     </p>
                 </div>
 
-                {/* Alt bar */}
                 <div className="mt-8 pt-6 border-t border-border">
                     <p className="text-text-muted text-xs">{t('footer:copyright', { year })}</p>
                 </div>

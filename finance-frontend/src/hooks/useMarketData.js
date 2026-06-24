@@ -17,7 +17,7 @@ const CATEGORY_CONFIG = {
     'tr-bonds': { title: 'Türk Tahvil & Bono', icon: '🏦', endpoint: '/tr-bonds', type: 'bond' },
     'eurobonds': { title: 'Türkiye Eurobond', icon: '🇹🇷', endpoint: '/eurobonds', type: 'eurobond' },
     'tr-funds': { title: 'Türkiye Yatırım Fonları', icon: '🇹🇷', endpoint: '/tr-funds', type: 'fund' },
-    'global-funds': { title: 'Global Fonlar (ETF)', icon: '🌍', endpoint: '/global-funds', type: 'fund' }, // BURASI DÜZELTİLDİ
+    'global-funds': { title: 'Global Fonlar (ETF)', icon: '🌍', endpoint: '/global-funds', type: 'fund' },
     'live': { title: 'Canlı Piyasa Görünümü', icon: '🌍', endpoint: '/all', type: 'mixed' }
 };
 
@@ -78,14 +78,14 @@ export const useMarketData = (category) => {
         return processedData;
     }, [rawData, category, searchTerm]);
 
-    // 🚀 İlk veri geldiğinde veya filteredData değiştiğinde ilk item'ı seç
+    // filteredData değiştiğinde ve henüz seçili bir asset yoksa ilk item'ı otomatik seç
     useEffect(() => {
         if (filteredData.length > 0 && !selectedAsset) {
             setSelectedAsset(filteredData[0]);
         }
     }, [filteredData, selectedAsset]);
 
-    // 🚀 EKSİK OLAN VİTRİN FONKSİYONU: Eski component üst sıradaki kartlar için bu limiti bekliyor
+    // Üst sıra vitrin kartları için kategoriye göre sınırlı asset listesi döner
     const getShowcaseAssets = () => {
         if (!filteredData || filteredData.length === 0) return [];
         if (category === 'crypto') return filteredData.slice(0, 10);
@@ -100,10 +100,10 @@ export const useMarketData = (category) => {
     return {
         data: filteredData,
         selectedAsset,
-        setSelectedAsset,       // 👈 Artık set fonksiyonu da dışarı aktarılıyor
+        setSelectedAsset,
         loading,
         config,
-        showcaseAssets: getShowcaseAssets(), // 👈 Vitrin datası verildi
+        showcaseAssets: getShowcaseAssets(),
         searchTerm,
         setSearchTerm
     };

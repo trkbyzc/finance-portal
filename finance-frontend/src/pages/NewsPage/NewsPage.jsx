@@ -85,7 +85,6 @@ export default function NewsPage() {
     };
 
     const handleShowLess = () => {
-        // Son yüklenen sayfayı çıkar; mevcut sayfa numarasını da geri al
         setAccumulatedNews(prev => prev.slice(0, Math.max(PAGE_SIZE, prev.length - PAGE_SIZE)));
         setPage(p => Math.max(0, p - 1));
     };

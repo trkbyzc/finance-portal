@@ -4,15 +4,7 @@ import StockListTable from './components/StockListTable.jsx';
 import BistInfoCards from './components/BistInfoCards.jsx';
 import NewsSection from '../../../../components/news/NewsSection.jsx';
 
-/**
- * Türk Hisse Senetleri sayfası — Stitch tasarımına göre düzenleme:
- *   - Üst: 3 KPI kart (BistInfoCards)
- *   - Sol kolon: Top Gainers / Top Losers / Highest Volume (3 sidebar üst üste)
- *   - Sağ kolon: Tüm Hisseler tablosu + altında haber grid (aynı sütun içinde)
- *
- * Sayfa header'ı kaldırıldı (tasarımda yok). News mt='' olarak override edilir
- * çünkü parent flex-col gap-6 kullanıyor.
- */
+// NewsSection'a className="" geçilir; parent flex-col gap-6 zaten aralığı yönettiği için margin override gerekmez.
 export default function TurkishStocksDashboard() {
     return (
         <div className="min-h-screen bg-bg text-text">

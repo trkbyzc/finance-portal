@@ -114,7 +114,7 @@ export default function MarketSummaryStrip() {
         refetchInterval: 30 * 1000
     });
 
-    // stored: kullanıcı seçimi (null = varsayılan). Kullanıcı değişince yeniden yüklenir.
+    // null = varsayılana dön (defaults kullanılır)
     const [stored, setStored] = useState(() => {
         try { const r = localStorage.getItem(storageKey); return r ? JSON.parse(r) : null; } catch { return null; }
     });
@@ -196,11 +196,11 @@ export default function MarketSummaryStrip() {
 
     const saveSelection = (next) => {
         setStored(next);
-        try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { /* kota yoksa yoksay */ }
+        try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { /* ignore */ }
     };
     const resetSelection = () => {
         setStored(null);
-        try { localStorage.removeItem(storageKey); } catch { /* yoksay */ }
+        try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
     };
 
     return (

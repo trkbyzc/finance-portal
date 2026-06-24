@@ -15,9 +15,6 @@ const parseTrBondName = (symbol) => {
     return `DİBS ${dd}.${mm}.20${yy}`;
 };
 
-/**
- * Tek bir sembolün allMarketsData içindeki ilk uygun match'ini bulur.
- */
 const findInMarkets = (allMarketsData, symbol, preferredKeys) => {
     if (!allMarketsData || !symbol) return null;
     const target = symbol.toUpperCase();
@@ -55,9 +52,6 @@ const findInMarkets = (allMarketsData, symbol, preferredKeys) => {
     return null;
 };
 
-/**
- * Markets array key'inden Asset.assetCategory enum'una map.
- */
 // Backend key'lerinin (allMarketsData) → frontend assetCategory enum map'i.
 // Backend keys: cryptos, global_bonds, tr_bonds, eurobonds, global_funds, tr_funds, vs.
 const ASSET_CATEGORY_FROM_KEY = {
@@ -129,14 +123,13 @@ export const useAssetDetails = (symbol) => {
             };
         }
     } else if (allMarketsData) {
-        // 🚀 Kategori belirleme önceliği: URL ?cat= > sembol pattern > global fallback
+        // Kategori belirleme önceliği: URL ?cat= > sembol pattern > global fallback
         const detectedCategory = urlCategory || detectCategoryFromSymbol(decodedSymbol);
         const preferredKeys = marketsKeyForCategory(detectedCategory);
 
         const found = findInMarkets(allMarketsData, decodedSymbol, preferredKeys);
         if (found) {
             asset = { ...found };
-            // Match yapılan listeye göre assetCategory'i kesinleştir
             const categoryFromKey = ASSET_CATEGORY_FROM_KEY[found._matchedKey];
             if (categoryFromKey) {
                 asset.assetCategory = categoryFromKey;
@@ -156,7 +149,6 @@ export const useAssetDetails = (symbol) => {
         };
     }
 
-    // TRY/USD toggle için asset'e displayPrice + nativeCurrency derive et
     if (asset) {
         const rawPrice = asset.price ?? asset.forexSelling ?? asset.yield ?? 0;
         asset.displayPrice = Number(rawPrice) || 0;

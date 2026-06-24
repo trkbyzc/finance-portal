@@ -84,7 +84,6 @@ export default function WhatIfPage() {
     return (
         <div className="min-h-screen bg-bg text-text p-4 md:p-8">
             <div className="max-w-[1400px] mx-auto">
-                {/* Header */}
                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
                         <GitCompare size={20} />
@@ -110,7 +109,6 @@ export default function WhatIfPage() {
                     todayStr={todayStr}
                 />
 
-                {/* Results */}
                 {compareMutation.isPending ? (
                     <div className="flex items-center justify-center py-20 text-text-muted">
                         <Loader2 className="animate-spin mr-3" size={24} />

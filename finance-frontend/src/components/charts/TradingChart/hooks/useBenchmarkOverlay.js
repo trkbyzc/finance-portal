@@ -92,7 +92,6 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
         staleTime: 60 * 60 * 1000
     });
 
-    // BIST fetch
     const activeBistKeys = useMemo(() =>
         bistOptions.filter(b => activeBists[b.key]).map(b => b.symbol),
         [activeBists, bistOptions]);
@@ -119,7 +118,6 @@ export default function useBenchmarkOverlay({ asset, rawChartData, activeRange, 
         staleTime: 5 * 60 * 1000
     });
 
-    // Crypto fetch
     const activeCryptoBenchKeys = useMemo(() =>
         CRYPTO_OPTIONS.filter(b => activeCryptoBench[b.key]).map(b => b.symbol),
         [activeCryptoBench]);

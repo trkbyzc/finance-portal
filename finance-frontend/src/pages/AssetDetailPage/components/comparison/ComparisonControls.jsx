@@ -17,7 +17,6 @@ export default function ComparisonControls({
 
     return (
         <div className="flex items-center gap-3 flex-wrap">
-            {/* Mode toggle */}
             <div className="flex items-center bg-surface-2 rounded-lg p-1 border border-border">
                 <button
                     onClick={() => setMode('percent')}
@@ -37,7 +36,6 @@ export default function ComparisonControls({
                 </button>
             </div>
 
-            {/* Currency toggle */}
             <div className="flex items-center bg-surface-2 rounded-lg p-1 border border-border">
                 <button
                     onClick={() => setCurrency('TRY')}
@@ -57,7 +55,6 @@ export default function ComparisonControls({
                 </button>
             </div>
 
-            {/* Enflasyon overlay'leri */}
             <div className="flex items-center gap-2">
                 <button
                     onClick={toggleTrInflation}
@@ -81,7 +78,6 @@ export default function ComparisonControls({
                 </button>
             </div>
 
-            {/* Aralık */}
             <div className="flex bg-surface-2 rounded-lg p-1 border border-border">
                 {comparisonRanges.map((val) => (
                     <button

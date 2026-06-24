@@ -58,7 +58,6 @@ export default function BistInfoCards() {
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            {/* 1. Listed Stocks */}
             <KpiCard
                 label={t('stocks.listedStocks')}
                 value={stats.total.toLocaleString('tr-TR')}
@@ -66,7 +65,6 @@ export default function BistInfoCards() {
                 iconClass="bg-primary/10 text-primary"
             />
 
-            {/* 2. Market Direction with avg % */}
             <div className="bg-surface border border-border p-5 rounded-xl flex items-center justify-between shadow-lg">
                 <div className="min-w-0">
                     <p className="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">
@@ -84,7 +82,6 @@ export default function BistInfoCards() {
                 </div>
             </div>
 
-            {/* 3. Gainers/Losers Ratio */}
             <KpiCard
                 label={t('stocks.gainersLosersRatio', 'Yükselen / Düşen')}
                 value={stats.ratio}

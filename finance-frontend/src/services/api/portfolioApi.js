@@ -1,7 +1,6 @@
 import { apiClient } from '../../config/apiClient';
 
 export const portfolioApi = {
-    // ---- Çoklu adlandırılmış portföy ----
     getPortfolios: async () => await apiClient.get('/portfolio/list'),
     createPortfolio: async (name) => await apiClient.post('/portfolio/list', { name }),
     renamePortfolio: async (portfolioId, name) => await apiClient.put(`/portfolio/list/${portfolioId}`, { name }),
@@ -23,7 +22,7 @@ export const portfolioApi = {
             price: data.averagePrice,
             contractSize: data.contractSize, // VİOP çarpanı (varsa); diğer varlıklarda backend 1 sayar
             direction: data.direction, // VİOP pozisyon yönü (LONG/SHORT); diğer varlıklarda backend null sayar
-            portfolioId: data.portfolioId, // hedef portföy (yoksa backend varsayılanı kullanır)
+            portfolioId: data.portfolioId,
             purchaseDate: data.purchaseDate // alış tarihi → transaction.executedAt; reel K/Z / enflasyon bundan hesaplanır
         });
     },

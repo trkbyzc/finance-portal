@@ -1,13 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 
 /**
- * ✏️ Chart Overlays Hook
  * Chart üzerine çizim araçlarını yönetir (çizgi, dikdörtgen, metin, ok, cetvel).
  *
  * Çizilen her overlay bir ref Map'inde (id → {name, points, extendData}) tutulur; böylece
  * "Grafik Kaydet" için snapshot alınabilir ve kaydedilmiş bir grafik açılınca geri yüklenebilir.
- *
- * @param {React.RefObject} chartInstance - Chart instance ref
  */
 export const useChartOverlays = (chartInstance) => {
     const [editingText, setEditingText] = useState(null);

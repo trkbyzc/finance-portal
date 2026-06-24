@@ -6,11 +6,7 @@ import { useTranslation } from 'react-i18next';
 const fmt = (v, digits = 2) => (v == null || Number.isNaN(Number(v)) ? '—' : Number(v).toFixed(digits));
 const ccySymbol = (c) => (c === 'EUR' ? '€' : '$');
 
-/**
- * Türkiye Hazine eurobond listesi — VİOP tarzı tam genişlik tablo.
- * Bir satıra tıklayınca o bononun grafiği açılır (/chart/:isin?cat=EUROBOND).
- * Sütunlar: Bono (İsim + ISIN/Döviz), Kupon, Vade, Fiyat, Getiri, Günlük Değişim.
- */
+// Satıra tıklayınca /chart/:isin?cat=EUROBOND rotasına yönlendirir; cat parametresi grafik stratejisini belirler.
 export default function EurobondList({ bonds, loading }) {
     const navigate = useNavigate();
     const { t } = useTranslation(['markets', 'common']);
@@ -28,7 +24,6 @@ export default function EurobondList({ bonds, loading }) {
 
     return (
         <div>
-            {/* Arama */}
             <div className="relative w-full md:w-96 mb-6">
                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input

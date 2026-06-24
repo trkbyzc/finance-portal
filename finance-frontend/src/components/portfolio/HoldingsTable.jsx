@@ -103,7 +103,6 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
     // VİOP sözleşme büyüklüğü (çarpan) — 1'den büyükse adetin yanında göster
     const multiplier = Number(item.contractSize) || 1;
     const showMultiplier = item.assetType === 'FUTURE' && multiplier > 1;
-    // VİOP yön (LONG/SHORT) + kaldıraç — sembolün yanında renkli rozet
     const isViop = item.assetType === 'FUTURE';
     const isShort = String(item.direction || '').toUpperCase() === 'SHORT';
     const leverage = Number(item.leverage) || 0;
@@ -119,7 +118,6 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
     const tipLabel = isDibs ? 'DİBS'
         : (isBond && !String(item.symbol || '').startsWith('^')) ? 'Eurobond'
         : t('common:assetTypes.' + item.assetType, item.assetType);
-    // Günlük değişim % (piyasadan) — sembolün yanında küçük renkli rozet
     const dc = (dailyChange != null && !Number.isNaN(Number(dailyChange))) ? Number(dailyChange) : null;
     const dcUp = dc != null && dc >= 0;
     return (

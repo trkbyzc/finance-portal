@@ -11,13 +11,12 @@ export default function CryptoDashboard() {
     const { news, loading: loadingNews } = useNewsData('Kripto');
     const [searchQuery, setSearchQuery] = useState("");
 
-    // 🚀 ARAMA MOTORU ONARIMI
+    // coins listesi büyük olabileceğinden arama filtresi her render'da tekrar çalışmasın
     const filteredCoins = useMemo(() => {
         const query = searchQuery.toLowerCase().trim();
         if (!query) return coins;
 
         return coins.filter(c => {
-            // Backend'den gelen gerçek alan isimlerine bakıyoruz
             const symbol = c.currencyCode?.toLowerCase() || "";
             const name = c.currencyName?.toLowerCase() || "";
 
@@ -38,7 +37,7 @@ export default function CryptoDashboard() {
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="w-full lg:w-2/3 xl:w-3/4">
                     <CryptoTable
-                        data={filteredCoins} // Filtrelenmiş veri buraya gidiyor
+                        data={filteredCoins}
                         loading={isLoading}
                     />
                 </div>

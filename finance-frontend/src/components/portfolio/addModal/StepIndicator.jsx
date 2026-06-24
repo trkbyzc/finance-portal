@@ -1,9 +1,5 @@
 import { Fragment } from 'react';
 
-/**
- * 1-2-3 progress dots. step prop'una göre dolu/boş gösterir.
- * Step modal'larında ortak (Add/CreateSimulation/buy-more) — reuse edilebilir.
- */
 export default function StepIndicator({ step, total = 3 }) {
     const dots = Array.from({ length: total }, (_, i) => i + 1);
     return (

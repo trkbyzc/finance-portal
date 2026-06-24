@@ -7,10 +7,7 @@ import { useCurrency } from '../../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../../utils/currencyConversion';
 import { PORTFOLIO_ASSET_TYPES } from './portfolioAssetTypes';
 
-/**
- * AddToPortfolioModal step 2 — seçilen tipe ait varlık listesi + arama.
- * FUND seçilirse fiyat backend'den 0 gelebilir; o durumda parent ekstra fetch'le step-3'e geçirir.
- */
+// FUND varlıklarında backend fiyatı 0 döndürebilir; parent bunu step-3 geçişinde ayrı fetch ile tamamlar.
 export default function Step2AssetList({ selectedType, onSelect, onBack, fetchingPrice }) {
     const { t } = useTranslation(['portfolio', 'common']);
     const { formatNative } = useCurrency();

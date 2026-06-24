@@ -27,7 +27,7 @@ apiClient.interceptors.response.use(
         return response.data;
     },
     (error) => {
-        // 🚀 BAN KONTROLÜ (403 Forbidden)
+        // Ban kontrolü (403): Keycloak SPI banlı kullanıcıyı 2FA öncesi durdurur.
         if (error.response?.status === 403) {
             const errorMsgObj = error.response.data;
             const errorMsgStr = typeof errorMsgObj === 'string' ? errorMsgObj : JSON.stringify(errorMsgObj || {});
@@ -37,7 +37,6 @@ apiClient.interceptors.response.use(
                 if (!isBanAlertShown) {
                     isBanAlertShown = true;
 
-                    // Yerel oturumu temizle (banlı kullanıcı çıkış yapmış sayılsın)
                     tokenManager.clearTokens();
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('refresh_token');

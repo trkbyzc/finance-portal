@@ -12,6 +12,7 @@ export default function MainChartArea({ selectedAsset, category }) {
                     selectedAsset.assetCategory === 'VIOP' ? (
                         <ViopTradingChart key={selectedAsset.symbol} asset={selectedAsset} theme="dark" />
                     ) : category === 'global-funds' ? (
+                        // Global fon sembolleri TradingChart'ta STOCK olarak işlenmeli; aksi hâlde grafik endpoint yanlış kategoriyle çağrılır.
                         <TradingChart key={selectedAsset.symbol} asset={{...selectedAsset, chartType: 'CANDLE', assetCategory: 'STOCK'}} theme="dark" />
                     ) : category === 'tr-funds' ? (
                         <FundTradingChart key={selectedAsset.symbol} asset={selectedAsset} />

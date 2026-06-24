@@ -5,12 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { bondFundApi } from '../../../../services/api';
 import EurobondList from './components/EurobondList';
 
-/**
- * Eurobond dashboard'u — VİOP tarzı.
- *
- * Tam genişlik Türkiye Hazine eurobond listesi (businessinsider canlı); bir satıra
- * tıklayınca o bononun fiyat grafiği detay sayfasında açılır (/chart/:isin?cat=EUROBOND).
- */
+// Satıra tıklanınca /chart/:isin?cat=EUROBOND rotasına yönlendirir; cat parametresi
+// ChartPage'in hangi veri stratejisini kullanacağını belirler.
 export default function EurobondDashboard() {
     const navigate = useNavigate();
     const { t } = useTranslation(['markets', 'asset']);

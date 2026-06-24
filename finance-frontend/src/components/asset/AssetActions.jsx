@@ -22,13 +22,8 @@ const derivePrice = (asset) =>
 
 /**
  * Bir varlık için "Portföye Ekle" + "Alarm Kur" aksiyon ikilisi.
- * AssetHeader dışındaki detay görünümlerinde (TR tahvil, küresel tahvil, TR fon — inline
- * detay panelleri) bu butonlar yoktu; ortak bileşenle hepsine ekliyoruz.
- *
- * Props:
- *   asset           — { symbol|currencyCode, name?, assetCategory?, price/displayPrice/... }
- *   assetCategory   — kategori override'ı (asset.assetCategory yoksa: 'BOND', 'TR_FUND', vb.)
- *   compact         — daha küçük buton boyutu
+ * AssetHeader dışındaki inline detay panellerinde (TR tahvil, küresel tahvil, TR fon)
+ * bu butonlar yoktu; ortak bileşenle hepsine ekliyoruz.
  */
 export default function AssetActions({ asset, assetCategory, compact = false, className = '' }) {
     const { isAuthenticated } = useAuth();
@@ -96,7 +91,6 @@ export default function AssetActions({ asset, assetCategory, compact = false, cl
         setAddOpen(true);
     };
 
-    // Tarih seçilince o tarihteki fiyatı çekip alış fiyatını doldur (openAdd ile aynı kur/getiri mantığı).
     const handleDate = async (v) => {
         setPurchaseDate(v);
         setDatePriceInfo(null);

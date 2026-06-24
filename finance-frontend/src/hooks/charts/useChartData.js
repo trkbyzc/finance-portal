@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { historicalApi } from '../../services/api';
-// 🚀 FAZ-4 EKLENTİSİ: Sabitlerimiz geldi
 import { QUERY_CONFIG } from '../../constants/config';
 
-// Helper: Range'e göre interval belirle (TÜRKÇE DESTEKLİ)
 const getIntervalForRange = (range) => {
     const r = range.toLowerCase();
     if (r === '1d' || r === '1g') return '15m'; // 1 Günlük grafikte 15 dakikalık mum
@@ -44,7 +42,6 @@ const sliceByRange = (data, range) => {
     return sliced.length >= 2 ? sliced : data.slice(-Math.min(data.length, 30));
 };
 
-// 🚀 KURŞUN GEÇİRMEZ TRANSFORMER (Az önce çözdüğümüz hayat kurtaran filtre)
 const transformChartData = (rawData) => {
     return rawData
         .filter(item => (item.timestamp || item.date) && (item.close != null || item.price != null || item.value != null))
@@ -80,8 +77,7 @@ const transformChartData = (rawData) => {
 
 export const useChartData = (backendSymbol, category, activeRange, customStartDate, customEndDate, isNone) => {
     return useQuery({
-        // 🚀 DÜZELTME 2: queryKey içine category eklendi!
-        // (Bu çok kritik: Farklı kategorilerde aynı sembol gelirse React Query'nin kafası karışmasın diye)
+        // Aynı sembol farklı kategorilerde farklı veri döndürebildiği için category da key'e dahil.
         queryKey: ['chartData', backendSymbol, category, activeRange, customStartDate, customEndDate],
         queryFn: async () => {
             let data;
@@ -90,7 +86,7 @@ export const useChartData = (backendSymbol, category, activeRange, customStartDa
             if (activeRange === 'custom') {
                 data = await historicalApi.getCustomRange({
                     symbol: backendSymbol,
-                    category: category || 'UNKNOWN', // 🚀 Backend'e kategoriyi yolluyoruz
+                    category: category || 'UNKNOWN',
                     startDate: customStartDate,
                     endDate: customEndDate
                 });
@@ -98,7 +94,7 @@ export const useChartData = (backendSymbol, category, activeRange, customStartDa
                 const interval = getIntervalForRange(activeRange);
                 data = await historicalApi.getData({
                     symbol: backendSymbol,
-                    category: category || 'UNKNOWN', // 🚀 Backend'e kategoriyi yolluyoruz
+                    category: category || 'UNKNOWN',
                     range: normalizedRange,
                     interval: interval
                 });

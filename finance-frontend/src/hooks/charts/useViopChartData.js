@@ -1,22 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { historicalApi } from '../../services/api';
-// 🚀 FAZ-4 EKLENTİSİ: Sabitlerimiz geldi
 import { QUERY_CONFIG } from '../../constants/config';
 
-/**
- * 🚀 FAZA 1: useEffect Temizliği
- * 🚀 FAZA 3: Service Layer Refactoring - historicalApi kullanımı
- * ViopTradingChart için historical data sağlar
- */
-
-// Helper: Geçmiş tarih hesapla
 export const getPastDate = (daysAgo) => {
     const date = new Date();
     date.setDate(date.getDate() - daysAgo);
     return date.toISOString().split('T')[0];
 };
 
-// 🚀 KURŞUN GEÇİRMEZ TRANSFORMER
 const transformViopData = (rawData) => {
     return rawData
         .filter(item => (item.timestamp || item.date) && (item.close != null || item.price != null || item.value != null))

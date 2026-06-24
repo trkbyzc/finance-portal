@@ -1,10 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { PORTFOLIO_ASSET_TYPES } from './portfolioAssetTypes';
 
-/**
- * AddToPortfolioModal step 1 — asset type grid. Seçim onSelect callback'i ile parent'a iletilir,
- * parent step'i ileri taşır.
- */
 export default function Step1AssetType({ onSelect }) {
     const { t } = useTranslation('common');
 

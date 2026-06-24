@@ -105,7 +105,6 @@ export const useLiveMarketData = () => {
     const sortedForexList = vipCodes.map(code => currencies.find(c => c.currencyCode === code)).filter(Boolean);
 
     return {
-        // Sadece critical (indices) için global gate.
         loading: essentialsLoading,
 
         // Per-section loading flags — section'lar kendi placeholder'larını gösterebilsin.
@@ -116,7 +115,6 @@ export const useLiveMarketData = () => {
         trBondsLoading: trBondsRes.isLoading,
         economyMacroLoading: economyMacroRes.isLoading,
 
-        // Data
         indices, ipos, trBonds, globalBonds, globalFunds, trFunds,
         turkishStocks,
         highestVolume, mostVolatile, topGainers, topLosers,

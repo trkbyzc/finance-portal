@@ -4,7 +4,6 @@ import { CurrencyProvider } from './context/CurrencyContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 
-// Component ve Sayfa Importları
 import Navbar from './components/layout/Navbar/Navbar.jsx';
 import Footer from './components/layout/Footer/Footer.jsx';
 import Dashboard from './pages/Dashboard/Dashboard.jsx';
@@ -18,7 +17,6 @@ import MarketListPage from "./pages/MarketListPage/MarketListPage.jsx";
 import BankCurrenciesPage from './pages/BankCurrenciesPage/BankCurrenciesPage.jsx';
 import TurkishGoldPage from './pages/TurkishGoldPage/TurkishGoldPage.jsx';
 
-// Auth Sayfaları (Sadece Callback)
 import AuthCallbackPage from "./pages/AuthPage/AuthCallbackPage.jsx";
 import CallbackPage from './pages/CallbackPage/CallbackPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
@@ -51,7 +49,6 @@ function App() {
                         <GlobalTicker />
                         <main>
                             <Routes>
-                                {/* Public Routes */}
                                 <Route path="/" element={<Dashboard />} />
                                 <Route path="/markets/:category" element={<MarketPage />} />
                                 <Route path="/markets/:category/list" element={<MarketListPage />} />
@@ -68,7 +65,6 @@ function App() {
                                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
                                 <Route path="/callback" element={<CallbackPage />} />
 
-                                {/* Protected Routes */}
                                 <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                                 <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
                                 <Route path="/watchlist" element={<ProtectedRoute><WatchlistPage /></ProtectedRoute>} />

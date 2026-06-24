@@ -44,7 +44,7 @@ export const registerCustomOverlays = () => {
             const textLabel = {
                 type: 'text',
                 attrs: {
-                    x: start.x + (end.x - start.x) / 2, // Kutunun tam ortasında yatayda hizala
+                    x: start.x + (end.x - start.x) / 2,
                     y: end.y - 10,
                     text: `${sign}${priceDiff.toFixed(precision.price)} (${sign}${percent.toFixed(2)}%) | ${bars} Çubuk`,
                     align: 'center',
@@ -66,7 +66,6 @@ export const registerCustomOverlays = () => {
         }
     });
 
-    // 1. DİKDÖRTGEN (RECTANGLE) ÇİZİM ARACI
     registerOverlay({
         name: 'customRect',
         totalStep: 3,
@@ -97,7 +96,6 @@ export const registerCustomOverlays = () => {
         }
     });
 
-    // 2. METİN (TEXT) ÇİZİM ARACI
     registerOverlay({
         name: 'customText',
         totalStep: 2,
@@ -152,7 +150,6 @@ export const registerCustomOverlays = () => {
                 { ratio: 1,     color: '#787b86' }
             ];
 
-            // Çizgileri start.x'ten end.x'e yatay olarak uzat
             const xLeft = Math.min(start.x, end.x);
             const xRight = Math.max(start.x, end.x);
             const priceDiff = p2.value - p1.value;
@@ -186,8 +183,6 @@ export const registerCustomOverlays = () => {
         }
     });
 
-    // OK çizgisi
-
     registerOverlay({
         name: 'customArrow',
         totalStep: 3,
@@ -198,18 +193,16 @@ export const registerCustomOverlays = () => {
             if (coordinates.length < 2) return [];
 
             const [start, end] = coordinates;
-            const arrowSize = 10; // Ok başının büyüklüğü
+            const arrowSize = 10;
             const angle = Math.atan2(end.y - start.y, end.x - start.x);
 
             return [
                 {
-                    // Ana Çizgi (Gövde)
                     type: 'line',
                     attrs: { coordinates: [start, end] },
                     styles: { color: '#2962ff', size: 2 }
                 },
                 {
-                    // Ok Başı (Üçgen veya Poligon)
                     type: 'polygon',
                     attrs: {
                         coordinates: [

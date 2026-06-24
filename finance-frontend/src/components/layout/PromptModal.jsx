@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Native window.prompt yerine sistem lacivertinde şık metin giriş modalı.
- * (Yeni portföy adı, yeniden adlandırma vb. için.)
- */
+// Native window.prompt yerine özelleştirilebilir, tema-uyumlu metin giriş modalı.
 export default function PromptModal({
     open, title, label, placeholder = '', defaultValue = '', confirmText, onSubmit, onCancel
 }) {
@@ -16,7 +13,7 @@ export default function PromptModal({
     useEffect(() => {
         if (open) {
             setValue(defaultValue);
-            // Modal açılınca input'a odaklan + içeriği seç
+            // setTimeout: modal DOM'a mount olduktan sonra focus alabilmesi için bir tick beklenir
             const id = setTimeout(() => { inputRef.current?.focus(); inputRef.current?.select(); }, 30);
             return () => clearTimeout(id);
         }

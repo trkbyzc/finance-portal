@@ -16,10 +16,7 @@ function Stat({ label, value, valueClass = '' }) {
     );
 }
 
-/**
- * Simülasyon detay modal'ı — sermaye, anlık değer, K/Z, getiri % + recharts line grafiği.
- * SimulationPage'ten extract edildi; tek sorumluluk = bir sim için detaylı görünüm.
- */
+// sim.result.series dizisi recharts için { date, value } formatına dönüştürülür; grafik rengi K/Z yönüne göre dinamik.
 export default function SimulationDetailModal({ sim, onClose, t }) {
     const r = sim.result || {};
     const chartData = (r.series || []).map(p => ({ date: p.date, value: Number(p.value) }));

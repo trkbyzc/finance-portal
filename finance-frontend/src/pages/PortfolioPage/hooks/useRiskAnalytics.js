@@ -123,7 +123,6 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
         enabled: enabled && holdings.length > 0,
         staleTime: 5 * 60 * 1000,
         queryFn: async () => {
-            // Tüm holding serileri + BIST100 paralel çekilir (1y, günlük)
             const fetchSeries = async (symbol, category) => {
                 try {
                     const res = await historicalApi.getData({ symbol, category, range: '1y', interval: '1d' });
@@ -195,7 +194,6 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
 
         const symbols = included.map(h => h.symbol);
 
-        // Her dahil varlık için hizalı kapanış → getiri
         const retBySymbol = {};
         symbols.forEach(s => {
             const closes = commonDates.map(d => series[s][d]);
@@ -203,7 +201,6 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
         });
         const nR = retBySymbol[symbols[0]].length;
 
-        // Portföy getiri serisi (yeniden normalize edilmiş ağırlıklarla)
         const wMap = Object.fromEntries(weights.map(x => [x.symbol, x.w]));
         const portRet = [];
         for (let tt = 0; tt < nR; tt++) {
@@ -216,18 +213,12 @@ export default function useRiskAnalytics(portfolio, calculateProfitLoss, enabled
         const annReturn = mean(portRet) * ANNUAL;
         const sharpe = annVol > 0 ? annReturn / annVol : 0;
 
-        // Maks. düşüş — getiriden equity curve
         const maxDD = computeMaxDrawdown(portRet);
-
-        // Beta vs BIST100 — portföy ve BIST'in ORTAK tarihlerinde hizalı getiriler.
         const beta = computeBeta(commonDates, bist, series, symbols, wMap);
-
-        // Konsantrasyon — HHI, etkin varlık sayısı, en büyük ağırlık (dahil edilen set üzerinden)
         const hhi = weights.reduce((s, x) => s + x.w * x.w, 0);
         const effectiveAssets = hhi > 0 ? 1 / hhi : 0;
         const top = weights.reduce((a, b) => (b.w > a.w ? b : a), weights[0]);
 
-        // Korelasyon matrisi
         const matrix = symbols.map(a => symbols.map(b => Number(corr(retBySymbol[a], retBySymbol[b]).toFixed(2))));
 
         return {

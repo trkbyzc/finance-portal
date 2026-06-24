@@ -2,10 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { getFlagUrl } from '../../../utils/currencyUtils.js';
 import { fmtDateHeader, fmtTime, fmtNum, impactDotClass } from '../calendarHelpers';
 
-/**
- * Tek bir gün için sticky header + o günün event satırları.
- * Satır mobile'da prev/estimate/actual kolonlarını gizler (md+ görünür).
- */
 export default function EventDayCard({ day, events }) {
     const { t, i18n } = useTranslation('economicCalendar');
     const locale = i18n.language?.startsWith('en') ? 'en-US' : 'tr-TR';

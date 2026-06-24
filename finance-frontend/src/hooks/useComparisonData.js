@@ -39,7 +39,6 @@ const buildUsdTryRateLookup = (usdTryHistory) => {
 const findRateForDate = (lookup, sortedDates, avg, dateStr) => {
     if (lookup.has(dateStr)) return lookup.get(dateStr);
     // Binary search değil ama lineer — küçük lookup'lar için yeterli
-    // Geriye doğru en yakın
     for (let i = sortedDates.length - 1; i >= 0; i--) {
         if (sortedDates[i] <= dateStr) return lookup.get(sortedDates[i]);
     }
@@ -57,7 +56,7 @@ export const useComparisonData = (primaryYahoo, primaryLabel, actualAssetSymbol,
     const [trInflationActive, setTrInflationActive] = useState(false);
     const [usdInflationActive, setUsdInflationActive] = useState(false);
 
-    // 🆕 Görüntüleme modu: 'percent' (yüzde cumulative) veya 'price' (raw fiyat — log scale)
+    // Görüntüleme modu: 'percent' (yüzde cumulative) veya 'price' (raw fiyat — log scale)
     const [mode, setMode] = useState('percent');
 
     // Global currency state — ComparisonSection + AssetHeader + TradingChart hepsi aynı state'i paylaşır
@@ -163,7 +162,7 @@ export const useComparisonData = (primaryYahoo, primaryLabel, actualAssetSymbol,
         staleTime: 10 * 60 * 1000
     });
 
-    // 🆕 USDTRY tarihsel kur serisi — historical conversion için
+    // USDTRY tarihsel kur serisi — historical conversion için
     // Karşılaştırmaya birden fazla varlık varsa veya enflasyon aktifse fetch
     const { data: usdTryHistory, isLoading: usdTryLoading } = useQuery({
         queryKey: ['usdTryHistorical', customRange],
@@ -268,7 +267,7 @@ export const useComparisonData = (primaryYahoo, primaryLabel, actualAssetSymbol,
         }
     };
 
-    // 🆕 Auto-switch: TR Enflasyon aktif edilince currency = TRY, ABD Enflasyon aktif edilince currency = USD
+    // Auto-switch: TR Enflasyon aktif edilince currency = TRY, ABD Enflasyon aktif edilince currency = USD
     const toggleTrInflation = () => {
         setTrInflationActive(prev => {
             const next = !prev;
@@ -301,7 +300,6 @@ export const useComparisonData = (primaryYahoo, primaryLabel, actualAssetSymbol,
         toggleTrInflation, toggleUsdInflation,
         inflationSeries,
         currency,
-        // 🆕 Görüntüleme modu kontrolü: 'percent' veya 'price'
         mode, setMode
     };
 };

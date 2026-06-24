@@ -3,9 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { COMPARISON_COLORS } from './comparisonHelpers';
 import ComparisonAssetSearch from './ComparisonAssetSearch';
 
-/**
- * Başlık + currency rozetı + birincil chip + karşılaştırma chip'leri + asset arama dropdown'u.
- */
 export default function ComparisonChipBar({
     asset, primaryYahoo, primaryLabel, comparisonAssets,
     currency, isPriceMode, allAssets, onAdd, onRemove

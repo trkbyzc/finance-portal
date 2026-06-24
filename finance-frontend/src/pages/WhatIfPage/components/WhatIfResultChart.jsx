@@ -20,7 +20,6 @@ export default function WhatIfResultChart({ result }) {
     const { t } = useTranslation('whatIf');
     const [mode, setMode] = useState('indexed'); // 'absolute' | 'indexed'
 
-    // Tüm transform (interpolasyonla hizalama + endeks) saf helper'da → test edilebilir.
     const { chartData, sharedStart, limitingLabel } = useMemo(
         () => buildComparisonSeries(result, mode),
         [result, mode]

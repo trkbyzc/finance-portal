@@ -14,7 +14,6 @@ import BondsSection from './components/BondsSection';
 import EconomySection from './components/EconomySection';
 import IpoSection from './components/IpoSection';
 
-// 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
 export default function LiveMarketPage() {
     const navigate = useNavigate();
     const { t } = useTranslation('markets');
@@ -30,7 +29,7 @@ export default function LiveMarketPage() {
         stocksLoading, iposLoading, commoditiesLoading, currenciesLoading, trBondsLoading
     } = useLiveMarketData();
 
-    // 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
+    // indices yüklenince ilk endeksi grafik için varsayılan sembol olarak seçer; useState başlangıç değeri olarak kullanılır
     const defaultSymbol = useMemo(() => {
         if (!loading && indices && indices.length > 0) {
             return indices[0].symbol;
@@ -40,19 +39,16 @@ export default function LiveMarketPage() {
 
     const [selectedSymbol, setSelectedSymbol] = useState(defaultSymbol);
 
-    // 🚀 YENİ: Grafiğin altındaki butona tıklanınca Market sayfasına yönlendiren köprü
     const handleViewIndexStocks = (symbol) => {
         if (!symbol) return;
 
-        // Sembolü temizle (Örn: XU050.IS -> BIST50)
+        // Yahoo Finance sembolünü (XU050.IS) kullanıcı-dostu filtre adına dönüştürür (BIST50)
         const cleanSymbol = symbol.replace('.IS', '').replace('XU', 'BIST');
 
-        // 🚀 ROTA DÜZELTİLDİ: Analizindeki doğru rotaya state ile yolluyoruz
         navigate('/markets/tr-stocks/list', { state: { filter: cleanSymbol } });
     };
 
     const handleNavigateToDetail = (sym, cat) => {
-        // İçeri seçilen asset varsa kategoriyi de yollayalım (cat opsiyonel)
         const url = cat
             ? `/chart/${encodeURIComponent(sym)}?cat=${cat}`
             : `/chart/${encodeURIComponent(sym)}`;
@@ -68,23 +64,19 @@ export default function LiveMarketPage() {
                     {t('ticker.live')} {t('ticker.marketStatus')} <ChevronRight className="text-border" />
                 </h1>
 
-                {/* 1. ENDEKSLER */}
                 <IndicesSection
                     indices={indices}
                     selectedSymbol={selectedSymbol}
                     setSelectedSymbol={setSelectedSymbol}
                 />
 
-                {/* 2. GRAFİK ALANI - 🚀 onNavigateToMarket özelliği eklendi */}
                 <ChartSection
                     selectedSymbol={selectedSymbol || defaultSymbol}
                     onNavigateToMarket={handleViewIndexStocks}
                 />
 
-                {/* 2.5 BIST ISI HARİTASI — grafiğin altında */}
                 <BistHeatmapSection stocks={turkishStocks} loading={stocksLoading} />
 
-                {/* 3. TÜRK HİSSELERİ */}
                 <TurkishStocksSection
                     highestVolume={highestVolume}
                     mostVolatile={mostVolatile}
@@ -94,7 +86,6 @@ export default function LiveMarketPage() {
                     isLoading={stocksLoading}
                 />
 
-                {/* 4. EMTİALAR */}
                 <CommoditiesSection
                     commodityCards={commodityCards}
                     onSelect={handleNavigateToDetail}
@@ -102,19 +93,16 @@ export default function LiveMarketPage() {
                     isLoading={commoditiesLoading}
                 />
 
-                {/* 5. PARA BİRİMLERİ */}
                 <ForexSection
                     sortedForexList={sortedForexList}
                     onSelect={handleNavigateToDetail}
                     isLoading={currenciesLoading}
                 />
 
-                {/* 6. DEVLET TAHVİLLERİ */}
                 <BondsSection trBonds={trBonds} isLoading={trBondsLoading} />
 
-                {/* 7. TÜRKİYE EKONOMİSİ */}
                 <EconomySection
-                    economyMacro={economyMacro} // 🚀 EKLENDİ
+                    economyMacro={economyMacro}
                     economyMetric={economyMetric}
                     setEconomyMetric={setEconomyMetric}
                     economyRange={economyRange}
@@ -123,7 +111,6 @@ export default function LiveMarketPage() {
                     economyLoading={economyLoading}
                 />
 
-                {/* 8. HALKA ARZ TAKVİMİ */}
                 <IpoSection ipos={ipos} isLoading={iposLoading} />
 
             </div>

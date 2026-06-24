@@ -20,7 +20,6 @@ export default function NewsDetailPage() {
         if (!newsItem) navigate('/news');
     }, [newsItem, navigate]);
 
-    // 1. Ana Haber Metni Query'si (Sadece url varsa çalışır)
     // queryKey'e lang ekli: dil değişince content yeniden çekilir (EN için backend çeviri yapar).
     const { data: contentData, isLoading: contentLoading } = useQuery({
         queryKey: ['newsContent', newsItem?.link, lang],
@@ -35,7 +34,6 @@ export default function NewsDetailPage() {
         enabled: !!newsItem
     });
 
-    // 2. Sidebar (Popüler) Haberler Query'si — sidebar da aktif dile göre.
     const { data: sidebarData = [] } = useQuery({
         queryKey: ['sidebarNews', lang],
         queryFn: async () => {
@@ -47,7 +45,6 @@ export default function NewsDetailPage() {
 
     if (!newsItem) return null;
 
-    // Mevcut (okunan) haberi sidebar'dan hariç tut ve 5 tanesini limite et
     const sidebarNews = sidebarData
         .filter(n => n.link !== newsItem.link)
         .slice(0, 5);

@@ -39,7 +39,6 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
 
     useEffect(() => {
         if (isOpen && asset) {
-            // Default: hepsini sat (max miktar)
             setQuantity(String(maxQty));
             setPriceOverride(null);
             setSellDate('');
@@ -59,7 +58,7 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
     const multiplier = Number(asset?.contractSize) > 0 ? Number(asset.contractSize) : 1;
     const isShort = String(asset?.direction || '').toUpperCase() === 'SHORT';
     const dirSign = isShort ? -1 : 1;
-    const total = isValid ? qtyNum * effectivePrice * multiplier : 0;        // nominal işlem tutarı
+    const total = isValid ? qtyNum * effectivePrice * multiplier : 0;
     const costBasis = isValid ? qtyNum * Number(asset.averagePrice ?? 0) * multiplier : 0;
     const pnl = (total - costBasis) * dirSign;                                // short'ta işaret terslenir
     // Yüzde tabanı: VİOP ise satılan kısma düşen TEMİNAT (kaldıraçlı gerçek getiri), değilse maliyet.
@@ -86,7 +85,6 @@ export default function SellModal({ isOpen, onClose, onSubmit, asset, currentPri
         setQuantity(val);
     };
 
-    // Tutar girince fiyattan miktarı hesapla (max ile sınırla)
     const handleAmount = (val) => {
         if (val === '' || effectivePrice <= 0) { setQuantity(''); return; }
         const a = Number.parseFloat(val);

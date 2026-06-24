@@ -57,10 +57,6 @@ export function setStoredAvatarId(username, id) {
     }
 }
 
-/**
- * Avatar component — `id` verilirse preset gradient + emoji, yoksa initials fallback.
- * `size` px cinsinden çapı belirler; font ve emoji bunu izler.
- */
 export default function Avatar({ id, fallbackInitials, size = 40, className = '', style = {} }) {
     const preset = PRESET_AVATARS.find(a => a.id === id);
     const dim = `${size}px`;

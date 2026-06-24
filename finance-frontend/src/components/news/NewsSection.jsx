@@ -17,8 +17,6 @@ const ACCENT_CLASSES = {
  *
  * @param {string} category - Backend NewsCategoryClassifier sabiti (örn. 'Borsa', 'Kripto').
  * @param {string} titleKey - i18n key (örn. 'news:categories.stock').
- * @param {string} accent - 'primary' | 'buy' | 'warning' | 'sell'
- * @param {number} limit - Gösterilecek haber sayısı (default: 6).
  * @param {string} className - Ek class'lar; varsayılan `mt-8`'i override etmek için
  *                              (örn. flex-col gap parent'ı kullanan sayfalarda mt çakışmasın).
  * @param {string} gridClassName - Grid layout class'ı; default 3 sütun. Sayfa özelinde

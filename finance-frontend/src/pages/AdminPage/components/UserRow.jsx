@@ -3,7 +3,6 @@ import { formatDate } from '../../../utils/formatters/dateFormatter';
 
 /**
  * Admin paneli kullanıcı tablosu satırı — ban/unban + force-logout + delete butonları.
- * AdminPage'ten extract edildi; sayfa sadece data + handler'ları geçirir.
  */
 export default function UserRow({ user, isSelf, onBan, onUnban, onForceLogout, onDelete, t }) {
     const isPermanent = user.banPermanent;

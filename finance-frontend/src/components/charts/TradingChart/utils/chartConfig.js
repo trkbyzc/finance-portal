@@ -1,7 +1,3 @@
-/**
- * 🎨 Chart Konfigürasyon Dosyası
- * KlineCharts için stil ve ayarlar
- */
 
 export const getChartStyles = (chartType = 'candle_solid') => ({
     // tooltip.showRule 'none': klinecharts'ın üstteki "Time/Open/High..." legend'ı gizlenir

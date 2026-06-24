@@ -53,7 +53,7 @@ export default function AssetDetailPage() {
         enabled: isAddModalOpen
     });
 
-    // Modal açılınca bu varlık için en erken seçilebilir tarihi çek (DatePicker min'i + ibare) — simülasyondaki gibi.
+    // Modal açılınca DatePicker'ın min sınırı için bu varlığa ait en erken tarih çekilir.
     const addSymbol = asset?.symbol || decodedSymbol;
     const addBackendType = asset?.assetCategory ? toBackendAssetType(asset.assetCategory) : null;
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -70,7 +70,6 @@ export default function AssetDetailPage() {
     if (loading) return (
         <div className="min-h-screen bg-bg">
             <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
-                {/* Başlık satırı: geri + sembol/fiyat */}
                 <div className="flex items-center gap-4 mb-8">
                     <Skeleton className="h-10 w-10 rounded-xl" />
                     <Skeleton className="h-12 w-12 rounded-xl" />
@@ -83,7 +82,6 @@ export default function AssetDetailPage() {
                         <Skeleton className="h-3 w-16 opacity-70" />
                     </div>
                 </div>
-                {/* Temel veriler kartı */}
                 <div className="bg-surface border border-border rounded-3xl p-6 mb-8">
                     <Skeleton className="h-4 w-40 mb-4" />
                     <Skeleton className="h-2 w-full mb-5 rounded-full" />
@@ -93,7 +91,6 @@ export default function AssetDetailPage() {
                         ))}
                     </div>
                 </div>
-                {/* Grafik bloğu */}
                 <Skeleton className="h-[650px] w-full rounded-3xl" />
             </div>
         </div>
@@ -128,7 +125,6 @@ export default function AssetDetailPage() {
         setIsAddModalOpen(true);
     };
 
-    // Tarih seçilince o tarihteki fiyatı çekip alış fiyatını doldur (handleOpenModal ile aynı kur/getiri mantığı).
     const handleDate = async (v) => {
         setPurchaseDate(v);
         setDatePriceInfo(null);

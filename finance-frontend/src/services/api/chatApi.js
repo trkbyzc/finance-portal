@@ -10,10 +10,7 @@ export const chatApi = {
     getMessages: (conversationId) =>
         apiClient.get(`/chat/conversations/${conversationId}/messages`),
 
-    /**
-     * Yeni mesaj gönder.
-     * @param {object} payload { conversationId?: uuid, message: string, locale: 'tr'|'en' }
-     */
+    /** @param {object} payload { conversationId?: uuid, message: string, locale: 'tr'|'en' } */
     sendMessage: (payload) => apiClient.post('/chat/messages', payload),
 
     deleteConversation: (conversationId) =>

@@ -8,18 +8,13 @@ import { formatCompactVolume } from './volumeFormat';
 
 const SPARK_BLUE = '#3b82f6';
 
-/**
- * En yüksek hacim sidebar'ı — top 5 BIST hissesi (volume × price = işlem hacmi TL).
- *
- * Stitch tasarımı: tek satır {SYMBOL (Name)} | sparkline | ₺price (compactVol),
- * altında progress bar. Sembol ve şirket adı baseline'da hizalı (parantezli isim küçük).
- * Yatırımcı sinyali: hacimli alım sahte fiyat hareketlerinden ayırır.
- */
+/* Metrik: volume × price = TL cinsinden işlem hacmi; hacimli alım sahte fiyat hareketlerinden ayrışır. */
 export default function HighestVolumeSidebar() {
     const { data: stocks, loading: isLoading } = useMarketData('tr-stocks');
     const navigate = useNavigate();
     const { t } = useTranslation('markets');
 
+    // Her render'da tüm stocks dizisini yeniden sıralamaktan kaçınır; top-5 TL hacim listesi.
     const topVolume = useMemo(() => {
         if (!stocks.length) return [];
         const enriched = stocks.map(s => {

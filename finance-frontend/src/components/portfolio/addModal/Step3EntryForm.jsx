@@ -44,7 +44,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
     const backendType = selectedBackendValue || selectedType;
     const todayStr = new Date().toISOString().slice(0, 10);
 
-    // Varlık seçildiğinde en eski historical tarihi çek (DatePicker min'i + alttaki ibare için)
     useEffect(() => {
         if (!symbol || !backendType) return;
         setEarliestLoading(true);
@@ -131,7 +130,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
         <form onSubmit={handleSubmit}>
             <h3 className="text-lg font-semibold mb-4">{t('portfolio:modal.editTitle')}</h3>
 
-            {/* Asset summary card — başlık/isim solda, güncel fiyat ayrı vurgulanmış chip'te sağda */}
             <div className="bg-bg border border-border rounded-xl p-4 mb-5">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="min-w-0">
@@ -151,7 +149,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 </div>
             </div>
 
-            {/* Hedef portföy seçici — birden fazla portföy varsa kullanıcı hangisine ekleyeceğini seçer */}
             {portfolios.length > 1 && (
                 <div className="mb-4">
                     <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.targetPortfolio', 'Hangi portföye?')}</label>
@@ -164,7 +161,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 </div>
             )}
 
-            {/* Alış Tarihi — Fiyat (yan yana, her biri tam %50; sıkışmaz, label'lar yukarıda ayrı satırda) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
                 <div>
                     <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.purchaseDate', 'Alış Tarihi')}</label>
@@ -191,7 +187,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                     />
                 </div>
             </div>
-            {/* Date hint — tarih ile fiyat'ın altında, ikiline sığar (full-width) */}
             <div className="min-h-[18px] mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
                 {datePriceInfo?.ok && (
                     <p className="text-[11px] text-buy">
@@ -216,7 +211,6 @@ export default function Step3EntryForm({ selectedAsset, selectedType, selectedBa
                 )}
             </div>
 
-            {/* VİOP pozisyon yönü — uzun (long) / kısa (short) segment kontrolü */}
             {isViop && (
                 <div className="mb-5">
                     <label className="block text-sm font-semibold mb-2">{t('portfolio:modal.direction', 'Pozisyon Yönü')}</label>

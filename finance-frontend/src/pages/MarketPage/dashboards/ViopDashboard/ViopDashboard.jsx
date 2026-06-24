@@ -10,16 +10,8 @@ const SPARK_GREEN = '#22c55e';
 const SPARK_RED = '#ef4444';
 const SPARK_NEUTRAL = '#facc15';
 
-/**
- * VİOP (Vadeli İşlem ve Opsiyon Piyasası) sayfası — Stitch tasarımına uyarlama.
- *
- *   Üst: başlık + alt-başlık + sağda search
- *   3 KPI: Sözleşme sayısı | En Çok Yükselenler | En Çok Düşenler
- *   Tablo: Sözleşme (tek satır: sembol + vade) | Uzlaşma | Değişim % | Grafik (sparkline)
- *
- * VIOP sparkline'ı için category='VIOP' geçilir — backend chart strategy chain
- * VIOP sembollerini doğru source'a route eder.
- */
+/* VIOP sparkline'ı için category='VIOP' geçilir — backend chart strategy chain
+   VIOP sembollerini doğru source'a route eder. */
 export default function ViopDashboard() {
     const { data: contracts, loading: isLoading } = useMarketData('viop');
     const navigate = useNavigate();
@@ -46,7 +38,6 @@ export default function ViopDashboard() {
         <div className="min-h-screen bg-bg text-text">
           <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
 
-            {/* Header — büyük başlık + alt başlık + sağda search */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                 <div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase text-text tracking-tight flex items-center gap-3">
@@ -67,7 +58,6 @@ export default function ViopDashboard() {
                 </div>
             </div>
 
-            {/* 3 KPI cards */}
             {!isLoading && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                     <KpiCard
@@ -94,7 +84,6 @@ export default function ViopDashboard() {
                 </div>
             )}
 
-            {/* Table */}
             {isLoading ? (
                 <div className="h-96 animate-pulse bg-surface border border-border rounded-2xl" />
             ) : (
@@ -132,7 +121,6 @@ export default function ViopDashboard() {
                                             onClick={() => navigate(`/chart/${encodeURIComponent(contract.symbol)}?cat=VIOP`)}
                                             className="hover:bg-surface-2 transition cursor-pointer"
                                         >
-                                            {/* Sözleşme — sembol + isim inline, tek satır (tasarımdaki gibi "PETKM Temmuz 2026 Vadeli") */}
                                             <td className="p-5 whitespace-nowrap">
                                                 <span className="font-bold text-text">{contract.symbol}</span>
                                                 {contract.name && (

@@ -33,14 +33,12 @@ export default function AdminPage() {
     const { user: currentUser } = useAuth();
     const currentUserId = currentUser?.sub;
 
-    // Filters
     const [searchInput, setSearchInput] = useState('');
     const debouncedSearch = useDebounced(searchInput);
     const [roleFilter, setRoleFilter] = useState('');
     const [bannedFilter, setBannedFilter] = useState('');
     const [page, setPage] = useState(0);
 
-    // Ban modal
     const [banTarget, setBanTarget] = useState(null);
     const [banDuration, setBanDuration] = useState('30');
 

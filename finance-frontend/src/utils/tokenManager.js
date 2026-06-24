@@ -1,74 +1,47 @@
-/**
- * Token Manager Utility
- * LocalStorage'da token yönetimi için yardımcı fonksiyonlar
- */
-
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
 export const tokenManager = {
-    /**
-     * Access token'ı localStorage'a kaydet
-     */
     setAccessToken: (token) => {
         if (token) {
             localStorage.setItem(TOKEN_KEY, token);
         }
     },
 
-    /**
- * Access token'ı al (localStorage veya sessionStorage'dan)
- */
-getAccessToken: () => {
-    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-},
+    getAccessToken: () => {
+        // Keycloak silent-refresh sonrası token sessionStorage'a da yazılabilir; her ikisi kontrol edilir.
+        return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+    },
 
-    /**
-     * Refresh token'ı localStorage'a kaydet
-     */
     setRefreshToken: (token) => {
         if (token) {
             localStorage.setItem(REFRESH_TOKEN_KEY, token);
         }
     },
 
-    /**
- * Refresh token'ı al (localStorage veya sessionStorage'dan)
- */
-getRefreshToken: () => {
-    return localStorage.getItem(REFRESH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY);
-},
+    getRefreshToken: () => {
+        return localStorage.getItem(REFRESH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY);
+    },
 
-    /**
-     * Her iki token'ı da kaydet
-     */
     setTokens: (accessToken, refreshToken) => {
         tokenManager.setAccessToken(accessToken);
         tokenManager.setRefreshToken(refreshToken);
     },
 
-    /**
- * Her iki token'ı da temizle (localStorage ve sessionStorage)
- */
-clearTokens: () => {
+    clearTokens: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
 },
 
-    /**
-     * Token var mı kontrol et
-     */
     hasToken: () => {
         return !!tokenManager.getAccessToken();
     },
 
-    /**
-     * JWT token'ı decode et (payload'ı al)
-     */
     decodeToken: (token) => {
         try {
+            // JWT, URL-safe base64 (RFC 4648 §5) kullanır; atob() standart base64 beklediği için +/_ dönüşümü gerekir.
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replaceAll('-', '+').replaceAll('_', '/');
             const jsonPayload = decodeURIComponent(
@@ -84,9 +57,6 @@ clearTokens: () => {
         }
     },
 
-    /**
-     * Token'ın süresi dolmuş mu kontrol et
-     */
     isTokenExpired: (token) => {
         const decoded = tokenManager.decodeToken(token);
         if (!decoded || !decoded.exp) {
@@ -96,9 +66,6 @@ clearTokens: () => {
         return decoded.exp < currentTime;
     },
 
-    /**
-     * Token'ın süresinin dolmasına ne kadar kaldı (saniye)
-     */
     getTokenExpiresIn: (token) => {
         const decoded = tokenManager.decodeToken(token);
         if (!decoded || !decoded.exp) {

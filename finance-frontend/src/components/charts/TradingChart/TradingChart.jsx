@@ -68,7 +68,6 @@ function TradingChart({ asset, initialRange = '1y' }) {
         backendSymbol, asset?.assetCategory, activeRange, customStartDate, customEndDate, isNone
     );
 
-    // Currency conversion (TRY/USD toggle)
     const { currency, convertPrice } = useCurrency();
     const nativeCurrency = useMemo(() => asset?.nativeCurrency || detectNativeCurrency(asset), [asset]);
     const isYield = useMemo(() => isYieldAsset(asset), [asset]);
@@ -94,7 +93,6 @@ function TradingChart({ asset, initialRange = '1y' }) {
         }));
     }, [rawChartData, shouldConvert, nativeCurrency, convertPrice]);
 
-    // Benchmark overlay (BIST + Crypto)
     const {
         isTrStock, isCrypto,
         bistOptions,
@@ -122,7 +120,6 @@ function TradingChart({ asset, initialRange = '1y' }) {
         setHoverCandle(null);
     }
 
-    // Kline + indicator + overlay (drawing tool) hooks
     const chartInstance = useChartInstance(klineContainer, candleType, useRechartsFinal, isNone, handleCrosshairChange);
     const { activeIndicators, toggleIndicator } = useChartIndicators(chartInstance);
     const {
@@ -217,7 +214,6 @@ function TradingChart({ asset, initialRange = '1y' }) {
                 disableInteraction={showOverlayChart}
             />
 
-            {/* OHLC + Hacim özeti — sadece klinecharts (candle) modunda, başlığın altında */}
             {!useRechartsFinal && !isNone && chartData.length > 0 && (
                 <ChartOhlcvBar
                     candle={hoverCandle || chartData[chartData.length - 1]}

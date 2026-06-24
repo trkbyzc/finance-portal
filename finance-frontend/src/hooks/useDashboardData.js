@@ -5,17 +5,15 @@ import { aggregateApi, currencyApi } from '../services/api';
 export const useDashboardData = () => {
     const [activeTab, setActiveTab] = useState('stocks');
 
-    // Hesap Makinesi Stateleri
     const [calcAmount, setCalcAmount] = useState(1000);
     const [calcCurrency, setCalcCurrency] = useState('USD');
 
-    // Kurları çekiyoruz
     const { data: currenciesData } = useQuery({
         queryKey: ['dashboardCurrencies'],
         queryFn: currencyApi.getAllCurrencies,
     });
 
-    // 🚀 FAZA 1: useEffect kaldırıldı, useMemo ile derived state
+    // currenciesData her güncellendiğinde USD/EUR kurlarını yeniden türetmemek için memoize edildi
     const { usdRate, eurRate } = useMemo(() => {
         if (!currenciesData || !Array.isArray(currenciesData)) {
             return { usdRate: 0, eurRate: 0 };
@@ -28,7 +26,6 @@ export const useDashboardData = () => {
         };
     }, [currenciesData]);
 
-    // Data'yı doğrudan useQuery'den al
     const { data: tabData = [], isLoading: tabLoading } = useQuery({
         queryKey: ['dashboardTab', activeTab],
         queryFn: async () => {
@@ -47,7 +44,6 @@ export const useDashboardData = () => {
         },
     });
 
-    // 🚀 DÜZELTİLEN KISIM: Hesap Makinesi Matematiği (Business Logic) eklendi!
     const rateToUse = calcCurrency === 'USD' ? usdRate : eurRate;
     const calculatedResult = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2 })
         .format(calcAmount * (rateToUse || 0));
@@ -57,7 +53,7 @@ export const useDashboardData = () => {
         tabData, tabLoading,
         calcAmount, setCalcAmount,
         calcCurrency, setCalcCurrency,
-        calculatedResult, // 🚀 Hesaplanmış sonucu dışarı aktardık!
+        calculatedResult,
         usdRate, eurRate
     };
 };

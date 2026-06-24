@@ -61,7 +61,6 @@ export default function PortfolioSummaryWidget() {
         return <DashboardWidgetCard {...shellProps}><div className="h-40 animate-pulse bg-surface-2 rounded-xl" /></DashboardWidgetCard>;
     }
 
-    // Boş durum — teşvik edici CTA
     if (!stats) {
         return (
             <DashboardWidgetCard {...shellProps}>

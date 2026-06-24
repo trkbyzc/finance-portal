@@ -151,7 +151,6 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                 />
             </div>
 
-            {/* Konsantrasyon / çeşitlendirme */}
             <div className={`flex items-start gap-3 rounded-xl p-4 border mb-5 ${concentrated ? 'bg-warning/10 border-warning/30' : 'bg-buy/5 border-buy/20'}`}>
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${concentrated ? 'bg-warning/15 text-warning' : 'bg-buy/15 text-buy'}`}>
                     {concentrated ? <Layers size={18} /> : <ShieldCheck size={18} />}
@@ -167,7 +166,6 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                 </div>
             </div>
 
-            {/* Korelasyon ısı haritası — 2+ varlıkta anlamlı */}
             {correlation && correlation.symbols.length >= 2 && (
                 <div>
                     <p className="text-sm font-bold text-text mb-2">{t('risk.correlation', 'Korelasyon Isı Haritası')}</p>

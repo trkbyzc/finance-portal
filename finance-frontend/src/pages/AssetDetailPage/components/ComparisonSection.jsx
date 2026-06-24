@@ -5,16 +5,7 @@ import ComparisonChipBar from './comparison/ComparisonChipBar';
 import ComparisonControls from './comparison/ComparisonControls';
 import ComparisonChart from './comparison/ComparisonChart';
 
-/**
- * Asset detail sayfasının karşılaştırma section'u — orchestrator.
- *
- * Mantık:
- *   - Asset prop'undan primary symbol/label/category çıkar (memoize, useComparisonData hook'u
- *     stabil ref'ler ister)
- *   - Hook karşılaştırma state'ini (assets, chartData, mode, currency overlay'leri, vb.) verir
- *   - UI 3 alt component'e böldü: chip bar (primary + comparison + add), controls
- *     (mode/currency/inflation/range), chart
- */
+// useComparisonData stabil referans beklediği için asset prop'undan türetilen değerler memoize edilir.
 export default function ComparisonSection({ asset, baseSymbol }) {
     const { primaryYahoo, primaryLabel, isTrBond, primaryCategory } = useMemo(() => {
         const actualAsset = asset || { yahooSymbol: baseSymbol, name: baseSymbol, symbol: baseSymbol };

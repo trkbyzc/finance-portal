@@ -38,7 +38,6 @@ export function NotificationProvider({ children }) {
         return `${Date.now()}-${idRef.current}`;
     };
 
-    // Kullanıcı değişince geçmişi localStorage'tan yükle
     useEffect(() => {
         try {
             const raw = localStorage.getItem(storageKey(user));
@@ -48,14 +47,12 @@ export function NotificationProvider({ children }) {
         }
     }, [user]);
 
-    // Geçmişi kalıcılaştır
     useEffect(() => {
         try {
             localStorage.setItem(storageKey(user), JSON.stringify(notifications));
         } catch { /* kota/erişim yoksa yoksay */ }
     }, [notifications, user]);
 
-    // Açık toast zamanlayıcılarını temizle
     useEffect(() => () => {
         timersRef.current.forEach((tid) => clearTimeout(tid));
         timersRef.current.clear();

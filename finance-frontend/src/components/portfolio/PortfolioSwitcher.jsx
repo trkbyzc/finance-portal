@@ -13,7 +13,6 @@ export default function PortfolioSwitcher({ portfolios, activeId, onSelect, onCr
     const [open, setOpen] = useState(false);
     // { mode: 'create' | 'rename', portfolio? } | null
     const [prompt, setPrompt] = useState(null);
-    // silinecek portföy | null
     const [deleteTarget, setDeleteTarget] = useState(null);
     const ref = useRef(null);
 

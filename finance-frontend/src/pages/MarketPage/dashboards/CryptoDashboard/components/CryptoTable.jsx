@@ -50,7 +50,7 @@ export default function CryptoTable({ data, loading }) {
                         data.map((coin, index) => {
                             const symbol = coin?.currencyCode || "";
 
-                            // 🚀 TETHER DÜZELTMESİ: Eğer sembol direkt USDT/USD/TRY ise silme, olduğu gibi bırak.
+                            // USDT/USD/TRY sembolü kendisi bir para birimi; suffix temizleme uygulanmaz.
                             const displaySymbol = (symbol === 'USDT' || symbol === 'USD' || symbol === 'TRY')
                                 ? symbol
                                 : symbol.replaceAll(/USDT|TRY|USD/g, '');
@@ -64,12 +64,11 @@ export default function CryptoTable({ data, loading }) {
 
                             return (
                                 <tr
-                                    // 🚀 KONSOL HATASI DÜZELTMESİ: Key değerini benzersiz yaptık.
                                     key={`${symbol}-${index}`}
                                     onClick={() => {
                                         if (!symbol) return;
 
-                                        // Eğer sembol zaten -USD veya =X içermiyorsa ekle
+                                        // Yahoo Finance chart URL'i için sembol her zaman -USD suffix'i gerektirir.
                                         const chartSymbol = (symbol.includes('-USD') || symbol.includes('=X'))
                                             ? symbol
                                             : `${symbol}-USD`;

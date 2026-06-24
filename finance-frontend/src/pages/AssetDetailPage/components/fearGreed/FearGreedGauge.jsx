@@ -46,9 +46,7 @@ export default function FearGreedGauge({ value, label }) {
                         fill="none"
                     />
                 ))}
-                {/* Anlık değer noktası */}
                 <circle cx={dx} cy={dy} r="7" fill="var(--color-text)" stroke="var(--color-surface)" strokeWidth="3" />
-                {/* Değer + etiket */}
                 <text x={CX} y="86" textAnchor="middle" className="font-black" style={{ fontSize: 34, fill: color }}>{v}</text>
                 <text x={CX} y="106" textAnchor="middle" style={{ fontSize: 12, fill: 'var(--color-text-muted)' }}>{label}</text>
             </svg>

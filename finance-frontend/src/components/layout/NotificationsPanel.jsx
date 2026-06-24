@@ -17,6 +17,7 @@ export default function NotificationsPanel({ open, onClose }) {
         if (open) markAllRead();
     }, [open, markAllRead]);
 
+    // Panel açıkken Escape tuşunu yakala; kapandığında listener'ı temizle
     useEffect(() => {
         if (!open) return;
         const handler = (e) => { if (e.key === 'Escape') onClose(); };
@@ -29,7 +30,6 @@ export default function NotificationsPanel({ open, onClose }) {
     return (
         <div className="fixed inset-0 z-105 flex items-start justify-center sm:items-center bg-black/70 backdrop-blur-md p-4">
             <div className="bg-surface border border-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in flex flex-col max-h-[85vh]">
-                {/* Başlık */}
                 <div className="border-b border-border">
                     <div className="flex items-center justify-between px-5 py-4">
                         <h3 className="text-lg font-bold text-text">{t('navbar:notifications.title', 'Bildirimler')}</h3>
@@ -43,7 +43,6 @@ export default function NotificationsPanel({ open, onClose }) {
                     </div>
                 </div>
 
-                {/* İçerik */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {notifications.length === 0 ? (
                         <EmptyState
@@ -60,7 +59,6 @@ export default function NotificationsPanel({ open, onClose }) {
                     )}
                 </div>
 
-                {/* Alt aksiyonlar */}
                 {notifications.length > 0 && (
                     <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-border bg-surface-2/40">
                         <button

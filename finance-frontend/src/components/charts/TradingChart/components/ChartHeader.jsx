@@ -32,7 +32,7 @@ export default function ChartHeader({
         ? allTimeframes.filter(tf => tf.value !== '1d' && tf.value !== '5d')
         : allTimeframes;
 
-    // 🆕 Tarih popover state — Portal ile body'ye render edilir, böylece header'ın overflow-x-auto'su tarafından kırpılmaz
+    // Tarih popover state — Portal ile body'ye render edilir, böylece header'ın overflow-x-auto'su tarafından kırpılmaz
     const [pickerOpen, setPickerOpen] = useState(false);
     const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
     const popoverRef = useRef(null);
@@ -67,7 +67,6 @@ export default function ChartHeader({
         return { minDate: min, maxDate: max };
     }, []);
 
-    // Validation
     const datesValid = !!customStartDate && !!customEndDate && customStartDate <= customEndDate
         && customStartDate >= minDate && customEndDate <= maxDate;
     const validationMsg = (() => {
@@ -78,7 +77,6 @@ export default function ChartHeader({
         return null;
     })();
 
-    // Click-outside-to-close
     useEffect(() => {
         if (!pickerOpen) return;
         const handler = (e) => {
@@ -119,7 +117,6 @@ export default function ChartHeader({
                     </button>
                 ))}
 
-                {/* 🆕 Özel Tarih butonu — popover ile açılır */}
                 {!isTrBond && (
                     <div className="relative ml-2">
                         <button

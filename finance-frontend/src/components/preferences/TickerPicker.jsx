@@ -45,7 +45,6 @@ export default function TickerPicker({ pools, selected, onChange, maxCount = 20 
 
     return (
         <div>
-            {/* Seçilenler chip bar */}
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-text-muted">
@@ -88,7 +87,6 @@ export default function TickerPicker({ pools, selected, onChange, maxCount = 20 
                 )}
             </div>
 
-            {/* Accordion per type */}
             <div className="space-y-2">
                 {TYPE_ORDER.map((type) => {
                     const items = pools[type] || [];

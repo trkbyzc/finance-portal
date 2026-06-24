@@ -15,6 +15,7 @@ export default function SelectMenu({ value, onChange, options = [], placeholder 
     const ref = useRef(null);
     const selected = options.find((o) => o.value === value);
 
+    // Dropdown açıkken dışarı tıklama ve Escape'i dinle; kapalıyken listener eklememek için erken çık.
     useEffect(() => {
         if (!open) return;
         const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };

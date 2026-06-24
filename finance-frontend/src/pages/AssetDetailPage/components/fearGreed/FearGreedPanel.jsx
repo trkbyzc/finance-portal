@@ -111,7 +111,6 @@ export default function FearGreedPanel() {
                         <div className="h-32 flex items-center justify-center text-text-muted text-sm">{t('common:status.noData')}</div>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
-                            {/* Sol: gauge + geçmiş */}
                             <div>
                                 <FearGreedGauge value={current.value} label={fgLabel(current.value, current.classification, lang)} />
                                 <div className="mt-4 space-y-2.5">
@@ -125,7 +124,6 @@ export default function FearGreedPanel() {
                                 </div>
                             </div>
 
-                            {/* Sağ: zone bantlı çizgi grafik */}
                             <div>
                                 <div className="flex items-center justify-end gap-1 mb-2">
                                     {RANGES.map(r => (

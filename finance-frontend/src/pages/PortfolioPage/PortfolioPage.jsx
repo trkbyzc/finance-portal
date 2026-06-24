@@ -52,7 +52,6 @@ const PortfolioPage = () => {
         return next;
     });
 
-    // Çoklu adlandırılmış portföy
     const [selectedPortfolioId, setSelectedPortfolioId] = useState(null);
     const { data: portfolios = [] } = useQuery({
         queryKey: ['portfolios'],
@@ -158,7 +157,7 @@ const PortfolioPage = () => {
         const signedTRY = (v) => `${v >= 0 ? '+' : '-'}${formatPrice(Math.abs(v), 'TRY', 2, 2)}`;
         const pctStr = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`;
 
-        // --- Üst özet kartlar (PortfolioStats ile aynı hesap) ---
+        // Üst özet kartlar — PortfolioStats ile birebir aynı hesap (export tutarlılığı için)
         const totalCost = list.reduce((s, i) => s + (calculateProfitLoss(i).costValue || 0), 0);
         const totalValue = list.reduce((s, i) => s + (calculateProfitLoss(i).currentValue || 0), 0);
         const totalPnl = totalValue - totalCost;
@@ -192,7 +191,7 @@ const PortfolioPage = () => {
             });
         }
 
-        // --- Satır kurucu (HoldingRow ile birebir: rozetler, kotasyon, çarpan, reel K/Z) ---
+        // Satır kurucu — HoldingRow ile birebir senkron (rozetler, kotasyon, çarpan, reel K/Z)
         const buildRow = (item) => {
             const calc = calculateProfitLoss(item);
             const native = nativeCurrencyForType(item.assetType, item.symbol);
@@ -235,7 +234,7 @@ const PortfolioPage = () => {
             };
         };
 
-        // --- Doğa bazlı bölümler (HoldingsTable kolon başlıklarıyla; FIXED dinamik başlık) ---
+        // Doğa bazlı bölümler — HoldingsTable kolon başlıklarıyla eşleşmeli; FIXED için dinamik başlık
         const sections = NATURE_ORDER
             .filter((nat) => list.some((i) => assetNature(i.assetType) === nat))
             .map((nat) => {
@@ -378,7 +377,6 @@ const PortfolioPage = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2 self-start sm:self-auto">
-                        {/* Bakiye gizle/göster */}
                         <button
                             onClick={toggleHide}
                             title={hideBalances ? t('portfolio:showBalances', 'Bakiyeleri göster') : t('portfolio:hideBalances', 'Bakiyeleri gizle')}
@@ -386,7 +384,6 @@ const PortfolioPage = () => {
                         >
                             {hideBalances ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
-                        {/* TRY / USD */}
                         <button
                             onClick={toggleCurrency}
                             title={t('asset:showInCurrency', 'Para birimi')}
@@ -396,7 +393,6 @@ const PortfolioPage = () => {
                             <span className="text-text-muted">/</span>
                             <span className={currency === 'USD' ? 'text-primary' : 'text-text-muted'}>$</span>
                         </button>
-                        {/* Excel / PDF dışa aktarma */}
                         <button
                             onClick={onExportExcel}
                             title={t('portfolio:export.excel', 'Excel indir')}
@@ -448,7 +444,6 @@ const PortfolioPage = () => {
                 )}
 
                 {portfolio?.length === 0 ? (
-                    /* Hiç varlık yok — ilk varlık için ortada geniş mavi CTA */
                     <div className="bg-surface-2 border border-border rounded-2xl p-10 sm:p-16 text-center flex flex-col items-center">
                         <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
                             <Wallet size={30} className="text-primary" />
@@ -506,7 +501,6 @@ const PortfolioPage = () => {
                     />
                 )}
 
-                {/* Varlık listesinin altında: Maliyet/Piyasa Değeri + Günlük Durum çubuk grafikleri */}
                 {filteredPortfolio && filteredPortfolio.length > 0 && (
                     <div className={hideBalances ? 'blur-md select-none pointer-events-none transition' : 'transition'}>
                         <PortfolioActivityCharts
@@ -517,7 +511,6 @@ const PortfolioPage = () => {
                     </div>
                 )}
 
-                {/* K/Z Grafikleri — varlık seç, zaman içindeki kâr/zararını gör */}
                 {filteredPortfolio && filteredPortfolio.length > 0 && (
                     <div className={hideBalances ? 'blur-md select-none pointer-events-none transition' : 'transition'}>
                         <PnlHistoryWidget

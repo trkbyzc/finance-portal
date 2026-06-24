@@ -6,10 +6,6 @@ const fmtDate = (iso) => {
     try { return new Date(iso).toLocaleDateString('tr-TR'); } catch { return iso; }
 };
 
-/**
- * Kayıtlı simülasyon kartı — SimulationPage liste view'inde her item için render edilir.
- * Tüm i18n + handler'lar prop ile geçiriliyor; component stateless.
- */
 export default function SimulationCard({ sim, onDetail, onDelete, t }) {
     const r = sim.result || {};
     const hasResult = !r.warning && r.series && r.series.length > 0;

@@ -4,15 +4,13 @@ import FundHeader from './components/FundHeader';
 import FundRangeSelector from './components/FundRangeSelector';
 import FundChartArea from './components/FundChartArea';
 
-// 🚀 FAZA 1: useEffect ve axios kaldırıldı, custom hook kullanılıyor
 export default function FundTradingChart({ asset }) {
     const [range, setRange] = useState('1y');
 
     const symbol = asset?.symbol || asset?.yahooSymbol;
-    // Orijinal ayrım mantığın
+    // SPY/QQQ FUND kategorisinde olsa da TEFAS'ta bulunmaz; bunlar Yahoo Finance'ten çekilir
     const isTefas = asset?.assetCategory === 'FUND' && !symbol?.includes('SPY') && !symbol?.includes('QQQ');
 
-    // ✅ React Query ile veri çekme
     const { data: chartData = [], isLoading: loading } = useFundChartData(symbol, range, isTefas);
 
     return (

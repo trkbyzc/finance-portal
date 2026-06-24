@@ -69,7 +69,6 @@ export default function DashboardTabPanel({ tabs, activeTab, setActiveTab, tabDa
                     {showLoading ? (
                         <MarketTableSkeleton rows={6} />
                     ) : isNewsTab ? (
-                        /* HABERLER sekmesi — ayrı haber listesi */
                         <div className="divide-y divide-border/40">
                             {newsItems.map((item, i) => (
                                 <div

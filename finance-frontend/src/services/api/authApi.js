@@ -4,7 +4,7 @@ const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL;
 const KEYCLOAK_REALM = import.meta.env.VITE_KEYCLOAK_REALM;
 const KEYCLOAK_BASE_URL = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect`;
 const CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
-// URL'inize göre dinamik yönlendirme (SS'te auth/callback yazdığı için ona uyum sağlıyoruz)
+// OAuth redirect_uri; Keycloak'ta kayıtlı URI ile tam eşleşmesi gerektiğinden pathname dahil dinamik türetilir.
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
 export const exchangeCodeForToken = async (code) => {

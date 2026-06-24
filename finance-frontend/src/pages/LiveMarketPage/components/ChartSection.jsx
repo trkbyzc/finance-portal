@@ -34,7 +34,6 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
 
     const isBistMainIndex = selectedSymbol?.includes('XU100') || selectedSymbol?.includes('XU030') || selectedSymbol?.includes('XU050');
 
-    // Endeks TRY bazlı — OHLCV kartları için fiyat formatlayıcı
     const formatPriceLabel = (v) => {
         if (v == null || Number.isNaN(v)) return '';
         return `₺${Number(v).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -56,7 +55,6 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
             candle: { tooltip: { showRule: 'none' } }
         });
 
-        // Crosshair hareketinde kartları canlı güncelle
         chartInstance.current.subscribeAction('onCrosshairChange', (d) => setHover(d?.kLineData ?? null));
 
         const fetchHistory = async () => {
@@ -93,7 +91,6 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
     return (
         <div className="mb-12">
             <div className="bg-surface border border-border rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col">
-                {/* Üst: chart tipi (sol) + başlık (sağ) */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-1 bg-bg/80 backdrop-blur p-1 rounded-xl border border-border">
                         <button onClick={() => setChartType('area')} className={`p-2 rounded-lg transition-all ${chartType === 'area' ? 'bg-primary text-text shadow-lg' : 'text-text-muted hover:text-text'}`}><AreaChart size={18} /></button>
@@ -105,17 +102,14 @@ export default function ChartSection({ selectedSymbol, onNavigateToMarket }) {
                     </div>
                 </div>
 
-                {/* OHLCV kartları (TradingChart ile aynı) */}
                 {candle && (
                     <div className="mb-3 -mx-1">
                         <ChartOhlcvBar candle={candle} formatPriceLabel={formatPriceLabel} />
                     </div>
                 )}
 
-                {/* Grafik */}
                 <div ref={chartRef} className="w-full h-95" />
 
-                {/* Aralık butonları */}
                 <div className="flex items-center gap-1 mt-3 flex-wrap">
                     {RANGE_KEYS.map((btn) => (
                         <button key={btn.value} onClick={() => setSelectedRange(btn.value)} className={`px-3 py-1 text-[11px] font-bold rounded-lg transition-all ${selectedRange === btn.value ? 'bg-primary text-text' : 'text-text-muted hover:text-text hover:bg-surface-2'}`}>{t(`common:ranges.${btn.key}`)}</button>

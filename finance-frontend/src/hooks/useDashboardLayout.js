@@ -44,7 +44,7 @@ export function useDashboardLayout(allKeys, username) {
         [allKeys, enabledKeys]
     );
 
-    // dragKey'i targetKey'in önüne taşı (HTML5 drag-drop ile çağrılır)
+    // HTML5 drag-drop sırasında çağrılır; targetKey bulunamazsa sona ekler.
     const reorder = useCallback((dragKey, targetKey) => {
         if (dragKey === targetKey) return;
         setState(s => {

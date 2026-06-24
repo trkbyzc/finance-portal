@@ -19,7 +19,6 @@ export default function WhatIfResultCards({ result }) {
                         key={a.key}
                         className="group relative overflow-hidden bg-surface border border-border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
                     >
-                        {/* Varlık rengiyle üst aksan şeridi */}
                         <span className="absolute inset-x-0 top-0 h-1" style={{ background: color }} />
 
                         <div className="flex items-center gap-2 mb-4">

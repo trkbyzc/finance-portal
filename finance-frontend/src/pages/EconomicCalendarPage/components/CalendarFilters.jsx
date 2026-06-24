@@ -16,7 +16,6 @@ export default function CalendarFilters({
 
     return (
         <div className="bg-surface border border-border rounded-2xl p-4 mb-6 space-y-4">
-            {/* Date range + impact */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                     <label className="block text-[10px] font-bold text-text-muted mb-1 uppercase tracking-wider">
@@ -60,7 +59,6 @@ export default function CalendarFilters({
                 </div>
             </div>
 
-            {/* Country chips */}
             <div>
                 <div className="flex items-center justify-between mb-2">
                     <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider">

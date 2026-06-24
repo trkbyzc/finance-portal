@@ -28,7 +28,6 @@ export default function ChangePasswordModal({ open, onClose }) {
         onClose();
     }, [onClose]);
 
-    // Esc ile kapat
     useEffect(() => {
         if (!open) return;
         const h = (e) => { if (e.key === 'Escape' && !submitting) handleClose(); };
@@ -81,7 +80,6 @@ export default function ChangePasswordModal({ open, onClose }) {
                 onClick={(e) => e.stopPropagation()}
                 className="bg-surface border border-border rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fade-in"
             >
-                {/* Header */}
                 <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border">
                     <div className="flex items-center gap-2">
                         <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
@@ -123,13 +121,11 @@ export default function ChangePasswordModal({ open, onClose }) {
                         onToggleVisible={() => setShow(s => ({ ...s, confirm: !s.confirm }))}
                     />
 
-                    {/* Rules hint */}
                     <p className="flex items-start gap-1.5 text-[11px] text-text-muted">
                         <CheckCircle2 size={12} className="mt-0.5 shrink-0 text-buy" />
                         {t('profile:passwordModal.rules')}
                     </p>
 
-                    {/* Inline error */}
                     {localError && (
                         <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-sell/10 border border-sell/30 text-sell text-xs">
                             <AlertTriangle size={14} className="mt-0.5 shrink-0" />
@@ -137,7 +133,6 @@ export default function ChangePasswordModal({ open, onClose }) {
                         </div>
                     )}
 
-                    {/* Actions */}
                     <div className="flex gap-2 pt-1">
                         <button
                             type="button"

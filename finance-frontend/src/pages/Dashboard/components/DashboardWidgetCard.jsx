@@ -1,9 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 
-/**
- * Giriş yapmış dashboard widget'ları için ortak kart kabuğu (başlık + bar + "Tümünü Gör").
- * Modül seviyesinde tanımlı — render içinde component oluşturmaktan kaçınmak için (state sıfırlanmasın).
- */
+// Modül seviyesinde tanımlı — render içinde component oluşturmaktan kaçınmak için (state sıfırlanmasın).
 export default function DashboardWidgetCard({ title, viewAllLabel, onViewAll, children }) {
     return (
         <div className="bg-surface border border-border rounded-2xl shadow-xl p-6">

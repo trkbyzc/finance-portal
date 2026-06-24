@@ -9,10 +9,6 @@ import { formatChartDate } from '../../../../utils/formatters/dateFormatter';
  * Asset + 1+ benchmark'in % normalize edilmiş multi-area karşılaştırma grafiği.
  * BIST overlay ve crypto BITW overlay aynı render bloğunu kullanır — sadece data source farklı.
  */
-/**
- * Karşılaştırma grafiğindekiyle aynı açık tooltip (siyah kutu yerine) —
- * bg-surface-2 + renkli nokta + "ad: +%xx" satırları.
- */
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload || !payload.length) return null;
     return (

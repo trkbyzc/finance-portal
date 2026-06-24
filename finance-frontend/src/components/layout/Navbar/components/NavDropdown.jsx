@@ -2,10 +2,6 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
-/**
- * Top-nav dropdown — theme-aware (semantic tokens kullanır)
- * Hover'da açılır, divider'lar ve nested submenu desteği var.
- */
 export default function NavDropdown({ title, items }) {
     return (
         <div className="relative group">

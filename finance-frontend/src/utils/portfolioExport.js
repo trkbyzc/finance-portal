@@ -24,7 +24,6 @@ export async function loadLogoDataUrl() {
     }
 }
 
-// ---------- TTF font loader (Türkçe karakter desteği için) ----------
 // jsPDF default'ları WinAnsi encoding kullanıyor → ş/ğ/İ gibi Turkish glyph'ler kaybolur ve
 // boş glyph yerine '&' separator basar ("&V&a&r&l&1&k" gibi bozuk output). Çözüm: TTF embed.
 // public/fonts/Roboto-{Regular,Bold}.ttf'yi base64'e çevirip jsPDF VFS'e ekliyoruz.
@@ -88,11 +87,9 @@ export function exportPortfolioExcel({ sections, summary, meta }) {
     spanRow([`${meta.dateLabel || ''}: ${meta.date}`]);
     aoa.push([]);
 
-    // Üst özet kartlar (etiket | değer | not) — ekrandaki StatCard'ların karşılığı
     summary.cards.forEach(c => aoa.push([c.label, c.value, c.sub || '']));
     aoa.push([]);
 
-    // Doğa bazlı bölümler — her biri kendi başlık satırı + sütunlarıyla
     sections.forEach(sec => {
         spanRow([`${sec.label} · ${sec.count}`]);
         const head = [sec.headers.asset, sec.headers.type, sec.headers.qty, sec.headers.avg, sec.headers.cur, sec.headers.value, sec.headers.pnl, '%'];
@@ -125,7 +122,6 @@ export async function exportPortfolioPdf({ sections, summary, meta }, logoDataUr
     applyTurkishFont(doc, fonts);
     const fontFamily = fonts ? 'Roboto' : 'helvetica';
 
-    // Üst bant: logo + başlık + tarih
     if (logoDataUrl) {
         try { doc.addImage(logoDataUrl, 'PNG', 40, 28, 36, 36); } catch { /* logo atlanır */ }
     }
@@ -137,7 +133,6 @@ export async function exportPortfolioPdf({ sections, summary, meta }, logoDataUr
     if (meta.subtitle) doc.text(meta.subtitle, logoDataUrl ? 86 : 40, 62);
     doc.text(`${meta.dateLabel || ''}: ${meta.date}`, pageW - 40, 48, { align: 'right' });
 
-    // Üst özet kartları — yatay kutucuklar (ekrandaki StatCard'ların belge karşılığı)
     let y = 80;
     const cards = summary.cards;
     const gap = 10;
@@ -159,7 +154,6 @@ export async function exportPortfolioPdf({ sections, summary, meta }, logoDataUr
     });
     y += cardH + 18;
 
-    // Doğa bazlı bölümler — her biri başlık + kendi sütunlu tablo; K/Z ve Reel K/Z ₺ üstte % altta, renkli
     sections.forEach(sec => {
         if (y > pageH - 90) { doc.addPage(); y = 50; }
         doc.setFont(fontFamily, 'bold'); doc.setFontSize(9); doc.setTextColor(...NAVY);
@@ -173,6 +167,7 @@ export async function exportPortfolioPdf({ sections, summary, meta }, logoDataUr
         const body = sec.rows.map(r => {
             const cells = [
                 r.asset, r.type, r.qty, r.avg, r.cur, r.value,
+                // K/Z hücresi: ₺ tutarı üst satır, % alt satır — tek hücrede iki satır + renk
                 { content: `${r.pnl}\n${r.pnlPct}`, styles: { textColor: r.pnlPositive ? GREEN : RED, fontStyle: 'bold' } },
             ];
             if (sec.showReal) {

@@ -1,15 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { historicalApi } from '../../services/api';
-// 🚀 FAZ-4 EKLENTİSİ: Sabitlerimiz geldi
 import { QUERY_CONFIG } from '../../constants/config';
 
-/**
- * 🚀 FAZA 1: useEffect Temizliği
- * 🚀 FAZA 3: Service Layer Refactoring - historicalApi kullanımı
- * FundTradingChart için historical data sağlar
- */
-
-// 🚀 KURŞUN GEÇİRMEZ TRANSFORMER
+// FundTradingChart için historical fon verisini normalize eder; backend farklı field/format döndürebilir
 const transformFundData = (rawData) => {
     if (!rawData || !Array.isArray(rawData)) {
         console.warn('useFundChartData: Invalid data received', rawData);
@@ -31,6 +24,7 @@ const transformFundData = (rawData) => {
 
             if (!exactTimestamp && formattedDate) {
                 const d = new Date(`${formattedDate}T00:00:00Z`);
+                // UTC timestamp'e yerel offset eklenerek timezone kaymasını önler
                 exactTimestamp = d.getTime() + (d.getTimezoneOffset() * 60000);
             }
 
@@ -54,7 +48,7 @@ export const useFundChartData = (symbol, range, isTefas) => {
         queryFn: async () => {
             const response = await historicalApi.getData({
                 symbol: symbol,
-                category: 'TR_FUND', // 🚀 KATEGORİ EKLENDİ
+                category: 'TR_FUND',
                 range: range,
                 interval: '1d'
             });
@@ -62,7 +56,6 @@ export const useFundChartData = (symbol, range, isTefas) => {
             return transformFundData(dataArray);
         },
         enabled: !!symbol,
-        // 🚀 FAZ-4: MAGIC NUMBER GİTTİ, MERKEZİ SABİT GELDİ
         staleTime: QUERY_CONFIG.STALE_TIME.DEFAULT,
         retry: 1
     });

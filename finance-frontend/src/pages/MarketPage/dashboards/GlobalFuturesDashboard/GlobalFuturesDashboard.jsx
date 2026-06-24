@@ -46,7 +46,6 @@ export default function GlobalFuturesDashboard() {
     return (
         <div className="min-h-screen bg-bg text-text">
           <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-10">
-            {/* Header */}
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-black uppercase text-text tracking-tight flex items-center gap-3">
@@ -67,7 +66,6 @@ export default function GlobalFuturesDashboard() {
                 </div>
             </div>
 
-            {/* Table */}
             {loading ? (
                 <div className="h-96 animate-pulse bg-surface border border-border rounded-2xl" />
             ) : sorted.length === 0 ? (

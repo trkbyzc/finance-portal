@@ -11,20 +11,18 @@ export default function InterestPage() {
 
     const presetDays = [32, 46, 92, 181, 365];
 
-    // 🚀 React Query! State'leri de parametre olarak atıyoruz. Eğer parametreler değişirse arka planda yeniden fetch eder.
+    // amount veya days değiştiğinde React Query arka planda otomatik yeniden fetch eder.
     const { data: results = [], isLoading: loading, refetch } = useQuery({
-        queryKey: ['interestCalculate', amount, days], // Amount veya Days değişirse query tetiklenmek üzere kilitlenir
+        queryKey: ['interestCalculate', amount, days], // queryKey'e parametre eklenerek bağımlılık izlenir
         queryFn: async () => {
             const data = await economyApi.calculateInterest(amount, days);
             return data || [];
         },
-        enabled: true, // Sayfa yüklendiğinde otomatik çeksin
-        staleTime: 5 * 60 * 1000 // Ayn miktarı tekrar tekrar denerse 5 dk Cash'ten okusun
+        staleTime: 5 * 60 * 1000 // Aynı parametrelerle tekrar istek gelirse 5 dk cache'ten döner
     });
 
     const handleCalculate = (e) => {
         e.preventDefault();
-        // Eğer kullanıcı formdaki hesapla butonuna basarsa Query'yi zorla yenileriz
         refetch();
     };
 

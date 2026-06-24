@@ -60,7 +60,6 @@ export default function PriceChart({
         return () => el.removeEventListener('wheel', onWheel);
     }, []);
 
-    // Tüm area/line grafikler sistem laciverti (eurobond dahil)
     const stroke = '#2962ff';
     const yTickFormatter = (v) => isYield ? `%${v.toFixed(2)}` : formatPriceLabel(v);
     const tooltipEl = <PriceTooltip stroke={stroke} isYield={isYield} t={t} formatPriceLabel={formatPriceLabel} />;

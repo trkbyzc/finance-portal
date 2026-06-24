@@ -84,7 +84,6 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            {/* Maliyet / Piyasa Değeri */}
             <div className="bg-surface-2 rounded-2xl p-6 border border-border/50">
                 <h3 className="text-xl font-bold mb-1">{t('charts.costVsValue', 'Maliyet / Piyasa Değeri')}</h3>
                 <p className="text-xs text-text-muted mb-4">{t('charts.costVsValueSub', 'Her varlık için toplam maliyet ve anlık piyasa değeri')}</p>
@@ -105,7 +104,6 @@ export default function PortfolioActivityCharts({ portfolio, calculateProfitLoss
                 </ResponsiveContainer>
             </div>
 
-            {/* Günlük Durum */}
             <div className="bg-surface-2 rounded-2xl p-6 border border-border/50">
                 <h3 className="text-xl font-bold mb-1">{t('charts.dailyStatus', 'Günlük Durum')}</h3>
                 <p className="text-xs text-text-muted mb-4">{t('charts.dailyStatusSub', 'Pozisyonların günlük % değişimine göre dağılımı (adet)')}</p>

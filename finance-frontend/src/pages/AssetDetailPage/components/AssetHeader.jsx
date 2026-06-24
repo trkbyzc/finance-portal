@@ -39,7 +39,6 @@ export default function AssetHeader({ asset, navigate, onAddPortfolioClick }) {
     const isCurrency = asset?.assetCategory === 'CURRENCY';
     const showCurrencyToggle = !asset?.isYieldBased && !isCurrency;
 
-    // "Karşılaştır" → sayfadaki karşılaştırma grafiğine yumuşak kaydır.
     const scrollToComparison = () => {
         document.getElementById('asset-comparison')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };

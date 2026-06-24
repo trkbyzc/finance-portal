@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useMarketData } from '../../../../hooks/useMarketData';
 import { useNewsData } from '../../../../hooks/useNewsData';
 import CommodityHeader from './components/CommodityHeader';
-import CommodityTabs from './components/CommodityTabs'; // 🚀 YENİ
+import CommodityTabs from './components/CommodityTabs';
 import CommodityTable from './components/CommodityTable';
 import CommodityNewsSidebar from './components/CommodityNewsSidebar';
 
@@ -10,14 +10,13 @@ export default function CommoditiesDashboard() {
     const { data: commodities, loading: isLoading } = useMarketData('commodities');
     const { news, loading: loadingNews } = useNewsData('Emtialar');
     const [searchQuery, setSearchQuery] = useState("");
-    const [activeCategory, setActiveCategory] = useState("all"); // 🚀 SEKMELİ YAPI
+    const [activeCategory, setActiveCategory] = useState("all");
 
-    // 🚀 1. GÜVENLİ KATEGORİ TESPİTİ
+    // Emtia sembolünün önek kalıbına göre kategori döndürür; bazı API kayıtları code yerine symbol gönderir.
     const getCategory = (code) => {
-        // Eğer code undefined veya null ise direkt 'others' döndür, patlama!
         if (!code) return 'others';
 
-        const c = code.toString().toUpperCase(); // toString() ile her ihtimale karşı sağlama alıyoruz
+        const c = code.toString().toUpperCase();
 
         if (c.includes('GC') || c.includes('GA') || c.includes('SI') || c.includes('GAG') || c.includes('XAU') || c.includes('XAG')) return 'precious';
         if (c.includes('CL') || c.includes('BZ') || c.includes('NG')) return 'energy';
@@ -27,14 +26,12 @@ export default function CommoditiesDashboard() {
         return 'others';
     };
 
-// 🚀 2. FİLTRELEME MANTIĞI
+    // searchQuery veya activeCategory her değiştiğinde tüm listeyi yeniden filtrelemekten kaçınır.
     const filteredCommodities = useMemo(() => {
-        // commodities verisinin varlığını kontrol et
         if (!commodities || !Array.isArray(commodities)) return [];
 
         let result = commodities;
 
-        // Arama Filtresi
         if (searchQuery) {
             const query = searchQuery.toLowerCase().trim();
             result = result.filter(c =>
@@ -43,10 +40,8 @@ export default function CommoditiesDashboard() {
             );
         }
 
-        // Sekme (Kategori) Filtresi
         if (activeCategory !== "all") {
             result = result.filter(c => {
-                // Nesne içindeki kodu güvenli bir şekilde alıp fonksiyona yolluyoruz
                 const itemCode = c.currencyCode || c.symbol || "";
                 return getCategory(itemCode) === activeCategory;
             });
@@ -63,7 +58,6 @@ export default function CommoditiesDashboard() {
                 setSearchQuery={setSearchQuery}
             />
 
-            {/* 🚀 ÜST KATEGORİ SEKMELERİ */}
             <CommodityTabs
                 activeCategory={activeCategory}
                 setActiveCategory={setActiveCategory}

@@ -1,8 +1,3 @@
-/**
- * 🚀 FAZA 2: ViopTradingChart için chart konfigürasyonu
- * Chart stilleri ve ayarları merkezi bir yerden yönetilir
- */
-
 export const getViopChartStyles = () => ({
     grid: {
         horizontal: { 

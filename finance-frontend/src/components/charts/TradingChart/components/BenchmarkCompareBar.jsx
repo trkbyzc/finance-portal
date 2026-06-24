@@ -1,17 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
-/**
- * Generic benchmark karşılaştırma toggle bar — BIST endeksleri için ve kripto için de
- * aynı görsel dilde. Aktif buton kendi rengiyle dolgulu, pasif outline.
- *
- * @param {string} labelKey i18n key (örn. 'charts:bistCompare', 'charts:cryptoCompare')
- * @param {string} activeLabelKey aktif olduğunda gösterilen italik mesaj key'i
- * @param {Array} options [{ key, label, color }]
- * @param {Object} activeMap { key: bool }
- * @param {Function} onToggle (key) => void
- * @param {string} [buttonColor] Verilirse: PASİF butonlar nötr/siyah, AKTİF buton bu renkle
- *   (lacivert) dolgulu olur. Grafik çizgileri yine kendi `b.color`'ını kullanır.
- *   Verilmezse eski davranış: pasif = kendi renginde outline.
+/*
+ * Generic benchmark karşılaştırma toggle bar — BIST endeksleri ve kripto için aynı görsel dilde.
+ * buttonColor verilirse: pasif butonlar nötr, aktif buton bu tek renkle dolgulu olur;
+ * verilmezse her buton kendi `b.color`'ıyla outline görünür.
  */
 export default function BenchmarkCompareBar({ labelKey, activeLabelKey, options, activeMap, onToggle, buttonColor, extra }) {
     const { t } = useTranslation('charts');

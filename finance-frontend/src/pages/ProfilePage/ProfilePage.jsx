@@ -38,7 +38,6 @@ const ProfilePage = () => {
                 <h1 className="text-3xl md:text-4xl font-bold mb-1">{t('profile:pageTitle')}</h1>
                 <p className="text-text-muted mb-8">{t('profile:pageSubtitle')}</p>
 
-                {/* Header card — avatar + name + status */}
                 <div className="relative bg-surface-2 border border-border rounded-2xl p-6 mb-6 overflow-hidden">
                     <div
                         className="absolute inset-x-0 top-0 h-32 pointer-events-none"
@@ -73,7 +72,6 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                {/* Info grid */}
                 <div className="mb-2">
                     <h3 className="text-xs uppercase tracking-wider text-text-muted font-bold mb-3">
                         {t('profile:sections.info')}
@@ -106,7 +104,6 @@ const ProfilePage = () => {
                     />
                 </div>
 
-                {/* Security section */}
                 <div className="mb-2">
                     <h3 className="text-xs uppercase tracking-wider text-text-muted font-bold mb-3">
                         {t('profile:sections.security')}

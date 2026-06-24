@@ -3,12 +3,7 @@ import { Link } from 'react-router-dom';
 import { X, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Mobile-only fullscreen menu. Navbar'dan navConfig + iki ekstra direkt link (news/economic-calendar) alır,
- * her kategoriyi accordion gibi açıp kapatabilen bir liste haline getirir.
- *
- * Açık iken body scroll lock, escape ile kapanır; route değiştiğinde de onClose tetiklenir.
- */
+// Açık iken body scroll kilitlenir ve Escape tuşu onClose'u tetikler; route değişiminde parent bileşen open=false geçer.
 export default function MobileMenu({ open, onClose, navConfig, extraLinks, liveLink }) {
     const { t } = useTranslation('navbar');
     const [expanded, setExpanded] = useState(null);

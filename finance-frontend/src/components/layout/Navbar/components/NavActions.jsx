@@ -22,7 +22,6 @@ export default function NavActions() {
                 <span className="text-[11px] font-bold uppercase tracking-wider leading-none">{t('ticker.live')}</span>
             </Link>
 
-            {/* Tooltip — LanguageToggle ile aynı görsel dil */}
             <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded-md bg-bg-elevated text-text text-[10px] font-semibold tracking-wider whitespace-nowrap opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150 shadow-lg border border-border z-50">
                 {t('ticker.live')} {t('ticker.marketStatus')}
             </span>

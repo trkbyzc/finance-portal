@@ -3,17 +3,11 @@
  * AssetHeader ve TradingChart bu helper'ları kullanarak TRY/USD toggle davranışını belirler.
  */
 
-/**
- * Asset objesinden native para birimini tespit eder.
- * @param {Object} asset
- * @returns {'TRY' | 'USD'}
- */
 export const detectNativeCurrency = (asset) => {
     if (!asset) return 'USD';
     const sym = (asset.symbol || asset.yahooSymbol || '').toUpperCase();
     const cat = (asset.assetCategory || '').toUpperCase();
 
-    // TR yerli varlıklar
     if (sym.endsWith('.IS')) return 'TRY';
     if (cat === 'TR_BOND') return 'TRY';
     if (cat === 'TR_FUND') return 'TRY';
@@ -24,7 +18,6 @@ export const detectNativeCurrency = (asset) => {
     // VIOP — BIST'te işlem gören kontratlar TRY denominated (F_XU030, F_USDTRY, BİST 30 Vadeli, vb.)
     if (cat === 'VIOP') return 'TRY';
 
-    // BIST endeksleri (XU100, XBANK vb.)
     if (cat === 'INDEX' && (sym.startsWith('X') || sym.endsWith('.IS'))) return 'TRY';
 
     // Currency pair'ler — pair'in quote currency'si dikkate alınır
@@ -33,7 +26,6 @@ export const detectNativeCurrency = (asset) => {
     if (sym.endsWith('TRY=X')) return 'TRY';
     if (sym.endsWith('=X')) return 'USD';
 
-    // Tek-kod döviz (currencyCode varsa)
     if (asset.currencyCode === 'TRY') return 'TRY';
 
     // Kripto, emtia, ABD hisse, EMB, küresel fon, global bond → USD

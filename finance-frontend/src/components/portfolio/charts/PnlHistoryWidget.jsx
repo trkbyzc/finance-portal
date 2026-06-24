@@ -85,7 +85,6 @@ export default function PnlHistoryWidget({ portfolio, calculateProfitLoss }) {
             <p className="text-xs text-text-muted mb-4">{t('charts.pnlHistorySub', 'Varlık seç → zaman içindeki kâr/zarar')}</p>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* Sol: varlık listesi (anlık K/Z%) */}
                 <div className="lg:col-span-1 space-y-1 max-h-[340px] overflow-y-auto pr-1">
                     {list.map(it => {
                         const pct = Number(calculateProfitLoss(it).profitLossPercent || 0);
@@ -106,7 +105,6 @@ export default function PnlHistoryWidget({ portfolio, calculateProfitLoss }) {
                     })}
                 </div>
 
-                {/* Sağ: seçili varlığın zaman-içi K/Z alan grafiği */}
                 <div className="lg:col-span-2 min-h-[340px]">
                     <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                         <div className="flex items-center gap-2">

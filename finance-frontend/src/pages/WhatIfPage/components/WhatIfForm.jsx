@@ -22,7 +22,6 @@ export default function WhatIfForm({
 
     return (
         <div className="bg-surface border border-border rounded-2xl p-5 mb-6">
-            {/* Mode toggle */}
             <div className="mb-4 flex items-center gap-1 p-1 bg-bg border border-border rounded-lg w-fit">
                 <button
                     type="button"
@@ -44,7 +43,6 @@ export default function WhatIfForm({
                 </button>
             </div>
 
-            {/* Date + (amount) + compare button */}
             <div className={`grid grid-cols-1 ${inputMode === 'amount' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4 mb-4`}>
                 <div>
                     <label className="block text-xs font-semibold text-text-muted mb-1 uppercase">
@@ -84,7 +82,6 @@ export default function WhatIfForm({
                 </div>
             </div>
 
-            {/* Asset chips */}
             <div>
                 <label className="block text-xs font-semibold text-text-muted mb-2 uppercase">
                     {t('whatIf:form.assets')} ({assets.length})

@@ -33,19 +33,16 @@ export default function ChatWidget() {
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Mesaj listesi değiştikçe en alta scroll
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages, isSending]);
 
-    // Panel açılınca input'a focus
     useEffect(() => {
         if (open && inputRef.current) inputRef.current.focus();
     }, [open]);
 
-    // History panelini açtığında konuşmaları yükle
     useEffect(() => {
         if (!historyOpen || !isAuthenticated) return;
         let cancelled = false;
@@ -150,7 +147,6 @@ export default function ChatWidget() {
 
     return (
         <>
-            {/* Floating button */}
             {!open && (
                 <button
                     onClick={() => setOpen(true)}
@@ -162,7 +158,6 @@ export default function ChatWidget() {
                 </button>
             )}
 
-            {/* Panel */}
             {open && (
                 <div
                     className="fixed z-50 bg-surface border border-border shadow-2xl flex flex-col
@@ -170,7 +165,6 @@ export default function ChatWidget() {
                                sm:w-[400px] sm:h-[600px] sm:rounded-2xl
                                animate-fade-in"
                 >
-                    {/* Header */}
                     <div className="flex items-center justify-between p-3 border-b border-border bg-surface-2/40 sm:rounded-t-2xl shrink-0">
                         <div className="flex items-center gap-2 min-w-0">
                             <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
@@ -206,7 +200,6 @@ export default function ChatWidget() {
                         </div>
                     </div>
 
-                    {/* History overlay */}
                     {historyOpen && (
                         <div className="border-b border-border bg-bg/50 max-h-48 overflow-y-auto">
                             {historyLoading ? (
@@ -243,7 +236,6 @@ export default function ChatWidget() {
                         </div>
                     )}
 
-                    {/* Body — message list */}
                     <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
                         {messages.length === 0 && !isSending && (
                             <EmptyState onPick={(text) => send(text)} t={t} />
@@ -254,7 +246,6 @@ export default function ChatWidget() {
                         {isSending && <ThinkingBubble t={t} />}
                     </div>
 
-                    {/* Footer — input */}
                     <div className="border-t border-border p-3 bg-surface-2/30 sm:rounded-b-2xl shrink-0">
                         <div className="flex items-end gap-2">
                             <textarea
@@ -293,8 +284,6 @@ export default function ChatWidget() {
         </>
     );
 }
-
-// ---------- alt bileşenler ----------
 
 function EmptyState({ onPick, t }) {
     const suggestions = [

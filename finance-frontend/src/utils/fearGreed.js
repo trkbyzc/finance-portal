@@ -12,14 +12,12 @@ export const FG_ZONES = [
 
 const zoneOf = (v) => FG_ZONES.find(z => v < z.max) || FG_ZONES[FG_ZONES.length - 1];
 
-/** Değere göre renk. */
 export const fgColor = (v) => zoneOf(Number(v)).color;
 
 /** Değer/sınıflandırma → yerelleştirilmiş etiket (API'nin EN sınıfı varsa onu kullanır). */
 export const fgLabel = (value, classification, lang = 'tr') => {
     const z = zoneOf(Number(value));
     if (lang === 'en') return classification || z.label;
-    // TR: API EN sınıfını TR karşılığına çevir
     const byEn = FG_ZONES.find(zz => zz.label === classification);
     return (byEn ? byEn.tr : z.tr);
 };

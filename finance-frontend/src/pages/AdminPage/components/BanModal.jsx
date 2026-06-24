@@ -54,7 +54,6 @@ export default function BanModal({ user, duration, onDurationChange, onConfirm, 
                         </label>
                     ))}
 
-                    {/* Özel gün girişi */}
                     <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
                         isCustom ? 'border-primary bg-primary/5' : 'border-border hover:border-border-strong'
                     }`}>

@@ -180,7 +180,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // 🚀 ÇIKIŞ METODU (GARANTİ SESSION TEMİZLEYİCİ)
     const logout = async () => {
         console.warn('🚪 Çıkış yapılıyor, oturum tamamen kapatılıyor...');
 

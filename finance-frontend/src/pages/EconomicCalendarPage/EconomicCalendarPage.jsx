@@ -9,9 +9,7 @@ import EventDayCard from './components/EventDayCard';
 
 /**
  * Ekonomik takvim sayfası — orchestrator.
- *
- * Backend 4 hafta penceresi cache'liyor (today-7 → today+21). Filtre state'i + query burada;
- * UI filtreler (date/impact/country chips) ve event listesi (day cards) alt componentlerde.
+ * Backend 4 haftalık pencereyi cache'liyor (today-7 → today+21); filtre state ve query burada yönetilir.
  */
 export default function EconomicCalendarPage() {
     const { t } = useTranslation(['economicCalendar', 'common']);

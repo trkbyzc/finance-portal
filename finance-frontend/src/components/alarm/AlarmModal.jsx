@@ -23,7 +23,6 @@ const fmtPrice = (n) => {
     return v.toLocaleString('tr-TR', { maximumFractionDigits: 4 });
 };
 
-// Hızlı hedef ön-ayarları — güncel fiyata göre yüzde sapma
 const PRESETS = [-10, -5, 5, 10];
 
 async function fetchLatestPrice(symbol, backendType) {
@@ -110,7 +109,7 @@ export default function AlarmModal({ open, onClose, asset }) {
         if (currentPrice == null) return;
         const target = Number(currentPrice) * (1 + pct / 100);
         setThreshold(String(+target.toFixed(4)));
-        setCondition(pct >= 0 ? 'ABOVE' : 'BELOW'); // yön otomatik
+        setCondition(pct >= 0 ? 'ABOVE' : 'BELOW');
     };
 
     const handleSubmit = (e) => {
@@ -138,7 +137,6 @@ export default function AlarmModal({ open, onClose, asset }) {
                 className="bg-surface border border-border rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Başlık şeridi — gradient + güncel fiyat rozeti */}
                 <div className="relative bg-linear-to-br from-primary/15 via-primary/5 to-transparent px-5 pt-5 pb-4 border-b border-border">
                     <button
                         type="button"
@@ -167,7 +165,6 @@ export default function AlarmModal({ open, onClose, asset }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                    {/* Koşul — iki büyük seçilebilir kart */}
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                             {t('alarm:modal.condition', 'Koşul')}
@@ -196,7 +193,6 @@ export default function AlarmModal({ open, onClose, asset }) {
                         </div>
                     </div>
 
-                    {/* Hedef fiyat + hızlı ön-ayarlar */}
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
                             {isYield ? t('alarm:modal.targetYield', 'Hedef Getiri') : t('alarm:modal.targetPrice', 'Hedef Fiyat')}
@@ -231,7 +227,6 @@ export default function AlarmModal({ open, onClose, asset }) {
                         )}
                     </div>
 
-                    {/* Sıklık */}
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
                             {t('alarm:modal.frequency', 'Sıklık')}
@@ -263,7 +258,6 @@ export default function AlarmModal({ open, onClose, asset }) {
                         </p>
                     </div>
 
-                    {/* Not */}
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
                             {t('alarm:modal.note', 'Not')}
@@ -279,7 +273,6 @@ export default function AlarmModal({ open, onClose, asset }) {
                         />
                     </div>
 
-                    {/* Submit — koşul rengine göre */}
                     <button
                         type="submit"
                         disabled={!canSubmit() || createMutation.isPending}

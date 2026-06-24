@@ -43,7 +43,6 @@ export default function TurkishBondsDashboard() {
     // Vadesi geçmiş tahvilleri en baştan ele (hem sekmeler hem liste canlı tahvilleri görsün).
     const liveBonds = useMemo(() => bonds.filter(b => !isMatured(b.maturity)), [bonds]);
 
-    // Sekmeler: veride bulunan kovalar (backend label'ı ile), başta "Tümü"
     const tabs = useMemo(() => {
         const byBucket = new Map();
         for (const b of liveBonds) if (!byBucket.has(b.bucket)) byBucket.set(b.bucket, b.label || b.bucket);
@@ -88,7 +87,6 @@ export default function TurkishBondsDashboard() {
                 </div>
             </div>
 
-            {/* Vade kovası sekmeleri */}
             <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 custom-scrollbar">
                 {tabs.map((tab) => (
                     <button

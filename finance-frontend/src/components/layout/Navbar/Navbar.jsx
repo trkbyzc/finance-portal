@@ -26,7 +26,6 @@ export default function Navbar() {
     // hepsi düz primary text, kullanıcı görsel hiyerarşi için divider'a güveniyor.
     const navConfig = [
         { title: t('navbar:categories.stocks'), items: [
-                // Hisse senedi grubu
                 { label: t('navbar:items.trStocks'), to: '/markets/tr-stocks' },
                 { label: t('navbar:items.usStocks'), to: '/markets/us-stocks' },
                 { type: 'divider' },
@@ -56,10 +55,8 @@ export default function Navbar() {
                 // Araç (mevduat hesaplayıcı) — tahvillerden ayrı
                 { label: t('navbar:items.depositSim'), to: '/interest' },
                 { type: 'divider' },
-                // TR tahvil pazarı
                 { label: t('navbar:items.trBonds'), to: '/markets/tr-bonds', desc: t('navbar:items.trBondsDesc') },
                 { type: 'divider' },
-                // Global tahvil pazarı
                 { label: t('navbar:items.globalBonds'), to: '/markets/bonds', desc: t('navbar:items.globalBondsDesc') },
                 { type: 'divider' },
                 // Eurobond — TR ihraçlı dövizli tahvil, ayrı pazar
@@ -89,7 +86,6 @@ export default function Navbar() {
                     {/* SOL: Logo + nav links. Boşluklar sıkılaştırıldı (md:gap-4 lg:gap-5)
                         ki nav linkleri sağdaki aksiyon grubunun (CANLI PİYASA) üstüne binmesin.
                         NOT: burada overflow-hidden KULLANMA — dropdown flyout'ları kırpar. */}
-                    {/* Hamburger — sadece mobile/tablet; AYRI flex öğesi, solda sabit. */}
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}

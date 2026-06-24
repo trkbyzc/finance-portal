@@ -1,12 +1,7 @@
 import { Search, Filter, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Admin sayfasındaki user filtreleri — username/email arama (parent'ta debounce), rol seçici,
- * banned seçici ve "Temizle" butonu.
- *
- * Parent (AdminPage) state'i tutar; bu component sadece UI + change event'leri yayar.
- */
+// Controlled component: state parent'ta tutulur; arama debounce'u da parent'ta uygulanır.
 export default function AdminFilters({
     searchInput, onSearchInputChange,
     roleFilter, onRoleFilterChange,

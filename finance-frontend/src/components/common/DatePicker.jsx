@@ -52,13 +52,11 @@ export default function DatePicker({
     // Görünen ay state — header'daki select'ler buraya yazar, DayPicker buradan okur.
     const [viewMonth, setViewMonth] = useState(() => selected || maxDate || new Date());
 
-    // Open olunca seçili tarihe sıçra
     useEffect(() => {
         if (open) setViewMonth(selected || maxDate || new Date());
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
-    // Dış tıklama / ESC → kapat
     useEffect(() => {
         if (!open) return;
         const onDoc = (e) => {
@@ -98,7 +96,6 @@ export default function DatePicker({
         return list;
     }, [minDate, maxDate]);
 
-    // Ay isimleri locale'e göre
     const monthNames = useMemo(() => {
         const arr = [];
         for (let m = 0; m < 12; m++) {
@@ -155,7 +152,6 @@ export default function DatePicker({
 
             {open && (
                 <div className="absolute z-50 mt-2 bg-surface border border-border rounded-xl shadow-2xl p-2 fp-datepicker-popover">
-                    {/* Custom header: Ay + Yıl select + < > nav */}
                     <div className="flex items-center justify-between gap-2 px-1 pb-2">
                         <div className="flex items-center gap-1.5">
                             <select
