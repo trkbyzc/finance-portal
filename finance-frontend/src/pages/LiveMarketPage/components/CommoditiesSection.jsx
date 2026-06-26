@@ -1,4 +1,15 @@
-import { ChevronRight, Coins, Loader2 } from 'lucide-react';
+import { ChevronRight, Coins, Droplets, Flame, Gem, Hammer, Wheat, Construction, Loader2 } from 'lucide-react';
+
+const getCommodityIcon = (symbol = '') => {
+    const c = symbol.toUpperCase();
+    if (c.includes('CL')) return <Droplets className="text-blue-400" size={20} />;
+    if (c.includes('GC') || c.includes('GA')) return <Coins className="text-primary" size={20} />;
+    if (c.includes('SI') || c.includes('GAG')) return <Gem className="text-gray-400" size={20} />;
+    if (c.includes('NG')) return <Flame className="text-orange-500" size={20} />;
+    if (c.includes('ZW') || c.includes('ZC')) return <Wheat className="text-yellow-600" size={20} />;
+    if (c.includes('HG')) return <Hammer className="text-orange-700" size={20} />;
+    return <Construction className="text-gray-500" size={20} />;
+};
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
 import { displaySymbol } from '../../../utils/symbolDisplay';
@@ -32,8 +43,8 @@ export default function CommoditiesSection({ commodityCards, onSelect, isLoading
                             className="flex justify-between items-center p-4 border-b border-border hover:bg-surface transition-colors rounded-lg cursor-pointer group"
                         >
                             <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-text ${item.iconColor} shadow-lg`}>
-                                    <Coins size={20} />
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.iconColor} shadow-lg`}>
+                                    {getCommodityIcon(item.symbol)}
                                 </div>
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-1">

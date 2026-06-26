@@ -1,6 +1,7 @@
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '../../../utils/formatters/numberFormatter';
+import AssetIcon from '../../../components/asset/AssetIcon';
 
 export default function TurkishStocksSection({ highestVolume, mostVolatile, topGainers, topLosers, onSelect, isLoading }) {
     const { t } = useTranslation('markets');
@@ -41,9 +42,7 @@ function StockListBlock({ title, data, onSelect, usePill = false }) {
                     return (
                         <div key={idx} onClick={() => onSelect(item.symbol)} className="flex items-center justify-between py-3 border-b border-border/50 hover:bg-surface-2 transition-colors cursor-pointer rounded-lg px-2 -mx-2 group">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-surface-hover text-text-muted flex items-center justify-center font-bold text-sm group-hover:bg-primary group-hover:text-text transition-colors">
-                                    {symbol.substring(0, 2)}
-                                </div>
+                                <AssetIcon src={item.image} symbol={item.symbol} size={40} className="rounded-full!" />
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-1">
                                         <span className="font-bold text-text group-hover:text-text uppercase">{symbol}</span>
