@@ -31,6 +31,7 @@ export default function AuthenticatedDashboard() {
     const displayName = user?.name?.trim().split(/\s+/)[0] || user?.username || '';
     const [editing, setEditing] = useState(false);
     const [dragKey, setDragKey] = useState(null);
+    const [dragOver, setDragOver] = useState(null);
 
     const registry = useMemo(() => ({
         marketSummary: { titleKey: 'dashboard:widgets.marketTitle', wide: true, render: () => <MarketSummaryStrip /> },
@@ -63,10 +64,26 @@ export default function AuthenticatedDashboard() {
     // username ile scope'la — aynı tarayıcıda farklı kullanıcılar kendi yerleşimini görsün.
     const { enabledKeys, availableKeys, reorder, remove, add, reset } = useDashboardLayout(allKeys, user?.username);
 
-    const onDrop = (targetKey) => {
-        if (dragKey && dragKey !== targetKey) reorder(dragKey, targetKey);
-        setDragKey(null);
+    const onDragEnterCard = (e, key) => {
+        if (!editing || !dragKey || dragKey === key || dragOver === key) return;
+        e.preventDefault();
+        setDragOver(key);
+        const dragIdx = enabledKeys.indexOf(dragKey);
+        const targetIdx = enabledKeys.indexOf(key);
+        if (dragIdx < targetIdx) {
+            // Aşağı sürükleme: target'ın SONRASINA koy
+            reorder(dragKey, enabledKeys[targetIdx + 1]); // undefined → sona ekle
+        } else {
+            // Yukarı sürükleme: target'ın ÖNÜNE koy
+            reorder(dragKey, key);
+        }
     };
+
+    const onDragLeaveCard = (e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setDragOver(null);
+    };
+
+    const onDragEndCard = () => { setDragKey(null); setDragOver(null); };
 
     return (
         <div className="bg-bg text-text font-sans">
@@ -109,8 +126,9 @@ export default function AuthenticatedDashboard() {
                                 draggable={editing}
                                 onDragStart={() => editing && setDragKey(key)}
                                 onDragOver={(e) => editing && e.preventDefault()}
-                                onDrop={() => editing && onDrop(key)}
-                                onDragEnd={() => setDragKey(null)}
+                                onDragEnter={(e) => onDragEnterCard(e, key)}
+                                onDragLeave={onDragLeaveCard}
+                                onDragEnd={onDragEndCard}
                             >
                                 {editing && (
                                     <div className="flex items-center justify-between mb-2 px-1">
