@@ -20,7 +20,7 @@ public class BondMapper {
     private final ObjectMapper objectMapper;
 
     public List<Map<String, Object>> getBondYieldCurve() {
-        log.debug("📊 Tahvil gösterge listesi oluşturuluyor...");
+        log.debug("Tahvil gösterge listesi oluşturuluyor...");
         List<Map<String, Object>> yieldCurve = new ArrayList<>();
 
 
@@ -52,14 +52,14 @@ public class BondMapper {
                     }
                 }
             } catch (Exception e) {
-                log.warn("⚠️ {} parse hatası: {}", meta[0], e.getMessage());
+                log.warn("{} parse hatası: {}", meta[0], e.getMessage());
             }
         });
         return yieldCurve;
     }
 
     public List<Map<String, Object>> getFallbackYieldCurve() {
-        log.warn("⚠️ Tahvil verisi boş, yeni fallback verileri kullanılıyor");
+        log.warn("Tahvil verisi boş, yeni fallback verileri kullanılıyor");
         List<Map<String, Object>> bonds = new ArrayList<>();
 
         String[] displayNames = {"Kısa Vadeli", "1+ Yıl", "2+ Yıl", "3+ Yıl", "4+ Yıl", "5 Yıl+", "10 Yıl+"};

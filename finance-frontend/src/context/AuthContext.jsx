@@ -39,13 +39,13 @@ export const AuthProvider = ({ children }) => {
         const storedRefreshToken = tokenManager.getRefreshToken();
 
         if (!storedRefreshToken) {
-            console.warn('⚠️ Refresh token bulunamadı');
+            console.warn('Refresh token bulunamadı');
             forceLocalLogout();
             return false;
         }
 
         try {
-            console.warn('🔄 Token yenileniyor...');
+            console.warn('Token yenileniyor...');
             const response = await authApi.refreshAccessToken(storedRefreshToken);
 
             const tokenData = typeof response === 'string' ? JSON.parse(response) : response;
@@ -56,13 +56,13 @@ export const AuthProvider = ({ children }) => {
             }
 
             setToken(tokenData.access_token);
-            console.warn('✅ Token başarıyla yenilendi');
+            console.warn('Token başarıyla yenilendi');
 
             setupTokenRefresh(tokenData.access_token);
 
             return true;
         } catch (error) {
-            console.error('❌ Token yenileme hatası:', error);
+            console.error('Token yenileme hatası:', error);
             forceLocalLogout();
             return false;
         }
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
         if (expiresIn > 0) {
             const refreshTime = expiresIn * TOKEN_REFRESH_THRESHOLD * 1000;
-            console.warn(`⏰ Token ${Math.round(refreshTime / 1000)} saniye sonra yenilenecek`);
+            console.warn(`Token ${Math.round(refreshTime / 1000)} saniye sonra yenilenecek`);
 
             const timer = setTimeout(() => {
                 refreshToken();
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('logout') === 'true') {
-            console.warn('🚪 Keycloak üzerinden çıkış onaylandı, tamamen temizleniyor...');
+            console.warn('Keycloak üzerinden çıkış onaylandı, tamamen temizleniyor...');
             forceLocalLogout();
 
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -101,17 +101,17 @@ export const AuthProvider = ({ children }) => {
         const storedToken = tokenManager.getAccessToken();
 
         if (storedToken) {
-            console.warn('🔍 Kaydedilmiş token bulundu, doğrulanıyor...');
+            console.warn('Kaydedilmiş token bulundu, doğrulanıyor...');
 
             if (tokenManager.isTokenExpired(storedToken)) {
-                console.warn('⚠️ Token süresi dolmuş, yenileniyor...');
+                console.warn('Token süresi dolmuş, yenileniyor...');
                 refreshToken().finally(() => setLoading(false));
             } else {
                 validateToken(storedToken);
                 setupTokenRefresh(storedToken);
             }
         } else {
-            console.warn('ℹ️ Token bulunamadı, kullanıcı giriş yapmamış');
+            console.warn('Token bulunamadı, kullanıcı giriş yapmamış');
             setLoading(false);
         }
 
@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error("Token süresi dolmuş (Expired)");
             }
 
-            console.warn('✅ Token geçerli (JWT Decode), kullanıcı:', tokenData.preferred_username);
+            console.warn('Token geçerli (JWT Decode), kullanıcı:', tokenData.preferred_username);
 
             const roles = tokenData.realm_access?.roles || [];
             const isAdmin = roles.includes('ADMIN');
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }) => {
             });
 
         } catch (error) {
-            console.warn('⚠️ Token doğrulama (Decode) hatası:', error.message);
+            console.warn('Token doğrulama (Decode) hatası:', error.message);
             forceLocalLogout();
         } finally {
             setLoading(false);
@@ -160,13 +160,13 @@ export const AuthProvider = ({ children }) => {
 
     const login = () => {
         const authUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid profile email`;
-        console.warn('🔐 Keycloak login sayfasına yönlendiriliyor...');
+        console.warn('Keycloak login sayfasına yönlendiriliyor...');
         window.location.href = authUrl;
     };
 
     const register = () => {
         const registerUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/registrations?client_id=${CLIENT_ID}&response_type=code&scope=openid profile email&redirect_uri=${REDIRECT_URI}`;
-        console.warn('📝 Keycloak register sayfasına yönlendiriliyor...');
+        console.warn('Keycloak register sayfasına yönlendiriliyor...');
         window.location.href = registerUrl;
     };
 
@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        console.warn('🚪 Çıkış yapılıyor, oturum tamamen kapatılıyor...');
+        console.warn('Çıkış yapılıyor, oturum tamamen kapatılıyor...');
 
         if (refreshTimer) {
             clearTimeout(refreshTimer);
@@ -221,7 +221,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const handleCallback = async (code) => {
-        console.warn('🔄 Token alınıyor, code:', code.substring(0, 20) + '...');
+        console.warn('Token alınıyor, code:', code.substring(0, 20) + '...');
 
         try {
             const response = await fetch(`${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/token`, {
@@ -239,12 +239,12 @@ export const AuthProvider = ({ children }) => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('❌ Token alma hatası:', errorData);
+                console.error('Token alma hatası:', errorData);
                 throw new Error(errorData.error_description || 'Token alma başarısız');
             }
 
             const data = await response.json();
-            console.warn('✅ Token alındı');
+            console.warn('Token alındı');
 
             tokenManager.setTokens(data.access_token, data.refresh_token);
             if(data.id_token) {
@@ -260,20 +260,20 @@ export const AuthProvider = ({ children }) => {
             }
 
             const userData = await userInfoResponse.json();
-            console.warn('✅ Kullanıcı bilgileri alındı:', userData);
+            console.warn('Kullanıcı bilgileri alındı:', userData);
 
             setToken(data.access_token);
             setUser(userData);
 
             setupTokenRefresh(data.access_token);
 
-            console.warn('✅ Giriş başarılı, ana sayfaya yönlendiriliyor...');
+            console.warn('Giriş başarılı, ana sayfaya yönlendiriliyor...');
             setTimeout(() => {
                 window.location.href = '/';
             }, 500);
 
         } catch (error) {
-            console.error('❌ Giriş hatası:', error);
+            console.error('Giriş hatası:', error);
             alert('Giriş yapılırken hata oluştu: ' + error.message);
             forceLocalLogout();
 

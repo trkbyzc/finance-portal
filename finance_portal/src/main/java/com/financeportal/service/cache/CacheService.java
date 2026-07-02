@@ -24,9 +24,9 @@ public class CacheService {
     public void save(String key, Object data, long durationInMinutes) {
         try {
             redisTemplate.opsForValue().set(key, data, Duration.ofMinutes(durationInMinutes));
-            log.debug("✅ Cache yazıldı: {} ({}dk)", key, durationInMinutes);
+            log.debug("Cache yazıldı: {} ({}dk)", key, durationInMinutes);
         } catch (Exception e) {
-            log.warn("⚠️ Cache yazma hatası ({}): {}", key, e.getMessage());
+            log.warn("Cache yazma hatası ({}): {}", key, e.getMessage());
         }
     }
 
@@ -35,12 +35,12 @@ public class CacheService {
         try {
             Object cachedData = redisTemplate.opsForValue().get(key);
             if (cachedData != null) {
-                log.debug("✅ Cache bulundu: {}", key);
+                log.debug("Cache bulundu: {}", key);
                 return (List<T>) cachedData;
             }
             return new ArrayList<>();
         } catch (Exception e) {
-            log.warn("⚠️ Cache okuma hatası ({}): {}", key, e.getMessage());
+            log.warn("Cache okuma hatası ({}): {}", key, e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -53,21 +53,21 @@ public class CacheService {
         try {
             List<T> cached = get(key);
             if (!cached.isEmpty()) {
-                log.debug("📦 Cache kullanılıyor: {}", key);
+                log.debug("Cache kullanılıyor: {}", key);
                 return cached;
             }
 
-            log.debug("🔄 Cache boş, veri çekiliyor: {}", key);
+            log.debug("Cache boş, veri çekiliyor: {}", key);
             List<T> fresh = fetcher.get();
 
             if (!fresh.isEmpty()) {
                 save(key, fresh, durationInMinutes);
-                log.info("✨ Yeni veri çekildi ve cache'e yazıldı: {}", key);
+                log.info("Yeni veri çekildi ve cache'e yazıldı: {}", key);
             }
 
             return fresh;
         } catch (Exception e) {
-            log.error("❌ getOrFetch hatası ({}): {}", key, e.getMessage());
+            log.error("getOrFetch hatası ({}): {}", key, e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -75,9 +75,9 @@ public class CacheService {
     public void delete(String key) {
         try {
             redisTemplate.delete(key);
-            log.debug("🗑️ Cache silindi: {}", key);
+            log.debug("Cache silindi: {}", key);
         } catch (Exception e) {
-            log.warn("⚠️ Cache silme hatası ({}): {}", key, e.getMessage());
+            log.warn("Cache silme hatası ({}): {}", key, e.getMessage());
         }
     }
 
@@ -87,10 +87,10 @@ public class CacheService {
             var keys = redisTemplate.keys(pattern);
             if (keys != null && !keys.isEmpty()) {
                 redisTemplate.delete(keys);
-                log.debug("🗑️ Cache pattern silindi: {} ({} key)", pattern, keys.size());
+                log.debug("Cache pattern silindi: {} ({} key)", pattern, keys.size());
             }
         } catch (Exception e) {
-            log.warn("⚠️ Cache pattern silme hatası ({}): {}", pattern, e.getMessage());
+            log.warn("Cache pattern silme hatası ({}): {}", pattern, e.getMessage());
         }
     }
 
@@ -99,7 +99,7 @@ public class CacheService {
             Boolean exists = redisTemplate.hasKey(key);
             return exists != null && exists;
         } catch (Exception e) {
-            log.warn("⚠️ Cache existence check hatası ({}): {}", key, e.getMessage());
+            log.warn("Cache existence check hatası ({}): {}", key, e.getMessage());
             return false;
         }
     }
@@ -109,7 +109,7 @@ public class CacheService {
             Long ttl = redisTemplate.getExpire(key);
             return ttl != null ? ttl : -2; // -2 key yok, -1 expire yok
         } catch (Exception e) {
-            log.warn("⚠️ Cache TTL check hatası ({}): {}", key, e.getMessage());
+            log.warn("Cache TTL check hatası ({}): {}", key, e.getMessage());
             return -2;
         }
     }

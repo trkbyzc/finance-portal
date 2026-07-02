@@ -116,7 +116,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # 🚀 DÜZELTİLDİ: Listener haritası tutarlı hale getirildi
+      # Listener haritası: INTERNAL (container-arası :29092) + EXTERNAL (host :9092)
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://finance-kafka:29092,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
@@ -156,7 +156,6 @@ services:
     ports:
       - "5601:5601"
     environment:
-      # 🚀 DÜZELTİLDİ: Alt tire (finance_opensearch) tireye çevrildi
       OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
       DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
     restart: unless-stopped
@@ -301,7 +300,8 @@ services:
       OTEL_SERVICE_NAME: finance-portal-backend
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
-      OTEL_LOGS_EXPORTER: otlp
+      # Loglar log4j2 -> Kafka -> OpenSearch hattindan toplaniyor; agent uzerinden OTLP log export edilmiyor.
+      OTEL_LOGS_EXPORTER: none
       # Log4j2 MDC injection — trace_id/span_id otomatik ThreadContext'e
       OTEL_INSTRUMENTATION_LOG4J_CONTEXT_DATA_ENABLED: "true"
       OTEL_INSTRUMENTATION_LOG4J_APPENDER_EXPERIMENTAL_CAPTURE_MDC_ATTRIBUTES: "*"

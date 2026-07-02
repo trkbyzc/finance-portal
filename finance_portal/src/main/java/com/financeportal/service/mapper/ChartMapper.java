@@ -18,7 +18,7 @@ public class ChartMapper {
             return dataList;
         }
 
-        log.debug("📈 {} günlük Moving Average hesaplanıyor ({} veri noktası)", maPeriod, dataList.size());
+        log.debug("{} günlük Moving Average hesaplanıyor ({} veri noktası)", maPeriod, dataList.size());
 
         for (int i = 0; i < dataList.size(); i++) {
             if (i >= maPeriod - 1) {
@@ -33,7 +33,7 @@ public class ChartMapper {
             }
         }
 
-        log.debug("✅ Moving Average hesaplandı");
+        log.debug("Moving Average hesaplandı");
         return dataList;
     }
 
@@ -43,7 +43,7 @@ public class ChartMapper {
             return baseChart;
         }
 
-        log.debug("💱 Grafik döviz dönüştürülüyor (multiplier: {})", multiplier);
+        log.debug("Grafik döviz dönüştürülüyor (multiplier: {})", multiplier);
 
         baseChart.forEach(dto -> {
             dto.setOpen(dto.getOpen().multiply(multiplier).setScale(4, RoundingMode.HALF_UP));
@@ -53,7 +53,7 @@ public class ChartMapper {
             dto.setPrice(dto.getClose());
         });
 
-        log.debug("✅ Döviz dönüştürme tamamlandı");
+        log.debug("Döviz dönüştürme tamamlandı");
         return baseChart;
     }
 
@@ -73,11 +73,11 @@ public class ChartMapper {
         // Eğer EUR/TRY'yi istiyorsak: EUR/TRY = (EUR/USD * USD/TRY)
         if (symbolPrice != null && usdPrice != null && usdPrice.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal multiplier = symbolPrice.divide(usdPrice, 6, RoundingMode.HALF_UP);
-            log.debug("💱 {} multiplier'ı: {}", symbol, multiplier);
+            log.debug("{} multiplier'ı: {}", symbol, multiplier);
             return multiplier;
         }
 
-        log.warn("⚠️ {} döviz oranı bulunamadı", symbol);
+        log.warn("{} döviz oranı bulunamadı", symbol);
         return BigDecimal.ONE;
     }
 

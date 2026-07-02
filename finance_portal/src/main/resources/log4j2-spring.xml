@@ -3,8 +3,8 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <!-- charset="UTF-8" şart: Windows default cp1254/cp857 Türkçe karakteri mojibake ediyor ("EMTİA" → "EMT─░A") -->
-            <!-- trace_id / span_id: OTel Java Agent (-javaagent) ThreadContext'e bu anahtarlarla yazar.
-                 (Eski micrometer-tracing 'traceId'/'spanId' kullanıyordu; agent'a geçişte snake_case oldu.) -->
+            <!-- trace_id / span_id: OTel Java Agent (-javaagent) ThreadContext'e bu anahtarlarla yazar. -->
+
             <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{trace_id:-}] [SpanId: %X{span_id:-}] %c{1}:%L - %m%n" />
         </Console>
 

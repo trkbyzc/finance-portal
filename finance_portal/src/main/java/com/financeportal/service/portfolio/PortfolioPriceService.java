@@ -100,7 +100,7 @@ public class PortfolioPriceService {
                     return BigDecimal.ZERO;
             }
         } catch (Exception e) {
-            log.error("❌ Fiyat çekilirken hata: {} - {}", symbol, e.getMessage());
+            log.error("Fiyat çekilirken hata: {} - {}", symbol, e.getMessage());
             return BigDecimal.ZERO;
         }
     }

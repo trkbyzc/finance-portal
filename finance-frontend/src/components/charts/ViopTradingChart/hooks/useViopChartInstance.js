@@ -7,7 +7,7 @@ export const useViopChartInstance = (containerRef) => {
     const chartInstance = useRef(null);
 
     useEffect(() => {
-        console.warn('🎨 ViopChartInstance useEffect:', {
+        console.warn('ViopChartInstance useEffect:', {
             hasContainer: !!containerRef.current,
             containerDimensions: containerRef.current ? {
                 width: containerRef.current.offsetWidth,
@@ -16,7 +16,7 @@ export const useViopChartInstance = (containerRef) => {
         });
 
         if (!containerRef.current) {
-            console.warn('⚠️ Container ref is null');
+            console.warn('Container ref is null');
             return;
         }
 
@@ -30,9 +30,9 @@ export const useViopChartInstance = (containerRef) => {
                     formatDate: (_dateTimeFormat, timestamp, format) => formatKlineDate(timestamp, format)
                 }
             });
-            console.warn('✅ ViopChart instance created successfully');
+            console.warn('ViopChart instance created successfully');
         } catch (error) {
-            console.error('❌ ViopChart instance creation failed:', error);
+            console.error('ViopChart instance creation failed:', error);
         }
 
         return () => {

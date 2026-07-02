@@ -121,7 +121,7 @@ public class AdminService {
         boolean ok = keycloakAdminService.logoutAllSessions(user.getId().toString());
         user.setSessionInvalidatedAt(java.time.Instant.now());
         userRepository.save(user);
-        log.info("[ADMIN] {} için force-logout (Keycloak: {}, server-side: ✅)",
+        log.info("[ADMIN] {} için force-logout (Keycloak: {}, server-side: aktif)",
                 user.getUsername(), ok ? "OK" : "BAŞARISIZ");
         return ok;
     }

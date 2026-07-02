@@ -47,7 +47,7 @@ public class StockService {
      *   BIST  : XU100, XU030, XU050, XBANK, XUSIN
      *   US    : ^GSPC (S&P 500), ^IXIC (Nasdaq Composite), ^NDX (Nasdaq 100), ^DJI (Dow Jones)
      *   Kripto: BITW (Bitwise 10 Crypto Index Fund — top 10 kripto market-cap ağırlıklı)
-     *           ⚠ Yahoo'da gerçek kripto endeksleri (^CMC200/100/500) delisted (son veri 2024-08);
+     *           Yahoo'da gerçek kripto endeksleri (^CMC200/100/500) delisted (son veri 2024-08);
      *             endeks fonu olan BITW canlı ve kavramsal olarak aynı işi görüyor.
      * Yahoo Finance'ten doğrudan çekiliyor; `^` ile başlayan semboller chart endpoint'inde
      * {@link com.financeportal.domains.chart.strategy.impl.YahooDefaultChartStrategy}

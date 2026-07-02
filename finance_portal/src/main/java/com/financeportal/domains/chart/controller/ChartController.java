@@ -34,7 +34,7 @@ public class ChartController {
             @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "10") int maPeriod) {
 
-        log.info("🎯 [CONTROLLER-DEBUG] İstek Geldi -> Symbol: '{}', Category: '{}', Range: '{}'", symbol, category, range);
+        log.info("[CONTROLLER-DEBUG] İstek Geldi -> Symbol: '{}', Category: '{}', Range: '{}'", symbol, category, range);
 
         return ResponseEntity.ok(marketChartService.getHistoricalDataWithEvdsFallback(
                 symbol, category, range, interval, startDate, endDate, maPeriod));

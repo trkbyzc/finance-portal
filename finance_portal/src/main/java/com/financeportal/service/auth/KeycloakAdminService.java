@@ -73,9 +73,9 @@ public class KeycloakAdminService {
                     .password(adminPassword)
                     .build();
 
-            log.info("✅ Keycloak Admin Client başarıyla başlatıldı");
+            log.info("Keycloak Admin Client başarıyla başlatıldı");
         } catch (Exception e) {
-            log.error("❌ Keycloak Admin Client başlatılamadı: {}", e.getMessage(), e);
+            log.error("Keycloak Admin Client başlatılamadı: {}", e.getMessage(), e);
         }
     }
 
@@ -83,7 +83,7 @@ public class KeycloakAdminService {
     public void cleanup() {
         if (keycloak != null) {
             keycloak.close();
-            log.info("🔒 Keycloak Admin Client kapatıldı");
+            log.info("Keycloak Admin Client kapatıldı");
         }
     }
 
@@ -94,7 +94,7 @@ public class KeycloakAdminService {
 
             List<UserRepresentation> existingUsers = usersResource.search(username, true);
             if (!existingUsers.isEmpty()) {
-                log.warn("⚠️ Kullanıcı zaten Keycloak'ta mevcut: {}", username);
+                log.warn("Kullanıcı zaten Keycloak'ta mevcut: {}", username);
                 return existingUsers.get(0).getId();
             }
 
@@ -116,7 +116,7 @@ public class KeycloakAdminService {
 
             if (response.getStatus() == 201) {
                 String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-                log.info("✅ Keycloak'ta kullanıcı oluşturuldu: {} (ID: {})", username, userId);
+                log.info("Keycloak'ta kullanıcı oluşturuldu: {} (ID: {})", username, userId);
 
                 enable2FA(userId);
 
@@ -129,7 +129,7 @@ public class KeycloakAdminService {
             }
 
         } catch (Exception e) {
-            log.error("❌ Keycloak kullanıcı oluşturma hatası: {}", e.getMessage(), e);
+            log.error("Keycloak kullanıcı oluşturma hatası: {}", e.getMessage(), e);
             throw new RuntimeException("Keycloak kullanıcı oluşturulamadı: " + e.getMessage(), e);
         }
     }
@@ -143,9 +143,9 @@ public class KeycloakAdminService {
             user.setRequiredActions(Collections.singletonList("CONFIGURE_TOTP"));
             userResource.update(user);
 
-            log.info("✅ 2FA aktif edildi (Required Action eklendi): {}", userId);
+            log.info("2FA aktif edildi (Required Action eklendi): {}", userId);
         } catch (Exception e) {
-            log.error("❌ 2FA aktif etme hatası: {}", e.getMessage(), e);
+            log.error("2FA aktif etme hatası: {}", e.getMessage(), e);
             throw new RuntimeException("2FA aktif edilemedi: " + e.getMessage(), e);
         }
     }
@@ -181,9 +181,9 @@ public class KeycloakAdminService {
                 user.setRequiredActions(filtered);
                 userResource.update(user);
             }
-            log.info("✅ 2FA devre dışı bırakıldı: {}", userId);
+            log.info("2FA devre dışı bırakıldı: {}", userId);
         } catch (Exception e) {
-            log.error("❌ 2FA devre dışı bırakma hatası: {}", e.getMessage(), e);
+            log.error("2FA devre dışı bırakma hatası: {}", e.getMessage(), e);
             throw new RuntimeException("2FA devre dışı bırakılamadı: " + e.getMessage(), e);
         }
     }
@@ -220,9 +220,9 @@ public class KeycloakAdminService {
         try {
             RealmResource realmResource = keycloak.realm(realm);
             realmResource.users().delete(userId);
-            log.info("✅ Keycloak'tan kullanıcı silindi: {}", userId);
+            log.info("Keycloak'tan kullanıcı silindi: {}", userId);
         } catch (Exception e) {
-            log.error("❌ Keycloak kullanıcı silme hatası: {}", e.getMessage(), e);
+            log.error("Keycloak kullanıcı silme hatası: {}", e.getMessage(), e);
             throw new RuntimeException("Keycloak kullanıcı silinemedi: " + e.getMessage(), e);
         }
     }
@@ -238,7 +238,7 @@ public class KeycloakAdminService {
 
             return users.get(0).getId();
         } catch (Exception e) {
-            log.error("❌ Keycloak kullanıcı ID bulma hatası: {}", e.getMessage(), e);
+            log.error("Keycloak kullanıcı ID bulma hatası: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -261,7 +261,7 @@ public class KeycloakAdminService {
                     secret
             );
 
-            log.info("✅ OTP credential oluşturuldu: {} (Secret: {}...)", username, secret.substring(0, 4));
+            log.info("OTP credential oluşturuldu: {} (Secret: {}...)", username, secret.substring(0, 4));
 
             Map<String, String> result = new HashMap<>();
             result.put("secret", secret);
@@ -269,7 +269,7 @@ public class KeycloakAdminService {
             return result;
 
         } catch (Exception e) {
-            log.error("❌ OTP credential oluşturma hatası: {}", e.getMessage(), e);
+            log.error("OTP credential oluşturma hatası: {}", e.getMessage(), e);
             throw new RuntimeException("OTP credential oluşturulamadı: " + e.getMessage(), e);
         }
     }
