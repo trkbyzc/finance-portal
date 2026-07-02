@@ -12,9 +12,6 @@ data:
   REDIS_PORT: "6379"
   KAFKA_BOOTSTRAP_SERVERS: kafka:9092
   KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:9092
-  ELASTICSEARCH_URI: http://opensearch:9200
-  LDAP_URL: ldap://openldap:389
-  LDAP_BASE_DN: dc=finance,dc=local
   LINGVA_URL: http://lingva:3000
 
   # Keycloak kendi public LB IP'sinde (34.156.189.163). JWK fetch internal cluster DNS'ten,

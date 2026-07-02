@@ -102,16 +102,6 @@ keycloak:
 
 
 
-  # OpenLDAP Konfigürasyonu
-  ldap:
-    urls: ${LDAP_URL:ldap://localhost:1389}
-    base: ${LDAP_BASE:dc=finance,dc=local}
-    username: ${LDAP_USERNAME:cn=admin,dc=finance,dc=local}
-    password: ${LDAP_PASSWORD:adminpassword}
-
-  # OpenSearch Konfigürasyonu (Spring Data Elasticsearch via REST)
-  elasticsearch:
-    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
 
 
 # ============================================================================
@@ -158,15 +148,8 @@ management:
       slo:
         http.server.requests: 50ms,100ms,200ms,500ms,1s,2s
   health:
-    ldap:
-      enabled: false # LDAP federation kullanılmıyor
     mail:
       enabled: false # SMTP opsiyonel (anahtarsız çalışır); /health'i DOWN yapmasın
-    # OpenSearch Elasticsearch 8.x client ile tam API uyumlu değil; health check
-    # her zaman fail eder ve gereksiz WARN logger basar. Veri yazımı (Kafka pipeline)
-    # ayrı yoldan çalışıyor, bu check'i kapatmak güvenli.
-    elasticsearch:
-      enabled: false
 
 
 server:

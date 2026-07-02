@@ -39,8 +39,6 @@ spring:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
-      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration
-      - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
       - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
 
   # Keycloak/OAuth2 testte mock
