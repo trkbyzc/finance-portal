@@ -67,7 +67,7 @@
     "commodities": "Commodities",
     "bonds": "Bonds",
     "eurobonds": "Eurobonds",
-    "trFunds": "Turkish Funds",
+    "trFunds": "TEFAS Funds",
     "globalFunds": "Global Funds"
   },
   "common": {
@@ -253,7 +253,7 @@
     }
   },
   "funds": {
-    "trHeaderTitle": "Turkish Investment Funds",
+    "trHeaderTitle": "TEFAS Funds",
     "trHeaderSubtitle": "TEFAS data, all fund types",
     "globalHeaderTitle": "Global ETF / Funds",
     "globalHeaderSubtitle": "US and global ETF markets",

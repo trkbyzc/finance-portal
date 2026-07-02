@@ -67,7 +67,7 @@
     "commodities": "Emtialar",
     "bonds": "Tahviller",
     "eurobonds": "Eurobond",
-    "trFunds": "Türk Fonları",
+    "trFunds": "TEFAS Fonları",
     "globalFunds": "Küresel Fonlar"
   },
   "common": {
@@ -253,7 +253,7 @@
     }
   },
   "funds": {
-    "trHeaderTitle": "Türk Yatırım Fonları",
+    "trHeaderTitle": "TEFAS Fonları",
     "trHeaderSubtitle": "TEFAS verisi, tüm fon türleri",
     "globalHeaderTitle": "Küresel ETF / Fonlar",
     "globalHeaderSubtitle": "ABD ve dünya ETF piyasaları",

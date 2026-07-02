@@ -49,7 +49,7 @@
     "globalBondsDesc": "Yahoo Finance Verisi",
     "eurobonds": "Eurobond",
     "eurobondsDesc": "TR Dış Borçlanma & FRED",
-    "trFunds": "Türk Fonları",
+    "trFunds": "TEFAS Fonları",
     "trFundsDesc": "TEFAS Verisi",
     "globalFunds": "Küresel Fonlar",
     "globalFundsDesc": "ETF Verisi"

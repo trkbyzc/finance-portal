@@ -49,7 +49,7 @@
     "globalBondsDesc": "Yahoo Finance Data",
     "eurobonds": "Eurobonds",
     "eurobondsDesc": "TR External Debt & FRED",
-    "trFunds": "Turkish Funds",
+    "trFunds": "TEFAS Funds",
     "trFundsDesc": "TEFAS Data",
     "globalFunds": "Global Funds",
     "globalFundsDesc": "ETF Data"
