@@ -130,7 +130,8 @@ public class ViopScraperClient {
             else base = fullName.split(" ")[0];
 
             String month = "06";
-            String[] months = {"OCAK", "ŞUBAT", "MART", "NİSAN", "MAYIS", "HAZİRAN", "TEMMUZ", "AĞUSTOS", "EYLÜL", "EKİM", "KASIM", "ARALIK"};
+            // IsYatirim bazen Türkçe özel karaktersiz yazar (ğ→g, ş→s, ü→u vb.); her ayın ASCII karşılığı da kontrol edilir
+            String[] months = {"OCAK", "ŞUBAT", "SUBAT", "MART", "NİSAN", "NISAN", "MAYIS", "HAZİRAN", "TEMMUZ", "AĞUSTOS", "AGUSTOS", "EYLÜL", "EYLUL", "EKİM", "EKIM", "KASIM", "ARALIK"};
             for (String m : months) { if (fullName.contains(m)) { month = getMonthCode(m); break; } }
             String year = String.valueOf(LocalDateTime.now().getYear()).substring(2);
             for (String part : fullName.split(" ")) { if (part.matches("\\d{4}")) { year = part.substring(2); break; } }
@@ -140,7 +141,7 @@ public class ViopScraperClient {
     }
 
     private String getMonthCode(String monthName) {
-        return switch (monthName) { case "OCAK" -> "01"; case "ŞUBAT" -> "02"; case "MART" -> "03"; case "NİSAN" -> "04"; case "MAYIS" -> "05"; case "HAZİRAN" -> "06"; case "TEMMUZ" -> "07"; case "AĞUSTOS" -> "08"; case "EYLÜL" -> "09"; case "EKİM" -> "10"; case "KASIM" -> "11"; case "ARALIK" -> "12"; default -> "06"; };
+        return switch (monthName) { case "OCAK" -> "01"; case "ŞUBAT", "SUBAT" -> "02"; case "MART" -> "03"; case "NİSAN", "NISAN" -> "04"; case "MAYIS" -> "05"; case "HAZİRAN" -> "06"; case "TEMMUZ" -> "07"; case "AĞUSTOS", "AGUSTOS" -> "08"; case "EYLÜL", "EYLUL" -> "09"; case "EKİM", "EKIM" -> "10"; case "KASIM" -> "11"; case "ARALIK" -> "12"; default -> "06"; };
     }
     private boolean isNumeric(String str) { try { new BigDecimal(str); return true; } catch(Exception e) { return false; } }
 }
