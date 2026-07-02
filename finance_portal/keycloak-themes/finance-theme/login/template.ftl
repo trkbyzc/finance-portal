@@ -149,19 +149,13 @@
                     </span>
                     <span>${msg('bulletPortfolio')}</span>
                 </li>
-                <li>
-                    <span class="kc-bullet-dot">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </span>
-                    <span>${msg('bulletSecurity')}</span>
-                </li>
             </ul>
 
             <#-- Animated chart mockup -->
             <div class="kc-chart-wrap">
                 <div class="kc-chart-header">
                     <span class="kc-chart-symbol">XU100 / BIST 100</span>
-                    <span class="kc-chart-change">+24.7%</span>
+                    <span id="kc-chart-pct" class="kc-chart-change">+24.7%</span>
                 </div>
                 <svg class="kc-chart" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
                     <defs>
@@ -227,6 +221,46 @@
                     applyLabel();
                 });
             }
+        })();
+
+        // BIST 100 gerçek veri — backend public endpoint'ten çek, SVG'yi güncelle
+        (function () {
+            var API = 'http://localhost:8081/api/v1/market-data/historical?symbol=XU100.IS&category=INDEX&range=1y&interval=1w';
+            fetch(API)
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data || data.length < 2) return;
+                    var prices = data.map(function (d) { return parseFloat(d.close || d.price || 0); })
+                                     .filter(function (p) { return p > 0; });
+                    if (prices.length < 2) return;
+                    var minP = Math.min.apply(null, prices);
+                    var maxP = Math.max.apply(null, prices);
+                    var n = prices.length;
+                    var PAD_TOP = 10, PAD_BOT = 150;
+                    var pts = prices.map(function (p, i) {
+                        return [(i / (n - 1)) * 400, PAD_BOT - (p - minP) / (maxP - minP) * (PAD_BOT - PAD_TOP)];
+                    });
+                    var lineStr = pts.map(function (pt) { return pt[0].toFixed(1) + ',' + pt[1].toFixed(1); }).join(' ');
+                    var last = pts[pts.length - 1];
+                    var areaStr = 'M' + pts.map(function (pt) { return pt[0].toFixed(1) + ',' + pt[1].toFixed(1); }).join(' L')
+                                  + ' L' + last[0].toFixed(1) + ',160 L0,160 Z';
+                    var svg = document.querySelector('.kc-chart');
+                    if (svg) {
+                        var line = svg.querySelector('.kc-chart-line');
+                        var area = svg.querySelector('.kc-chart-area');
+                        var dot  = svg.querySelector('.kc-chart-dot');
+                        if (line) line.setAttribute('points', lineStr);
+                        if (area) area.setAttribute('d', areaStr);
+                        if (dot)  { dot.setAttribute('cx', last[0].toFixed(1)); dot.setAttribute('cy', last[1].toFixed(1)); }
+                    }
+                    var pct = (prices[prices.length - 1] - prices[0]) / prices[0] * 100;
+                    var changeEl = document.getElementById('kc-chart-pct');
+                    if (changeEl) {
+                        changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+                        changeEl.style.color = pct >= 0 ? '#22c55e' : '#ef4444';
+                    }
+                })
+                .catch(function () {}); // sessiz fail → statik grafik kalır
         })();
 
         // Şifre göster/gizle (göz ikonu) — tüm .kc-password-toggle butonları
