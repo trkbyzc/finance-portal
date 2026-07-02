@@ -32,6 +32,10 @@ security:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:*}
 
+  # NOT: Aktif OAuth2 doğrulaması base application.yaml'daki spring.security.oauth2 +
+  # KEYCLOAK_ISSUER_URI / KEYCLOAK_JWK_SET_URI env var'larından çözülür (docker-compose set eder).
+  # Aşağıdaki blok girinti nedeniyle spring.* dışında (security.security.*) kaldığından okunmuyor;
+  # auth tamamen base config'ten çalışır. Override amacıyla eklenmişti, etkin değil.
   security:
     oauth2:
       resourceserver:
@@ -45,12 +49,16 @@ keycloak:
   server-url: http://keycloak:8080
   realm: finance-realm
 
-# Logstash adresi — Logstash container service name'i
+# Log hattı backend -> Kafka -> Logstash -> OpenSearch üzerinden çalışır
+# (log4j2 Kafka appender + logstash.conf; Logstash Kafka topic'inden besleniyor).
+# Aşağıdaki host/port doğrudan Beats/TCP appender için planlanmıştı; aktif log hattı
+# Kafka üzerinden gittiği için bu değerler okunmuyor (atıl).
 logstash:
   host: logstash
   port: 5044
 
-# OpenTelemetry — Collector container ismi
+# OpenTelemetry ayarları OTEL_EXPORTER_OTLP_ENDPOINT gibi env var'lardan OTel Java Agent
+# tarafından okunur (docker-compose set eder); aşağıdaki Spring 'otel.*' bloğu okunmuyor (atıl).
 otel:
   exporter:
     otlp:
