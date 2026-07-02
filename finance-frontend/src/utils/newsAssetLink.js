@@ -41,9 +41,12 @@ export function newsAssetLink(item) {
         if (item.relatedCategory === 'GOLD') {
             return { to: '/markets/turkish-gold', label: item.relatedName || 'Gram Altın', type: 'asset' };
         }
+        // BIST endeks sembolleri backend'de .IS eki olmadan gelir; Yahoo Finance formatına çevir.
+        const INDEX_MAP = { XU100: 'XU100.IS', XU030: 'XU030.IS', XU050: 'XU050.IS' };
+        const symbol = INDEX_MAP[item.relatedSymbol] ?? item.relatedSymbol;
         const cat = item.relatedCategory ? `?cat=${item.relatedCategory}` : '';
         return {
-            to: `/chart/${encodeURIComponent(item.relatedSymbol)}${cat}`,
+            to: `/chart/${encodeURIComponent(symbol)}${cat}`,
             label: item.relatedName || item.relatedSymbol,
             type: 'asset'
         };
