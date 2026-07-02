@@ -155,7 +155,7 @@
             <div class="kc-chart-wrap">
                 <div class="kc-chart-header">
                     <span class="kc-chart-symbol">XU100 / BIST 100</span>
-                    <span id="kc-chart-pct" class="kc-chart-change">+24.7%</span>
+                    <span id="kc-chart-pct" class="kc-chart-change">...%</span>
                 </div>
                 <svg class="kc-chart" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
                     <defs>
@@ -225,7 +225,7 @@
 
         // BIST 100 gerçek veri — backend public endpoint'ten çek, SVG'yi güncelle
         (function () {
-            var API = 'http://localhost:8081/api/v1/market-data/historical?symbol=XU100.IS&category=INDEX&range=1y&interval=1w';
+            var API = 'http://localhost:8081/api/v1/market-data/historical?symbol=XU100.IS&category=INDEX&range=1y&interval=1d';
             fetch(API)
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
