@@ -102,18 +102,22 @@ export default function AssetDetailPage() {
 
     // Varlığın native birimi; alış fiyatı seçili para biriminde gösterilir, kayıtta native'e çevrilir.
     const nativeCur = asset?.nativeCurrency || 'TRY';
+    // Döviz varlıkları (CURRENCY) her zaman TRY cinsinden kaydedilir; global toggle bu modalı etkilemez.
+    const isCurrencyAsset = asset?.assetCategory === 'CURRENCY';
     // Tahvil/bono getiri-kotalı → "Adet→Nominal", fiyat alanı "Getiri (%)" (DİBS/global) / "Temiz Fiyat (%)" (eurobond).
     const isYieldQuote = isYieldCategory(asset?.assetCategory);
     const priceLabelKey = yieldFieldLabelKey(asset?.assetCategory);
     const priceLabel = priceLabelKey
         ? t(`portfolio:modal.${priceLabelKey}`, priceLabelKey === 'cleanPrice' ? 'Temiz Fiyat (%)' : 'Getiri (%)')
-        : `${t('portfolio:modal.purchasePrice')} (${CUR_SYMBOL[currency] || currency})`;
+        : `${t('portfolio:modal.purchasePrice')} (${CUR_SYMBOL[isCurrencyAsset ? 'TRY' : currency] || (isCurrencyAsset ? 'TRY' : currency)})`;
 
     const handleOpenModal = () => {
-        // Getiri/temiz fiyat kotalı tahvilde ön-dolgu HAM (kur çevirme yok); diğerinde seçili birime çevir.
+        // Getiri/temiz fiyat kotalı tahvilde ön-dolgu HAM (kur çevirme yok); dövizde daima TRY; diğerinde seçili birime çevir.
         const displayVal = isYieldQuote
             ? (asset?.displayPrice ?? '')
-            : (asset?.displayPrice ? convertPrice(asset.displayPrice, nativeCur) : '');
+            : isCurrencyAsset
+                ? (asset?.displayPrice ?? '')
+                : (asset?.displayPrice ? convertPrice(asset.displayPrice, nativeCur) : '');
         setFormData({
             quantity: '1',
             price: displayVal === '' ? '' : String(+Number(displayVal).toFixed(6))
@@ -133,7 +137,7 @@ export default function AssetDetailPage() {
         try {
             const p = await fetchPriceOnDate(addSymbol, addBackendType, v);
             if (p != null && p > 0) {
-                const shown = isYieldQuote ? p : convertPrice(Number(p), nativeCur);
+                const shown = isYieldQuote ? p : isCurrencyAsset ? p : convertPrice(Number(p), nativeCur);
                 setFormData(f => ({ ...f, price: String(+Number(shown).toFixed(6)) }));
                 setDatePriceInfo({ ok: true });
             } else {
@@ -154,8 +158,8 @@ export default function AssetDetailPage() {
                 symbol: asset?.symbol || decodedSymbol,
                 assetType: toBackendAssetType(asset?.assetCategory),
                 quantity: Number.parseFloat(formData.quantity),
-                // Tahvil getiri/temiz fiyatı yüzdedir → kur çevirme YOK (ham saklanır); diğerinde native'e çevir.
-                averagePrice: isYieldQuote ? Number.parseFloat(formData.price) : toNative(Number.parseFloat(formData.price), nativeCur),
+                // Tahvil getiri/temiz fiyatı yüzdedir → kur çevirme YOK (ham saklanır); dövizde daima TRY; diğerinde native'e çevir.
+                averagePrice: isYieldQuote || isCurrencyAsset ? Number.parseFloat(formData.price) : toNative(Number.parseFloat(formData.price), nativeCur),
                 ...(pid ? { portfolioId: pid } : {}),
                 ...(purchaseDate ? { purchaseDate } : {}),
                 // VİOP'ta sözleşme büyüklüğü (çarpan) + pozisyon yönü (long/short) holding'e snapshot'lanır

@@ -18,6 +18,9 @@ export const detectNativeCurrency = (asset) => {
     // VIOP — BIST'te işlem gören kontratlar TRY denominated (F_XU030, F_USDTRY, BİST 30 Vadeli, vb.)
     if (cat === 'VIOP') return 'TRY';
 
+    // Döviz (CURRENCY) — portföyde TRY karşılığı (kaç TL ödendi) saklanır; global toggle'dan bağımsız
+    if (cat === 'CURRENCY') return 'TRY';
+
     if (cat === 'INDEX' && (sym.startsWith('X') || sym.endsWith('.IS'))) return 'TRY';
 
     // Currency pair'ler — pair'in quote currency'si dikkate alınır
