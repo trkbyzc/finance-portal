@@ -223,8 +223,10 @@ public class SimulationService {
         try {
             // TR-altın, currency, crypto, vb. — özel strateji'ler ChartDataStrategy implementasyonlarında.
             // TurkishGoldChartStrategy GRAM_ALTIN/CEYREK_ALTIN/TAM_ALTIN... için GC=F × USDTRY synthesizer'ı koşturur.
+            // FUND → AssetType enum adı "FUND" ama FundChartStrategy "TR_FUND" bekliyor; burada eşleştirilir.
+            String chartCategory = assetType == AssetType.FUND ? "TR_FUND" : assetType.name();
             return marketChartService.getHistoricalDataWithEvdsFallback(
-                    symbol, assetType.name(), "max", "1d", null, null, 0);
+                    symbol, chartCategory, "max", "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[SIM] {} için historical fetch başarısız: {}", symbol, e.getMessage());
             return Collections.emptyList();

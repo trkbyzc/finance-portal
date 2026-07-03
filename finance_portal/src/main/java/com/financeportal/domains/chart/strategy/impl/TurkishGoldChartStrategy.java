@@ -116,7 +116,13 @@ public class TurkishGoldChartStrategy implements ChartDataStrategy {
         // fiyat uyuşmuyordu. Çözüm: seriyi canlı fiyata DEMİRLE — son nokta = canlı fiyat, tüm seri
         // aynı oranla ölçeklenir. Sabitle çarpım yüzde hareketleri bozmaz (eğri şekli birebir aynı);
         // symbol bazlı olduğu için gram/çeyrek/tam altın kendi canlı fiyatına oturur.
-        anchorToLivePrice(symbol, result);
+        //
+        // custom range = portföy modal "tarihteki fiyat" lookup'ı (endDate = kullanıcının seçtiği tarih).
+        // Bu durumda anchor son noktayı canlı fiyata çekiyor → geçmişte hangi tarih seçilse canlı fiyat
+        // doluyor. Anchor SADECE grafik aralıklarına uygulanır; custom'da ham sentetik seri döner.
+        if (!"custom".equalsIgnoreCase(range)) {
+            anchorToLivePrice(symbol, result);
+        }
 
         log.info("[TR-GOLD] Synthesized {}: {} nokta gram-altın-TRY", symbol, result.size());
         return result;
