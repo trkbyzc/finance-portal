@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.commodity.dto.CommodityDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,11 +24,14 @@ public class TruncgilIntegrationClient {
 
     private final RestTemplate restTemplate;
 
+    @Value("${external-api.truncgil.url}")
+    private String truncgilUrl = "https://finans.truncgil.com/v3/today.json";
+
     public List<CommodityDto> fetchLiveTurkishGold() {
         long startTime = System.currentTimeMillis();
         List<CommodityDto> goldList = new ArrayList<>();
         try {
-            String url = "https://finans.truncgil.com/v3/today.json";
+            String url = truncgilUrl;
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
             headers.set("Accept", "application/json");

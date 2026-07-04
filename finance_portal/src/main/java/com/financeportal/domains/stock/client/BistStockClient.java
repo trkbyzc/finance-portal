@@ -6,6 +6,7 @@ import com.financeportal.model.dto.fintables.FintablesChartResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,6 +31,9 @@ public class BistStockClient {
     private final BistIndexService bistIndexService;
     private final TradingViewLogoClient logoClient;
 
+    @Value("${external-api.fintables.markets-url}")
+    private String fintablesMarketsUrl = "https://markets.fintables.com";
+
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
@@ -45,7 +49,7 @@ public class BistStockClient {
         Set<String> bist100 = bistIndexService.getBist100();
 
         try {
-            String url = "https://markets.fintables.com/barbar/server/query?fields=C,CP,V&type=equity";
+            String url = fintablesMarketsUrl + "/barbar/server/query?fields=C,CP,V&type=equity";
             HttpEntity<String> entity = new HttpEntity<>(getHeaders());
             ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
@@ -120,7 +124,7 @@ public class BistStockClient {
                 default: from = Instant.now().minus(20L * 365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); resolution = "D"; break;
             }
 
-            String url = String.format("https://markets.fintables.com/barbar/udf/history?symbol=%s&resolution=%s&from=%d&to=%d", symbol, resolution, from, to);
+            String url = fintablesMarketsUrl + String.format("/barbar/udf/history?symbol=%s&resolution=%s&from=%d&to=%d", symbol, resolution, from, to);
             HttpEntity<String> entity = new HttpEntity<>(getHeaders());
             ResponseEntity<FintablesChartResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, FintablesChartResponse.class);
 

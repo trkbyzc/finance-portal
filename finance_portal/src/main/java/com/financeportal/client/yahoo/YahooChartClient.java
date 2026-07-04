@@ -5,6 +5,7 @@ import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.util.HttpHeadersUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,9 @@ public class YahooChartClient {
 
     private final RestTemplate restTemplate;
 
+    @Value("${external-api.yahoo.base-url}")
+    private String yahooBaseUrl;
+
     public List<HistoricalDataDto> fetchChartHistory(String yahooSymbol, String range, String interval, String startDate, String endDate) {
         long startTime = System.currentTimeMillis();
         List<HistoricalDataDto> dataList = new ArrayList<>();
@@ -40,9 +44,9 @@ public class YahooChartClient {
             if ("custom".equals(mappedRange) && startDate != null && !startDate.isEmpty()) {
                 long p1 = LocalDate.parse(startDate).atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
                 long p2 = LocalDate.parse(endDate).plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
-                url = String.format("https://query1.finance.yahoo.com/v8/finance/chart/%s?period1=%d&period2=%d&interval=%s", yahooSymbol, p1, p2, activeInterval);
+                url = yahooBaseUrl + String.format("%s?period1=%d&period2=%d&interval=%s", yahooSymbol, p1, p2, activeInterval);
             } else {
-                url = String.format("https://query1.finance.yahoo.com/v8/finance/chart/%s?range=%s&interval=%s", yahooSymbol, mappedRange, activeInterval);
+                url = yahooBaseUrl + String.format("%s?range=%s&interval=%s", yahooSymbol, mappedRange, activeInterval);
             }
 
             ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.GET, entity, JsonNode.class);

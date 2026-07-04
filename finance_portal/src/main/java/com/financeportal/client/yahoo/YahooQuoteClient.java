@@ -5,6 +5,7 @@ import com.financeportal.model.dto.market.MarketAssetDto;
 import com.financeportal.util.HttpHeadersUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,9 @@ public class YahooQuoteClient {
 
     private final RestTemplate restTemplate;
 
+    @Value("${external-api.yahoo.base-url}")
+    private String yahooBaseUrl;
+
     public List<MarketAssetDto> fetchQuotes(String[] symbols, String assetType) {
         long startTime = System.currentTimeMillis();
         HttpEntity<String> entity = new HttpEntity<>(HttpHeadersUtil.getYahooFinanceHeaders());
@@ -31,7 +35,7 @@ public class YahooQuoteClient {
 
         for (String sym : symbols) {
             try {
-                String url = "https://query1.finance.yahoo.com/v8/finance/chart/" + sym + "?range=1d&interval=1d";
+                String url = yahooBaseUrl + sym + "?range=1d&interval=1d";
                 ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.GET, entity, JsonNode.class);
 
                 if (response.getBody() != null) {

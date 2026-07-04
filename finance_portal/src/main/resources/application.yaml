@@ -189,6 +189,15 @@ external-api:
   lingva:
     url: ${LINGVA_URL:http://localhost:5050}
     timeout-ms: ${LINGVA_TIMEOUT_MS:15000}
+  yahoo:
+    base-url: ${YAHOO_FINANCE_BASE_URL:https://query1.finance.yahoo.com/v8/finance/chart/}
+  truncgil:
+    url: ${TRUNCGIL_URL:https://finans.truncgil.com/v3/today.json}
+  fintables:
+    api-url: ${FINTABLES_API_URL:https://api.fintables.com}
+    markets-url: ${FINTABLES_MARKETS_URL:https://markets.fintables.com}
+  hesapkurdu:
+    url: ${HESAPKURDU_URL:https://apigw.hesapkurdu.com/v1/forex/fx/getExchangeRates}
 
 # Uygulama özelinde ayarlar
 app:

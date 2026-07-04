@@ -6,6 +6,7 @@ import com.financeportal.model.dto.fintables.FintablesYieldResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,6 +28,12 @@ public class TefasFundClient {
 
     private final RestTemplate restTemplate;
 
+    @Value("${external-api.fintables.api-url}")
+    private String fintablesApiUrl = "https://api.fintables.com";
+
+    @Value("${external-api.fintables.markets-url}")
+    private String fintablesMarketsUrl = "https://markets.fintables.com";
+
     // Fintables API bot kontrolünü aşmak için tarayıcı gibi görünen User-Agent ve Referer zorunlu.
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -38,7 +45,7 @@ public class TefasFundClient {
     public List<FundDto> fetchTefasFunds() {
         long startTime = System.currentTimeMillis();
         try {
-            String url = "https://api.fintables.com/funds/yield/?fund_type=mutual&tefas=true";
+            String url = fintablesApiUrl + "/funds/yield/?fund_type=mutual&tefas=true";
             HttpEntity<String> entity = new HttpEntity<>(getHeaders());
             ResponseEntity<FintablesYieldResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, FintablesYieldResponse.class);
 
@@ -81,7 +88,7 @@ public class TefasFundClient {
                 default: from = Instant.now().minus(365, java.time.temporal.ChronoUnit.DAYS).getEpochSecond(); break;
             }
 
-            String url = String.format("https://markets.fintables.com/barbar/udf/history?symbol=%s&resolution=D&from=%d&to=%d", symbol, from, to);
+            String url = fintablesMarketsUrl + String.format("/barbar/udf/history?symbol=%s&resolution=D&from=%d&to=%d", symbol, from, to);
             HttpEntity<String> entity = new HttpEntity<>(getHeaders());
             ResponseEntity<FintablesChartResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, FintablesChartResponse.class);
 

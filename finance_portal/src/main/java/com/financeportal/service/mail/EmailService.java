@@ -75,6 +75,7 @@ public class EmailService {
             try {
                 helper.setFrom(new InternetAddress(fromAddress, fromName, "UTF-8"));
             } catch (UnsupportedEncodingException ue) {
+                log.warn("[MAIL] from-name encoding hatası, salt adres kullanılıyor: {}", ue.getMessage());
                 helper.setFrom(fromAddress);
             }
             helper.setText(html, true);

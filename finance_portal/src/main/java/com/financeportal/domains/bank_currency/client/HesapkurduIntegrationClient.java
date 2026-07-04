@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.bank_currency.dto.BankCurrencyDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,7 +24,9 @@ public class HesapkurduIntegrationClient {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private static final String HESAPKURDU_URL = "https://apigw.hesapkurdu.com/v1/forex/fx/getExchangeRates";
+
+    @Value("${external-api.hesapkurdu.url}")
+    private String hesapkurduUrl = "https://apigw.hesapkurdu.com/v1/forex/fx/getExchangeRates";
 
     public List<BankCurrencyDto> fetchLiveBankRates() {
         long startTime = System.currentTimeMillis();
@@ -36,7 +39,7 @@ public class HesapkurduIntegrationClient {
             headers.set("Accept", "application/json");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> response = restTemplate.exchange(HESAPKURDU_URL, HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(hesapkurduUrl, HttpMethod.GET, entity, String.class);
 
             if (response.getBody() != null) {
                 JsonNode rootNode = objectMapper.readTree(response.getBody());
