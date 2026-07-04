@@ -221,7 +221,9 @@ public class EffectiveCurrencySyncService {
             changes.put("6monthly", calcPct(current, asDouble(points, points.size() - 181)));
             changes.put("yearly", calcPct(current, asDouble(points, points.size() - 366)));
             changes.put("5yearly", calcPct(current, asDouble(points, points.size() - 1826)));
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("[EFFECTIVE-CURRENCY] {} değişim hesaplama hatası: {}", code, e.getMessage());
+        }
         return changes;
     }
 

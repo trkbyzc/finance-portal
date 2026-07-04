@@ -63,7 +63,7 @@ public class EconomySyncService {
         try {
             redisTemplate.opsForValue().set("market:economy:turkey", objectMapper.writeValueAsString(macroData), 86400, TimeUnit.SECONDS);
             log.info("[EVDS-ECONOMY] Anlık ekonomi verileri Redis'e yazıldı.");
-        } catch (Exception e) { log.error("Macro JSON Error", e); }
+        } catch (Exception e) { log.error("[EVDS-ECONOMY] Makro ekonomi verisi Redis'e yazılamadı: {}", e.getMessage()); }
 
         LocalDate tenYearsAgo = today.minusDays(3650);
         for (EconomyIndicators.Indicator ind : EconomyIndicators.ALL) {
@@ -118,7 +118,7 @@ public class EconomySyncService {
                 log.info("[EVDS-ECONOMY] {} ({}): {} kayıt Redis'e basıldı (ilk: {}, son: {}).",
                         metricName, code, historyList.size(),
                         historyList.get(0).get("date"), historyList.get(historyList.size() - 1).get("date"));
-            } catch (Exception e) { log.error("Macro History Error", e); }
+            } catch (Exception e) { log.error("[EVDS-ECONOMY] {} ({}) Redis yazma hatası: {}", metricName, code, e.getMessage()); }
         } else {
             log.warn("[EVDS-ECONOMY] {} ({}): EVDS boş döndü — seri kodu yanlış veya tarih aralığında veri yok. " +
                      "Eski cache'i KORUYORUZ (overwrite etmiyoruz).", metricName, code);
