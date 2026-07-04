@@ -59,7 +59,7 @@ public class SecurityConfig {
                 )
                 // 1. Token Geçerli mi? (Spring Security arka planda Keycloak ile kontrol eder)
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                // 2. Token geçerliyse, bu kullanıcı DB'de var mı diye bizim filtreye sok:
+                // 2. Token geçerliyse, bu kullanıcı DB'de var mı diye filtreye sok:
                 .addFilterAfter(userSyncFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
                 // 3. Kullanıcı var, peki banlı mı diye Ban kontrolüne sok:
                 .addFilterAfter(userBanFilter, UserSyncFilter.class)
