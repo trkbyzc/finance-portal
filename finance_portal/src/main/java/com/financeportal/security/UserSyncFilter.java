@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
@@ -32,6 +33,9 @@ public class UserSyncFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, String> redisTemplate;
     private final UserService userService;
 
+    @Value("${app.user-sync.cache-ttl-hours:1}")
+    private long userSyncCacheTtlHours = 1;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
@@ -50,7 +54,7 @@ public class UserSyncFilter extends OncePerRequestFilter {
                 // atomic — race'siz tek log garantisi. 1 saatlik TTL ile rol sync de
                 // periyodik (yeni rol Keycloak'tan geldiğinde max 1 saat gecikme).
                 Boolean acquired = redisTemplate.opsForValue()
-                        .setIfAbsent(cacheKey, "synced", Duration.ofHours(1));
+                        .setIfAbsent(cacheKey, "synced", Duration.ofHours(userSyncCacheTtlHours));
                 if (Boolean.TRUE.equals(acquired)) {
                     UUID userId = UUID.fromString(subject);
                     Jwt jwt = jwtToken.getToken();

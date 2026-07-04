@@ -9,6 +9,7 @@ import com.financeportal.model.dto.whatif.WhatIfResultDto;
 import com.financeportal.model.enums.AssetType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -33,10 +34,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class WhatIfService {
 
-    private static final int MAX_SERIES_POINTS = 300;
-    private static final long PER_ASSET_TIMEOUT_SEC = 8;
-
     private final SimulationService simulationService;
+
+    @Value("${app.limits.what-if-max-series-points:300}")
+    private int maxSeriesPoints = 300;
+
+    @Value("${app.limits.what-if-per-asset-timeout-sec:8}")
+    private long perAssetTimeoutSec = 8;
 
     /** Asset başına ayrılmış bağımsız thread pool — TomcatRequest thread'lerini bloklamamak için. */
     private final ExecutorService executor = Executors.newFixedThreadPool(
@@ -55,7 +59,7 @@ public class WhatIfService {
         List<WhatIfAssetSeries> result = new ArrayList<>(futures.size());
         for (CompletableFuture<WhatIfAssetSeries> f : futures) {
             try {
-                result.add(f.get(PER_ASSET_TIMEOUT_SEC + 2, TimeUnit.SECONDS));
+                result.add(f.get(perAssetTimeoutSec + 2, TimeUnit.SECONDS));
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
                 log.warn("[WHAT-IF] Interrupted, kalan future'lar iptal ediliyor.");
@@ -93,7 +97,7 @@ public class WhatIfService {
     private CompletableFuture<WhatIfAssetSeries> computeOneAsync(WhatIfAssetRef ref, LocalDate date, BigDecimal amount) {
         return CompletableFuture
                 .supplyAsync(() -> computeOne(ref, date, amount), executor)
-                .completeOnTimeout(errorSeries(ref, "Veri kaynağı yavaş, zaman aşımı."), PER_ASSET_TIMEOUT_SEC, TimeUnit.SECONDS);
+                .completeOnTimeout(errorSeries(ref, "Veri kaynağı yavaş, zaman aşımı."), perAssetTimeoutSec, TimeUnit.SECONDS);
     }
 
     private WhatIfAssetSeries computeOne(WhatIfAssetRef ref, LocalDate date, BigDecimal amount) {
@@ -110,7 +114,7 @@ public class WhatIfService {
         out.setCurrentValue(sim.getCurrentValue());
         out.setPnlTry(sim.getPnlTry());
         out.setPnlPct(sim.getPnlPct());
-        out.setSeries(downsample(sim.getSeries(), MAX_SERIES_POINTS));
+        out.setSeries(downsample(sim.getSeries(), maxSeriesPoints));
         if (sim.getWarning() != null) out.setWarning(sim.getWarning());
         return out;
     }

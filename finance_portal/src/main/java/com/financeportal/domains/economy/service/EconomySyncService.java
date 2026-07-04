@@ -8,6 +8,7 @@ import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class EconomySyncService {
     private static final String TASK_NAME = "Economy";
     private static final String CPI_SERIES_CODE = "TP.TUKFIY2025.GENEL";
 
+    @Value("${app.ttl.economy-sec:86400}")
+    private long economyTtlSec = 86400;
+
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
@@ -61,7 +65,7 @@ public class EconomySyncService {
         macroData.put("lastUpdated", LocalDateTime.now().toString());
 
         try {
-            redisTemplate.opsForValue().set("market:economy:turkey", objectMapper.writeValueAsString(macroData), 86400, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set("market:economy:turkey", objectMapper.writeValueAsString(macroData), economyTtlSec, TimeUnit.SECONDS);
             log.info("[EVDS-ECONOMY] Anlık ekonomi verileri Redis'e yazıldı.");
         } catch (Exception e) { log.error("[EVDS-ECONOMY] Makro ekonomi verisi Redis'e yazılamadı: {}", e.getMessage()); }
 
@@ -114,7 +118,7 @@ public class EconomySyncService {
 
         if (!historyList.isEmpty()) {
             try {
-                redisTemplate.opsForValue().set("evds:history:macro:" + metricName, objectMapper.writeValueAsString(historyList), 86400, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set("evds:history:macro:" + metricName, objectMapper.writeValueAsString(historyList), economyTtlSec, TimeUnit.SECONDS);
                 log.info("[EVDS-ECONOMY] {} ({}): {} kayıt Redis'e basıldı (ilk: {}, son: {}).",
                         metricName, code, historyList.size(),
                         historyList.get(0).get("date"), historyList.get(historyList.size() - 1).get("date"));

@@ -23,7 +23,7 @@ public class ViopService {
     }
 
     // Her 5 dakikada bir VİOP verilerini scrape ederek Redis cache'ini tazeler.
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRateString = "${app.sync.viop-rate-ms:300000}")
     public void fetchViopData() {
         List<ViopDto> list = withContractSize(viopScraperClient.scrapeViopData());
         if (list != null && !list.isEmpty()) cacheService.save("cache:viop", list, 5);

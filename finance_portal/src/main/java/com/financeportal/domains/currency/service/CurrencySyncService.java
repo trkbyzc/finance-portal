@@ -10,6 +10,7 @@ import com.financeportal.service.cache.CacheService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,6 +38,9 @@ public class CurrencySyncService {
 
     private static final String TASK_NAME = "Currency";
 
+    @Value("${app.ttl.currency-history-sec:86400}")
+    private long currencyHistoryTtlSec = 86400;
+
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
@@ -59,7 +63,7 @@ public class CurrencySyncService {
     );
 
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRateString = "${app.sync.currency-rate-ms:3600000}")
     public void fetchAndCacheCurrencyRates() {
         long startTime = System.currentTimeMillis();
         try {
@@ -113,7 +117,7 @@ public class CurrencySyncService {
                 }
 
                 if (!historyList.isEmpty()) {
-                    redisTemplate.opsForValue().set(redisKey, objectMapper.writeValueAsString(historyList), 86400, TimeUnit.SECONDS);
+                    redisTemplate.opsForValue().set(redisKey, objectMapper.writeValueAsString(historyList), currencyHistoryTtlSec, TimeUnit.SECONDS);
                     log.info("[EVDS-CURRENCY] {} geçmişi tamam ({} adet).", currencyCode, historyList.size());
                 }
 

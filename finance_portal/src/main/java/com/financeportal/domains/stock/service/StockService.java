@@ -8,6 +8,7 @@ import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -69,14 +70,16 @@ public class StockService {
     // Hafta sonu / piyasa kapalıyken Fintables tick endpoint v=null döner ve liste boşalır.
     // Son başarılı snapshot 48 saat ayrı bir Redis key'inde tutulur; canlı boşsa oradan beslenir.
     private static final String BIST_LAST_GOOD_KEY = "cache:bist:last-good";
-    private static final long BIST_LAST_GOOD_TTL_MINUTES = 60L * 48;
+
+    @Value("${app.ttl.bist-last-good-minutes:2880}")
+    private long bistLastGoodTtlMinutes = 2880;
 
     private List<StockDto> fetchAndCombineStocks() {
         List<StockDto> allStocks = new ArrayList<>();
         List<StockDto> trStocks = bistStockClient.fetchTurkishStocks();
         if (trStocks != null && !trStocks.isEmpty()) {
             allStocks.addAll(trStocks);
-            cacheService.save(BIST_LAST_GOOD_KEY, trStocks, BIST_LAST_GOOD_TTL_MINUTES);
+            cacheService.save(BIST_LAST_GOOD_KEY, trStocks, bistLastGoodTtlMinutes);
         } else {
             List<StockDto> fallback = cacheService.get(BIST_LAST_GOOD_KEY);
             if (!fallback.isEmpty()) {
@@ -98,14 +101,14 @@ public class StockService {
     }
 
     // Her 5 dakikada bir BIST + global hisse önbelleğini yeniler.
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRateString = "${app.sync.stock-rate-ms:300000}")
     public void syncStocks() {
         List<StockDto> list = fetchAndCombineStocks();
         if (!list.isEmpty()) cacheService.save("cache:stocks", list, 5);
     }
 
     // Her 5 dakikada bir endeks önbelleğini yeniler.
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRateString = "${app.sync.stock-rate-ms:300000}")
     public void syncIndices() {
         getIndices();
     }

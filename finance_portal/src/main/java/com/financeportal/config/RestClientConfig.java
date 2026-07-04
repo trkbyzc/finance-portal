@@ -1,6 +1,7 @@
 package com.financeportal.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,11 +15,17 @@ import java.time.Duration;
 @Slf4j
 public class RestClientConfig {
 
+    @Value("${app.rest.connect-timeout-sec:10}")
+    private int connectTimeoutSec = 10;
+
+    @Value("${app.rest.read-timeout-sec:10}")
+    private int readTimeoutSec = 10;
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(10))
+                .setConnectTimeout(Duration.ofSeconds(connectTimeoutSec))
+                .setReadTimeout(Duration.ofSeconds(readTimeoutSec))
                 .requestFactory(this::clientHttpRequestFactory)
                 .build();
     }
@@ -26,10 +33,10 @@ public class RestClientConfig {
     // Spring 6.1+ ile uyumlu SimpleClientHttpRequestFactory kullanımı (HttpComponentsClientHttpRequestFactory deprecated)
     private ClientHttpRequestFactory clientHttpRequestFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(10000);
-        factory.setReadTimeout(10000);
+        factory.setConnectTimeout(connectTimeoutSec * 1000);
+        factory.setReadTimeout(readTimeoutSec * 1000);
 
-        log.debug("RestTemplate ClientHttpRequestFactory konfigürasyonu yapıldı: 10s timeout");
+        log.debug("RestTemplate ClientHttpRequestFactory konfigürasyonu yapıldı: {}s timeout", connectTimeoutSec);
 
         return factory;
     }

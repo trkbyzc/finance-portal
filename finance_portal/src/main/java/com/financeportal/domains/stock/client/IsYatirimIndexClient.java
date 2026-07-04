@@ -2,6 +2,7 @@ package com.financeportal.domains.stock.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,8 +21,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public class IsYatirimIndexClient {
 
-    private static final String BASE_URL =
-            "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/Temel-Degerler-Ve-Oranlar.aspx?endeks=%s";
+    @Value("${external-api.isyatirim.index-base-url}")
+    private String isYatirimIndexBaseUrl = "https://www.isyatirim.com.tr";
 
     // İş Yatırım'ın endeks parametre kodu — dropdown'dan çıkardık.
     // endeks=01 → BIST 100 (100), endeks=03 → BIST 30 (30), endeks=05 → BIST 50 (50)
@@ -53,7 +54,7 @@ public class IsYatirimIndexClient {
             return Set.of();
         }
 
-        String url = String.format(BASE_URL, code);
+        String url = String.format(isYatirimIndexBaseUrl + "/tr-tr/analiz/hisse/Sayfalar/Temel-Degerler-Ve-Oranlar.aspx?endeks=%s", code);
         try {
             HttpEntity<String> entity = new HttpEntity<>(browserHeaders());
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);

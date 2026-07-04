@@ -18,7 +18,7 @@ public class BankCurrencySyncService {
     private final HesapkurduIntegrationClient hesapkurduIntegrationClient;
     private final CacheService cacheService;
 
-    @Scheduled(fixedRate = 300000) // 5 dakikada bir çeker
+    @Scheduled(fixedRateString = "${app.sync.bank-currency-rate-ms:300000}")
     public void fetchAndCacheBankRates() {
         long startTime = System.currentTimeMillis();
         List<com.financeportal.domains.bank_currency.dto.BankCurrencyDto> rates = hesapkurduIntegrationClient.fetchLiveBankRates();

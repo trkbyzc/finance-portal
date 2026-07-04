@@ -6,6 +6,7 @@ import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,10 +39,12 @@ public class FutureService {
 
     // Key versiyonlama: Redis'teki eski payload geçersiz kılınmadan yeni sembol seti yayınlanır — code-driven invalidation.
     private static final String CACHE_KEY = "cache:futures:v2";
-    private static final int CACHE_TTL_MIN = 5;
+
+    @Value("${app.ttl.futures-minutes:5}")
+    private int futureCacheTtlMin = 5;
 
     public List<FutureDto> getFutures() {
-        return cacheService.getOrFetch(CACHE_KEY, this::fetchFromYahoo, CACHE_TTL_MIN);
+        return cacheService.getOrFetch(CACHE_KEY, this::fetchFromYahoo, futureCacheTtlMin);
     }
 
     /**
@@ -53,11 +56,11 @@ public class FutureService {
      * cache temizlemesi gerekmez.
      */
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(fixedRate = 300_000)
+    @Scheduled(fixedRateString = "${app.sync.future-rate-ms:300000}")
     public void syncFutures() {
         List<FutureDto> fresh = fetchFromYahoo();
         if (fresh != null && !fresh.isEmpty()) {
-            cacheService.save(CACHE_KEY, fresh, CACHE_TTL_MIN);
+            cacheService.save(CACHE_KEY, fresh, futureCacheTtlMin);
             log.info("[FUTURE_SYNC] {} sembol cache'lendi.", fresh.size());
         } else {
             log.warn("[FUTURE_SYNC] Yahoo'dan veri gelmedi, cache dokunulmuyor.");

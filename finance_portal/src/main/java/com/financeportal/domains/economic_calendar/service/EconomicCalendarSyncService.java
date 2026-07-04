@@ -7,6 +7,7 @@ import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,13 +37,15 @@ public class EconomicCalendarSyncService {
 
     private static final String TASK_NAME = "EconomicCalendar";
     private static final String CACHE_KEY = "cache:economic-calendar";
-    private static final long TTL_SECONDS = 6L * 60 * 60; // 6 saat
+
+    @Value("${app.ttl.economic-calendar-hours:6}")
+    private long economicCalendarTtlHours = 6;
 
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(fixedRate = 6 * 60 * 60 * 1000L) // 6 saat
+    @Scheduled(fixedRateString = "${app.sync.economic-calendar-rate-ms:21600000}")
     public void syncCalendar() {
         try {
             LocalDate today = LocalDate.now();
@@ -55,7 +58,7 @@ public class EconomicCalendarSyncService {
                 return;
             }
             String json = objectMapper.writeValueAsString(events);
-            redisTemplate.opsForValue().set(CACHE_KEY, json, TTL_SECONDS, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(CACHE_KEY, json, economicCalendarTtlHours * 3600, TimeUnit.SECONDS);
             log.info("[ECONOMIC-CALENDAR] {} event Redis'e yazıldı (TTL 6h).", events.size());
         } catch (Exception e) {
             log.error("[ECONOMIC-CALENDAR] sync hatası: {}", e.getMessage(), e);

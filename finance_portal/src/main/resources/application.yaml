@@ -198,6 +198,13 @@ external-api:
     markets-url: ${FINTABLES_MARKETS_URL:https://markets.fintables.com}
   hesapkurdu:
     url: ${HESAPKURDU_URL:https://apigw.hesapkurdu.com/v1/forex/fx/getExchangeRates}
+  feargreed:
+    url: ${FEAR_GREED_URL:https://api.alternative.me/fng/?limit=0&format=json}
+  isyatirim:
+    fundamentals-url: ${ISYATIRIM_FUNDAMENTALS_URL:https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx}
+    index-base-url: ${ISYATIRIM_INDEX_BASE_URL:https://www.isyatirim.com.tr}
+  tradingview-logo:
+    base-url: ${TRADINGVIEW_LOGO_BASE_URL:https://s3-symbol-logo.tradingview.com/}
 
 # Uygulama özelinde ayarlar
 app:
@@ -207,6 +214,7 @@ app:
     from-name: ${APP_MAIL_FROM_NAME:FinansPortal}
   alarm:
     eval-rate-ms: ${ALARM_EVAL_RATE_MS:120000}    # 2dk'da bir alarm değerlendirme
+    continuous-cooldown-minutes: ${APP_ALARM_COOLDOWN_MINUTES:30}
   chat:
     enabled: ${APP_CHAT_ENABLED:true}
     history-max: ${APP_CHAT_HISTORY_MAX:20}        # context'e koyulacak max geçmiş mesaj
@@ -228,3 +236,47 @@ app:
       # gemini-2.5-flash → 2026 itibariyle güncel free tier modeli.
       model: ${GEMINI_MODEL:gemini-2.5-flash}
       api-key: ${GEMINI_API_KEY:}
+  rest:
+    connect-timeout-sec: ${APP_REST_CONNECT_TIMEOUT_SEC:10}
+    read-timeout-sec: ${APP_REST_READ_TIMEOUT_SEC:10}
+  user-sync:
+    cache-ttl-hours: ${APP_USER_SYNC_CACHE_TTL_HOURS:1}
+  limits:
+    max-tickers: ${APP_MAX_TICKERS:20}
+    sparkline-max-points: ${APP_SPARKLINE_MAX_POINTS:30}
+    max-tool-iterations: ${APP_MAX_TOOL_ITERATIONS:5}
+    what-if-max-series-points: ${APP_WHAT_IF_MAX_SERIES_POINTS:300}
+    what-if-per-asset-timeout-sec: ${APP_WHAT_IF_PER_ASSET_TIMEOUT_SEC:8}
+    news-max-translations-per-run: ${APP_NEWS_MAX_TRANSLATIONS:60}
+  ttl:
+    news-content-days: ${APP_TTL_NEWS_CONTENT_DAYS:7}
+    economic-calendar-hours: ${APP_TTL_ECONOMIC_CALENDAR_HOURS:6}
+    eurobond-minutes: ${APP_TTL_EUROBOND_MINUTES:360}
+    futures-minutes: ${APP_TTL_FUTURES_MINUTES:5}
+    bist-last-good-minutes: ${APP_TTL_BIST_LAST_GOOD_MINUTES:2880}
+    interest-series-hours: ${APP_TTL_INTEREST_SERIES_HOURS:12}
+    effective-currency-live-sec: ${APP_TTL_EFFECTIVE_CURRENCY_LIVE_SEC:3600}
+    effective-currency-history-sec: ${APP_TTL_EFFECTIVE_CURRENCY_HISTORY_SEC:86400}
+    economy-sec: ${APP_TTL_ECONOMY_SEC:86400}
+    us-economy-sec: ${APP_TTL_US_ECONOMY_SEC:86400}
+    turkish-bond-sec: ${APP_TTL_TURKISH_BOND_SEC:86400}
+    currency-history-sec: ${APP_TTL_CURRENCY_HISTORY_SEC:86400}
+  sync:
+    bank-currency-rate-ms: ${APP_SYNC_BANK_CURRENCY_RATE_MS:300000}
+    commodity-rate-ms: ${APP_SYNC_COMMODITY_RATE_MS:300000}
+    crypto-rate-ms: ${APP_SYNC_CRYPTO_RATE_MS:300000}
+    currency-rate-ms: ${APP_SYNC_CURRENCY_RATE_MS:3600000}
+    stock-rate-ms: ${APP_SYNC_STOCK_RATE_MS:300000}
+    fund-rate-ms: ${APP_SYNC_FUND_RATE_MS:3600000}
+    market-rate-ms: ${APP_SYNC_MARKET_RATE_MS:3600000}
+    viop-rate-ms: ${APP_SYNC_VIOP_RATE_MS:300000}
+    bist-index-rate-ms: ${APP_SYNC_BIST_INDEX_RATE_MS:86400000}
+    news-rate-ms: ${APP_SYNC_NEWS_RATE_MS:900000}
+    effective-currency-rate-ms: ${APP_SYNC_EFFECTIVE_CURRENCY_RATE_MS:3600000}
+    economic-calendar-rate-ms: ${APP_SYNC_ECONOMIC_CALENDAR_RATE_MS:21600000}
+    ipo-rate-ms: ${APP_SYNC_IPO_RATE_MS:3600000}
+    future-rate-ms: ${APP_SYNC_FUTURE_RATE_MS:300000}
+    market-hourly-rate-ms: ${APP_SYNC_MARKET_HOURLY_RATE_MS:3600000}
+    market-fast-rate-ms: ${APP_SYNC_MARKET_FAST_RATE_MS:300000}
+    isyatirim-fundamentals-refresh-ms: ${APP_SYNC_ISYATIRIM_FUNDAMENTALS_MS:1800000}
+    tradingview-logo-refresh-ms: ${APP_SYNC_TRADINGVIEW_LOGO_MS:86400000}

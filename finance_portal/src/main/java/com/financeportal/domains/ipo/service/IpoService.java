@@ -31,7 +31,7 @@ public class IpoService {
     }
 
     // Startup'tan 5 sn sonra başlar, saatte bir IPO takvimini scrape edip cache'i günceller.
-    @Scheduled(initialDelay = 5000, fixedRate = 3600000)
+    @Scheduled(fixedRateString = "${app.sync.ipo-rate-ms:3600000}", initialDelayString = "5000")
     public void fetchIPOs() {
         try {
             List<IpoDto> ipos = ipoScraperClient.scrapeIPOCalendar();

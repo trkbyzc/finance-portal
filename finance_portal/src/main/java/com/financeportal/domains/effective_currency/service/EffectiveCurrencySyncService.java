@@ -52,11 +52,15 @@ public class EffectiveCurrencySyncService {
 
     private static final String TASK_NAME = "EffectiveCurrency";
     private static final String CACHE_KEY = "cache:effective-currencies";
-    private static final long LIVE_TTL_SEC = 3600;          // 1 saat
-    private static final long HISTORY_TTL_SEC = 86400;      // 24 saat
 
     @Value("${external-api.tcmb.xml-url}")
     private String tcmbXmlUrl;
+
+    @Value("${app.ttl.effective-currency-live-sec:3600}")
+    private long liveTtlSec = 3600;
+
+    @Value("${app.ttl.effective-currency-history-sec:86400}")
+    private long historyTtlSec = 86400;
 
     /**
      * Efektif satış serileri (EVDS sembol → bizim 3-harfli kod).
@@ -80,13 +84,13 @@ public class EffectiveCurrencySyncService {
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(fixedRate = 3_600_000) // saatte bir
+    @Scheduled(fixedRateString = "${app.sync.effective-currency-rate-ms:3600000}")
     public void syncEffectiveCurrencies() {
         try {
             syncEvdsEffectiveHistories();
             List<EffectiveCurrencyDto> live = fetchTcmbBanknoteRates();
             if (live != null && !live.isEmpty()) {
-                cacheService.save(CACHE_KEY, live, (int) (LIVE_TTL_SEC / 60));
+                cacheService.save(CACHE_KEY, live, (int) (liveTtlSec / 60));
                 log.info("[EFFECTIVE_CURRENCY] {} satır efektif kur cache'e yazıldı.", live.size());
             } else {
                 log.warn("[EFFECTIVE_CURRENCY] TCMB Banknote alanları boş geldi.");
@@ -192,7 +196,7 @@ public class EffectiveCurrencySyncService {
                 }
                 if (!history.isEmpty()) {
                     redisTemplate.opsForValue().set(redisKey, objectMapper.writeValueAsString(history),
-                            HISTORY_TTL_SEC, TimeUnit.SECONDS);
+                            historyTtlSec, TimeUnit.SECONDS);
                     log.info("[EVDS-EF-CURRENCY] {} efektif geçmişi tamam ({} nokta).", code, history.size());
                 }
             } catch (Exception e) {

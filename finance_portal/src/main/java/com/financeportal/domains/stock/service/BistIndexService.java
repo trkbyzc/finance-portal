@@ -5,6 +5,7 @@ import com.financeportal.service.cache.CacheService;
 import com.financeportal.util.BistConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +32,11 @@ public class BistIndexService {
     private static final String CACHE_KEY_BIST50 = "cache:bist-index:XU050";
     private static final String CACHE_KEY_BIST100 = "cache:bist-index:XU100";
 
-    private static final long CACHE_TTL_MINUTES = 24 * 60L;
-
     private final IsYatirimIndexClient isYatirimIndexClient;
     private final CacheService cacheService;
+
+    @Value("${app.ttl.bist-last-good-minutes:1440}")
+    private long bistIndexCacheTtlMinutes = 1440;
 
     public Set<String> getBist30() {
         return getOrFallback(CACHE_KEY_BIST30, "XU030", BistConstants.BIST_30);
@@ -64,7 +66,7 @@ public class BistIndexService {
 
         Set<String> fresh = isYatirimIndexClient.fetchIndex(endeks);
         if (!fresh.isEmpty()) {
-            cacheService.save(cacheKey, new ArrayList<>(fresh), CACHE_TTL_MINUTES);
+            cacheService.save(cacheKey, new ArrayList<>(fresh), bistIndexCacheTtlMinutes);
             return fresh;
         }
 
@@ -77,7 +79,7 @@ public class BistIndexService {
      * Boot'tan 30sn sonra ilk fetch, sonra 24 saatte bir yenile.
      * Önemli: getX() çağrılarındaki cache miss'i boot sırasında yaşamamak için.
      */
-    @Scheduled(fixedRate = 86_400_000L, initialDelay = 30_000L)
+    @Scheduled(fixedRateString = "${app.sync.bist-index-rate-ms:86400000}", initialDelayString = "${app.sync.bist-index-rate-ms:86400000}")
     public void refreshAll() {
         log.info("[BIST_INDEX] Günlük yenileme başlıyor...");
         cacheService.delete(CACHE_KEY_BIST30);

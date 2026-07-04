@@ -7,6 +7,7 @@ import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,9 @@ public class TurkishBondSyncService {
     private final BootstrapReadinessTracker bootstrapTracker;
 
     private static final String TASK_NAME = "TurkishBonds";
+
+    @Value("${app.ttl.turkish-bond-sec:86400}")
+    private long turkishBondTtlSec = 86400;
 
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
@@ -82,8 +86,8 @@ public class TurkishBondSyncService {
             if (!historyList.isEmpty()) {
                 try {
                     String json = objectMapper.writeValueAsString(historyList);
-                    redisTemplate.opsForValue().set(redisKey, json, 86400, TimeUnit.SECONDS);
-                    redisTemplate.opsForValue().set("evds:history:" + code, json, 86400, TimeUnit.SECONDS);
+                    redisTemplate.opsForValue().set(redisKey, json, turkishBondTtlSec, TimeUnit.SECONDS);
+                    redisTemplate.opsForValue().set("evds:history:" + code, json, turkishBondTtlSec, TimeUnit.SECONDS);
                     log.info("[EVDS-TR-BOND] {} -> {} günlük veri Redis'e basıldı.", code, historyList.size());
                 } catch (Exception e) {
                     log.error("[EVDS-TR-BOND] JSON Hatası {}: {}", code, e.getMessage());

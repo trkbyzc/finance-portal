@@ -9,6 +9,7 @@ import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,9 +38,12 @@ public class NewsSyncService {
     private final TranslationClient translationClient;
 
     private static final String TASK_NAME = "News";
-    /** Bir sync turunda en fazla bu kadar haberi translate'le — sync süresini sınırla.
-     *  Geri kalanlar bir sonraki turda (cache'de zaten varsa atlanır). */
-    private static final int MAX_TRANSLATIONS_PER_RUN = 60;
+
+    @Value("${app.limits.news-max-translations-per-run:60}")
+    private int maxTranslationsPerRun = 60;
+
+    @Value("${app.ttl.news-content-days:7}")
+    private int newsTtlDays = 7;
 
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
@@ -95,7 +99,7 @@ public class NewsSyncService {
      *  cache'e yazılır → frontend boş kalmaz (özellikle Redis flush sonrası kritik).
      *  Sonra LibreTranslate ile titleEn/descriptionEn çevirileri yapılıp cache güncellenir.
      *  Çeviri 60 başlık × 12sn = 12 dk sürebileceği için kullanıcı bunca süre beklemesin. */
-    @Scheduled(fixedDelay = 900000, initialDelay = 900000)
+    @Scheduled(fixedDelayString = "${app.sync.news-rate-ms:900000}", initialDelayString = "${app.sync.news-rate-ms:900000}")
     public void fetchAndCacheNews() {
         try {
             long startTime = System.currentTimeMillis();
@@ -187,7 +191,7 @@ public class NewsSyncService {
         if (newlyAdded == 0 && translated == 0 && purged == 0) return;
         try {
             String jsonStr = objectMapper.writeValueAsString(masterList);
-            redisTemplate.opsForValue().set(REDIS_KEY, jsonStr, Duration.ofDays(7));
+            redisTemplate.opsForValue().set(REDIS_KEY, jsonStr, Duration.ofDays(newsTtlDays));
             log.info("[NEWS_SYNC] Updated news cache. Added {} articles, translated {}. Total: {}. Time: {} ms.",
                     newlyAdded, translated, masterList.size(), (System.currentTimeMillis() - startTime));
         } catch (Exception e) {
@@ -223,7 +227,7 @@ public class NewsSyncService {
         }
         int translated = 0;
         for (NewsDto news : newsList) {
-            if (translated >= MAX_TRANSLATIONS_PER_RUN) break;
+            if (translated >= maxTranslationsPerRun) break;
             if (news.getTitleEn() == null && translateOne(news)) {
                 translated++;
             }

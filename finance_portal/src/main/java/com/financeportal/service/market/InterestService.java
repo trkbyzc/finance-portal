@@ -8,6 +8,7 @@ import com.financeportal.model.dto.account.DepositRatePointDto;
 import com.financeportal.model.dto.account.InterestYieldDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,9 @@ public class InterestService {
 
     // 1 yıla kadar TRY mevduat faizi serisi (EVDS). DepositSyncService de aynı kodları kullanır.
     private static final String DEPOSIT_SERIES_CODE = "TP.TRY.MT04";
+
+    @Value("${app.ttl.interest-series-hours:12}")
+    private int interestTtlHours = 12;
 
     public List<InterestYieldDto> calculateDepositYields(BigDecimal amount, int days) {
         String redisKey;
@@ -114,7 +118,7 @@ public class InterestService {
         List<DepositRatePointDto> series = fetchDepositSeries(range);
         try {
             if (!series.isEmpty()) {
-                redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(series), 12, TimeUnit.HOURS);
+                redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(series), interestTtlHours, TimeUnit.HOURS);
             }
         } catch (Exception e) {
             log.warn("[DEPOSIT-SERIES] cache yazma hatası: {}", e.getMessage());

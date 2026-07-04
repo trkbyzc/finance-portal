@@ -7,6 +7,7 @@ import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,12 +35,14 @@ public class EconomyUsSyncService {
 
     private static final String HISTORY_KEY = "evds:history:macro:usdInflationRate";
     private static final String SNAPSHOT_KEY = "market:economy:usa";
-    private static final long TTL_SECONDS = 86400;
 
     private final FredClient fredClient;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final BootstrapReadinessTracker bootstrapTracker;
+
+    @Value("${app.ttl.us-economy-sec:86400}")
+    private long usTtlSec = 86400;
 
     private static final String TASK_NAME = "EconomyUS";
 
@@ -61,12 +64,12 @@ public class EconomyUsSyncService {
             }
 
             try {
-                redisTemplate.opsForValue().set(HISTORY_KEY, objectMapper.writeValueAsString(history), TTL_SECONDS, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set(HISTORY_KEY, objectMapper.writeValueAsString(history), usTtlSec, TimeUnit.SECONDS);
                 log.info("[FRED-USD] {} aylık CPI noktası Redis'e yazıldı.", history.size());
 
                 // Anlık snapshot: son endeks + son 12 ayın YoY % değişimi
                 EconomyUsDto snapshot = buildSnapshot(history);
-                redisTemplate.opsForValue().set(SNAPSHOT_KEY, objectMapper.writeValueAsString(snapshot), TTL_SECONDS, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set(SNAPSHOT_KEY, objectMapper.writeValueAsString(snapshot), usTtlSec, TimeUnit.SECONDS);
                 log.info("[FRED-USD] Anlık snapshot Redis'e yazıldı: cpi={}, yoy={}%",
                         snapshot.getCpiIndex(), snapshot.getYoyChangePct());
             } catch (Exception e) {

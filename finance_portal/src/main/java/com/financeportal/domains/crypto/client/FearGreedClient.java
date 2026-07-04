@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.financeportal.domains.crypto.dto.FearGreedDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,16 +26,17 @@ import java.util.List;
 @Slf4j
 public class FearGreedClient {
 
-    private static final String URL = "https://api.alternative.me/fng/?limit=0&format=json";
-
     private final RestTemplate restTemplate;
+
+    @Value("${external-api.feargreed.url}")
+    private String fearGreedUrl = "https://api.alternative.me/fng/?limit=0&format=json";
 
     public List<FearGreedDto> fetchAll() {
         List<FearGreedDto> out = new ArrayList<>();
         try {
             HttpHeaders h = new HttpHeaders();
             h.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            ResponseEntity<JsonNode> res = restTemplate.exchange(URL, HttpMethod.GET, new HttpEntity<>(h), JsonNode.class);
+            ResponseEntity<JsonNode> res = restTemplate.exchange(fearGreedUrl, HttpMethod.GET, new HttpEntity<>(h), JsonNode.class);
             JsonNode data = res.getBody() != null ? res.getBody().path("data") : null;
             if (data == null || !data.isArray()) {
                 log.warn("[FEAR-GREED] Beklenen 'data' dizisi gelmedi");

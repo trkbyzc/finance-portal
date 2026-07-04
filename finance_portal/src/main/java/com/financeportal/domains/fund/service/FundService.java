@@ -43,13 +43,13 @@ public class FundService {
     }
 
     // Her saat cache'i önceden doldurmak için global ETF fiyatlarını Yahoo'dan çeker.
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRateString = "${app.sync.fund-rate-ms:3600000}")
     public void syncGlobalFunds() {
         getGlobalFunds();
     }
 
     // Her saat TEFAS'tan TR fon fiyatlarını çekip cache'e yazar; boş yanıt gelirse mevcut cache korunur.
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRateString = "${app.sync.fund-rate-ms:3600000}")
     public void syncTrFunds() {
         List<FundDto> list = tefasFundClient.fetchTefasFunds();
         if (list != null && !list.isEmpty()) cacheService.save("cache:tr_funds", list, 60);

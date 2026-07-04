@@ -2,6 +2,7 @@ package com.financeportal.domains.stock.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,9 +30,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class IsYatirimFundamentalsClient {
 
-    private static final String URL =
-            "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/Temel-Degerler-Ve-Oranlar.aspx?endeks=09";
-    private static final long REFRESH_MS = 30 * 60 * 1000L; // 30 dk
+    @Value("${external-api.isyatirim.fundamentals-url}")
+    private String isYatirimFundamentalsUrl = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx";
+
+    @Value("${app.sync.isyatirim-fundamentals-refresh-ms:1800000}")
+    private long refreshMs = 1_800_000;
 
     private static final Pattern TBODY = Pattern.compile("id=\"temelTBody_Ozet\"[^>]*>(.*?)</tbody>", Pattern.DOTALL);
     private static final Pattern ROW = Pattern.compile("<tr[^>]*>(.*?)</tr>", Pattern.DOTALL);
@@ -55,14 +58,14 @@ public class IsYatirimFundamentalsClient {
     }
 
     private synchronized void ensureFresh() {
-        if (System.currentTimeMillis() - lastFetch.get() < REFRESH_MS && !cache.isEmpty()) return;
+        if (System.currentTimeMillis() - lastFetch.get() < refreshMs && !cache.isEmpty()) return;
         try {
             HttpHeaders h = new HttpHeaders();
             h.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
             h.set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
             h.set("Accept-Language", "tr-TR,tr;q=0.9");
             h.set("Referer", "https://www.isyatirim.com.tr/");
-            ResponseEntity<String> res = restTemplate.exchange(URL, HttpMethod.GET, new HttpEntity<>(h), String.class);
+            ResponseEntity<String> res = restTemplate.exchange(isYatirimFundamentalsUrl, HttpMethod.GET, new HttpEntity<>(h), String.class);
             String body = res.getBody();
             if (body == null || body.isEmpty()) return;
 

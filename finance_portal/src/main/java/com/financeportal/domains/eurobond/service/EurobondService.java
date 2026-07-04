@@ -9,6 +9,7 @@ import com.financeportal.domains.eurobond.dto.EurobondDto;
 import com.financeportal.service.cache.CacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,12 +32,14 @@ import java.util.Locale;
 public class EurobondService {
 
     private static final String CACHE_KEY = "cache:eurobonds";
-    private static final long CACHE_TTL_MINUTES = 360;
 
     private final EurobondCatalog catalog;
     private final BusinessInsiderBondClient client;
     private final CacheService cacheService;
     private final ObjectMapper objectMapper;
+
+    @Value("${app.ttl.eurobond-minutes:360}")
+    private long eurobondCacheTtlMinutes = 360;
 
     /**
      * Eurobond listesini cache'ten döner. CacheService (GenericJackson2) cache-hit'te
@@ -44,7 +47,7 @@ public class EurobondService {
      * EurobondDto'ya çeviriyoruz (cache-miss'te zaten DTO).
      */
     public List<EurobondDto> getEurobondList() {
-        List<?> raw = cacheService.getOrFetch(CACHE_KEY, this::buildList, CACHE_TTL_MINUTES);
+        List<?> raw = cacheService.getOrFetch(CACHE_KEY, this::buildList, eurobondCacheTtlMinutes);
         return raw.stream()
                 .map(o -> objectMapper.convertValue(o, EurobondDto.class))
                 .toList();

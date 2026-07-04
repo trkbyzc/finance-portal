@@ -9,6 +9,7 @@ import com.financeportal.service.mail.EmailService;
 import com.financeportal.service.portfolio.PortfolioPriceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,11 +39,12 @@ import java.util.Map;
 @Slf4j
 public class PriceAlarmEvaluationService {
 
-    private static final Duration CONTINUOUS_COOLDOWN = Duration.ofMinutes(30);
-
     private final PriceAlarmRepository alarmRepo;
     private final PortfolioPriceService priceService;
     private final EmailService emailService;
+
+    @Value("${app.alarm.continuous-cooldown-minutes:30}")
+    private long continuousCooldownMinutes = 30;
 
     @Scheduled(fixedRateString = "${app.alarm.eval-rate-ms:120000}", initialDelayString = "${app.alarm.eval-rate-ms:120000}")
     @Transactional
@@ -75,7 +77,7 @@ public class PriceAlarmEvaluationService {
         // CONTINUOUS cooldown: son tetik 30dk içindeyse spam etme
         if (alarm.getFrequency() == AlarmFrequency.CONTINUOUS
                 && alarm.getLastTriggeredAt() != null
-                && Duration.between(alarm.getLastTriggeredAt(), LocalDateTime.now()).compareTo(CONTINUOUS_COOLDOWN) < 0) {
+                && Duration.between(alarm.getLastTriggeredAt(), LocalDateTime.now()).compareTo(Duration.ofMinutes(continuousCooldownMinutes)) < 0) {
             return false;
         }
 

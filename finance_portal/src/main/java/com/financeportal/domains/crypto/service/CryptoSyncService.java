@@ -20,7 +20,7 @@ public class CryptoSyncService {
     private final CryptoIdRegistry cryptoIdRegistry;
 
     // CoinGecko'dan kripto fiyatlarını çekip Redis'e yazar; cache TTL ile hizalı 5 dk aralık, başarısızlık non-fatal.
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRateString = "${app.sync.crypto-rate-ms:300000}")
     public void fetchAndCacheCryptoRates() {
         long startTime = System.currentTimeMillis();
         List<CryptoDto> rates = coinGeckoClient.fetchCryptoRates();

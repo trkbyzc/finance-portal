@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,11 +31,14 @@ import java.util.*;
 @Slf4j
 public class TradingViewLogoClient {
 
-    private static final String LOGO_BASE = "https://s3-symbol-logo.tradingview.com/";
-    private static final long REFRESH_MS = 24 * 60 * 60 * 1000L;
-
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+
+    @Value("${external-api.tradingview-logo.base-url}")
+    private String logoBaseUrl = "https://s3-symbol-logo.tradingview.com/";
+
+    @Value("${app.sync.tradingview-logo-refresh-ms:86400000}")
+    private long logoRefreshMs = 86_400_000;
 
     // S3077: volatile referans concurrent write'ı korumaz; thread-safe Map kullan.
     private final java.util.concurrent.ConcurrentMap<String, String> bistCache = new java.util.concurrent.ConcurrentHashMap<>();
@@ -45,7 +49,7 @@ public class TradingViewLogoClient {
     private final java.util.concurrent.atomic.AtomicLong usLastFetch = new java.util.concurrent.atomic.AtomicLong(0L);
 
     private String logoUrl(String logoid) {
-        return (logoid != null && !logoid.isBlank()) ? LOGO_BASE + logoid + "--big.svg" : null;
+        return (logoid != null && !logoid.isBlank()) ? logoBaseUrl + logoid + "--big.svg" : null;
     }
 
     private String norm(String code) {
@@ -60,7 +64,7 @@ public class TradingViewLogoClient {
     }
 
     private synchronized void ensureBist() {
-        if (System.currentTimeMillis() - bistLastFetch.get() < REFRESH_MS && !bistCache.isEmpty()) return;
+        if (System.currentTimeMillis() - bistLastFetch.get() < logoRefreshMs && !bistCache.isEmpty()) return;
         Map<String, String> parsed = fetchScanner("turkey",
                 "{\"symbols\":{\"query\":{\"types\":[\"stock\"]}},\"columns\":[\"name\",\"logoid\"],\"range\":[0,1500]}");
         if (!parsed.isEmpty()) {
@@ -74,7 +78,7 @@ public class TradingViewLogoClient {
     /** Verilen ABD sembolleri için {sembol → logoUrl} (logosu olmayanlar haritada yer almaz). */
     public synchronized Map<String, String> usLogos(Collection<String> symbols) {
         if (symbols == null || symbols.isEmpty()) return Map.of();
-        if (System.currentTimeMillis() - usLastFetch.get() >= REFRESH_MS) {
+        if (System.currentTimeMillis() - usLastFetch.get() >= logoRefreshMs) {
             usCache.clear();
         }
         List<String> missing = symbols.stream().map(this::norm)
@@ -177,7 +181,7 @@ public class TradingViewLogoClient {
                 slug = "metal/silver";
             }
         }
-        return slug != null ? LOGO_BASE + slug + ".svg" : null;
+        return slug != null ? logoBaseUrl + slug + ".svg" : null;
     }
 
     private Map<String, String> fetchScanner(String market, String body) {

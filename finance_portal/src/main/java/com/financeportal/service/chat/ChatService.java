@@ -54,8 +54,8 @@ public class ChatService {
     @Value("${app.chat.history-max:20}")
     private int historyMax;
 
-    /** Bir kullanıcı mesajı için izin verilen maksimum LLM turu (her tur = bir tool execution batch). */
-    private static final int MAX_TOOL_ITERATIONS = 5;
+    @Value("${app.limits.max-tool-iterations:5}")
+    private int maxToolIterations = 5;
 
     @Transactional(readOnly = true)
     public List<ConversationDto> listMyConversations() {
@@ -113,7 +113,7 @@ public class ChatService {
         //    LLM çağrısı yap → tool_calls varsa execute et, sonuçları context'e ekle ve tekrar çağır.
         //    Final assistant text yanıtı gelene kadar veya MAX_TOOL_ITERATIONS dolana kadar.
         LlmResponse llm = null;
-        for (int iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
+        for (int iter = 0; iter < maxToolIterations; iter++) {
             try {
                 llm = llmGateway.generate(LlmRequest.builder()
                         .messages(context)

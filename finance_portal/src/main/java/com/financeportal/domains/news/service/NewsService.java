@@ -5,6 +5,7 @@ import com.financeportal.domains.news.client.TranslationClient;
 import com.financeportal.domains.news.dto.NewsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,10 @@ public class NewsService {
     private final StringRedisTemplate stringRedisTemplate;
 
     private static final String CONTENT_EN_CACHE_PREFIX = "cache:news:content:en:";
-    private static final Duration CONTENT_EN_TTL = Duration.ofDays(7);
     private static final String CATEGORY_ALL_TR = "Tümü";
+
+    @Value("${app.ttl.news-content-days:7}")
+    private int contentEnTtlDays = 7;
     private static final String CATEGORY_ALL_EN = "All";
 
     /** Aktif dile göre haberleri filtreler. EN talep edildiğinde DTO clone'unda title/description/category EN'e swap'lanır. */
@@ -85,7 +88,7 @@ public class NewsService {
         String translated = translateLongText(trContent);
         if (translated != null && !translated.isBlank()) {
             try {
-                stringRedisTemplate.opsForValue().set(cacheKey, translated, CONTENT_EN_TTL);
+                stringRedisTemplate.opsForValue().set(cacheKey, translated, Duration.ofDays(contentEnTtlDays));
             } catch (Exception e) {
                 log.warn("[NEWS_SERVICE] EN content cache yazılamadı: {}", e.getMessage());
             }

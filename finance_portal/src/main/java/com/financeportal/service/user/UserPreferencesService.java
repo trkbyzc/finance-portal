@@ -11,6 +11,7 @@ import com.financeportal.repository.UserTickerPrefRepository;
 import com.financeportal.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +29,12 @@ import java.util.UUID;
 @Slf4j
 public class UserPreferencesService {
 
-    private static final int MAX_TICKERS = 20;
-
     private final UserTickerPrefRepository tickerPrefRepository;
     private final UserRepository userRepository;
     private final SecurityUtils securityUtils;
+
+    @Value("${app.limits.max-tickers:20}")
+    private int maxTickers = 20;
 
     public UserPreferencesDto getMyPreferences() {
         UUID userId = securityUtils.getCurrentUserId();
@@ -60,8 +62,8 @@ public class UserPreferencesService {
                 .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı"));
 
         List<TickerSymbolDto> incoming = request.getTickers() != null ? request.getTickers() : List.of();
-        if (incoming.size() > MAX_TICKERS) {
-            throw new IllegalArgumentException("En fazla " + MAX_TICKERS + " ticker eklenebilir.");
+        if (incoming.size() > maxTickers) {
+            throw new IllegalArgumentException("En fazla " + maxTickers + " ticker eklenebilir.");
         }
 
         // Scope (null kalmasın — default ALL_PAGES)

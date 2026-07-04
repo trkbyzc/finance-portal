@@ -16,6 +16,7 @@ import com.financeportal.service.market.MarketChartService;
 import com.financeportal.service.portfolio.PortfolioPriceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +33,15 @@ import java.util.UUID;
 @Slf4j
 public class WatchlistService {
 
-    private static final int SPARKLINE_MAX_POINTS = 30;
-
     private final WatchlistItemRepository watchlistItemRepository;
     private final UserRepository userRepository;
     private final SecurityUtils securityUtils;
     private final PortfolioPriceService portfolioPriceService;
     private final MarketChartService marketChartService;
     private final FundService fundService;
+
+    @Value("${app.limits.sparkline-max-points:30}")
+    private int sparklineMaxPoints = 30;
 
     public List<WatchlistItemDto> getMyWatchlist() {
         UUID userId = securityUtils.getCurrentUserId();
@@ -166,7 +168,7 @@ public class WatchlistService {
     private List<BigDecimal> extractSparkline(List<?> history) {
         if (history == null || history.isEmpty()) return List.of();
         int size = history.size();
-        int from = Math.max(0, size - SPARKLINE_MAX_POINTS);
+        int from = Math.max(0, size - sparklineMaxPoints);
         List<BigDecimal> spark = new ArrayList<>(size - from);
         for (int i = from; i < size; i++) {
             BigDecimal close = closeOf(history.get(i));
