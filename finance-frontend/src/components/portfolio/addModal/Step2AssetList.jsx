@@ -78,7 +78,7 @@ export default function Step2AssetList({ selectedType, onSelect, onBack, fetchin
                             >
                                 <div className="flex-1">
                                     <div className="font-semibold">{name || symbol}</div>
-                                    {name && name !== symbol && (
+                                    {['STOCK', 'CRYPTO', 'CURRENCY'].includes(selectedType) && name && (
                                         <div className="text-sm text-text-muted">{symbol}</div>
                                     )}
                                 </div>
