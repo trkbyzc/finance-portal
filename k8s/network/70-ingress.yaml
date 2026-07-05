@@ -28,6 +28,9 @@ spec:
     - hosts:
         - REPLACE_WITH_HOST.nip.io      # open-cluster.ps1 patch eder
       secretName: finance-portal-tls
+    - hosts:
+        - kc.REPLACE_WITH_HOST.nip.io   # Keycloak HTTPS subdomain
+      secretName: keycloak-tls
   rules:
     - host: REPLACE_WITH_HOST.nip.io     # open-cluster.ps1 patch eder
       http:
@@ -39,3 +42,13 @@ spec:
                 name: app-frontend
                 port:
                   number: 80
+    - host: kc.REPLACE_WITH_HOST.nip.io  # Keycloak HTTPS
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080

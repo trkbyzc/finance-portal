@@ -131,12 +131,13 @@ kubectl apply -f k8s/network/70-ingress.RUNTIME.yaml
 Assert-Ok "ingress patched apply"
 
 Write-Host "`n=== 7/11 Backend ConfigMap Keycloak issuer guncelle ==="
-# PowerShell native hashtable + ConvertTo-Json escape sorununu cozer
-$cmPatch = @{ data = @{ KEYCLOAK_ISSUER_URI = "http://$KC_IP/realms/finance-realm" } } | ConvertTo-Json -Compress
+$KC_HTTPS_URL = "https://kc.${HOST_DOMAIN}"
+# JSON string ile doğrudan inşa et — ConvertTo-Json nested hashtable encoding sorunu yok
+$cmPatch = '{"data":{"KEYCLOAK_ISSUER_URI":"' + $KC_HTTPS_URL + '/realms/finance-realm"}}'
 kubectl patch configmap backend-config -n $NAMESPACE --type merge -p $cmPatch
-Assert-Ok "configmap patch"
+if ($LASTEXITCODE -ne 0) { Write-Host "  ConfigMap patch başarısız, set env ile devam..." -ForegroundColor Yellow }
 kubectl set env deployment/app-backend -n $NAMESPACE `
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI="http://${KC_IP}/realms/finance-realm" `
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI="${KC_HTTPS_URL}/realms/finance-realm" `
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI="http://keycloak:8080/realms/finance-realm/protocol/openid-connect/certs" `
     SPRING_KAFKA_BOOTSTRAP_SERVERS="kafka:9092" `
     SECURITY_CORS_ALLOWED_ORIGINS="https://*.nip.io,http://localhost:5173,http://localhost:*"
@@ -145,7 +146,7 @@ Assert-Ok "backend env set"
 Write-Host "`n=== 8/11 Frontend rebuild + push (yeni IP/host larla) ==="
 docker build `
     --build-arg VITE_API_BASE_URL=/api/v1 `
-    --build-arg VITE_KEYCLOAK_URL="http://${KC_IP}" `
+    --build-arg VITE_KEYCLOAK_URL="https://kc.${HOST_DOMAIN}" `
     --build-arg VITE_KEYCLOAK_REALM=finance-realm `
     --build-arg VITE_KEYCLOAK_CLIENT_ID=finance-client `
     --build-arg VITE_APP_URL="https://${HOST_DOMAIN}" `

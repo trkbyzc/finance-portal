@@ -5,11 +5,11 @@ import authApi from '../services/api/authApi';
 
 const AuthContext = createContext();
 
-const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL;
-const REALM = import.meta.env.VITE_KEYCLOAK_REALM;
-const CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
-const APP_URL = import.meta.env.VITE_APP_URL;
-const REDIRECT_URI = `${APP_URL}/callback`;
+const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL || `${window.location.origin}/auth`;
+const REALM = import.meta.env.VITE_KEYCLOAK_REALM || 'finance-realm';
+const CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID || 'finance-client';
+const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
+const REDIRECT_URI = `${APP_URL}/auth/callback`;
 const POST_LOGOUT_URI = `${APP_URL}/?logout=true`;
 
 const TOKEN_REFRESH_THRESHOLD = 0.8;

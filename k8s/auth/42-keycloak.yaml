@@ -53,8 +53,9 @@ spec:
             - secretRef:
                 name: keycloak-admin
           env:
-            # Hostname dinamik (Host header'dan); strict KAPALI hem master hem realm'lere
-            # her IP/hostname'den erişilebilsin (LB IP ne olursa olsun çalışır).
+            # NGINX reverse proxy arkasında HTTPS; X-Forwarded-Proto/Host başlıklarını güven.
+            - name: KC_PROXY
+              value: "edge"
             - name: KC_HOSTNAME_STRICT
               value: "false"
             - name: KC_HOSTNAME_STRICT_HTTPS

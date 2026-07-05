@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-// FRONTEND PATLAMASIN DİYE ESKİ URL KORUNDU
 @RequestMapping("/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Kripto Paralar", description = "CoinGecko üzerinden anlık kripto para verileri")
