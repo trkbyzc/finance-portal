@@ -115,13 +115,14 @@ class SimulationServiceTest {
     }
 
     @Test
-    void compute_investmentDateAfterAllHistory_warning() {
+    void compute_investmentDateBeforeAllHistory_warning() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         when(chartService.getHistoricalDataWithEvdsFallback(any(), any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(List.of(bar(yesterday, 100)));
 
+        // Data starts at yesterday; investmentDate 5 years before that → no data point <= investmentDate
         SimulationResultDto r = service.compute("X", AssetType.STOCK,
-                LocalDate.now().plusDays(10), new BigDecimal("1000"));
+                LocalDate.now().minusYears(5), new BigDecimal("1000"));
 
         assertTrue(r.getWarning().contains("historical aralığın dışında"));
     }
@@ -163,17 +164,17 @@ class SimulationServiceTest {
     }
 
     @Test
-    void compute_investmentDateOnWeekend_usesNextAvailableDate() {
+    void compute_investmentDateOnWeekend_usesPreviousAvailableDate() {
+        LocalDate friday = LocalDate.now().minusDays(12);
         LocalDate weekendDate = LocalDate.now().minusDays(10);
-        LocalDate monday = LocalDate.now().minusDays(8);
         LocalDate today = LocalDate.now();
         when(chartService.getHistoricalDataWithEvdsFallback(any(), any(), any(), any(), any(), any(), anyInt()))
-                .thenReturn(List.of(bar(monday, 100), bar(today, 110)));
+                .thenReturn(List.of(bar(friday, 100), bar(today, 110)));
 
         SimulationResultDto r = service.compute("X", AssetType.STOCK, weekendDate, new BigDecimal("1000"));
 
-        // Weekend → first available date (monday)
-        assertEquals(monday, r.getEffectiveStartDate());
+        // Weekend → uses last available date before it (friday), matching preview behaviour
+        assertEquals(friday, r.getEffectiveStartDate());
     }
 
     @Test
@@ -268,8 +269,9 @@ class SimulationServiceTest {
     void computeFromQuantity_entryNotFound_warning() {
         when(chartService.getHistoricalDataWithEvdsFallback(any(), any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(List.of(bar(LocalDate.now().minusDays(10), 100)));
+        // Data starts at now-10; investmentDate 5 years before that → no data point <= investmentDate
         SimulationResultDto r = service.computeFromQuantity("X", AssetType.STOCK,
-                LocalDate.now().plusDays(5), new BigDecimal("1"));
+                LocalDate.now().minusYears(5), new BigDecimal("1"));
         assertTrue(r.getWarning().contains("Entry tarihindeki fiyat geçersiz"));
     }
 

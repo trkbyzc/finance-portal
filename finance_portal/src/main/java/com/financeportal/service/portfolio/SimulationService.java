@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -116,7 +117,7 @@ public class SimulationService {
             return warningResult(amountTry, "Geçersiz simülasyon girdisi.");
         }
 
-        List<?> history = safeFetchHistory(symbol, assetType);
+        List<?> history = safeFetchHistory(symbol, assetType, investmentDate);
         if (history == null || history.isEmpty()) {
             return warningResult(amountTry, "Bu varlık için historical veri yok.");
         }
@@ -128,11 +129,12 @@ public class SimulationService {
             return d == null ? LocalDate.MIN : d;
         }));
 
-        // investmentDate'e en yakın >= tarihi bul
+        // investmentDate'e en yakın <= tarihi bul (seçilen tarih tatilse önceki işlem günü).
+        // Preview ile tutarlı olması için >= değil <= yönünde aranır.
         int entryIdx = -1;
-        for (int i = 0; i < sorted.size(); i++) {
+        for (int i = sorted.size() - 1; i >= 0; i--) {
             LocalDate d = dateOf(sorted.get(i));
-            if (d != null && !d.isBefore(investmentDate)) { entryIdx = i; break; }
+            if (d != null && !d.isAfter(investmentDate)) { entryIdx = i; break; }
         }
         if (entryIdx < 0) {
             return warningResult(amountTry, "Seçilen tarih historical aralığın dışında (henüz veri yok).");
@@ -192,7 +194,7 @@ public class SimulationService {
             return warningResult(BigDecimal.ZERO, "Geçersiz miktar.");
         }
 
-        List<?> history = safeFetchHistory(symbol, assetType);
+        List<?> history = safeFetchHistory(symbol, assetType, investmentDate);
         if (history == null || history.isEmpty()) {
             return warningResult(BigDecimal.ZERO, "Bu varlık için historical veri yok.");
         }
@@ -204,9 +206,10 @@ public class SimulationService {
             return d == null ? LocalDate.MIN : d;
         }));
         BigDecimal entryPrice = null;
-        for (Object p : sorted) {
+        for (int i = sorted.size() - 1; i >= 0; i--) {
+            Object p = sorted.get(i);
             LocalDate d = dateOf(p);
-            if (d != null && !d.isBefore(investmentDate)) {
+            if (d != null && !d.isAfter(investmentDate)) {
                 entryPrice = closeOf(p);
                 break;
             }
@@ -220,17 +223,37 @@ public class SimulationService {
     }
 
     private List<?> safeFetchHistory(String symbol, AssetType assetType) {
+        return safeFetchHistory(symbol, assetType, null);
+    }
+
+    private List<?> safeFetchHistory(String symbol, AssetType assetType, LocalDate investmentDate) {
         try {
             // TR-altın, currency, crypto, vb. — özel strateji'ler ChartDataStrategy implementasyonlarında.
             // TurkishGoldChartStrategy GRAM_ALTIN/CEYREK_ALTIN/TAM_ALTIN... için GC=F × USDTRY synthesizer'ı koşturur.
             // FUND → AssetType enum adı "FUND" ama FundChartStrategy "TR_FUND" bekliyor; burada eşleştirilir.
             String chartCategory = assetType == AssetType.FUND ? "TR_FUND" : assetType.name();
+            String range = rangeFor(investmentDate);
             return marketChartService.getHistoricalDataWithEvdsFallback(
-                    symbol, chartCategory, "max", "1d", null, null, 0);
+                    symbol, chartCategory, range, "1d", null, null, 0);
         } catch (Exception e) {
             log.warn("[SIM] {} için historical fetch başarısız: {}", symbol, e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Yatırım tarihinden bugüne kadar geçen gün sayısına göre günlük bar garantisi olan Yahoo range seçer.
+     * Yahoo Finance "max" range çok eski hisseler için monthly bar döndürebilir; "10y" ve altı daily'dir.
+     * investmentDate null ise (getEarliestAvailableDate) "max" kullanılır.
+     */
+    private static String rangeFor(LocalDate from) {
+        if (from == null) return "max";
+        long days = ChronoUnit.DAYS.between(from, LocalDate.now());
+        if (days <= 365) return "1y";
+        if (days <= 730) return "2y";
+        if (days <= 1825) return "5y";
+        if (days <= 3650) return "10y";
+        return "max";
     }
 
     /**
