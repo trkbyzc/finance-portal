@@ -77,8 +77,10 @@ export default function Step2AssetList({ selectedType, onSelect, onBack, fetchin
                                 className="w-full p-3 bg-bg hover:bg-surface-hover border border-border hover:border-primary rounded-lg transition text-left flex justify-between items-center disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <div className="flex-1">
-                                    <div className="font-semibold">{symbol}</div>
-                                    <div className="text-sm text-text-muted">{name}</div>
+                                    <div className="font-semibold">{name || symbol}</div>
+                                    {name && name !== symbol && (
+                                        <div className="text-sm text-text-muted">{symbol}</div>
+                                    )}
                                 </div>
                                 <div className="text-right">
                                     {isFund && !hasPriceData ? (
