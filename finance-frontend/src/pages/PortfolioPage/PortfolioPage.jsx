@@ -129,12 +129,18 @@ const PortfolioPage = () => {
 
     // Her varlık (symbol) için KENDİ en eski BUY tarihinin enflasyon faktörü → { 'THYAO.IS': 4.19, ... }.
     // Reel K/Z'yi varlık bazında düzeltir; üst kartlardaki ortalama da bundan türetilir.
+    // Silinmiş portfolio item'lardan kalan orphan transaction'ların çok eski tarihleri faktörü
+    // şişirmesin diye 3 yıldan eski BUY işlemleri kapsam dışında tutulur.
     const inflationFactorBySymbol = useMemo(() => {
         const txs = txPage?.content || (Array.isArray(txPage) ? txPage : []);
         if (!cpiSorted.length || !txs.length) return null;
+        const cutoff = new Date();
+        cutoff.setFullYear(cutoff.getFullYear() - 3);
+        const cutoffStr = cutoff.toISOString().slice(0, 10);
         const earliestBySymbol = {};
         for (const tx of txs) {
             if (tx.side !== 'BUY' || !tx.executedAt || !tx.symbol) continue;
+            if (tx.executedAt < cutoffStr) continue;
             const cur = earliestBySymbol[tx.symbol];
             if (!cur || tx.executedAt < cur) earliestBySymbol[tx.symbol] = tx.executedAt;
         }
