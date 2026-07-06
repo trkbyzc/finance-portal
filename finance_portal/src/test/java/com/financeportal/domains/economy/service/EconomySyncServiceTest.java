@@ -41,6 +41,7 @@ class EconomySyncServiceTest {
     @BeforeEach
     void setUp() {
         org.springframework.test.util.ReflectionTestUtils.setField(service, "objectMapper", new ObjectMapper());
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "cpiSeriesCode", "TP.TUKFIY2025.GENEL");
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
     }
 

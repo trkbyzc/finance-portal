@@ -14,6 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Supplier;
@@ -48,6 +51,12 @@ class CommodityServiceTest {
 
     @InjectMocks
     private CommodityService service;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "commoditySymbols",
+            new String[]{"GC=F","SI=F","PL=F","PA=F","CL=F","BZ=F","NG=F","HG=F","ZW=F","ZC=F","KC=F","CC=F","CT=F"});
+    }
 
     // -------- getCommodities (cache delegation) --------
 

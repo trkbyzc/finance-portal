@@ -50,6 +50,13 @@ class StockServiceTest {
     @org.junit.jupiter.api.BeforeEach
     void stubLogos() {
         when(logoClient.usLogos(any())).thenReturn(java.util.Map.of());
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "globalStockSymbols",
+            new String[]{"AAPL","MSFT","NVDA","TSLA","AMZN","GOOGL","META","NFLX","AMD","INTC",
+                         "BABA","JPM","V","WMT","JNJ","PG","MA","HD","TSM","ASML",
+                         "AVGO","QCOM","TXN","AMAT","MU","LRCX","KLAC","ADBE","CRM","ORCL"});
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "indexSymbols",
+            new String[]{"XU100.IS","XU030.IS","XU050.IS","XBANK.IS","XUSIN.IS",
+                         "^GSPC","^IXIC","^NDX","^DJI","BITW"});
     }
 
     @SuppressWarnings("unchecked")

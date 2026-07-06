@@ -13,6 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -38,6 +41,12 @@ class FutureServiceTest {
 
     @InjectMocks
     private FutureService service;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "futureSymbols",
+            new String[]{"ES=F","NQ=F","YM=F","RTY=F","ZN=F","ZB=F","ZF=F","6E=F","6B=F","6J=F"});
+    }
 
     // -------- getFutures (cache delegation) --------
 
