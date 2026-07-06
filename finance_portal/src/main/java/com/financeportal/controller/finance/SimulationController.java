@@ -1,5 +1,7 @@
 package com.financeportal.controller.finance;
 
+import com.financeportal.model.dto.common.MessageResponseDto;
+import com.financeportal.model.dto.simulation.EarliestDateResponseDto;
 import com.financeportal.model.dto.simulation.SimulationCreateRequestDto;
 import com.financeportal.model.dto.simulation.SimulationDto;
 import com.financeportal.model.dto.simulation.SimulationResultDto;
@@ -13,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -50,23 +50,23 @@ public class SimulationController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Simülasyon sil",
             description = "Belirtilen senaryoyu kaldırır. Sadece sahibi silebilir; başka kullanıcının kaydı 404 döner.")
-    public ResponseEntity<Map<String, String>> delete(@PathVariable UUID id) {
+    public ResponseEntity<MessageResponseDto> delete(@PathVariable UUID id) {
         simulationService.delete(id);
-        return ResponseEntity.ok(Map.of("message", "Simülasyon silindi."));
+        return ResponseEntity.ok(MessageResponseDto.of("Simülasyon silindi."));
     }
 
     @GetMapping("/earliest-date")
     @Operation(summary = "En erken seçilebilir tarih",
             description = "Verilen varlık için historical veride mevcut olan en eski tarihi döner. Frontend date input'un min'i için kullanır.")
-    public ResponseEntity<Map<String, Object>> earliestDate(
+    public ResponseEntity<EarliestDateResponseDto> earliestDate(
             @RequestParam String symbol,
             @RequestParam AssetType assetType
     ) {
         LocalDate earliest = simulationService.getEarliestAvailableDate(symbol, assetType);
-        Map<String, Object> body = new HashMap<>();
-        body.put("symbol", symbol);
-        body.put("assetType", assetType);
-        body.put("earliestDate", earliest);
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(EarliestDateResponseDto.builder()
+                .symbol(symbol)
+                .assetType(assetType)
+                .earliestDate(earliest)
+                .build());
     }
 }

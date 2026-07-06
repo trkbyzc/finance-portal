@@ -10,6 +10,7 @@ import com.financeportal.domains.viop.service.ViopService;
 import com.financeportal.domains.currency.service.CurrencyService;
 import com.financeportal.domains.crypto.service.CryptoService;
 import com.financeportal.domains.commodity.service.CommodityService;
+import com.financeportal.model.dto.market.MarketDataResponseDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,9 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/market-data")
@@ -42,24 +40,21 @@ public class MarketDataController {
 
     @GetMapping("/all")
     @Operation(summary = "Tüm Piyasa Verilerini Tek Seferde Getir")
-    public ResponseEntity<Map<String, Object>> getAllMarketData() {
-        Map<String, Object> responseMap = new HashMap<>();
-
-        responseMap.put("currencies", currencyService.getCurrencyRates());
-        responseMap.put("cryptos", cryptoService.getCryptoRates());
-        responseMap.put("commodities", commodityService.getCommodities());
-        responseMap.put("turkish_gold", commodityService.getTurkishGold());
-
-        responseMap.put("stocks", stockService.getStocks());
-        responseMap.put("indices", stockService.getIndices());
-        responseMap.put("global_bonds", bondService.getGlobalBonds());
-        responseMap.put("tr_bonds", turkishBondService.getTurkishBonds());
-        responseMap.put("futures", futureService.getFutures());
-        responseMap.put("viop", viopService.getViopData());
-        responseMap.put("global_funds", fundService.getGlobalFunds());
-        responseMap.put("tr_funds", fundService.getTrFunds());
-        responseMap.put("eurobonds", eurobondService.getEurobondList());
-
-        return ResponseEntity.ok(responseMap);
+    public ResponseEntity<MarketDataResponseDto> getAllMarketData() {
+        return ResponseEntity.ok(MarketDataResponseDto.builder()
+                .currencies(currencyService.getCurrencyRates())
+                .cryptos(cryptoService.getCryptoRates())
+                .commodities(commodityService.getCommodities())
+                .turkishGold(commodityService.getTurkishGold())
+                .stocks(stockService.getStocks())
+                .indices(stockService.getIndices())
+                .globalBonds(bondService.getGlobalBonds())
+                .trBonds(turkishBondService.getTurkishBonds())
+                .futures(futureService.getFutures())
+                .viop(viopService.getViopData())
+                .globalFunds(fundService.getGlobalFunds())
+                .trFunds(fundService.getTrFunds())
+                .eurobonds(eurobondService.getEurobondList())
+                .build());
     }
 }

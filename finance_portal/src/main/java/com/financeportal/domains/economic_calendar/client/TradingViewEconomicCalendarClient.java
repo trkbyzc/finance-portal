@@ -45,8 +45,9 @@ public class TradingViewEconomicCalendarClient implements EconomicCalendarClient
     @Value("${external-api.tradingview.calendar-url:https://economic-calendar.tradingview.com/events}")
     private String calendarUrl;
 
-    // Sync penceresinde çekilecek ülkeler: TR + başlıca ekonomiler (frontend filtre çipleri bunların alt kümesi).
-    private static final String COUNTRIES = "TR,US,EU,GB,JP,DE,FR,CN,CA,AU,CH,IT,ES,IN,BR,KR,RU,MX,SA,ZA";
+    @Value("${app.calendar.countries}")
+    private String countries;
+
     private static final ZoneId TR_ZONE = ZoneId.of("Europe/Istanbul");
 
     public TradingViewEconomicCalendarClient(RestTemplate restTemplate) {
@@ -58,7 +59,7 @@ public class TradingViewEconomicCalendarClient implements EconomicCalendarClient
         List<EconomicEventDto> out = new ArrayList<>();
         try {
             String url = String.format("%s?from=%sT00:00:00.000Z&to=%sT00:00:00.000Z&countries=%s",
-                    calendarUrl, from, to, COUNTRIES);
+                    calendarUrl, from, to, countries);
             HttpHeaders headers = new HttpHeaders();
             headers.set("Origin", "https://www.tradingview.com"); // ZORUNLU — yoksa 403
             headers.set("User-Agent",

@@ -10,6 +10,7 @@ import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,7 +30,8 @@ public class CommodityService {
     private final CacheService cacheService;
     private final TradingViewLogoClient logoClient;
 
-    private static final String[] COMMODITY_SYMBOLS = { "GC=F", "SI=F", "PL=F", "PA=F", "CL=F", "BZ=F", "NG=F", "HG=F", "ZW=F", "ZC=F", "KC=F", "CC=F", "CT=F" };
+    @Value("${app.market.commodity-symbols}")
+    private String[] commoditySymbols;
 
     // Yahoo vadeli isimleri ("Gold Aug 25") yerine temiz Türkçe isimler; değerli metaller "(ONS)" etiketli.
     private static final Map<String, String> COMMODITY_NAMES = Map.ofEntries(
@@ -50,7 +52,7 @@ public class CommodityService {
 
     public List<CommodityDto> getCommodities() {
         return cacheService.getOrFetch("cache:commodities", () -> {
-            List<MarketAssetDto> rawAssets = yahooFinanceClient.fetchQuotes(COMMODITY_SYMBOLS, "EMTİA");
+            List<MarketAssetDto> rawAssets = yahooFinanceClient.fetchQuotes(commoditySymbols, "EMTİA");
             return rawAssets.stream().map(this::mapToCommodity).toList();
         }, 5);
     }

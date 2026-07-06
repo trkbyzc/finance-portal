@@ -35,7 +35,9 @@ public class EconomySyncService {
     private final BootstrapReadinessTracker bootstrapTracker;
 
     private static final String TASK_NAME = "Economy";
-    private static final String CPI_SERIES_CODE = "TP.TUKFIY2025.GENEL";
+
+    @Value("${app.economy.cpi-series-code}")
+    private String cpiSeriesCode;
 
     @Value("${app.ttl.economy-sec:86400}")
     private long economyTtlSec = 86400;
@@ -57,7 +59,7 @@ public class EconomySyncService {
         // Daha uzun politika faizi tarihçesi için doğru EVDS kodu tespit edilmeli.
         Double interest = extractLatest(evdsClient.fetchSeries(List.of("TP.APIFON4"), today.minusDays(180), today, null), "TP.APIFON4");
         Double unemployment = extractLatest(evdsClient.fetchSeries(List.of("TP.YISGUCU2.G8"), today.minusDays(365), today, null), "TP.YISGUCU2.G8");
-        Double inflation = extractLatest(evdsClient.fetchSeries(List.of(CPI_SERIES_CODE), today.minusDays(365), today, "3"), CPI_SERIES_CODE);
+        Double inflation = extractLatest(evdsClient.fetchSeries(List.of(cpiSeriesCode), today.minusDays(365), today, "3"), cpiSeriesCode);
 
         macroData.put("interestRate", interest != null ? interest : 50.00);
         macroData.put("unemploymentRate", unemployment != null ? unemployment : 8.70);
@@ -74,7 +76,7 @@ public class EconomySyncService {
             saveHistory(ind.code(), ind.key(), tenYearsAgo, today, ind.formula(), ind.frequency());
         }
         // Cumulative CPI endeks (formula=null/0): varlık-enflasyon overlay'i için baz değer (ayrı key)
-        saveHistory(CPI_SERIES_CODE, "cumulativeInflationRate", tenYearsAgo, today, null, null);
+        saveHistory(cpiSeriesCode, "cumulativeInflationRate", tenYearsAgo, today, null, null);
         } finally {
             bootstrapTracker.markComplete(TASK_NAME);
         }

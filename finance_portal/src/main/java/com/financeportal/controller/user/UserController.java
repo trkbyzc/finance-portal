@@ -1,6 +1,9 @@
 package com.financeportal.controller.user;
 
+import com.financeportal.model.dto.common.EnabledResponseDto;
+import com.financeportal.model.dto.common.MessageResponseDto;
 import com.financeportal.model.dto.user.ChangePasswordRequestDto;
+import com.financeportal.model.dto.user.Toggle2FAResponseDto;
 import com.financeportal.model.dto.user.UserResponseDto;
 import com.financeportal.service.auth.KeycloakAdminService;
 import com.financeportal.service.user.UserService;
@@ -12,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -43,16 +45,16 @@ public class UserController {
     @GetMapping("/me/2fa")
     @Operation(summary = "2FA Durumum",
             description = "Kullanıcının Keycloak'ta kayıtlı OTP credential'ı var mı kontrol eder.")
-    public ResponseEntity<Map<String, Boolean>> get2FAStatus() {
+    public ResponseEntity<EnabledResponseDto> get2FAStatus() {
         UUID userId = securityUtils.getCurrentUserId();
         boolean enabled = keycloakAdminService.is2FAEnabled(userId.toString());
-        return ResponseEntity.ok(Map.of("enabled", enabled));
+        return ResponseEntity.ok(EnabledResponseDto.of(enabled));
     }
 
     @PutMapping("/me/2fa")
     @Operation(summary = "2FA Aç/Kapat",
             description = "Tercihler sayfasından çağrılır. enabled=true → bir sonraki login'de CONFIGURE_TOTP istenir; false → mevcut OTP credential'ları silinir.")
-    public ResponseEntity<Map<String, Object>> toggle2FA(@RequestParam boolean enabled) {
+    public ResponseEntity<Toggle2FAResponseDto> toggle2FA(@RequestParam boolean enabled) {
         UUID userId = securityUtils.getCurrentUserId();
         if (enabled) {
             keycloakAdminService.enable2FA(userId.toString());
@@ -60,36 +62,36 @@ public class UserController {
             keycloakAdminService.disable2FA(userId.toString());
         }
         boolean nowEnabled = keycloakAdminService.is2FAEnabled(userId.toString());
-        return ResponseEntity.ok(Map.of(
-                "enabled", nowEnabled,
-                "message", enabled
+        return ResponseEntity.ok(Toggle2FAResponseDto.builder()
+                .enabled(nowEnabled)
+                .message(enabled
                         ? "2FA bir sonraki girişte kurulması istenecek."
-                        : "2FA devre dışı bırakıldı."
-        ));
+                        : "2FA devre dışı bırakıldı.")
+                .build());
     }
 
     @GetMapping("/me/email-notifications")
     @Operation(summary = "E-posta Bildirim Durumum")
-    public ResponseEntity<Map<String, Boolean>> getEmailNotifications() {
+    public ResponseEntity<EnabledResponseDto> getEmailNotifications() {
         UUID userId = securityUtils.getCurrentUserId();
         boolean enabled = userService.isEmailNotificationsEnabled(userId);
-        return ResponseEntity.ok(Map.of("enabled", enabled));
+        return ResponseEntity.ok(EnabledResponseDto.of(enabled));
     }
 
     @PutMapping("/me/email-notifications")
     @Operation(summary = "E-posta Bildirimini Aç/Kapat")
-    public ResponseEntity<Map<String, Boolean>> setEmailNotifications(@RequestParam boolean enabled) {
+    public ResponseEntity<EnabledResponseDto> setEmailNotifications(@RequestParam boolean enabled) {
         UUID userId = securityUtils.getCurrentUserId();
         userService.setEmailNotificationsEnabled(userId, enabled);
-        return ResponseEntity.ok(Map.of("enabled", enabled));
+        return ResponseEntity.ok(EnabledResponseDto.of(enabled));
     }
 
     @PostMapping("/me/password")
     @Operation(summary = "Şifremi Değiştir",
             description = "Mevcut şifre doğrulanır, doğruysa yeni şifre Keycloak'ta set edilir.")
-    public ResponseEntity<Map<String, String>> changePassword(@RequestBody ChangePasswordRequestDto req) {
+    public ResponseEntity<MessageResponseDto> changePassword(@RequestBody ChangePasswordRequestDto req) {
         UUID userId = securityUtils.getCurrentUserId();
         userService.changePassword(userId, req.getOldPassword(), req.getNewPassword());
-        return ResponseEntity.ok(Map.of("message", "Şifre güncellendi."));
+        return ResponseEntity.ok(MessageResponseDto.of("Şifre güncellendi."));
     }
 }

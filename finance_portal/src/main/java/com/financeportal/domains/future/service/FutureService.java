@@ -31,11 +31,8 @@ public class FutureService {
      *   - Döviz Vadelileri:     6E (EUR/USD), 6B (GBP/USD), 6J (JPY/USD)
      * 5 dakika cache; PortfolioPriceService fallback chain'inden de çağrılıyor.
      */
-    private static final String[] FUTURE_SYMBOLS = {
-            "ES=F", "NQ=F", "YM=F", "RTY=F",
-            "ZN=F", "ZB=F", "ZF=F",
-            "6E=F", "6B=F", "6J=F"
-    };
+    @Value("${app.market.future-symbols}")
+    private String[] futureSymbols;
 
     // Key versiyonlama: Redis'teki eski payload geçersiz kılınmadan yeni sembol seti yayınlanır — code-driven invalidation.
     private static final String CACHE_KEY = "cache:futures:v2";
@@ -68,7 +65,7 @@ public class FutureService {
     }
 
     private List<FutureDto> fetchFromYahoo() {
-        List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(FUTURE_SYMBOLS, "GLOBAL VADELİ İŞLEM");
+        List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(futureSymbols, "GLOBAL VADELİ İŞLEM");
         return raw.stream().map(this::mapToDto).toList();
     }
 

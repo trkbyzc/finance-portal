@@ -7,6 +7,7 @@ import com.financeportal.service.cache.CacheService;
 import com.financeportal.client.yahoo.YahooQuoteClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +25,13 @@ public class CommoditySyncService {
     // Aksi halde burada ham Yahoo ismi yazılıp cache 5dk'da bir eski haline dönüyordu.
     private final CommodityService commodityService;
 
-    private static final String[] COMMODITY_SYMBOLS = { "GC=F", "SI=F", "PL=F", "PA=F", "CL=F", "BZ=F", "NG=F", "HG=F", "ZW=F", "ZC=F", "KC=F", "CC=F", "CT=F" };
+    @Value("${app.market.commodity-symbols}")
+    private String[] commoditySymbols;
 
     // Her 5 dakikada bir Yahoo Finance'tan emtia fiyatlarını çekip cache'e yazar.
     @Scheduled(fixedRateString = "${app.sync.commodity-rate-ms:300000}")
     public void fetchCommodities() {
-        List<MarketAssetDto> rawList = yahooFinanceClient.fetchQuotes(COMMODITY_SYMBOLS, "EMTİA");
+        List<MarketAssetDto> rawList = yahooFinanceClient.fetchQuotes(commoditySymbols, "EMTİA");
         if (rawList != null && !rawList.isEmpty()) {
             List<CommodityDto> list = rawList.stream().map(commodityService::mapToCommodity).toList();
             cacheService.save("cache:commodities", list, 5);

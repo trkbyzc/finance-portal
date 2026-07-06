@@ -26,16 +26,8 @@ public class StockService {
     private final CacheService cacheService;
     private final TradingViewLogoClient logoClient;
 
-    private final String[] GLOBAL_STOCK_SYMBOLS = {
-            // Mevcut çekirdek (mega-cap + bilinen marka)
-            "AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL", "META", "NFLX", "AMD", "INTC",
-            "BABA", "JPM", "V", "WMT", "JNJ", "PG", "MA", "HD",
-            // Yeni: Nasdaq tech ağırlıklı — yarı iletken + yazılım/cloud
-            // Yarı iletken: TSM, ASML, AVGO, QCOM, TXN, AMAT, MU, LRCX, KLAC
-            // Yazılım/Cloud:  ADBE, CRM, ORCL
-            "TSM", "ASML", "AVGO", "QCOM", "TXN", "AMAT", "MU", "LRCX", "KLAC",
-            "ADBE", "CRM", "ORCL"
-    };
+    @Value("${app.market.global-stock-symbols}")
+    private String[] globalStockSymbols;
 
     public List<StockDto> getStocks() {
         return cacheService.getOrFetch("cache:stocks", this::fetchAndCombineStocks, 5);
@@ -54,15 +46,12 @@ public class StockService {
      * {@link com.financeportal.domains.chart.strategy.impl.YahooDefaultChartStrategy}
      * tarafından yakalanır.
      */
-    private static final String[] INDEX_SYMBOLS = {
-            "XU100.IS", "XU030.IS", "XU050.IS", "XBANK.IS", "XUSIN.IS",
-            "^GSPC", "^IXIC", "^NDX", "^DJI",
-            "BITW"
-    };
+    @Value("${app.market.index-symbols}")
+    private String[] indexSymbols;
 
     public List<StockDto> getIndices() {
         return cacheService.getOrFetch("cache:indices", () -> {
-            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(INDEX_SYMBOLS, "ENDEKS");
+            List<MarketAssetDto> raw = yahooFinanceClient.fetchQuotes(indexSymbols, "ENDEKS");
             return raw.stream().map(this::mapToStockDto).toList();
         }, 5);
     }
@@ -88,9 +77,9 @@ public class StockService {
             }
         }
 
-        List<MarketAssetDto> globalRaw = yahooFinanceClient.fetchQuotes(GLOBAL_STOCK_SYMBOLS, "HİSSE SENEDİ (YABANCI)");
+        List<MarketAssetDto> globalRaw = yahooFinanceClient.fetchQuotes(globalStockSymbols, "HİSSE SENEDİ (YABANCI)");
         if (globalRaw != null) {
-            Map<String, String> usLogos = logoClient.usLogos(List.of(GLOBAL_STOCK_SYMBOLS));
+            Map<String, String> usLogos = logoClient.usLogos(List.of(globalStockSymbols));
             allStocks.addAll(globalRaw.stream().map(m -> {
                 StockDto s = mapToStockDto(m);
                 s.setImage(usLogos.get(s.getSymbol()));

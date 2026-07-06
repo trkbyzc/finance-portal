@@ -3,6 +3,7 @@ package com.financeportal.domains.news.service;
 import com.financeportal.domains.news.client.NewsScraperClient;
 import com.financeportal.domains.news.client.TranslationClient;
 import com.financeportal.domains.news.dto.NewsDto;
+import com.financeportal.domains.news.dto.NewsPageResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +34,7 @@ public class NewsService {
     private static final String CATEGORY_ALL_EN = "All";
 
     /** Aktif dile göre haberleri filtreler. EN talep edildiğinde DTO clone'unda title/description/category EN'e swap'lanır. */
-    public Map<String, Object> getPagedNews(String category, int page, int size, String lang) {
+    public NewsPageResponseDto getPagedNews(String category, int page, int size, String lang) {
         long startTime = System.currentTimeMillis();
 
         List<NewsDto> allNews = newsSyncService.getCachedNews();
@@ -55,14 +56,14 @@ public class NewsService {
         log.debug("[NEWS_SERVICE] Served {} news items for category '{}' lang={} (Page: {}) in {} ms.",
                 content.size(), category, lang, page, (System.currentTimeMillis() - startTime));
 
-        return Map.of(
-                "content", content,
-                "hasNext", end < filtered.size()
-        );
+        return NewsPageResponseDto.builder()
+                .content(content)
+                .hasNext(end < filtered.size())
+                .build();
     }
 
     /** Geriye dönük: lang vermeden çağrılırsa TR davranışı. */
-    public Map<String, Object> getPagedNews(String category, int page, int size) {
+    public NewsPageResponseDto getPagedNews(String category, int page, int size) {
         return getPagedNews(category, page, size, "tr");
     }
 
