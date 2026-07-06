@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 public class IsYatirimFundamentalsClient {
 
     @Value("${external-api.isyatirim.fundamentals-url}")
-    private String isYatirimFundamentalsUrl = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx";
+    private String isYatirimFundamentalsUrl = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?endeks=09";
 
     @Value("${app.sync.isyatirim-fundamentals-refresh-ms:1800000}")
     private long refreshMs = 1_800_000;

@@ -282,6 +282,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
       LINGVA_URL: http://lingva:3000
+      ISYATIRIM_FUNDAMENTALS_URL: "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?endeks=09"
       # Keycloak issuer: browser ile aynı (token iss claim match için)
       KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/finance-realm
       # JWK Set: backend container içinden keycloak'a internal DNS ile
@@ -360,6 +361,20 @@ services:
   # Sadece istenince:  docker compose --profile sonar up -d sonarqube
   # İlk giriş: admin / admin → şifre değiştir → My Account > Security > token üret
   # Dokümantasyon: docs/sonar.md
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: finance-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
   sonarqube:
     image: sonarqube:community
     container_name: finance-sonarqube
@@ -386,3 +401,4 @@ volumes:
   tempo_data:
   prometheus_data:
   grafana_data:
+  pgadmin_data:

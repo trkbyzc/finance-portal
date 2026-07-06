@@ -201,7 +201,7 @@ external-api:
   feargreed:
     url: ${FEAR_GREED_URL:https://api.alternative.me/fng/?limit=0&format=json}
   isyatirim:
-    fundamentals-url: ${ISYATIRIM_FUNDAMENTALS_URL:https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx}
+    fundamentals-url: ${ISYATIRIM_FUNDAMENTALS_URL:https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?endeks=09}
     index-base-url: ${ISYATIRIM_INDEX_BASE_URL:https://www.isyatirim.com.tr}
   tradingview-logo:
     base-url: ${TRADINGVIEW_LOGO_BASE_URL:https://s3-symbol-logo.tradingview.com/}
