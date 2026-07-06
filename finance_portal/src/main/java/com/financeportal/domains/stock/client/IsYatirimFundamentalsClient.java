@@ -31,12 +31,11 @@ import java.util.regex.Pattern;
 public class IsYatirimFundamentalsClient {
 
     @Value("${external-api.isyatirim.fundamentals-url}")
-    private String isYatirimFundamentalsUrl = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?endeks=09";
+    private String isYatirimFundamentalsUrl = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/Temel-Degerler-Ve-Oranlar.aspx?endeks=09";
 
     @Value("${app.sync.isyatirim-fundamentals-refresh-ms:1800000}")
     private long refreshMs = 1_800_000;
 
-    private static final Pattern TBODY = Pattern.compile("id=\"temelTBody_Ozet\"[^>]*>(.*?)</tbody>", Pattern.DOTALL);
     private static final Pattern ROW = Pattern.compile("<tr[^>]*>(.*?)</tr>", Pattern.DOTALL);
     private static final Pattern CELL = Pattern.compile("<td[^>]*>(.*?)</td>", Pattern.DOTALL);
     private static final Pattern KOD = Pattern.compile("hisse=([A-Z0-9]{2,8})");
@@ -69,11 +68,8 @@ public class IsYatirimFundamentalsClient {
             String body = res.getBody();
             if (body == null || body.isEmpty()) return;
 
-            Matcher tb = TBODY.matcher(body);
-            if (!tb.find()) { log.warn("[ISY-FUND] temelTBody_Ozet bulunamadı"); return; }
-
             Map<String, Fundamentals> parsed = new HashMap<>();
-            Matcher rows = ROW.matcher(tb.group(1));
+            Matcher rows = ROW.matcher(body);
             while (rows.find()) {
                 String row = rows.group(1);
                 Matcher km = KOD.matcher(row);
