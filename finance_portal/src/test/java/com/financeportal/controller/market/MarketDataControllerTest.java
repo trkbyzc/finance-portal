@@ -10,6 +10,7 @@ import com.financeportal.domains.future.service.FutureService;
 import com.financeportal.domains.stock.service.StockService;
 import com.financeportal.domains.turkish_bond.service.TurkishBondService;
 import com.financeportal.domains.viop.service.ViopService;
+import com.financeportal.model.dto.market.MarketDataResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -56,22 +56,23 @@ class MarketDataControllerTest {
         when(fundService.getTrFunds()).thenReturn(List.of());
         when(eurobondService.getEurobondList()).thenReturn(List.of());
 
-        ResponseEntity<Map<String, Object>> resp = controller.getAllMarketData();
+        ResponseEntity<MarketDataResponseDto> resp = controller.getAllMarketData();
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        Map<String, Object> body = resp.getBody();
-        assertTrue(body.containsKey("currencies"));
-        assertTrue(body.containsKey("cryptos"));
-        assertTrue(body.containsKey("commodities"));
-        assertTrue(body.containsKey("turkish_gold"));
-        assertTrue(body.containsKey("stocks"));
-        assertTrue(body.containsKey("indices"));
-        assertTrue(body.containsKey("global_bonds"));
-        assertTrue(body.containsKey("tr_bonds"));
-        assertTrue(body.containsKey("futures"));
-        assertTrue(body.containsKey("viop"));
-        assertTrue(body.containsKey("global_funds"));
-        assertTrue(body.containsKey("tr_funds"));
-        assertTrue(body.containsKey("eurobonds"));
+        MarketDataResponseDto body = resp.getBody();
+        assertNotNull(body);
+        assertNotNull(body.getCurrencies());
+        assertNotNull(body.getCryptos());
+        assertNotNull(body.getCommodities());
+        assertNotNull(body.getTurkishGold());
+        assertNotNull(body.getStocks());
+        assertNotNull(body.getIndices());
+        assertNotNull(body.getGlobalBonds());
+        assertNotNull(body.getTrBonds());
+        assertNotNull(body.getFutures());
+        assertNotNull(body.getViop());
+        assertNotNull(body.getGlobalFunds());
+        assertNotNull(body.getTrFunds());
+        assertNotNull(body.getEurobonds());
     }
 }

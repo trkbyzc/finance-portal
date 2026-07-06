@@ -1,5 +1,8 @@
 package com.financeportal.controller.user;
 
+import com.financeportal.model.dto.common.MessageResponseDto;
+import com.financeportal.model.dto.user.AdminActionResponseDto;
+import com.financeportal.model.dto.user.DeleteUserResponseDto;
 import com.financeportal.model.dto.user.UserDto;
 import com.financeportal.service.user.AdminService;
 import org.junit.jupiter.api.Test;
@@ -13,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,30 +53,30 @@ class AdminControllerTest {
     @Test
     void banUser_callsServiceAndReturnsMessage() {
         UUID id = UUID.randomUUID();
-        ResponseEntity<Map<String, String>> resp = controller.banUser(id, 7);
+        ResponseEntity<MessageResponseDto> resp = controller.banUser(id, 7);
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertTrue(resp.getBody().get("message").contains("7"));
+        assertTrue(resp.getBody().getMessage().contains("7"));
         verify(adminService).banUser(id, 7);
     }
 
     @Test
     void banPermanent_callsServiceAndReturnsMessage() {
         UUID id = UUID.randomUUID();
-        ResponseEntity<Map<String, String>> resp = controller.banPermanent(id);
+        ResponseEntity<MessageResponseDto> resp = controller.banPermanent(id);
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertTrue(resp.getBody().get("message").contains("kalıcı"));
+        assertTrue(resp.getBody().getMessage().contains("kalıcı"));
         verify(adminService).banPermanent(id);
     }
 
     @Test
     void unbanUser_callsServiceAndReturnsMessage() {
         UUID id = UUID.randomUUID();
-        ResponseEntity<Map<String, String>> resp = controller.unbanUser(id);
+        ResponseEntity<MessageResponseDto> resp = controller.unbanUser(id);
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertTrue(resp.getBody().get("message").contains("banı kaldırıldı"));
+        assertTrue(resp.getBody().getMessage().contains("banı kaldırıldı"));
         verify(adminService).unbanUser(id);
     }
 
@@ -83,10 +85,10 @@ class AdminControllerTest {
         UUID id = UUID.randomUUID();
         when(adminService.logoutAllSessions(id)).thenReturn(true);
 
-        ResponseEntity<Map<String, Object>> resp = controller.logoutAll(id);
+        ResponseEntity<AdminActionResponseDto> resp = controller.logoutAll(id);
 
-        assertEquals(Boolean.TRUE, resp.getBody().get("success"));
-        assertTrue(((String) resp.getBody().get("message")).contains("oturumlar kapatıldı"));
+        assertTrue(resp.getBody().isSuccess());
+        assertTrue(resp.getBody().getMessage().contains("oturumlar kapatıldı"));
     }
 
     @Test
@@ -94,10 +96,10 @@ class AdminControllerTest {
         UUID id = UUID.randomUUID();
         when(adminService.logoutAllSessions(id)).thenReturn(false);
 
-        ResponseEntity<Map<String, Object>> resp = controller.logoutAll(id);
+        ResponseEntity<AdminActionResponseDto> resp = controller.logoutAll(id);
 
-        assertEquals(Boolean.FALSE, resp.getBody().get("success"));
-        assertTrue(((String) resp.getBody().get("message")).contains("kapatılamadı"));
+        assertFalse(resp.getBody().isSuccess());
+        assertTrue(resp.getBody().getMessage().contains("kapatılamadı"));
     }
 
     @Test
@@ -105,11 +107,11 @@ class AdminControllerTest {
         UUID id = UUID.randomUUID();
         when(adminService.deleteUser(id)).thenReturn(new AdminService.DeleteResult(true, true, "bob"));
 
-        ResponseEntity<Map<String, Object>> resp = controller.deleteUser(id);
+        ResponseEntity<DeleteUserResponseDto> resp = controller.deleteUser(id);
 
-        assertEquals(Boolean.TRUE, resp.getBody().get("success"));
-        assertEquals(Boolean.TRUE, resp.getBody().get("keycloakDeleted"));
-        assertTrue(((String) resp.getBody().get("message")).contains("hem Keycloak'tan hem DB'den"));
+        assertTrue(resp.getBody().isSuccess());
+        assertTrue(resp.getBody().isKeycloakDeleted());
+        assertTrue(resp.getBody().getMessage().contains("hem Keycloak'tan hem DB'den"));
     }
 
     @Test
@@ -117,9 +119,9 @@ class AdminControllerTest {
         UUID id = UUID.randomUUID();
         when(adminService.deleteUser(id)).thenReturn(new AdminService.DeleteResult(true, false, "ghost"));
 
-        ResponseEntity<Map<String, Object>> resp = controller.deleteUser(id);
+        ResponseEntity<DeleteUserResponseDto> resp = controller.deleteUser(id);
 
-        assertEquals(Boolean.FALSE, resp.getBody().get("keycloakDeleted"));
-        assertTrue(((String) resp.getBody().get("message")).contains("sadece DB'den"));
+        assertFalse(resp.getBody().isKeycloakDeleted());
+        assertTrue(resp.getBody().getMessage().contains("sadece DB'den"));
     }
 }

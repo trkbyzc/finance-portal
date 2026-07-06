@@ -2,6 +2,7 @@ package com.financeportal.domains.news.service;
 
 import com.financeportal.domains.news.client.NewsScraperClient;
 import com.financeportal.domains.news.dto.NewsDto;
+import com.financeportal.domains.news.dto.NewsPageResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,10 +41,10 @@ class NewsServiceTest {
         when(syncService.getCachedNews()).thenReturn(List.of(
                 news("T1", "Kripto"), news("T2", "Borsa"), news("T3", "Genel")));
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 0, 10);
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 0, 10);
 
-        assertEquals(3, ((List<?>) result.get("content")).size());
-        assertFalse((Boolean) result.get("hasNext"));
+        assertEquals(3, result.getContent().size());
+        assertFalse(result.isHasNext());
     }
 
     @Test
@@ -51,9 +52,9 @@ class NewsServiceTest {
         when(syncService.getCachedNews()).thenReturn(List.of(
                 news("T1", "Kripto"), news("T2", "Borsa"), news("T3", "Kripto")));
 
-        Map<String, Object> result = service.getPagedNews("Kripto", 0, 10);
+        NewsPageResponseDto result = service.getPagedNews("Kripto", 0, 10);
 
-        assertEquals(2, ((List<?>) result.get("content")).size());
+        assertEquals(2, result.getContent().size());
     }
 
     @Test
@@ -61,9 +62,9 @@ class NewsServiceTest {
         when(syncService.getCachedNews()).thenReturn(List.of(
                 news("T1", "Kripto"), news("T2", "KRIPTO")));
 
-        Map<String, Object> result = service.getPagedNews("kripto", 0, 10);
+        NewsPageResponseDto result = service.getPagedNews("kripto", 0, 10);
 
-        assertEquals(2, ((List<?>) result.get("content")).size());
+        assertEquals(2, result.getContent().size());
     }
 
     @Test
@@ -72,10 +73,10 @@ class NewsServiceTest {
         for (int i = 0; i < 20; i++) all.add(news("T" + i, "Tümü"));
         when(syncService.getCachedNews()).thenReturn(all);
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 0, 5);
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 0, 5);
 
-        assertEquals(5, ((List<?>) result.get("content")).size());
-        assertTrue((Boolean) result.get("hasNext")); // 20 > 5, more to come
+        assertEquals(5, result.getContent().size());
+        assertTrue(result.isHasNext());
     }
 
     @Test
@@ -84,11 +85,11 @@ class NewsServiceTest {
         for (int i = 0; i < 12; i++) all.add(news("T" + i, "Tümü"));
         when(syncService.getCachedNews()).thenReturn(all);
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 2, 5);
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 2, 5);
 
         // page 2, size 5 → items 10-12 (2 items)
-        assertEquals(2, ((List<?>) result.get("content")).size());
-        assertFalse((Boolean) result.get("hasNext"));
+        assertEquals(2, result.getContent().size());
+        assertFalse(result.isHasNext());
     }
 
     @Test
@@ -96,19 +97,19 @@ class NewsServiceTest {
         when(syncService.getCachedNews()).thenReturn(List.of(
                 news("T1", "Tümü"), news("T2", "Tümü")));
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 10, 5);
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 10, 5);
 
-        assertTrue(((List<?>) result.get("content")).isEmpty());
-        assertFalse((Boolean) result.get("hasNext"));
+        assertTrue(result.getContent().isEmpty());
+        assertFalse(result.isHasNext());
     }
 
     @Test
     void getPagedNews_emptyNewsList_returnsEmpty() {
         when(syncService.getCachedNews()).thenReturn(List.of());
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 0, 10);
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 0, 10);
 
-        assertTrue(((List<?>) result.get("content")).isEmpty());
+        assertTrue(result.getContent().isEmpty());
     }
 
     @Test
@@ -139,11 +140,11 @@ class NewsServiceTest {
         n.setCategoryEn("Stocks");
         when(syncService.getCachedNews()).thenReturn(List.of(n));
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 0, 10, "en");
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 0, 10, "en");
 
-        List<?> content = (List<?>) result.get("content");
+        List<NewsDto> content = result.getContent();
         assertEquals(1, content.size());
-        NewsDto dto = (NewsDto) content.get(0);
+        NewsDto dto = content.get(0);
         assertEquals("Stock market rose", dto.getTitle());
         assertEquals("BIST 100 index hit record", dto.getDescription());
         assertEquals("Stocks", dto.getCategory());
@@ -156,9 +157,9 @@ class NewsServiceTest {
         // titleEn null — fallback original
         when(syncService.getCachedNews()).thenReturn(List.of(n));
 
-        Map<String, Object> result = service.getPagedNews("Tümü", 0, 10, "en");
+        NewsPageResponseDto result = service.getPagedNews("Tümü", 0, 10, "en");
 
-        NewsDto dto = (NewsDto) ((List<?>) result.get("content")).get(0);
+        NewsDto dto = result.getContent().get(0);
         assertEquals("Borsa yükseldi", dto.getTitle());
         assertEquals("desc", dto.getDescription());
         // Category from classifier mapping (Borsa → Stocks) since categoryEn null
@@ -169,8 +170,10 @@ class NewsServiceTest {
     void getPagedNews_en_AllCategoryWorks() {
         when(syncService.getCachedNews()).thenReturn(List.of(
                 news("T1", "Kripto"), news("T2", "Borsa")));
-        Map<String, Object> result = service.getPagedNews("All", 0, 10, "en");
-        assertEquals(2, ((List<?>) result.get("content")).size());
+
+        NewsPageResponseDto result = service.getPagedNews("All", 0, 10, "en");
+
+        assertEquals(2, result.getContent().size());
     }
 
     @Test
@@ -179,9 +182,9 @@ class NewsServiceTest {
         n.setTitleEn("Bitcoin");
         when(syncService.getCachedNews()).thenReturn(List.of(n, news("Borsa", "Borsa")));
 
-        Map<String, Object> result = service.getPagedNews("Crypto", 0, 10, "en");
+        NewsPageResponseDto result = service.getPagedNews("Crypto", 0, 10, "en");
 
-        assertEquals(1, ((List<?>) result.get("content")).size());
+        assertEquals(1, result.getContent().size());
     }
 
     @Test
@@ -212,7 +215,6 @@ class NewsServiceTest {
         org.mockito.Mockito.verify(ops).set(org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.eq("English content"),
                 org.mockito.ArgumentMatchers.any(java.time.Duration.class));
-        // eq() içeren mix korunur — anyString + eq + any olduğu için matcher tutarlılığı gerekli.
     }
 
     @Test

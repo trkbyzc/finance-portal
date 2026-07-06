@@ -1,5 +1,7 @@
 package com.financeportal.controller.user;
 
+import com.financeportal.model.dto.common.EnabledResponseDto;
+import com.financeportal.model.dto.user.Toggle2FAResponseDto;
 import com.financeportal.security.SecurityUtils;
 import com.financeportal.service.auth.KeycloakAdminService;
 import com.financeportal.service.user.UserService;
@@ -12,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,56 +41,56 @@ class UserControllerTest {
     void get2FAStatus_enabled_returnsTrue() {
         when(keycloakAdminService.is2FAEnabled(userId.toString())).thenReturn(true);
 
-        ResponseEntity<Map<String, Boolean>> resp = controller.get2FAStatus();
+        ResponseEntity<EnabledResponseDto> resp = controller.get2FAStatus();
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertEquals(Boolean.TRUE, resp.getBody().get("enabled"));
+        assertTrue(resp.getBody().isEnabled());
     }
 
     @Test
     void get2FAStatus_disabled_returnsFalse() {
         when(keycloakAdminService.is2FAEnabled(userId.toString())).thenReturn(false);
 
-        ResponseEntity<Map<String, Boolean>> resp = controller.get2FAStatus();
+        ResponseEntity<EnabledResponseDto> resp = controller.get2FAStatus();
 
-        assertEquals(Boolean.FALSE, resp.getBody().get("enabled"));
+        assertFalse(resp.getBody().isEnabled());
     }
 
     @Test
     void toggle2FA_enable_callsEnable() {
         when(keycloakAdminService.is2FAEnabled(userId.toString())).thenReturn(false);
 
-        ResponseEntity<Map<String, Object>> resp = controller.toggle2FA(true);
+        ResponseEntity<Toggle2FAResponseDto> resp = controller.toggle2FA(true);
 
         verify(keycloakAdminService).enable2FA(userId.toString());
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertNotNull(resp.getBody().get("message"));
+        assertNotNull(resp.getBody().getMessage());
     }
 
     @Test
     void toggle2FA_disable_callsDisable() {
         when(keycloakAdminService.is2FAEnabled(userId.toString())).thenReturn(false);
 
-        ResponseEntity<Map<String, Object>> resp = controller.toggle2FA(false);
+        ResponseEntity<Toggle2FAResponseDto> resp = controller.toggle2FA(false);
 
         verify(keycloakAdminService).disable2FA(userId.toString());
-        assertEquals(Boolean.FALSE, resp.getBody().get("enabled"));
+        assertFalse(resp.getBody().isEnabled());
     }
 
     @Test
     void getEmailNotifications_returnsServiceFlag() {
         when(userService.isEmailNotificationsEnabled(userId)).thenReturn(true);
 
-        ResponseEntity<Map<String, Boolean>> resp = controller.getEmailNotifications();
+        ResponseEntity<EnabledResponseDto> resp = controller.getEmailNotifications();
 
-        assertEquals(Boolean.TRUE, resp.getBody().get("enabled"));
+        assertTrue(resp.getBody().isEnabled());
     }
 
     @Test
     void setEmailNotifications_passesFlagToService() {
-        ResponseEntity<Map<String, Boolean>> resp = controller.setEmailNotifications(false);
+        ResponseEntity<EnabledResponseDto> resp = controller.setEmailNotifications(false);
 
         verify(userService).setEmailNotificationsEnabled(userId, false);
-        assertEquals(Boolean.FALSE, resp.getBody().get("enabled"));
+        assertFalse(resp.getBody().isEnabled());
     }
 }

@@ -1,5 +1,7 @@
 package com.financeportal.controller.finance;
 
+import com.financeportal.model.dto.common.MessageResponseDto;
+import com.financeportal.model.dto.simulation.EarliestDateResponseDto;
 import com.financeportal.model.dto.simulation.SimulationCreateRequestDto;
 import com.financeportal.model.dto.simulation.SimulationDto;
 import com.financeportal.model.dto.simulation.SimulationResultDto;
@@ -15,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,9 +62,9 @@ class SimulationControllerTest {
     @Test
     void delete_callsServiceAndReturnsMessage() {
         UUID id = UUID.randomUUID();
-        ResponseEntity<Map<String, String>> resp = controller.delete(id);
+        ResponseEntity<MessageResponseDto> resp = controller.delete(id);
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertTrue(resp.getBody().get("message").contains("silindi"));
+        assertTrue(resp.getBody().getMessage().contains("silindi"));
         verify(service).delete(id);
     }
 
@@ -72,10 +73,10 @@ class SimulationControllerTest {
         LocalDate date = LocalDate.of(2024, 1, 1);
         when(service.getEarliestAvailableDate("BTC", AssetType.CRYPTO)).thenReturn(date);
 
-        ResponseEntity<Map<String, Object>> resp = controller.earliestDate("BTC", AssetType.CRYPTO);
+        ResponseEntity<EarliestDateResponseDto> resp = controller.earliestDate("BTC", AssetType.CRYPTO);
 
-        assertEquals("BTC", resp.getBody().get("symbol"));
-        assertEquals(AssetType.CRYPTO, resp.getBody().get("assetType"));
-        assertEquals(date, resp.getBody().get("earliestDate"));
+        assertEquals("BTC", resp.getBody().getSymbol());
+        assertEquals(AssetType.CRYPTO, resp.getBody().getAssetType());
+        assertEquals(date, resp.getBody().getEarliestDate());
     }
 }
