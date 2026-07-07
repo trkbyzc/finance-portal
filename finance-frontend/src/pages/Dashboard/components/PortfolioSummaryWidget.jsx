@@ -11,11 +11,6 @@ import DashboardWidgetCard from './DashboardWidgetCard';
 // Dağılım bar/legend renkleri — tema token'larından döngüsel
 const SLICE_COLORS = ['bg-primary', 'bg-buy', 'bg-warning', 'bg-sell', 'bg-primary/60', 'bg-buy/60'];
 
-const TYPE_LABELS = {
-    STOCK: 'Hisse', CRYPTO: 'Kripto', CURRENCY: 'Döviz',
-    COMMODITY: 'Emtia', BOND: 'Tahvil', FUND: 'Fon'
-};
-
 export default function PortfolioSummaryWidget() {
     const { t } = useTranslation(['dashboard', 'common']);
     const navigate = useNavigate();
@@ -107,7 +102,7 @@ export default function PortfolioSummaryWidget() {
                         key={d.type}
                         className={SLICE_COLORS[i % SLICE_COLORS.length]}
                         style={{ width: `${d.pct}%` }}
-                        title={`${TYPE_LABELS[d.type] || d.type} %${d.pct.toFixed(1)}`}
+                        title={`${t(`dashboard:assetTypes.${d.type}`, d.type)} %${d.pct.toFixed(1)}`}
                     />
                 ))}
             </div>
@@ -115,7 +110,7 @@ export default function PortfolioSummaryWidget() {
                 {stats.distribution.map((d, i) => (
                     <div key={d.type} className="flex items-center gap-1.5 text-xs">
                         <span className={`w-2.5 h-2.5 rounded-sm ${SLICE_COLORS[i % SLICE_COLORS.length]}`} />
-                        <span className="text-text font-semibold">{TYPE_LABELS[d.type] || d.type}</span>
+                        <span className="text-text font-semibold">{t(`dashboard:assetTypes.${d.type}`, d.type)}</span>
                         <span className="text-text-muted font-mono">%{d.pct.toFixed(1)}</span>
                     </div>
                 ))}

@@ -90,6 +90,15 @@
     "reset": "Varsayılana dön",
     "empty": "Henüz varlık seçilmedi. \"Özelleştir\" ile ekleyin."
   },
+  "assetTypes": {
+    "STOCK": "Hisse",
+    "CRYPTO": "Kripto",
+    "CURRENCY": "Döviz",
+    "COMMODITY": "Emtia",
+    "BOND": "Tahvil",
+    "FUND": "Fon",
+    "FUTURE": "VİOP"
+  },
   "widgets": {
     "marketTitle": "Piyasa Özeti",
     "portfolioTitle": "Portföyüm",

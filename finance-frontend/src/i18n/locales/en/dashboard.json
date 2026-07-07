@@ -90,6 +90,15 @@
     "reset": "Reset to default",
     "empty": "No assets selected yet. Add some via \"Customize\"."
   },
+  "assetTypes": {
+    "STOCK": "Stock",
+    "CRYPTO": "Crypto",
+    "CURRENCY": "Forex",
+    "COMMODITY": "Commodity",
+    "BOND": "Bond",
+    "FUND": "Fund",
+    "FUTURE": "VIOP"
+  },
   "widgets": {
     "marketTitle": "Market Summary",
     "portfolioTitle": "My Portfolio",
