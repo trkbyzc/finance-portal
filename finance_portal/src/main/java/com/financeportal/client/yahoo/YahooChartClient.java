@@ -82,8 +82,10 @@ public class YahooChartClient {
                 }
             }
             log.debug("[YAHOO-CHART] Fetched {} points for {} in {} ms.", dataList.size(), yahooSymbol, (System.currentTimeMillis() - startTime));
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.warn("[YAHOO-CHART] {} için veri yok (HTTP {}): {}", yahooSymbol, e.getStatusCode().value(), e.getMessage());
         } catch (Exception e) {
-            log.error("[YAHOO-CHART] Error for {}: {}", yahooSymbol, e.getMessage());
+            log.warn("[YAHOO-CHART] Error for {}: {}", yahooSymbol, e.getMessage());
         }
         return dataList;
     }
