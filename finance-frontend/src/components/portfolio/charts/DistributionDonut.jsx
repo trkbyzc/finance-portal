@@ -58,9 +58,9 @@ export default function DistributionDonut({ portfolio, calculateProfitLoss, grou
         return (
             <text
                 x={x} y={y} fill="#ffffff"
-                textAnchor={x > cx ? 'start' : 'end'}
+                textAnchor="middle"
                 dominantBaseline="central"
-                style={{ fontSize: 13, fontWeight: 700, textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}
+                style={{ fontSize: 13, fontWeight: 700, textShadow: '0 1px 3px rgba(0,0,0,0.75)' }}
             >
                 {`${(percent * 100).toFixed(1)}%`}
             </text>
