@@ -21,6 +21,8 @@
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-000000?logo=opentelemetry)
 
 
+<img src="assets/screenshots/tr/dashboard.png" alt="Finans Portalı kontrol paneli" width="900"/>
+
 [English](README.md) · **Türkçe**
 
 </div>
@@ -31,20 +33,22 @@
 
 1. [Genel Bakış](#genel-bakis)
 2. [Özellikler](#ozellikler)
-3. [Mimari](#mimari)
-4. [Teknoloji Yığını](#teknoloji-yigini)
-5. [Başlarken](#baslarken)
-6. [Servisler ve Portlar](#servisler-ve-portlar)
-7. [Varsayılan Kimlik Bilgileri ve Kullanıcılar](#kimlik-bilgileri)
-8. [API Dokümantasyonu](#api-dokumantasyonu)
-9. [Kimlik Doğrulama ve Güvenlik](#guvenlik)
-10. [Gözlemlenebilirlik](#gozlemlenebilirlik)
-11. [Kod Kalitesi](#kod-kalitesi)
-12. [Dağıtım](#dagitim)
-13. [Proje Yapısı](#proje-yapisi)
-14. [Dokümantasyon](#dokumantasyon)
-15. [İletişim](#iletisim)
-16. [Lisans](#lisans)
+3. [Ekran Görüntüleri](#ekran-goruntuleri)
+4. [Mimari](#mimari)
+5. [Teknoloji Yığını](#teknoloji-yigini)
+6. [Veri Kaynakları](#veri-kaynaklari)
+7. [Başlarken](#baslarken)
+8. [Servisler ve Portlar](#servisler-ve-portlar)
+9. [Varsayılan Kimlik Bilgileri ve Kullanıcılar](#kimlik-bilgileri)
+10. [API Dokümantasyonu](#api-dokumantasyonu)
+11. [Kimlik Doğrulama ve Güvenlik](#guvenlik)
+12. [Gözlemlenebilirlik](#gozlemlenebilirlik)
+13. [Kod Kalitesi](#kod-kalitesi)
+14. [Dağıtım](#dagitim)
+15. [Proje Yapısı](#proje-yapisi)
+16. [Dokümantasyon](#dokumantasyon)
+17. [İletişim](#iletisim)
+18. [Lisans](#lisans)
 
 ---
 
@@ -91,6 +95,56 @@ Verinin üzerine; **portföy takibi** (TL ve % cinsinden kâr/zarar, dağılım,
 - **Gözlemlenebilirlik** — metrik, iz, log (OpenTelemetry)
 - **REST API** — `/api/v1` sürümleme, **OpenAPI/Swagger** & **Javadoc**, merkezî hata yönetimi
 - **Yönetim paneli** — kullanıcı yönetimi, ban, oturum sonlandırma
+
+---
+
+<a id="ekran-goruntuleri"></a>
+## Ekran Görüntüleri
+
+### Portföy
+
+Altı varlık sınıfında dokuz pozisyon — BİST hisseleri, emtia (gram altın), kripto, yatırım fonu, eurobond, Türk devlet tahvili (DİBS) ve kaldıraçlı bir VİOP kontratı. Sabit getirili satırlar doğru kotasyonla gösterilir (DİBS için getiri, eurobond için temiz fiyat); jenerik bir "fiyat" sütununa zorlanmaz. Türev pozisyonlar sözleşme çarpanını taşır.
+
+Nominal kâr/zararın yanında her satırda **reel K/Z** de vardır: maliyet, *o pozisyonun kendi alış tarihinin* enflasyon faktörüyle bugünkü liraya çekilir. Yüksek enflasyon ortamında nominal olarak kârda görünen bir pozisyon reel olarak zararda olabilir — portföy bunu açıkça söyler.
+
+<img src="assets/screenshots/tr/holdings.png" alt="Altı varlık sınıfında portföy" width="900"/>
+
+<img src="assets/screenshots/gifs/tr-portfolio-scroll.gif" alt="Portföy genel görünümü" width="620"/>
+
+### Risk & Çeşitlendirme
+
+Yıllık volatilite, maksimum düşüş, BİST 100'e göre beta, Sharpe oranı, etkin varlık sayısına dayalı yoğunlaşma skoru ve korelasyon ısı haritası — hepsi bir yıllık günlük veriden hesaplanır.
+
+Sonucu çarpıtacak enstrümanlar **dışarıda bırakılır ve sebebi ekranda yazar**: kaldıraçlı türevler spot risk metriklerine dahil edilmez, yeterli ortak geçmişi olmayan enstrümanlar sessizce sonucu bozmak yerine adıyla belirtilir.
+
+<img src="assets/screenshots/tr/risk.png" alt="Risk ve çeşitlendirme metrikleri" width="900"/>
+
+### YZ Asistanı
+
+Asistan, LLM araç-çağırma ile *kullanıcının kendi* portföyü hakkındaki soruları yanıtlar — canlı pozisyonları okur, hesabı yapar ve rakamları göstererek açıklar.
+
+<img src="assets/screenshots/gifs/ai-assistant.gif" alt="Portföy sorusunu yanıtlayan YZ asistanı" width="420"/>
+
+### Grafikler ve Teknik Göstergeler
+
+Mum ve çizgi grafikler; hareketli ortalamalar, Bollinger bantları, MACD, RSI ve hacim göstergeleri; çizim araçları, çoklu zaman aralığı ve BİST endeksleriyle karşılaştırma.
+
+<img src="assets/screenshots/gifs/chart-indicators.gif" alt="Teknik göstergeli grafik" width="700"/>
+
+### Piyasalar ve Varlık Detayı
+
+| | |
+|---|---|
+| <img src="assets/screenshots/tr/stocks.png" alt="Hisse piyasası" width="440"/> | <img src="assets/screenshots/tr/asset-detail.png" alt="Varlık detayı" width="440"/> |
+| **Borsa** — en çok artan/azalan, hacim liderleri, piyasa yönü. | **Varlık detayı** — fiyat, grafik, alarm kurma, portföye ekleme. |
+| <img src="assets/screenshots/tr/fundamentals.png" alt="Temel veriler" width="440"/> | <img src="assets/screenshots/tr/dashboard-dark.png" alt="Koyu tema" width="440"/> |
+| **Temel veriler** — piyasa değeri, halka açıklık, 52 hafta aralığı. | **Koyu tema** — üç tema (açık, koyu, hibrit) desteklenir. |
+
+### Temalar ve Diller
+
+Üç tema (açık, koyu, hibrit) ve tam TR/EN yerelleştirme — sayı, tarih ve yüzde biçimleri dile göre değişir.
+
+<img src="assets/screenshots/gifs/theme-toggle.gif" alt="Tema değişimi" width="620"/>
 
 ---
 
@@ -159,6 +213,27 @@ graph TB
 | **Gözlemlenebilirlik** | OpenTelemetry (Java Agent), Prometheus, Tempo, Grafana |
 | **YZ & Çeviri** | Google Gemini, Groq (LLM), Lingva (kendi sunucumuzda çeviri) |
 | **DevOps & Kalite** | Docker, Docker Compose, Kubernetes (GKE), cert-manager, GitHub Actions, SonarQube, JaCoCo, k6 |
+
+---
+
+<a id="veri-kaynaklari"></a>
+## Veri Kaynakları
+
+Piyasa verisi birden fazla dış sağlayıcıdan toplanır. Her birinin kendi kullanım şartları vardır ve hepsi eşdeğer değildir: bir kısmı resmî API yayınlar, bir kısmı ise üçüncü taraf kullanımı için tasarlanmamış uçlardan okunur. Proje bu iki kategoriyi farklı ele alır:
+
+| Sağlayıcı | Veri | Erişim | Canlı demo |
+|-----------|------|--------|------------|
+| **TCMB EVDS** | Döviz & efektif kurlar, Türkiye makro göstergeleri | Resmî API + anahtar | ✅ açık |
+| **FRED** (St. Louis Fed) | ABD makro göstergeleri | Resmî API + anahtar | ✅ açık |
+| **Binance** | Kripto fiyatları, OHLC | Resmî açık API | ✅ açık |
+| **Finnhub** | Piyasa verisi, finans haberleri | Resmî API + anahtar | ✅ açık |
+| **Yahoo Finance** | Hisseler, endeksler, emtia, küresel ETF'ler | Resmî olmayan uç | ❌ kapalı |
+| **TradingView** | Ekonomik takvim | Resmî olmayan akış | ❌ kapalı |
+| **İş Yatırım · TEFAS · Fintables** | BİST temel verileri, TR fonları & tahvilleri | HTML kazıma | ⚠️ önbellekli, düşük frekans |
+
+**Bazı sağlayıcılar canlı dağıtımda neden kapalı?** Projeyi yerelde kişisel kullanım için çalıştırmak ayrı şeydir; aynı veriyi anonim ziyaretçilere sunmak *yeniden dağıtım* anlamına gelir ve resmî olmayan uçların şartları buna izin vermez. Bu ayrımı görmezden gelmek yerine, dağıtım bu sağlayıcıları yapılandırma üzerinden (`data-sources.*.enabled`) kapatır ve arayüz ilgili bölümü sessizce hata vermek yerine "demoda kullanılamıyor" olarak bildirir. Yerel çalıştırmada her şey tam işlevseldir.
+
+> ⚠️ Tüm piyasa verileri **yalnızca bilgilendirme amaçlıdır** ve yatırım tavsiyesi değildir. Veriler gecikmeli veya hatalı olabilir; yatırım kararlarınızın sorumluluğu size aittir.
 
 ---
 

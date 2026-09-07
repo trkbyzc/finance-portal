@@ -21,6 +21,8 @@
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-000000?logo=opentelemetry)
 
 
+<img src="assets/screenshots/en/hero.png" alt="Finance Portal dashboard" width="900"/>
+
 **English** · [Türkçe](README.tr.md)
 
 </div>
@@ -31,20 +33,22 @@
 
 1. [Overview](#overview)
 2. [Features](#features)
-3. [Architecture](#architecture)
-4. [Tech Stack](#tech-stack)
-5. [Getting Started](#getting-started)
-6. [Services and Ports](#services-and-ports)
-7. [Default Credentials and Users](#default-credentials-and-users)
-8. [API Documentation](#api-documentation)
-9. [Authentication and Security](#authentication-and-security)
-10. [Observability](#observability)
-11. [Code Quality](#code-quality)
-12. [Deployment](#deployment)
-13. [Project Structure](#project-structure)
-14. [Documentation](#documentation)
-15. [Contact](#contact)
-16. [License](#license)
+3. [Screenshots](#screenshots)
+4. [Architecture](#architecture)
+5. [Tech Stack](#tech-stack)
+6. [Data Sources](#data-sources)
+7. [Getting Started](#getting-started)
+8. [Services and Ports](#services-and-ports)
+9. [Default Credentials and Users](#default-credentials-and-users)
+10. [API Documentation](#api-documentation)
+11. [Authentication and Security](#authentication-and-security)
+12. [Observability](#observability)
+13. [Code Quality](#code-quality)
+14. [Deployment](#deployment)
+15. [Project Structure](#project-structure)
+16. [Documentation](#documentation)
+17. [Contact](#contact)
+18. [License](#license)
 
 ---
 
@@ -89,6 +93,60 @@ On top of the data, it offers **portfolio tracking** (profit/loss in TL and %, a
 - **Observability** — metrics, traces, logs (OpenTelemetry)
 - **REST API** with `/api/v1` versioning, **OpenAPI/Swagger** & **Javadoc**, centralized error handling
 - **Admin panel** — user management, ban, force-logout
+
+---
+
+<a id="screenshots"></a>
+## Screenshots
+
+### Portfolio
+
+Nine positions across six asset classes — BIST equities, commodity (gram gold), crypto, a mutual fund, a eurobond, a Turkish government bond (DİBS) and a leveraged VİOP futures contract. Fixed-income rows are quoted correctly (yield for DİBS, clean price for the eurobond) rather than being forced into a generic "price" column, and derivatives carry their contract multiplier.
+
+Alongside nominal P/L, every row also shows **real P/L** — the cost basis re-priced to today's lira using the inflation factor of *that position's own purchase date*. In a high-inflation market a nominally profitable position can still be a real loss, and the portfolio says so.
+
+<img src="assets/screenshots/en/portfolio.png" alt="Portfolio holdings across six asset classes" width="900"/>
+
+<img src="assets/screenshots/gifs/portfolio-scroll.gif" alt="Portfolio overview" width="620"/>
+
+### Risk & diversification
+
+Annualised volatility, maximum drawdown, beta against BIST 100, Sharpe ratio, an effective-asset concentration score and a correlation heatmap — computed from one year of daily history.
+
+Instruments that would distort the numbers are **excluded and the reason is shown**: leveraged derivatives are left out of spot risk metrics, and instruments without enough common history are named explicitly instead of silently skewing the result.
+
+<img src="assets/screenshots/en/risk.png" alt="Risk and diversification metrics" width="900"/>
+
+### AI assistant
+
+The assistant answers questions about *your own* portfolio through LLM tool-calling — it reads live holdings, computes the answer and cites the numbers. Below it identifies the largest losing position and explains it from the actual cost basis.
+
+<img src="assets/screenshots/gifs/ai-assistant.gif" alt="AI assistant answering a portfolio question" width="420"/>
+
+### Charts & technical indicators
+
+Candlestick and line charts with moving averages, Bollinger bands, MACD, RSI and volume; drawing tools, multiple timeframes, and comparison against BIST indices.
+
+<img src="assets/screenshots/gifs/chart-indicators.gif" alt="Chart with technical indicators" width="700"/>
+
+### Watchlist, price alarms and simulation
+
+| | |
+|---|---|
+| <img src="assets/screenshots/en/watchlist.png" alt="Watchlist" width="440"/> | <img src="assets/screenshots/en/alarms.png" alt="Price alarms" width="440"/> |
+| **Watchlist** — live prices, daily change and 30-day sparklines. | **Price alarms** — above/below thresholds, one-shot or continuous, delivered by e-mail. |
+| <img src="assets/screenshots/en/simulation.png" alt="Simulation" width="440"/> | <img src="assets/screenshots/en/chart.png" alt="Asset detail chart" width="440"/> |
+| **What-If simulation** — "what would this be worth today?" over saved scenarios. | **Asset detail** — OHLC, fundamentals and index comparison. |
+
+### Themes and languages
+
+Three themes (light, dark, hybrid) and full TR/EN localisation, including locale-aware number, date and percentage formatting.
+
+<img src="assets/screenshots/gifs/theme-toggle.gif" alt="Theme switching" width="620"/>
+
+| | |
+|---|---|
+| <img src="assets/screenshots/en/dashboard-dark.png" alt="Dashboard in dark theme" width="440"/> | <img src="assets/screenshots/en/portfolio-dark.png" alt="Portfolio in dark theme" width="440"/> |
 
 ---
 
@@ -155,6 +213,27 @@ graph TB
 | **Observability** | OpenTelemetry (Java Agent), Prometheus, Tempo, Grafana |
 | **AI & Translation** | Google Gemini, Groq (LLM), Lingva (self-hosted translation) |
 | **DevOps & Quality** | Docker, Docker Compose, Kubernetes (GKE), cert-manager, GitHub Actions, SonarQube, JaCoCo, k6 |
+
+---
+
+<a id="data-sources"></a>
+## Data Sources
+
+Market data is aggregated from several external providers. Each has its own terms of use, and they are not equivalent — some publish an official API, others are read from endpoints that were never meant for third-party consumption. The project treats those categories differently:
+
+| Provider | Data | Access | Public demo |
+|----------|------|--------|-------------|
+| **TCMB EVDS** | FX & effective rates, Turkish macro indicators | Official API + key | ✅ enabled |
+| **FRED** (St. Louis Fed) | US macro indicators | Official API + key | ✅ enabled |
+| **Binance** | Crypto prices, OHLC | Official public API | ✅ enabled |
+| **Finnhub** | Market data, financial news | Official API + key | ✅ enabled |
+| **Yahoo Finance** | Equities, indices, commodities, global ETFs | Unofficial endpoint | ❌ disabled |
+| **TradingView** | Economic calendar | Unofficial feed | ❌ disabled |
+| **İş Yatırım · TEFAS · Fintables** | BIST fundamentals, Turkish funds & bonds | HTML scraping | ⚠️ cached, low frequency |
+
+**Why some providers are disabled in a public deployment.** Running the stack locally for personal use is one thing; serving the same data to anonymous visitors is redistribution, which the unofficial endpoints' terms do not allow. Instead of ignoring that distinction, the deployment turns those providers off through configuration (`data-sources.*.enabled`) and the UI reports the section as unavailable rather than failing silently. Everything remains fully functional in a local run.
+
+> ⚠️ All market data is provided **for informational purposes only** and does not constitute investment advice. Figures may be delayed or inaccurate; you are solely responsible for your investment decisions.
 
 ---
 
