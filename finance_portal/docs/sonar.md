@@ -105,9 +105,9 @@ ve **Quality Gate** (varsayılan `Sonar way`).
 2. **Veriler Docker volume'larında** (`sonarqube_data`, `sonarqube_extensions`, `sonarqube_logs`)
    tutulur, `down` etsen bile token ve geçmiş analizler korunur.
 3. **JaCoCo `.exec` dosyaları `~/.jacoco/` altında yazılır** (proje target'ında değil).
-   Sebep: proje klasörünün adında Türkçe `İ` karakteri var (`PROJE`); surefire
+   Sebep: proje klasörünün adında Türkçe `İ` karakteri varsa surefire
    fork JVM'i Windows'ta argLine'daki path'i cp1254 → Latin-1 mangle ediyor ve
-   `.exec` yanlış klasöre (`PROJE`) yazılıyor. Çözüm pom.xml'de:
+   `.exec` yanlış klasöre (bozulmuş adla) yazılıyor. Çözüm pom.xml'de:
    `${jacoco.unit.exec}` → `${user.home}/.jacoco/finance-portal-unit.exec`.
    HTML/XML raporlar yine `target/site/jacoco/` altında, sadece intermediate
    `.exec` dosyası ASCII path'te.

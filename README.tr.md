@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/logo.png" alt="" width="220"/>
+<img src="assets/logo.png" alt="Finance Portal" width="220"/>
 
 # Finans Portalı
 
@@ -19,7 +19,6 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-GKE-326CE5?logo=kubernetes)
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-000000?logo=opentelemetry)
-
 
 
 [English](README.md) · **Türkçe**

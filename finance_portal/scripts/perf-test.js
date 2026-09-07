@@ -12,7 +12,7 @@
  *   - 30 sn ramp-down
  *
  * Threshold:
- *   - http_req_duration P95 < 2000 ms  ( §9.1 hedefi)
+ *   - http_req_duration P95 < 2000 ms  (SRS §9.1 hedefi)
  *   - http_req_failed   < %5
  */
 import http from 'k6/http';

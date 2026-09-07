@@ -1,6 +1,6 @@
 # Performans
 
-gereksinimler §9.1: *"Normal yük altında cevap süreleri makul olmalı (örn. <2 sn hedeflenebilir)."*
+Performans gereksinimi (SRS §9.1): *"Normal yük altında cevap süreleri makul olmalı (örn. <2 sn hedeflenebilir)."*
 
 ## Hedef
 - **P95 latency < 2000 ms** (sanal kullanıcı = 20, 60 sn sürdürülen yük)
@@ -63,4 +63,4 @@ checks_succeeded.................: 100.00%
 - Median 8.77ms — çoğu endpoint'i Redis cache'ten 10ms altı dönüyor.
 - P95 ~843ms — `/api/market-data/all` endpoint'i cold-cache durumda 1-1.6s alıyor (7 paralel iç çağrı).
 - Toplam 1396 istek tamamlandı, **sıfır hata**, 179 MB veri transfer.
-- Threshold ihlali yok;  §9.1 hedefi (<2sn) marjla karşılanıyor.
+- Threshold ihlali yok; SRS §9.1 hedefi (<2sn) marjla karşılanıyor.
