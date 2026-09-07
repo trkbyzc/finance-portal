@@ -10,6 +10,11 @@ vi.mock('../../context/CurrencyContext', () => ({
 vi.mock('../../utils/currencyConversion', () => ({
     nativeCurrencyForType: (type) => (type === 'CRYPTO' ? 'USD' : 'TRY'),
 }));
+// numberFormatter i18n singleton'ını import eder; burada react-i18next kısmi mock'landığı
+// için gerçek modül yüklenemez → birim testi izole tutmak adına formatter da mock'lanır.
+vi.mock('../../utils/formatters/numberFormatter', () => ({
+    formatPercentPlain: (v, d = 2) => `%${Number(v).toFixed(d)}`,
+}));
 
 import HoldingsTable from './HoldingsTable';
 

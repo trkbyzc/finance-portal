@@ -1,6 +1,7 @@
 import { Activity, TrendingDown, Gauge, ShieldCheck, Loader2, Sigma, Layers, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useRiskAnalytics from '../../pages/PortfolioPage/hooks/useRiskAnalytics';
+import { formatPercentPlain } from '../../utils/formatters/numberFormatter';
 
 const pct = (v) => `${(v * 100).toFixed(1)}%`;
 const signedPct = (v) => `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
@@ -160,7 +161,7 @@ export default function PortfolioRiskAnalytics({ portfolio, calculateProfitLoss,
                         {t('risk.diversification', 'Çeşitlendirme')}: {m.effectiveAssets.toFixed(1)} {t('risk.effectiveAssets', 'etkin varlık')}
                     </p>
                     <p className="text-xs text-text-muted mt-0.5">
-                        {t('risk.topConcentration', 'En büyük pozisyon')}: {shortSym(m.topSymbol)} · %{(m.topWeight * 100).toFixed(0)}
+                        {t('risk.topConcentration', 'En büyük pozisyon')}: {shortSym(m.topSymbol)} · {formatPercentPlain(m.topWeight * 100, 0)}
                         {concentrated && ` — ${t('risk.concentratedWarn', 'yüksek konsantrasyon, riski tek varlığa bağlı')}`}
                     </p>
                 </div>

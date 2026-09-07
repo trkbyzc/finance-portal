@@ -32,6 +32,23 @@ export const formatPercent = (value) => {
     return `${sign}%${formatted}`;
 };
 
+/**
+ * İşaretsiz yüzde: oran/ağırlık/getiri kotası gösterimi için (kâr-zarar değil).
+ * formatPercent her zaman +/- ekler; portföy ağırlığı veya DİBS getirisi gibi
+ * değerlerde işaret istenmez.
+ *
+ * TR: %36 · %10,28    EN: 36% · 10.28%
+ */
+export const formatPercentPlain = (value, digits = 2) => {
+    if (value == null || Number.isNaN(Number(value))) return '-';
+    const locale = getLocale();
+    const formatted = new Intl.NumberFormat(locale, {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+    }).format(value);
+    return locale === 'en-US' ? `${formatted}%` : `%${formatted}`;
+};
+
 export const formatCompactNumber = (value) => {
     if (value == null || Number.isNaN(Number(value))) return '-';
     return new Intl.NumberFormat(getLocale(), {

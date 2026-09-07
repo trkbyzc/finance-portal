@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const { i18nMock } = vi.hoisted(() => ({ i18nMock: { language: 'tr' } }));
 vi.mock('../../i18n', () => ({ default: i18nMock }));
 
-import { formatNumber, formatPercent, formatCompactNumber } from './numberFormatter';
+import { formatNumber, formatPercent, formatPercentPlain, formatCompactNumber } from './numberFormatter';
 
 describe('numberFormatter', () => {
     beforeEach(() => { i18nMock.language = 'tr'; });
@@ -58,6 +58,33 @@ describe('numberFormatter', () => {
             i18nMock.language = 'en';
             expect(formatPercent(7.5)).toBe('+7.50%');
             expect(formatPercent(-3)).toBe('-3.00%');
+        });
+    });
+
+    describe('formatPercentPlain', () => {
+        it('null/NaN → "-"', () => {
+            expect(formatPercentPlain(null)).toBe('-');
+            expect(formatPercentPlain(NaN)).toBe('-');
+        });
+
+        it('TR → yüzde işareti önde, işaret eklenmez', () => {
+            expect(formatPercentPlain(10.28)).toBe('%10,28');
+        });
+
+        it('EN → yüzde işareti sonda, işaret eklenmez', () => {
+            i18nMock.language = 'en';
+            expect(formatPercentPlain(10.28)).toBe('10.28%');
+        });
+
+        it('digits parametresi ondalık sayısını belirler', () => {
+            i18nMock.language = 'en';
+            expect(formatPercentPlain(36.4, 0)).toBe('36%');
+        });
+
+        it('pozitif değere + eklemez (formatPercent ile fark)', () => {
+            i18nMock.language = 'en';
+            expect(formatPercentPlain(5)).toBe('5.00%');
+            expect(formatPercent(5)).toBe('+5.00%');
         });
     });
 

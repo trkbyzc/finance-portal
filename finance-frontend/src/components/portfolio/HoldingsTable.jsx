@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../../context/CurrencyContext';
 import { nativeCurrencyForType } from '../../utils/currencyConversion';
 import { displaySymbol } from '../../utils/symbolDisplay';
+import { formatPercentPlain } from '../../utils/formatters/numberFormatter';
 
 /**
  * Portföydeki holding listesini render eden tablo. PortfolioPage'in ana tablosu olarak
@@ -112,7 +113,7 @@ function HoldingRow({ item, calc, dailyChange, realFactor, showReal = false, for
     const quoteFmt = (v) => {
         if (hidden) return MASK;
         const n = Number(v) || 0;
-        return isDibs ? `%${n.toFixed(2)}` : n.toFixed(2); // DİBS getiri (%) · eurobond temiz fiyat
+        return isDibs ? formatPercentPlain(n) : n.toFixed(2); // DİBS getiri (%) · eurobond temiz fiyat
     };
     // Tip etiketi: DİBS/Eurobond ayır (assetType jenerik BOND, "Küresel Tahvil" yanıltıcı).
     const tipLabel = isDibs ? 'DİBS'

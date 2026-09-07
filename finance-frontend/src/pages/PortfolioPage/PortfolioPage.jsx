@@ -24,6 +24,7 @@ import PortfolioSwitcher from '../../components/portfolio/PortfolioSwitcher';
 import usePortfolioPricing from './hooks/usePortfolioPricing';
 import usePortfolioTabs from './hooks/usePortfolioTabs';
 import { assetNature, NATURE_ORDER } from '../../utils/assetNature';
+import { formatPercentPlain } from '../../utils/formatters/numberFormatter';
 
 /**
  * Portföy sayfası — orchestrator.
@@ -190,7 +191,7 @@ const PortfolioPage = () => {
                 ? `(${t('portfolio:stats.recentBuy', 'yakın tarihli alım')})`
                 : `(${t('portfolio:stats.inflation', 'Enflasyon')} ~×${avgFactor.toFixed(2)})`;
             cards.push({
-                label: `${t('portfolio:stats.realPnl', 'Reel')} K/Z`,
+                label: t('portfolio:stats.realPnl', 'Reel K/Z'),
                 value: signedTRY(realPnl),
                 positive: realUp,
                 sub: `${pctStr(realReturnRate)} ${note}`,
@@ -211,7 +212,7 @@ const PortfolioPage = () => {
             const tipLabel = isDibs ? 'DİBS'
                 : (isBond && !String(item.symbol || '').startsWith('^')) ? 'Eurobond'
                 : t('common:assetTypes.' + item.assetType, item.assetType);
-            const quoteFmt = (v) => { const n = Number(v) || 0; return isDibs ? `%${n.toFixed(2)}` : n.toFixed(2); };
+            const quoteFmt = (v) => { const n = Number(v) || 0; return isDibs ? formatPercentPlain(n) : n.toFixed(2); };
             // Varlık etiketi: sembol + (VİOP yön/kaldıraç rozeti) + (günlük değişim %)
             const dcRaw = getDailyChange ? getDailyChange(item.symbol, item.assetType) : null;
             const dc = (dcRaw != null && !Number.isNaN(Number(dcRaw))) ? Number(dcRaw) : null;

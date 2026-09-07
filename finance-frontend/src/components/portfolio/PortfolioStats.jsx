@@ -101,7 +101,7 @@ const PortfolioStats = ({ portfolio, calculateProfitLoss, hidden = false, inflat
             {hasReal && (
                 <StatCard
                     icon={Activity}
-                    label={`${t('stats.realPnl', 'Reel')} K/Z`}
+                    label={t('stats.realPnl', 'Reel K/Z')}
                     value={signed(realProfitLoss)}
                     tone="pnl"
                     positive={realUp}
