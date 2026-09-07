@@ -133,7 +133,8 @@ describe('newsApi', () => {
     });
     it('getNewsContent url + lang', () => {
         newsApi.getNewsContent('http://x', 'tr');
-        expect(apiClient.get).toHaveBeenCalledWith('/news/content', { params: { url: 'http://x', lang: 'tr' } });
+        // İçerik çekimi yavaş olabildiği için uzatılmış timeout ile çağrılır.
+        expect(apiClient.get).toHaveBeenCalledWith('/news/content', { params: { url: 'http://x', lang: 'tr' }, timeout: 30000 });
     });
 });
 

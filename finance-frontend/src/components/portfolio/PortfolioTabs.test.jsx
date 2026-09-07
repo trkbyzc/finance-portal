@@ -7,8 +7,8 @@ vi.mock('react-i18next', () => ({
 
 import PortfolioTabs from './PortfolioTabs';
 
-const TABS = ['ALL', 'STOCK', 'CRYPTO'];
-const counts = { ALL: 10, STOCK: 5, CRYPTO: 3 };
+const TABS = ['ALL', 'SPOT', 'FIXED'];
+const counts = { ALL: 10, SPOT: 5, FIXED: 3 };
 
 describe('PortfolioTabs', () => {
     it('verilen 3 tab render', () => {
@@ -24,7 +24,7 @@ describe('PortfolioTabs', () => {
     });
 
     it('counts eksik → 0 fallback', () => {
-        const { container } = render(<PortfolioTabs tabs={['BOND']} counts={{}} activeTab="BOND" onChange={() => {}} />);
+        const { container } = render(<PortfolioTabs tabs={['DERIV']} counts={{}} activeTab="DERIV" onChange={() => {}} />);
         expect(container.querySelector('span[class*="rounded-full"]').textContent).toBe('0');
     });
 
@@ -32,14 +32,14 @@ describe('PortfolioTabs', () => {
         const onChange = vi.fn();
         const { container } = render(<PortfolioTabs tabs={TABS} counts={counts} activeTab="ALL" onChange={onChange} />);
         fireEvent.click(container.querySelectorAll('button')[1]);
-        expect(onChange).toHaveBeenCalledWith('STOCK');
+        expect(onChange).toHaveBeenCalledWith('SPOT');
     });
 
     it('TYPE_META\'da olmayan tip render edilmez', () => {
         const { container } = render(
-            <PortfolioTabs tabs={['UNKNOWN_TYPE', 'STOCK']} counts={{}} activeTab="STOCK" onChange={() => {}} />
+            <PortfolioTabs tabs={['UNKNOWN_TYPE', 'SPOT']} counts={{}} activeTab="SPOT" onChange={() => {}} />
         );
-        // Sadece 1 buton (STOCK)
+        // Sadece 1 buton (SPOT)
         expect(container.querySelectorAll('button')).toHaveLength(1);
     });
 });

@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// DatePicker (modal içinde) useTranslation()'dan gelen i18n.language'ı okur — mock'ta da bulunmalı.
 vi.mock('react-i18next', () => ({
-    useTranslation: () => ({ t: (k, fb) => fb ?? k }),
+    useTranslation: () => ({ t: (k, fb) => fb ?? k, i18n: { language: 'tr' } }),
 }));
 
 const { authRef, notifyMock, currencyRef, portfolioApiMock, assetTypeMapper, currencyConv } = vi.hoisted(() => ({

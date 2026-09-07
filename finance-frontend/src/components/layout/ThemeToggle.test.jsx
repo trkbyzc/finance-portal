@@ -5,6 +5,13 @@ const { themeRef } = vi.hoisted(() => ({ themeRef: { current: { theme: 'dark', s
 vi.mock('../../context/ThemeContext', () => ({
     useTheme: () => themeRef.current,
 }));
+// Etiketler i18n'den gelir (navbar:theme.*). Gerçek TR çeviri dosyasından çözüyoruz ki
+// bir anahtar yeniden adlandırılırsa test bunu yakalasın.
+vi.mock('react-i18next', async () => {
+    const navbar = (await import('../../i18n/locales/tr/navbar.json')).default;
+    const lookup = (key) => key.split('.').reduce((o, part) => (o == null ? o : o[part]), navbar);
+    return { useTranslation: () => ({ t: (key, fallback) => lookup(key) ?? fallback ?? key }) };
+});
 
 import ThemeToggle from './ThemeToggle';
 
