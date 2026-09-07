@@ -5,7 +5,7 @@ import { Wallet, TrendingUp, TrendingDown, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { portfolioApi } from '../../../services/api/portfolioApi';
 import usePortfolioPricing from '../../PortfolioPage/hooks/usePortfolioPricing';
-import { formatNumber } from '../../../utils/formatters/numberFormatter';
+import { formatNumber, formatPercentPlain } from '../../../utils/formatters/numberFormatter';
 import DashboardWidgetCard from './DashboardWidgetCard';
 
 // Dağılım bar/legend renkleri — tema token'larından döngüsel
@@ -102,7 +102,7 @@ export default function PortfolioSummaryWidget() {
                         key={d.type}
                         className={SLICE_COLORS[i % SLICE_COLORS.length]}
                         style={{ width: `${d.pct}%` }}
-                        title={`${t(`dashboard:assetTypes.${d.type}`, d.type)} %${d.pct.toFixed(1)}`}
+                        title={`${t(`dashboard:assetTypes.${d.type}`, d.type)} ${formatPercentPlain(d.pct, 1)}`}
                     />
                 ))}
             </div>
@@ -111,7 +111,7 @@ export default function PortfolioSummaryWidget() {
                     <div key={d.type} className="flex items-center gap-1.5 text-xs">
                         <span className={`w-2.5 h-2.5 rounded-sm ${SLICE_COLORS[i % SLICE_COLORS.length]}`} />
                         <span className="text-text font-semibold">{t(`dashboard:assetTypes.${d.type}`, d.type)}</span>
-                        <span className="text-text-muted font-mono">%{d.pct.toFixed(1)}</span>
+                        <span className="text-text-muted font-mono">{formatPercentPlain(d.pct, 1)}</span>
                     </div>
                 ))}
             </div>

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BarChart3 } from 'lucide-react';
 import { stockApi } from '../../../services/api/stockApi';
+import { formatPercentPlain } from '../../../utils/formatters/numberFormatter';
 
 const CUR = { TRY: '₺', USD: '$' };
 
@@ -96,7 +97,7 @@ export default function StockFundamentals({ symbol }) {
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                 <Stat label={t('asset:fundamentals.marketCap', 'Piyasa Değeri')} value={data.marketCapTl == null ? null : fmtBig(data.marketCapTl, '₺')} />
                 <Stat label={t('asset:fundamentals.marketCapUsd', 'Piyasa Değeri ($)')} value={data.marketCapUsd == null ? null : fmtBig(data.marketCapUsd, '$')} />
-                <Stat label={t('asset:fundamentals.freeFloat', 'Halka Açıklık')} value={data.freeFloatPct == null ? null : `%${fmtNum(data.freeFloatPct, 1)}`} />
+                <Stat label={t('asset:fundamentals.freeFloat', 'Halka Açıklık')} value={data.freeFloatPct == null ? null : formatPercentPlain(data.freeFloatPct, 1)} />
                 <Stat label={t('asset:fundamentals.capital', 'Sermaye')} value={data.capital == null ? null : fmtBig(data.capital, '₺')} />
                 <Stat
                     label={t('asset:fundamentals.dayRange', 'Gün İçi Aralık')}
