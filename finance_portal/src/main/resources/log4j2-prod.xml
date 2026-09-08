@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PROD log yapılandırması — Kafka appender'ı YOK.
+
+  Canlı dağıtımda log işleme hattı (Kafka → Logstash → OpenSearch) çalıştırılmıyor:
+  demo sunucusu 2 çekirdek / 12 GB ve o yığın tek başına birkaç GB istiyor. Kafka
+  appender'ı burada bıraksaydık, broker bulunamadığı için her log satırında bağlantı
+  hatası basılır ve konsol kullanılmaz hale gelirdi.
+
+  Loglar stdout'a yazılır; Docker'ın json-file sürücüsü toplar
+  (`docker compose logs -f app-backend`).
+
+  Aktive: application-prod.yml → logging.config: classpath:log4j2-prod.xml
+-->
+<Configuration status="WARN">
+    <Appenders>
+        <!-- charset="UTF-8" şart: Türkçe karakterler mojibake olmasın ("EMTİA" → "EMT─░A"). -->
+        <!-- trace_id / span_id OTel agent kullanılırsa dolar; kullanılmazsa boş geçer. -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8"
+                           pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] [TraceId: %X{trace_id:-}] %c{1}:%L - %m%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

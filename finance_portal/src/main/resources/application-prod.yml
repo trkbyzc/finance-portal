@@ -60,6 +60,9 @@ server:
         same-site: strict
 
 logging:
+  # Kafka appender'sız yapılandırma — canlıda log işleme hattı çalışmıyor,
+  # broker aranmasın diye ayrı dosya kullanılır.
+  config: classpath:log4j2-prod.xml
   level:
     root: WARN
     com.financeportal: INFO
@@ -67,10 +70,14 @@ logging:
     org.springframework.security: WARN
     # Hibernate WARN'a → query log basmasın, ama veri bütünlüğü uyarıları kalsın
     org.hibernate: WARN
-  # Konsola değil dosyaya yaz (container'da stdout'a yine yazılır, Logstash okur)
-  pattern:
-    # JSON format'a geçtiğimiz için console pattern stripped
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%X{trace_id:-}] %c{1} - %m%n"
+  # Not: desen log4j2-prod.xml içinde tanımlı. Spring'in logging.pattern.* ayarları
+  # açık bir Log4j2 yapılandırması verildiğinde dikkate alınmaz, o yüzden burada yok.
+
+# Kafka — canlıda broker çalışmıyor (kaynak yetersiz). Kapatılmazsa kullanıcı
+# kaydındaki olay gönderimi meta veri beklerken thread'i 60 sn bloklar.
+app:
+  kafka:
+    enabled: false
 
 # =====================================================================
 # Veri kaynağı politikası — CANLI ORTAM

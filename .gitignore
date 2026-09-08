@@ -6,6 +6,8 @@
 **/.env
 **/.env.local
 **/.env.*.local
+# Canli ortam sirlari — .env.prod yukaridaki **/.env kalibina TAKILMAZ, ayrica yazildi.
+**/.env.prod
 **/application-local.yml
 **/application-local.yaml
 **/application-local.properties

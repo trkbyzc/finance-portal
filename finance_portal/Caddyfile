@@ -1,0 +1,67 @@
+# =====================================================================
+# Caddy — TLS sonlandirma ve yonlendirme (docker-compose.prod.yml)
+# =====================================================================
+# Caddy, Let's Encrypt sertifikalarini kendisi alir ve yeniler; certbot/cron yok.
+# Calismasi icin 80 ve 443 portlarinin disaridan erisilebilir olmasi ve alan
+# adlarinin bu sunucuya cozumlenmesi yeterli.
+#
+# ONEMLI — Cloudflare proxy'si (turuncu bulut) KAPALI olmali. Acikken HTTP-01
+# dogrulamasi Cloudflare'de sonlanir, Caddy'ye ulasmaz ve sertifika alinamaz.
+#
+# .dev uzantisi HSTS preload listesinde: tarayicilar bu alan adlarina duz HTTP
+# ile hic gitmez. Yani TLS calismak ZORUNDA, "sonra hallederiz" secenegi yok.
+#
+# Degiskenler compose'dan environment olarak gelir (APP_DOMAIN, AUTH_DOMAIN,
+# ROOT_DOMAIN, ACME_EMAIL).
+# =====================================================================
+
+{
+	# Sertifika son kullanma / sorun bildirimleri bu adrese gider.
+	email {$ACME_EMAIL}
+}
+
+# --- Uygulama: React SPA + /api proxy'si (ikisini de nginx sunar) ---
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	# nginx.conf hem statik dosyalari sunar hem /api/ -> app-backend:8081 proxy'ler,
+	# bu yuzden Caddy tek bir hedefe yonlendirir.
+	reverse_proxy app-frontend:80
+
+	header {
+		# Tarayici MIME turunu tahmin etmeye calismasin.
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# Caddy zaten HSTS ekler; sunucu imzasini gizle.
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# --- Keycloak: ayri alan adi ---
+# Uygulamayla ayni alan adi altinda bir yol (/auth) yerine ayri host tercih edildi:
+# Keycloak'i alt yolda calistirmak KC_HTTP_RELATIVE_PATH + cerez kapsami ayarlari
+# gerektirir ve realm'daki mevcut redirect URI'lari bozar.
+#
+# Caddy X-Forwarded-Proto/Host/For basliklarini otomatik ekler; Keycloak tarafinda
+# karsiligi KC_PROXY_HEADERS=xforwarded (compose'da ayarli). Bu ikisi eslesmezse
+# Keycloak kendini http:// zanneder ve giris sonrasi yanlis adrese yonlendirir.
+{$AUTH_DOMAIN} {
+	reverse_proxy keycloak:8080
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# --- Kok alan adi -> uygulamaya kalici yonlendirme ---
+# A kaydi bu sunucuyu gosterdigi icin burasi bos birakilirsa ziyaretci TLS
+# hatasi gorur. Kisisel alan adinda kotu bir ilk izlenim olurdu.
+{$ROOT_DOMAIN} {
+	redir https://{$APP_DOMAIN}{uri} permanent
+}
