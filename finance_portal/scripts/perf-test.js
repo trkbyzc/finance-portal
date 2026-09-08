@@ -18,7 +18,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-const BASE = __ENV.BASE_URL || 'http://34.36.210.150';
+const BASE = __ENV.BASE_URL || 'http://localhost:5173';   // k6 run -e BASE_URL=https://... ile ezilir
 
 export const options = {
     stages: [

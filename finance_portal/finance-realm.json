@@ -28,7 +28,7 @@
   "oauth2DeviceCodeLifespan": 600,
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
-  "sslRequired": "none",
+  "sslRequired": "external",
   "registrationAllowed": true,
   "registrationEmailAsUsername": false,
   "rememberMe": true,
@@ -1113,21 +1113,19 @@
       "name": "Finance Portal Client",
       "description": "",
       "rootUrl": "",
-      "adminUrl": "http://localhost:5173",
-      "baseUrl": "https://34-156-72-173.nip.io",
+      "adminUrl": "https://finance.turkbey.dev",
+      "baseUrl": "https://finance.turkbey.dev",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "https://34-156-72-173.nip.io/*",
-        "http://localhost:5173/*",
-        "http://34.36.210.150/*"
+        "https://finance.turkbey.dev/*",
+        "http://localhost:5173/*"
       ],
       "webOrigins": [
-        "http://34.36.210.150",
-        "http://localhost:5173",
-        "https://34-156-72-173.nip.io"
+        "https://finance.turkbey.dev",
+        "http://localhost:5173"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -1141,7 +1139,7 @@
       "protocol": "openid-connect",
       "attributes": {
         "login_theme": "finance-theme",
-        "post.logout.redirect.uris": "http://localhost:5173/*",
+        "post.logout.redirect.uris": "https://finance.turkbey.dev/*##http://localhost:5173/*",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.revoke.offline.tokens": "false",
         "use.refresh.tokens": "true",
