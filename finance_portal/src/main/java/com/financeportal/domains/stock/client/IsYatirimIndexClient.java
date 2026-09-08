@@ -1,5 +1,7 @@
 package com.financeportal.domains.stock.client;
 
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +41,7 @@ public class IsYatirimIndexClient {
     private static final Pattern HISSE_PATTERN = Pattern.compile("hisse=([A-Z0-9]{2,8})");
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
 
     /**
      * BIST endeksinin güncel sembol listesini İş Yatırım'dan çeker.
@@ -48,6 +51,9 @@ public class IsYatirimIndexClient {
      * @return Sembol seti, hata/parse fail durumunda boş set (caller fallback'e geçer)
      */
     public Set<String> fetchIndex(String endeks) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.ISYATIRIM);
+
         String code = ENDEKS_CODE.get(endeks);
         if (code == null) {
             log.warn("[ISYATIRIM_INDEX] Bilinmeyen endeks: {}", endeks);

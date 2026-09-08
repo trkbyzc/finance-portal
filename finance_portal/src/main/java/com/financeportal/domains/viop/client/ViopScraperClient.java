@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.viop.dto.ViopDto;
 import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,10 +23,16 @@ import java.util.List;
 import java.util.Locale;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class ViopScraperClient {
 
+    private final DataSourcePolicy dataSourcePolicy;
+
     public List<ViopDto> scrapeViopData() {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.ISYATIRIM);
+
         long startTime = System.currentTimeMillis();
         List<ViopDto> viopList = new ArrayList<>();
         try {
@@ -72,6 +81,9 @@ public class ViopScraperClient {
     }
 
     public List<HistoricalDataDto> fetchViopHistoryFromIsYatirim(String fullName, String range) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.ISYATIRIM);
+
         List<HistoricalDataDto> history = new ArrayList<>();
         try {
             String viopSymbol = convertToIsYatirimFormat(fullName);

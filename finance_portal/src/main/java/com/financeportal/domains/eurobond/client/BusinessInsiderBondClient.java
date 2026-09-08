@@ -1,6 +1,8 @@
 package com.financeportal.domains.eurobond.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.util.HttpHeadersUtil;
 import lombok.Builder;
@@ -37,12 +39,14 @@ import java.util.regex.Pattern;
 public class BusinessInsiderBondClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
 
     @Value("${external-api.businessinsider.base-url}")
     private String baseUrl;
 
-    public BusinessInsiderBondClient(RestTemplate restTemplate) {
+    public BusinessInsiderBondClient(RestTemplate restTemplate, DataSourcePolicy dataSourcePolicy) {
         this.restTemplate = restTemplate;
+        this.dataSourcePolicy = dataSourcePolicy;
     }
 
     private static final Pattern P_TKDATA = Pattern.compile("TKData\"\\s*:\\s*\"([0-9,]+)\"");
@@ -55,6 +59,8 @@ public class BusinessInsiderBondClient {
     private static final DateTimeFormatter US_DATE = DateTimeFormatter.ofPattern("M/d/yyyy", Locale.ENGLISH);
 
     public BusinessInsiderBondDetail fetchDetail(String slug) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.BUSINESS_INSIDER);
         if (slug == null || slug.isBlank()) return null;
         try {
             String url = String.format("%s/bonds/%s", baseUrl, slug);
@@ -83,6 +89,8 @@ public class BusinessInsiderBondClient {
     }
 
     public List<HistoricalDataDto> fetchChart(String tkData, String range) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.BUSINESS_INSIDER);
         List<HistoricalDataDto> list = new ArrayList<>();
         if (tkData == null || tkData.isBlank()) return list;
         try {

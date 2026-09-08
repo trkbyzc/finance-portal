@@ -4,6 +4,8 @@ import com.financeportal.domains.stock.dto.StockDto;
 import com.financeportal.domains.stock.service.BistIndexService;
 import com.financeportal.model.dto.fintables.FintablesChartResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,7 @@ import java.util.Set;
 public class BistStockClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
     private final BistIndexService bistIndexService;
     private final TradingViewLogoClient logoClient;
 
@@ -42,6 +45,9 @@ public class BistStockClient {
     }
 
     public List<StockDto> fetchTurkishStocks() {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.FINTABLES);
+
         long startTime = System.currentTimeMillis();
         List<StockDto> stocks = new ArrayList<>();
         Set<String> bist30 = bistIndexService.getBist30();
@@ -102,6 +108,9 @@ public class BistStockClient {
     }
 
     public List<HistoricalDataDto> fetchIndexHistory(String symbol, String range) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.FINTABLES);
+
         List<HistoricalDataDto> historyList = new ArrayList<>();
         try {
             long to = Instant.now().getEpochSecond();

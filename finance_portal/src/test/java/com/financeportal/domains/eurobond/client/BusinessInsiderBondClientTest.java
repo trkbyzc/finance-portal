@@ -1,5 +1,7 @@
 package com.financeportal.domains.eurobond.client;
 
+import com.financeportal.config.datasource.DataSourcePolicy;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient.BusinessInsiderBondDetail;
@@ -31,6 +33,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BusinessInsiderBondClientTest {
+    // Politika kontrolu istemci girisinde calisir; birim testinde kaynak
+    // acik kabul edilir (mock check() bos gecer).
+    @Mock private DataSourcePolicy dataSourcePolicy;
+
 
     @Mock
     private RestTemplate restTemplate;

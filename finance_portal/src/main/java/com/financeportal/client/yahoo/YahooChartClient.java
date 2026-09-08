@@ -3,6 +3,8 @@ package com.financeportal.client.yahoo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.financeportal.model.dto.market.HistoricalDataDto;
 import com.financeportal.util.HttpHeadersUtil;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +29,15 @@ import java.util.Locale;
 public class YahooChartClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
 
     @Value("${external-api.yahoo.base-url}")
     private String yahooBaseUrl;
 
     public List<HistoricalDataDto> fetchChartHistory(String yahooSymbol, String range, String interval, String startDate, String endDate) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.YAHOO);
+
         long startTime = System.currentTimeMillis();
         List<HistoricalDataDto> dataList = new ArrayList<>();
 

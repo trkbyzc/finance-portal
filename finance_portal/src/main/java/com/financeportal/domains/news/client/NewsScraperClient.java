@@ -1,5 +1,8 @@
 package com.financeportal.domains.news.client;
 
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,10 +16,16 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class NewsScraperClient {
 
+    private final DataSourcePolicy dataSourcePolicy;
+
     public String scrapeArticleContent(String url) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.NEWS_CONTENT);
+
         long startTime = System.currentTimeMillis();
         try {
             Document doc = Jsoup.connect(url)
@@ -59,6 +68,9 @@ public class NewsScraperClient {
     }
 
     public List<Map<String, String>> scrapeEconomicCalendar() {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.INVESTING_CALENDAR);
+
         long startTime = System.currentTimeMillis();
         List<Map<String, String>> calendar = new ArrayList<>();
         try {

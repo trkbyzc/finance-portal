@@ -2,6 +2,7 @@ package com.financeportal.client.yahoo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.model.dto.market.MarketAssetDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class YahooQuoteClientTest {
 
+    // Politika kontrolu istemcinin girisinde calisir; birim testlerinde
+    // kaynak acik kabul edilir (mock'un check() metodu bos gecer).
+    @Mock private DataSourcePolicy dataSourcePolicy;
     @Mock private RestTemplate restTemplate;
 
     @InjectMocks private YahooQuoteClient client;

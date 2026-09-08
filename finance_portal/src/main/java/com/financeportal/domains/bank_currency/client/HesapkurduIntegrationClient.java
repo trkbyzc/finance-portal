@@ -3,6 +3,8 @@ package com.financeportal.domains.bank_currency.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.bank_currency.dto.BankCurrencyDto;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,12 +25,16 @@ import java.util.List;
 public class HesapkurduIntegrationClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
     private final ObjectMapper objectMapper;
 
     @Value("${external-api.hesapkurdu.url}")
     private String hesapkurduUrl = "https://apigw.hesapkurdu.com/v1/forex/fx/getExchangeRates";
 
     public List<BankCurrencyDto> fetchLiveBankRates() {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.HESAPKURDU);
+
         long startTime = System.currentTimeMillis();
         List<BankCurrencyDto> bankRates = new ArrayList<>();
 

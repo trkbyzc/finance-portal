@@ -4,6 +4,8 @@ import com.financeportal.domains.fund.dto.FundDto;
 import com.financeportal.model.dto.fintables.FintablesChartResponse;
 import com.financeportal.model.dto.fintables.FintablesYieldResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,7 @@ import java.util.List;
 public class TefasFundClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
 
     @Value("${external-api.fintables.api-url}")
     private String fintablesApiUrl = "https://api.fintables.com";
@@ -43,6 +46,9 @@ public class TefasFundClient {
     }
 
     public List<FundDto> fetchTefasFunds() {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.FINTABLES);
+
         long startTime = System.currentTimeMillis();
         try {
             String url = fintablesApiUrl + "/funds/yield/?fund_type=mutual&tefas=true";
@@ -71,6 +77,9 @@ public class TefasFundClient {
     }
 
     public List<HistoricalDataDto> fetchFundHistory(String symbol, String range) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.FINTABLES);
+
         List<HistoricalDataDto> historyList = new ArrayList<>();
         try {
             long to = Instant.now().getEpochSecond();

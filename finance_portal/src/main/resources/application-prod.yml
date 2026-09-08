@@ -71,3 +71,74 @@ logging:
   pattern:
     # JSON format'a geçtiğimiz için console pattern stripped
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%X{trace_id:-}] %c{1} - %m%n"
+
+# =====================================================================
+# Veri kaynağı politikası — CANLI ORTAM
+# =====================================================================
+# Buradaki kısıtlamalar YALNIZCA prod profilinde geçerlidir. Yerel çalıştırmada
+# (dev/local) hiçbir kaynak kapalı değildir; uygulama tam işlevsel gelir.
+#
+# Ayrım şu: bir kaynağı kendi makinende kullanmak ile onu anonim ziyaretçilere
+# SUNMAK aynı şey değildir. İkincisi yeniden dağıtımdır ve resmî olmayan uçların
+# ya da kazınan sitelerin kullanım şartları buna izin vermez.
+#
+# Kapalı kaynak istendiğinde 503 + DATA_SOURCE_UNAVAILABLE dönülür; arayüz bunu
+# hata olarak değil, gerekçesini açıklayan bir bilgi kartı olarak gösterir.
+data-sources:
+  policies:
+
+    # --- Resmî olmayan uçlar: canlıda kapalı ---
+    yahoo:
+      enabled: false
+      note: >-
+        Küresel hisse, endeks, emtia ve ETF verisi Yahoo Finance'in belgelenmemiş
+        ucundan gelir; şartları üçüncü taraflara yeniden sunuma izin vermediği için
+        canlı demoda kapalıdır. Yerel kurulumda tam çalışır.
+
+    tradingview-logo:
+      enabled: false
+      note: >-
+        Sembol logoları TradingView'in marka varlıklarıdır; canlı demoda
+        sunulmaz, yerine sembolün baş harfleri gösterilir.
+
+    businessinsider:
+      enabled: false
+      note: >-
+        Küresel tahvil kotasyonları resmî olmayan bir uçtan alınır;
+        canlı demoda kapalıdır.
+
+    hesapkurdu:
+      enabled: false
+      note: >-
+        Mevduat/kredi oranları üçüncü tarafın dahili API'sinden gelir;
+        canlı demoda kapalıdır.
+
+    # --- Kazıma (scraping): canlıda kapalı ---
+    fintables:
+      enabled: false
+      note: >-
+        BİST hisseleri ve TEFAS fonları Fintables'tan alınır. Fintables ücretli
+        bir abonelik ürünüdür; verisini canlı bir demoda yeniden sunmak doğru
+        olmaz. Yerel kurulumda bu bölümler tam çalışır.
+
+    isyatirim:
+      enabled: false
+      note: >-
+        Temel veriler, BİST endeksi ve VİOP kontratları İş Yatırım sayfalarından
+        kazınarak elde edilir; canlı demoda kapalıdır.
+
+    ipo-scraper:
+      enabled: false
+      note: >-
+        Halka arz takvimi üçüncü taraf bir siteden kazınır;
+        canlı demoda kapalıdır.
+
+    news-content:
+      enabled: false
+      note: >-
+        Haber başlıkları RSS ile gelir ve kaynağına yönlendirir. Makalenin tam
+        metnini uygulama içinde göstermek telifli içeriğin yeniden yayını olacağı
+        için canlı demoda kapalıdır.
+
+    # --- Resmî API'ler ve RSS: canlıda açık (base profildeki değerler geçerli) ---
+    # evds · fred · binance · coingecko · finnhub · truncgil · feargreed · news-rss

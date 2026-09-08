@@ -1,5 +1,7 @@
 package com.financeportal.domains.stock.client;
 
+import com.financeportal.config.datasource.DataSourcePolicy;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +29,9 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class IsYatirimIndexClientTest {
 
+    // Politika kontrolu istemci girisinde calisir; birim testinde kaynak
+    // acik kabul edilir (mock check() bos gecer).
+    @Mock private DataSourcePolicy dataSourcePolicy;
     @Mock private RestTemplate restTemplate;
 
     @InjectMocks private IsYatirimIndexClient client;

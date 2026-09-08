@@ -1,5 +1,6 @@
 package com.financeportal.domains.stock.client;
 
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.domains.stock.dto.StockDto;
 import com.financeportal.domains.stock.service.BistIndexService;
 import com.financeportal.model.dto.fintables.FintablesChartResponse;
@@ -35,6 +36,9 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("unchecked")
 class BistStockClientTest {
 
+    // Politika kontrolu istemci girisinde calisir; birim testinde kaynak
+    // acik kabul edilir (mock check() bos gecer).
+    @Mock private DataSourcePolicy dataSourcePolicy;
     @Mock private RestTemplate restTemplate;
     @Mock private BistIndexService bistIndexService;
     @Mock private TradingViewLogoClient logoClient;

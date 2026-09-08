@@ -1,5 +1,7 @@
 package com.financeportal.domains.stock.client;
 
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +43,7 @@ public class IsYatirimFundamentalsClient {
     private static final Pattern KOD = Pattern.compile("hisse=([A-Z0-9]{2,8})");
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
 
     // S3077: volatile referans concurrent write'ı korumaz; thread-safe primitive'ler kullan.
     private final java.util.concurrent.ConcurrentMap<String, Fundamentals> cache = new java.util.concurrent.ConcurrentHashMap<>();
@@ -51,6 +54,9 @@ public class IsYatirimFundamentalsClient {
 
     /** Sembol koduna (örn. "ASELS") göre temel veri; yoksa null. Cache bayatsa yenilenir. */
     public Fundamentals get(String code) {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.ISYATIRIM);
+
         if (code == null) return null;
         ensureFresh();
         return cache.get(code.toUpperCase());

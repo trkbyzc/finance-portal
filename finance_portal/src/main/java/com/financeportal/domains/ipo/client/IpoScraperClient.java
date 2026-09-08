@@ -1,6 +1,9 @@
 package com.financeportal.domains.ipo.client;
 
 import com.financeportal.domains.ipo.dto.IpoDto;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,10 +18,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class IpoScraperClient {
 
+    private final DataSourcePolicy dataSourcePolicy;
+
     public List<IpoDto> scrapeIPOCalendar() {
+        // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        dataSourcePolicy.check(DataSourceKeys.IPO_SCRAPER);
+
         long startTime = System.currentTimeMillis();
         List<IpoDto> ipoList = new ArrayList<>();
         LocalDate today = LocalDate.now();

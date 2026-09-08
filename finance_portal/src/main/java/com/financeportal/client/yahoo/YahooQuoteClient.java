@@ -1,6 +1,8 @@
 package com.financeportal.client.yahoo;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.model.dto.market.MarketAssetDto;
 import com.financeportal.util.HttpHeadersUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +25,15 @@ import java.util.List;
 public class YahooQuoteClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
 
     @Value("${external-api.yahoo.base-url}")
     private String yahooBaseUrl;
 
     public List<MarketAssetDto> fetchQuotes(String[] symbols, String assetType) {
+        // Kaynak bu ortamda sunulmuyorsa dış çağrı hiç yapılmaz (bkz. DataSourcePolicy).
+        dataSourcePolicy.check(DataSourceKeys.YAHOO);
+
         long startTime = System.currentTimeMillis();
         HttpEntity<String> entity = new HttpEntity<>(HttpHeadersUtil.getYahooFinanceHeaders());
         List<MarketAssetDto> list = new ArrayList<>();

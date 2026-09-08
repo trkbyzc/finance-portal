@@ -1,6 +1,8 @@
 package com.financeportal.domains.stock.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ import java.util.*;
 public class TradingViewLogoClient {
 
     private final RestTemplate restTemplate;
+    private final DataSourcePolicy dataSourcePolicy;
     private final ObjectMapper objectMapper;
 
     @Value("${external-api.tradingview-logo.base-url}")
@@ -58,6 +61,10 @@ public class TradingViewLogoClient {
 
     /** BİST sembolüne (ASELS / ASELS.IS) göre logo URL'i; yoksa null. */
     public String bistLogo(String code) {
+        // Logolar zenginlestirme amacli; kaynak kapaliysa liste comesin diye
+        // istisna firlatilmaz, sessizce bos donulur (arayuz bas harfleri gosterir).
+        if (!dataSourcePolicy.isAvailable(DataSourceKeys.TRADINGVIEW_LOGO)) return null;
+
         if (code == null) return null;
         ensureBist();
         return logoUrl(bistCache.get(norm(code)));
@@ -77,6 +84,10 @@ public class TradingViewLogoClient {
 
     /** Verilen ABD sembolleri için {sembol → logoUrl} (logosu olmayanlar haritada yer almaz). */
     public synchronized Map<String, String> usLogos(Collection<String> symbols) {
+        // Logolar zenginlestirme amacli; kaynak kapaliysa liste comesin diye
+        // istisna firlatilmaz, sessizce bos donulur (arayuz bas harfleri gosterir).
+        if (!dataSourcePolicy.isAvailable(DataSourceKeys.TRADINGVIEW_LOGO)) return java.util.Map.of();
+
         if (symbols == null || symbols.isEmpty()) return Map.of();
         if (System.currentTimeMillis() - usLastFetch.get() >= logoRefreshMs) {
             usCache.clear();
@@ -109,6 +120,10 @@ public class TradingViewLogoClient {
      * ABD hisselerinde bu kaynak kullanılır. Bulunamazsa null.
      */
     public UsFundamentals usFundamentals(String symbol) {
+        // Logolar zenginlestirme amacli; kaynak kapaliysa liste comesin diye
+        // istisna firlatilmaz, sessizce bos donulur (arayuz bas harfleri gosterir).
+        if (!dataSourcePolicy.isAvailable(DataSourceKeys.TRADINGVIEW_LOGO)) return null;
+
         if (symbol == null || symbol.isBlank()) return null;
         try {
             Map<String, Object> filter = Map.of("left", "name", "operation", "in_range",
@@ -171,6 +186,10 @@ public class TradingViewLogoClient {
 
     /** Emtia/altın sembolüne göre logo URL'i. Önce Yahoo futures haritası, sonra altın/gümüş anahtar kelime. */
     public String commodityLogo(String symbol) {
+        // Logolar zenginlestirme amacli; kaynak kapaliysa liste comesin diye
+        // istisna firlatilmaz, sessizce bos donulur (arayuz bas harfleri gosterir).
+        if (!dataSourcePolicy.isAvailable(DataSourceKeys.TRADINGVIEW_LOGO)) return null;
+
         if (symbol == null) return null;
         String slug = COMMODITY_SLUGS.get(symbol.trim().toUpperCase());
         if (slug == null) {

@@ -206,6 +206,43 @@ external-api:
   tradingview-logo:
     base-url: ${TRADINGVIEW_LOGO_BASE_URL:https://s3-symbol-logo.tradingview.com/}
 
+# =====================================================================
+# Veri kaynağı politikası
+# =====================================================================
+# Sağlayıcıların tümü aynı hukuki zeminde değil: bir kısmı resmî API yayınlar,
+# bir kısmı üçüncü taraf kullanımı için tasarlanmamış uçlardan okunur veya HTML
+# kazınarak elde edilir. Yerelde kullanmak ile anonim ziyaretçilere SUNMAK farklı
+# şeylerdir; ikincisi yeniden dağıtımdır ve ilgili şartlar buna izin vermez.
+#
+# Burada (base profil) HEPSİ AÇIK — geliştirme ortamı hiçbir zaman kısıtlanmaz.
+# Kısıtlamalar yalnızca application-prod.yml içinde tanımlıdır.
+#
+# Tanımlanmamış bir kaynak açık kabul edilir; yeni istemci eklendiğinde yerel
+# geliştirme kendiliğinden çalışır, kısıtlama bilinçli olarak eklenir.
+data-sources:
+  policies:
+    # --- Resmî API'ler ---
+    evds:             { enabled: true }   # TCMB EVDS  · resmî API + anahtar
+    fred:             { enabled: true }   # St. Louis Fed · resmî API + anahtar
+    binance:          { enabled: true }   # Binance · resmî açık API
+    coingecko:        { enabled: true }   # CoinGecko · resmî ücretsiz katman
+    finnhub:          { enabled: true }   # Finnhub · resmî API + anahtar
+    truncgil:         { enabled: true }   # Truncgil · ücretsiz yayınlanan API
+    feargreed:        { enabled: true }   # alternative.me · ücretsiz açık API
+    news-rss:         { enabled: true }   # RSS · syndication için yayınlanır
+
+    # --- Resmî olmayan uçlar ---
+    yahoo:            { enabled: true }   # küresel hisse/endeks/emtia/ETF/tahvil/vadeli
+    tradingview-logo: { enabled: true }   # üçüncü tarafın marka varlıkları
+    businessinsider:  { enabled: true }   # küresel tahvil kotasyonları
+    hesapkurdu:       { enabled: true }   # mevduat oranları · dahili API gateway
+
+    # --- Kazıma ---
+    fintables:        { enabled: true }   # BİST hisseleri + TEFAS fonları · ücretli ürün
+    isyatirim:        { enabled: true }   # temel veri, BİST endeksi, VİOP
+    ipo-scraper:      { enabled: true }   # halka arz takvimi
+    news-content:     { enabled: true }   # haber tam metni (keyfi URL)
+
 # Uygulama özelinde ayarlar
 app:
   mail:

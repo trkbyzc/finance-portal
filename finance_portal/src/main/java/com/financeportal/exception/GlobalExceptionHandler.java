@@ -91,6 +91,39 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, msg, request);
     }
 
+    /**
+     * Veri kaynağı bu ortamda sunulmuyor — hata değil, politika sonucu.
+     * Arayüz {@code code} alanına bakarak kırmızı hata yerine bilgi kartı gösterir.
+     *
+     * <p>Kapalı kaynak 503, giriş gerektiren kaynak 401 döner; ikisi de beklenen
+     * durumlar olduğu için WARN değil DEBUG seviyesinde loglanır (bkz. DataSourcePolicy).
+     */
+    @ExceptionHandler(DataSourceUnavailableException.class)
+    public ResponseEntity<DataSourceUnavailableResponse> handleDataSourceUnavailable(
+            DataSourceUnavailableException ex, HttpServletRequest request) {
+
+        boolean needsAuth = ex.getReason() == DataSourceUnavailableException.Reason.REQUIRES_AUTH;
+        HttpStatus status = needsAuth ? HttpStatus.UNAUTHORIZED : HttpStatus.SERVICE_UNAVAILABLE;
+
+        String message = ex.getNote() != null && !ex.getNote().isBlank()
+                ? ex.getNote()
+                : needsAuth
+                    ? "Bu bölüm yalnızca giriş yapmış kullanıcılara açıktır."
+                    : "Bu veri kaynağı, sağlayıcının kullanım şartları nedeniyle canlı demoda "
+                      + "devre dışıdır. Projeyi yerelde çalıştırdığınızda tam işlevsel olarak gelir.";
+
+        DataSourceUnavailableResponse body = new DataSourceUnavailableResponse(
+                LocalDateTime.now(),
+                status.value(),
+                DataSourceUnavailableResponse.CODE,
+                ex.getSource(),
+                ex.getReason().name(),
+                message,
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(body, status);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, HttpServletRequest request) {
         log.error("BEKLENMEDİK SİSTEM HATASI: ", ex);
