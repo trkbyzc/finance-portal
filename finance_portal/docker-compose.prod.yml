@@ -69,13 +69,19 @@ services:
 
   # --- Kimlik sağlayıcı: auth.<alan-adı> üzerinden Caddy proxy'ler ---
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.2
+    # Yerel compose hazir imaji kullanip tema/SPI/realm'i host'tan mount eder.
+    # Canlida bu yapilamaz: ban-authenticator'in JAR'i target/ altinda uretilir ve
+    # git'e girmez — sunucuda o dosya yoktur. Ayrintili gerekce keycloak.Dockerfile'da.
+    build:
+      context: .
+      dockerfile: keycloak.Dockerfile
+    image: finance-portal-keycloak:prod
     container_name: finance-keycloak
     restart: unless-stopped
     command: start --import-realm
     mem_limit: 1500m
     environment:
-      KC_DB: postgres
+      # KC_DB ve KC_HEALTH_ENABLED build zamani secenekleridir → keycloak.Dockerfile'da.
       KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-finance_db}
       KC_DB_USERNAME: ${DB_USERNAME:?DB_USERNAME gerekli}
       KC_DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD gerekli}
@@ -85,12 +91,7 @@ services:
       KC_HOSTNAME: ${AUTH_DOMAIN:?AUTH_DOMAIN gerekli}
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
-      KC_HEALTH_ENABLED: "true"
       # Yerel compose'daki tema cache kapatma ayarları BİLİNÇLİ olarak yok — onlar dev içindi.
-    volumes:
-      - ./keycloak-themes:/opt/keycloak/themes:ro
-      - ./keycloak-providers/ban-authenticator/target:/opt/keycloak/providers:ro
-      - ./finance-realm.json:/opt/keycloak/data/import/finance-realm.json:ro
     depends_on:
       postgres:
         condition: service_healthy

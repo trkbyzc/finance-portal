@@ -1,8 +1,6 @@
 # Continuous Deployment — GKE'ye otomatik deploy.
 #
-# Tetikleyici:
-#   - manual (workflow_dispatch) → her zaman
-#   - main'e push (sadece backend veya frontend kodu değiştiyse)
+# Tetikleyici: yalnızca manuel (workflow_dispatch). Aşağıdaki `on:` bloğuna bak.
 #
 # Adımlar:
 #   1. GCP'ye SA JSON key ile auth
