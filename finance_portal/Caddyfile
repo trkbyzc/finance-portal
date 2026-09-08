@@ -14,7 +14,6 @@
 # Degiskenler compose'dan environment olarak gelir (APP_DOMAIN, AUTH_DOMAIN,
 # ROOT_DOMAIN, ACME_EMAIL).
 # =====================================================================
-
 {
 	# Sertifika son kullanma / sorun bildirimleri bu adrese gider.
 	email {$ACME_EMAIL}
