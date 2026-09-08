@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 
 import Navbar from './components/layout/Navbar/Navbar.jsx';
+import DemoModeBanner from './components/layout/DemoModeBanner.jsx';
 import Footer from './components/layout/Footer/Footer.jsx';
 import Dashboard from './pages/Dashboard/Dashboard.jsx';
 import MarketPage from './pages/MarketPage/MarketPage.jsx';
@@ -45,6 +46,7 @@ function App() {
                 <Router>
                     <ScrollToTop />
                     <div className="min-h-screen bg-bg text-text font-sans selection:bg-primary selection:text-primary-fg">
+                        <DemoModeBanner />
                         <Navbar />
                         <GlobalTicker />
                         <main>

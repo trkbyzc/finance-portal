@@ -152,5 +152,8 @@
     "authTitle": "Sign in required",
     "authBody": "You need to sign in to view this section.",
     "runLocally": "How to run it locally"
+  },
+  "demoBanner": {
+    "text": "Demo mode — stock, fund and futures figures on this site are generated samples, not real market data. FX, crypto and macro figures are real."
   }
 }

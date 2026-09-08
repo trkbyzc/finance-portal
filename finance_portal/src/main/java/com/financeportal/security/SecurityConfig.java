@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/news/**").permitAll()
                         .requestMatchers("/interest/**").permitAll()
                         .requestMatchers("/economic-calendar/**").permitAll()
+                        // Demo modu bandı giriş yapmamış ziyaretçiye de görünmeli.
+                        .requestMatchers("/meta/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // 1. Token Geçerli mi? (Spring Security arka planda Keycloak ile kontrol eder)

@@ -152,5 +152,8 @@
     "authTitle": "Giriş gerekiyor",
     "authBody": "Bu bölümü görüntülemek için giriş yapmanız gerekiyor.",
     "runLocally": "Yerelde nasıl çalıştırılır"
+  },
+  "demoBanner": {
+    "text": "Demo modu — bu sayfadaki hisse, fon ve vadeli verileri örnek amaçlı üretilmiştir, gerçek piyasa verisi değildir. Döviz, kripto ve makro veriler gerçektir."
   }
 }
