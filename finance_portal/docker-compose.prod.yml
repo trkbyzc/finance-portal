@@ -79,9 +79,23 @@ services:
     container_name: finance-keycloak
     restart: unless-stopped
     command: start --import-realm
-    mem_limit: 1500m
+    # Normalde Keycloak ~500 MB ile calisir. Bu sinir, acilista bir yeniden derleme
+    # tetiklenirse onun hayatta kalmasi icin: augmentation JVM'i konteyner sinirinin
+    # %70'ini heap yapar ve 1500m ile OLDURULUYORDU (asagidaki nota bak).
+    mem_limit: 2500m
     environment:
-      # KC_DB ve KC_HEALTH_ENABLED build zamani secenekleridir → keycloak.Dockerfile'da.
+      # DIKKAT — KC_DB ve KC_HEALTH_ENABLED build zamani secenekleri OLMASINA RAGMEN
+      # burada TEKRARLANMAK ZORUNDA. Keycloak acilista runtime yapilandirmasini imaja
+      # gomulu olanla karsilastirir; bir secenek runtime'da YOKSA "varsayilanina donmus"
+      # sayar ve degisiklik gordugu icin imaji yeniden derlemeye kalkar:
+      #     - db=postgres > db=dev-file
+      #     - health-enabled=true > health-enabled=false
+      # Yeniden derleme once lib/quarkus'u siler, sonra yeniden uretir. Bellek yetmeyip
+      # yarida olurse dizin silinmis kalir ve konteyner
+      # "NoSuchFileException: quarkus-application.dat" ile sonsuz doner.
+      # Yani bu iki satiri silmek Keycloak'i tamamen calismaz hale getirir.
+      KC_DB: postgres
+      KC_HEALTH_ENABLED: "true"
       KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-finance_db}
       KC_DB_USERNAME: ${DB_USERNAME:?DB_USERNAME gerekli}
       KC_DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD gerekli}
@@ -97,8 +111,22 @@ services:
         condition: service_healthy
 
   # --- Haber çevirisi (self-hosted, dış API anahtarı gerekmez) ---
+  # Yayinlanan imaj SADECE linux/amd64 — bu sunucu arm64, calistirilamiyor
+  # ("exec format" / surekli restart). Yayinci arm64 basmadigi icin kaynaktan
+  # deriyoruz; Next.js uygulamasi ve tabani node:lts-alpine, ARM'de sorunsuz derlenir.
+  #
+  # Depoda surum etiketi yok ve main Ocak 2023'ten beri durgun → tekrarlanabilirlik
+  # icin commit'e sabitlendi.
+  #
+  # NOT: Yukaridaki deponun Dockerfile'i Next.js derlemesini imaj derlenirken degil
+  # KONTEYNER BASLARKEN yapiyor (CMD icinde `yarn build && yarn start`). Bu yuzden
+  # ilk acilis birkac dakika surer; o sirada ceviri calismaz, haberler cevrilmemis
+  # gorunur. Uygulama bunu zaten tolere ediyor (TranslationClient basarisizlikta
+  # null doner, NewsSyncService 3 dk bekleyip RSS-only sync'e duser).
   lingva:
-    image: thedaviddelta/lingva-translate:latest
+    build:
+      context: https://github.com/thedaviddelta/lingva-translate.git#0190ea5da9fbccba51e82184ca855c4ef5728fc7
+    image: finance-portal-lingva:prod
     container_name: finance-lingva
     restart: unless-stopped
 

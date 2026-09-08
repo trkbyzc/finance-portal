@@ -36,7 +36,11 @@ RUN mvn -B -q package -DskipTests
 # -----------------------------------------------------------------------------
 FROM quay.io/keycloak/keycloak:24.0.2 AS builder
 
-# Build zamani secenekleri (calisma zamaninda degil BURADA verilmeli).
+# Build zamani secenekleri. Bunlar docker-compose.prod.yml'deki runtime environment
+# blogunda da AYNI degerlerle TEKRARLANMALI. Keycloak acilista ikisini karsilastirir;
+# runtime'da eksik olan secenegi varsayilanina donmus sayar, degisiklik gordugu icin
+# imaji yeniden derler. O derleme yarida kalirsa sunucu tamamen bozulur.
+# Gerekcenin uzun hali docker-compose.prod.yml'deki keycloak servisinde.
 ENV KC_DB=postgres \
     KC_HEALTH_ENABLED=true
 
