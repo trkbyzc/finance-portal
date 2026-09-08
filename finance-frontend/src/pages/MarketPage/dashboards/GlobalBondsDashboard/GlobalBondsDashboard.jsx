@@ -2,15 +2,28 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import TradingChart from '../../../../components/charts/TradingChart/TradingChart';
 import AssetActions from '../../../../components/asset/AssetActions';
 
 export default function GlobalBondsDashboard() {
     const navigate = useNavigate();
-    const { data: bonds, selectedAsset, setSelectedAsset, loading } = useMarketData('bonds');
+    const { data: bonds, selectedAsset, setSelectedAsset, loading, dataSourceError } = useMarketData('bonds');
     const { t } = useTranslation(['markets', 'common', 'asset']);
 
     if (loading) return <div className="min-h-screen bg-bg flex items-center justify-center">{t('common:status.loading')}</div>;
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

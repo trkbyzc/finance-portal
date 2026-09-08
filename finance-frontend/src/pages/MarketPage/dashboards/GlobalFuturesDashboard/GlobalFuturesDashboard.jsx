@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Search, BarChart3, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import { formatCurrency } from '../../../../utils/formatters/currencyFormatter';
 
 /**
@@ -18,7 +19,7 @@ import { formatCurrency } from '../../../../utils/formatters/currencyFormatter';
 const CATEGORY_ORDER = ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'ZN=F', 'ZB=F', 'ZF=F', '6E=F', '6B=F', '6J=F'];
 
 export default function GlobalFuturesDashboard() {
-    const { data: futures, loading } = useMarketData('futures');
+    const { data: futures, loading, dataSourceError } = useMarketData('futures');
     const { t } = useTranslation(['markets', 'common']);
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,6 +43,18 @@ export default function GlobalFuturesDashboard() {
             return ai - bi;
         });
     }, [searchQuery, futures]);
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

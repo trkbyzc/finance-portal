@@ -1,4 +1,5 @@
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,8 +8,20 @@ import AssetIcon from '../../../../components/asset/AssetIcon';
 
 export default function GlobalFundsDashboard() {
     const navigate = useNavigate();
-    const { data: etfs } = useMarketData('global-funds');
+    const { data: etfs, dataSourceError } = useMarketData('global-funds');
     const { t } = useTranslation(['markets', 'common']);
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

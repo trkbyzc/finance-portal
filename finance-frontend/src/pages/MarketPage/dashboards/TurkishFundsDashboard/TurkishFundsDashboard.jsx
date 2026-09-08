@@ -3,13 +3,14 @@ import { ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import FundTradingChart from '../../../../components/charts/FundTradingChart/FundTradingChart';
 import AssetActions from '../../../../components/asset/AssetActions';
 import NewsSection from '../../../../components/news/NewsSection.jsx';
 
 export default function TurkishFundsDashboard() {
     const navigate = useNavigate();
-    const { data: funds, selectedAsset, setSelectedAsset, loading } = useMarketData('tr-funds');
+    const { data: funds, selectedAsset, setSelectedAsset, loading, dataSourceError } = useMarketData('tr-funds');
     const { t } = useTranslation(['markets', 'common', 'asset']);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -39,6 +40,18 @@ export default function TurkishFundsDashboard() {
     };
 
     if (loading) return <div className="min-h-screen bg-bg flex items-center justify-center">{t('common:status.loading')}</div>;
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import { useNewsData } from '../../../../hooks/useNewsData';
 import CommodityHeader from './components/CommodityHeader';
 import CommodityTabs from './components/CommodityTabs';
@@ -7,7 +8,7 @@ import CommodityTable from './components/CommodityTable';
 import CommodityNewsSidebar from './components/CommodityNewsSidebar';
 
 export default function CommoditiesDashboard() {
-    const { data: commodities, loading: isLoading } = useMarketData('commodities');
+    const { data: commodities, loading: isLoading, dataSourceError } = useMarketData('commodities');
     const { news, loading: loadingNews } = useNewsData('Emtialar');
     const [searchQuery, setSearchQuery] = useState("");
     const [activeCategory, setActiveCategory] = useState("all");
@@ -49,6 +50,18 @@ export default function CommoditiesDashboard() {
 
         return result;
     }, [searchQuery, activeCategory, commodities]);
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

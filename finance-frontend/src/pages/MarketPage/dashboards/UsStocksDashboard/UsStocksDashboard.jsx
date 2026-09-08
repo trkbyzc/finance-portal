@@ -2,11 +2,12 @@ import { useState, useMemo } from 'react';
 import { Search, TrendingUp, TrendingDown, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import { useNavigate } from 'react-router-dom';
 import AssetIcon from '../../../../components/asset/AssetIcon';
 
 export default function UsStocksDashboard() {
-    const { data: stocks, loading: isLoading } = useMarketData('us-stocks');
+    const { data: stocks, loading: isLoading, dataSourceError } = useMarketData('us-stocks');
     const navigate = useNavigate();
     const { t } = useTranslation(['markets', 'common']);
     const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +20,18 @@ export default function UsStocksDashboard() {
             (s.name && s.name.toLowerCase().includes(query))
         );
     }, [searchQuery, stocks]);
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

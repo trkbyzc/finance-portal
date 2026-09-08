@@ -145,5 +145,12 @@
   "footer": {
     "rights": "All rights reserved.",
     "disclaimer": "Not investment advice."
+  },
+  "dataSource": {
+    "disabledTitle": "Unavailable in the live demo",
+    "disabledBody": "This data is not served in the live demo because of the provider's terms of use. Run the project locally and the section works in full.",
+    "authTitle": "Sign in required",
+    "authBody": "You need to sign in to view this section.",
+    "runLocally": "How to run it locally"
   }
 }

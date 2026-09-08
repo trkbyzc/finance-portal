@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { aggregateApi } from '../services/api';
+import { asDataSourceError } from '../utils/dataSourceError';
 
 const CATEGORY_CONFIG = {
     'tr-stocks': { title: 'Türk Hisse Senetleri', icon: '🇹🇷', endpoint: '/stocks', type: 'stock', filter: 'tr' },
@@ -26,7 +27,7 @@ export const useMarketData = (category) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAsset, setSelectedAsset] = useState(null);
 
-    const { data: rawData = [], isLoading: loading } = useQuery({
+    const { data: rawData = [], isLoading: loading, error: queryError } = useQuery({
         queryKey: ['marketData', category, config.endpoint],
         queryFn: async () => {
             try {
@@ -41,12 +42,20 @@ export const useMarketData = (category) => {
                 const res = await aggregateApi.getMarketsByEndpoint(config.endpoint);
                 return res || [];
             } catch (error) {
+                // "Kaynak bu ortamda sunulmuyor" bir arıza değil, gösterilmesi gereken
+                // bir durum → yüzeye çıkar. Diğer hatalar eskisi gibi yutulur ve
+                // pano boş listeyle çalışmaya devam eder.
+                if (asDataSourceError(error)) throw error;
                 console.error("Veri çekme hatası:", error);
                 return [];
             }
         },
+        // Kapalı kaynak tekrar denemekle açılmaz; boşuna istek atma.
+        retry: (failureCount, error) => !asDataSourceError(error) && failureCount < 3,
         staleTime: 30 * 1000
     });
+
+    const dataSourceError = useMemo(() => asDataSourceError(queryError), [queryError]);
 
     const filteredData = useMemo(() => {
         let processedData = rawData || [];
@@ -105,6 +114,8 @@ export const useMarketData = (category) => {
         config,
         showcaseAssets: getShowcaseAssets(),
         searchTerm,
-        setSearchTerm
+        setSearchTerm,
+        // Kaynak bu ortamda sunulmuyorsa dolu gelir; pano tablo yerine bilgi kartı gösterir.
+        dataSourceError
     };
 };

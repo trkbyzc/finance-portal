@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Clock, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useMarketData } from '../../../../hooks/useMarketData';
+import DataSourceUnavailableCard from '../../../../components/common/DataSourceUnavailableCard';
 import { useNavigate } from 'react-router-dom';
 import { formatNumber } from '../../../../utils/formatters/numberFormatter';
 import MiniSparkline from '../../../../components/common/MiniSparkline';
@@ -13,7 +14,7 @@ const SPARK_NEUTRAL = '#facc15';
 /* VIOP sparkline'ı için category='VIOP' geçilir — backend chart strategy chain
    VIOP sembollerini doğru source'a route eder. */
 export default function ViopDashboard() {
-    const { data: contracts, loading: isLoading } = useMarketData('viop');
+    const { data: contracts, loading: isLoading, dataSourceError } = useMarketData('viop');
     const navigate = useNavigate();
     const { t } = useTranslation(['markets', 'common']);
     const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +34,18 @@ export default function ViopDashboard() {
         const losers = contracts.filter(c => (c.changePercent || c.regularMarketChangePercent || 0) < 0).length;
         return { total: contracts.length, gainers, losers };
     }, [contracts]);
+
+    // Kaynak bu ortamda sunulmuyorsa tabloyu hic kurma; gerekcesini gosteren
+    // bilgi kartiyla don (kirmizi hata degil - bu beklenen bir durum).
+    if (dataSourceError) {
+        return (
+            <div className="min-h-screen bg-bg text-text">
+                <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6 py-10">
+                    <DataSourceUnavailableCard error={dataSourceError} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bg text-text">

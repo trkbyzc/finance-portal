@@ -145,5 +145,12 @@
   "footer": {
     "rights": "Tüm hakları saklıdır.",
     "disclaimer": "Yatırım tavsiyesi değildir."
+  },
+  "dataSource": {
+    "disabledTitle": "Bu bölüm canlı demoda kapalı",
+    "disabledBody": "Bu veri, sağlayıcının kullanım şartları nedeniyle canlı demoda sunulmuyor. Projeyi kendi bilgisayarınızda çalıştırdığınızda bölüm tam işlevsel gelir.",
+    "authTitle": "Giriş gerekiyor",
+    "authBody": "Bu bölümü görüntülemek için giriş yapmanız gerekiyor.",
+    "runLocally": "Yerelde nasıl çalıştırılır"
   }
 }

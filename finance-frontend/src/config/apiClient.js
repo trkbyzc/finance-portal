@@ -1,5 +1,6 @@
 import axios from 'axios';
 import tokenManager from '../utils/tokenManager';
+import { isDataSourceBody } from '../utils/dataSourceError';
 
 let isBanAlertShown = false;
 
@@ -27,6 +28,13 @@ apiClient.interceptors.response.use(
         return response.data;
     },
     (error) => {
+        // Veri kaynağı bu ortamda sunulmuyor — arıza değil, politika sonucu.
+        // Bu yanıt 401 de dönebildiği için aşağıdaki oturum-kapatma dalından ÖNCE
+        // yakalanmalı; yoksa kapalı bir bölüme giren ziyaretçi sistemden atılırdı.
+        if (isDataSourceBody(error.response?.data)) {
+            return Promise.reject(error);
+        }
+
         // Ban kontrolü (403): Keycloak SPI banlı kullanıcıyı 2FA öncesi durdurur.
         if (error.response?.status === 403) {
             const errorMsgObj = error.response.data;
