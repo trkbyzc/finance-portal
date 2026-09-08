@@ -4,6 +4,7 @@ import com.financeportal.domains.stock.dto.StockDto;
 import com.financeportal.domains.stock.service.BistIndexService;
 import com.financeportal.model.dto.fintables.FintablesChartResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.demo.DemoMarketData;
 import com.financeportal.config.datasource.DataSourceKeys;
 import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class BistStockClient {
 
     private final RestTemplate restTemplate;
     private final DataSourcePolicy dataSourcePolicy;
+    private final DemoMarketData demoMarketData;
     private final BistIndexService bistIndexService;
     private final TradingViewLogoClient logoClient;
 
@@ -46,6 +48,8 @@ public class BistStockClient {
 
     public List<StockDto> fetchTurkishStocks() {
         // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.FINTABLES)) return demoMarketData.turkishStocks();
         dataSourcePolicy.check(DataSourceKeys.FINTABLES);
 
         long startTime = System.currentTimeMillis();
@@ -109,6 +113,8 @@ public class BistStockClient {
 
     public List<HistoricalDataDto> fetchIndexHistory(String symbol, String range) {
         // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.FINTABLES)) return demoMarketData.history(symbol, range);
         dataSourcePolicy.check(DataSourceKeys.FINTABLES);
 
         List<HistoricalDataDto> historyList = new ArrayList<>();

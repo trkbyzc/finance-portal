@@ -62,6 +62,18 @@ public class DataSourceProperties {
         private boolean requiresAuth = false;
 
         /**
+         * Kaynak kapalıyken hata yerine <b>sentetik demo verisi</b> döndürülsün mü?
+         *
+         * <p>Canlı demonun amacı gerçek fiyat sunmak değil, uygulamanın nasıl çalıştığını
+         * göstermektir. Bu bayrak açıkken sunucu sağlayıcıya hiç istek atmaz; tablolar,
+         * grafikler ve portföy hesapları üretilmiş veriyle dolu görünür. Arayüz bunu
+         * "örnek veri" olarak etiketler.
+         *
+         * <p>Yalnızca {@code enabled: false} ile birlikte anlamlıdır.
+         */
+        private boolean demoData = false;
+
+        /**
          * Kullanıcıya gösterilecek kısa gerekçe. Boş bırakılırsa arayüz genel bir
          * metin gösterir; dolduruldu ise arayüz bunu olduğu gibi kullanır.
          */

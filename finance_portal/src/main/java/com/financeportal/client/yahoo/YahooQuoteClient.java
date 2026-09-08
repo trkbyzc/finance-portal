@@ -1,6 +1,7 @@
 package com.financeportal.client.yahoo;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.financeportal.demo.DemoMarketData;
 import com.financeportal.config.datasource.DataSourceKeys;
 import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.model.dto.market.MarketAssetDto;
@@ -26,12 +27,15 @@ public class YahooQuoteClient {
 
     private final RestTemplate restTemplate;
     private final DataSourcePolicy dataSourcePolicy;
+    private final DemoMarketData demoMarketData;
 
     @Value("${external-api.yahoo.base-url}")
     private String yahooBaseUrl;
 
     public List<MarketAssetDto> fetchQuotes(String[] symbols, String assetType) {
         // Kaynak bu ortamda sunulmuyorsa dış çağrı hiç yapılmaz (bkz. DataSourcePolicy).
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.YAHOO)) return demoMarketData.quotes(symbols, assetType);
         dataSourcePolicy.check(DataSourceKeys.YAHOO);
 
         long startTime = System.currentTimeMillis();

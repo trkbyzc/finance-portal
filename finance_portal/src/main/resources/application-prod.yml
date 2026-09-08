@@ -90,6 +90,7 @@ data-sources:
     # --- Resmî olmayan uçlar: canlıda kapalı ---
     yahoo:
       enabled: false
+      demo-data: true
       note: >-
         Küresel hisse, endeks, emtia ve ETF verisi Yahoo Finance'in belgelenmemiş
         ucundan gelir; şartları üçüncü taraflara yeniden sunuma izin vermediği için
@@ -116,6 +117,7 @@ data-sources:
     # --- Kazıma (scraping): canlıda kapalı ---
     fintables:
       enabled: false
+      demo-data: true
       note: >-
         BİST hisseleri ve TEFAS fonları Fintables'tan alınır. Fintables ücretli
         bir abonelik ürünüdür; verisini canlı bir demoda yeniden sunmak doğru
@@ -123,6 +125,7 @@ data-sources:
 
     isyatirim:
       enabled: false
+      demo-data: true
       note: >-
         Temel veriler, BİST endeksi ve VİOP kontratları İş Yatırım sayfalarından
         kazınarak elde edilir; canlı demoda kapalıdır.

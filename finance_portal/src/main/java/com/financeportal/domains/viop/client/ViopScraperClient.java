@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.viop.dto.ViopDto;
 import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.demo.DemoMarketData;
 import com.financeportal.config.datasource.DataSourceKeys;
 import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,12 @@ import java.util.Locale;
 public class ViopScraperClient {
 
     private final DataSourcePolicy dataSourcePolicy;
+    private final DemoMarketData demoMarketData;
 
     public List<ViopDto> scrapeViopData() {
         // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.ISYATIRIM)) return demoMarketData.viopContracts();
         dataSourcePolicy.check(DataSourceKeys.ISYATIRIM);
 
         long startTime = System.currentTimeMillis();
@@ -82,6 +86,8 @@ public class ViopScraperClient {
 
     public List<HistoricalDataDto> fetchViopHistoryFromIsYatirim(String fullName, String range) {
         // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.ISYATIRIM)) return demoMarketData.history(fullName, range);
         dataSourcePolicy.check(DataSourceKeys.ISYATIRIM);
 
         List<HistoricalDataDto> history = new ArrayList<>();

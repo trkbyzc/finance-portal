@@ -4,6 +4,7 @@ import com.financeportal.domains.fund.dto.FundDto;
 import com.financeportal.model.dto.fintables.FintablesChartResponse;
 import com.financeportal.model.dto.fintables.FintablesYieldResponse;
 import com.financeportal.model.dto.market.HistoricalDataDto;
+import com.financeportal.demo.DemoMarketData;
 import com.financeportal.config.datasource.DataSourceKeys;
 import com.financeportal.config.datasource.DataSourcePolicy;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class TefasFundClient {
 
     private final RestTemplate restTemplate;
     private final DataSourcePolicy dataSourcePolicy;
+    private final DemoMarketData demoMarketData;
 
     @Value("${external-api.fintables.api-url}")
     private String fintablesApiUrl = "https://api.fintables.com";
@@ -47,6 +49,8 @@ public class TefasFundClient {
 
     public List<FundDto> fetchTefasFunds() {
         // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.FINTABLES)) return demoMarketData.turkishFunds();
         dataSourcePolicy.check(DataSourceKeys.FINTABLES);
 
         long startTime = System.currentTimeMillis();
@@ -78,6 +82,8 @@ public class TefasFundClient {
 
     public List<HistoricalDataDto> fetchFundHistory(String symbol, String range) {
         // Kaynak bu ortamda sunulmuyorsa dis cagri hic yapilmaz.
+        // Canli demoda bu saglayiciya istek atilmaz; yerine uretilmis veri doner.
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.FINTABLES)) return demoMarketData.history(symbol, range);
         dataSourcePolicy.check(DataSourceKeys.FINTABLES);
 
         List<HistoricalDataDto> historyList = new ArrayList<>();

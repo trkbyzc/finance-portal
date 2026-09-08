@@ -47,6 +47,17 @@ public class DataSourcePolicy {
     }
 
     /**
+     * Kaynak kapalı ve yerine sentetik demo verisi sunulacak mı?
+     *
+     * <p>İstemciler {@link #check(String)} çağırmadan <b>önce</b> bunu sorar: doğruysa
+     * dış çağrı yapılmaz, istisna da fırlatılmaz; üretilmiş veri döndürülür.
+     */
+    public boolean useDemoData(String source) {
+        DataSourceProperties.Policy policy = policyOf(source);
+        return !policy.isEnabled() && policy.isDemoData();
+    }
+
+    /**
      * Kaynak erişilebilir değilse {@link DataSourceUnavailableException} fırlatır.
      * Dış çağrıdan hemen önce çağrılmalıdır.
      */
