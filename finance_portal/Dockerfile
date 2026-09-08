@@ -18,8 +18,13 @@ FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 
 # Maven wrapper + pom — bağımlılıkları önce indirilir (cache layer)
+# mvnw'yi --chmod ile kopyala: depo Windows'ta tutuluyor ve git orada dosya izin
+# bitini takip etmiyor. Bunsuz Linux'ta checkout edilince "./mvnw: Permission
+# denied" ile derleme patlar. Git tarafında da mod 100755'e alındı; bu satır
+# ikinci emniyet.
 COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
+COPY pom.xml ./
+COPY --chmod=0755 mvnw ./
 
 # Kaynak kod
 COPY src/ src/
