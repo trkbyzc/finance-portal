@@ -32,7 +32,24 @@ COPY keycloak-providers/ban-authenticator/src ./src
 RUN mvn -B -q package -DskipTests
 
 # -----------------------------------------------------------------------------
-# Stage 2 — Keycloak: saglayici + temalari yerlestir ve yapilandirmayi derle
+# Stage 2 — Realm'i canli ortam icin donustur
+# -----------------------------------------------------------------------------
+# Ikinci bir realm dosyasi commit'lemek yerine dev realm'inden turetiyoruz: iki
+# kopya kacinilmaz olarak birbirinden ayrisir — bu depoda realm aylarca olu GKE
+# IP'leri tasidi ve kimse fark etmedi. Neyin neden cikarildigi realm-prod.jq'da.
+#
+# jq -e ile iki dogrulama: donusum sessizce bozulursa imaj derlenmesin.
+FROM alpine:3 AS realm
+
+RUN apk add --no-cache jq
+WORKDIR /realm
+COPY finance-realm.json realm-prod.jq ./
+RUN jq -f realm-prod.jq finance-realm.json > finance-realm.prod.json \
+    && jq -e '.users | length == 3' finance-realm.prod.json > /dev/null \
+    && jq -e '.components["org.keycloak.storage.UserStorageProvider"] == null' finance-realm.prod.json > /dev/null
+
+# -----------------------------------------------------------------------------
+# Stage 3 — Keycloak: saglayici + temalari yerlestir ve yapilandirmayi derle
 # -----------------------------------------------------------------------------
 FROM quay.io/keycloak/keycloak:24.0.2 AS builder
 
@@ -52,15 +69,16 @@ COPY keycloak-themes/ /opt/keycloak/themes/
 RUN /opt/keycloak/bin/kc.sh build
 
 # -----------------------------------------------------------------------------
-# Stage 3 — calisma zamani
+# Stage 4 — calisma zamani
 # -----------------------------------------------------------------------------
 FROM quay.io/keycloak/keycloak:24.0.2
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
-# Realm ilk acilista iceri alinir (`start --import-realm`). Realm zaten varsa
-# Keycloak dosyayi yok sayar — yani bu dosyayi sonradan degistirmek CALISAN bir
-# kurulumu guncellemez; degisiklikleri yonetim konsolundan yapman gerekir.
-COPY finance-realm.json /opt/keycloak/data/import/finance-realm.json
+# Realm ilk acilista iceri alinir (`start --import-realm`). Realm zaten VARSA
+# Keycloak bu dosyayi yok sayar — yani burayi degistirmek CALISAN bir kurulumu
+# guncellemez. Yeni realm'i yururluge sokmak icin mevcut realm'i silmek gerekir
+# (admin REST API ile) ve ardindan konteyneri yeniden baslatmak.
+COPY --from=realm /realm/finance-realm.prod.json /opt/keycloak/data/import/finance-realm.json
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
