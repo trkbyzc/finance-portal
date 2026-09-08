@@ -7,11 +7,15 @@ import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -122,6 +126,44 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
         return new ResponseEntity<>(body, status);
+    }
+
+    /**
+     * Metot düzeyi yetkilendirme reddi ({@code @PreAuthorize}).
+     *
+     * <p>Bu işleyici olmadan {@code AuthorizationDeniedException} aşağıdaki genel
+     * {@code Exception} işleyicisine düşüyor ve yetkisiz istek <b>500</b> olarak
+     * dönüyordu. Erişim yine engelleniyordu — güvenlik açığı değildi — ama arayüz
+     * "yetkiniz yok" yerine "sunucu hatası" gösteriyordu ve canlıda admin paneline
+     * giren normal kullanıcı bunu bir çökme sanıyordu.
+     *
+     * <p>Üstteki {@code SecurityException} işleyicisi {@code java.lang}'inkini
+     * yakalar (IDOR kontrolleri onu fırlatır); bu ayrı bir sınıf hiyerarşisidir.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        log.warn("YETKISIZ ERISIM DENEMESI: {} - Path: {}", ex.getMessage(), request.getRequestURI());
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "Bu işlem için yetkiniz bulunmamaktadır!", request);
+    }
+
+    /**
+     * İstemci kaynaklı istek hataları: eksik zorunlu parametre, tür uyuşmazlığı
+     * (örneğin enum'a çevrilemeyen değer) ve okunamayan gövde.
+     *
+     * <p>Spring bunları normalde 400 olarak çevirir, ancak bu sınıf
+     * {@code ResponseEntityExceptionHandler}'ı genişletmediği için hepsi genel
+     * {@code Exception} işleyicisine düşüp <b>500</b> dönüyordu. Yani istemcinin
+     * hatası sunucu hatası gibi raporlanıyor, izleme tarafında da gerçek arızalarla
+     * karışıyordu.
+     */
+    @ExceptionHandler({
+            MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class,
+            HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<ErrorResponse> handleClientRequestErrors(Exception ex, HttpServletRequest request) {
+        log.debug("Geçersiz istek ({}): {}", request.getRequestURI(), ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "İstek geçersiz: " + ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)

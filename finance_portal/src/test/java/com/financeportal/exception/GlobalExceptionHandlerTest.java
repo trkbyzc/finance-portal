@@ -122,4 +122,58 @@ class GlobalExceptionHandlerTest {
         // Client kapattı, response göndermeye gerek yok
         assertNull(response);
     }
+
+    /**
+     * Canlıda admin olmayan kullanıcı /admin/users çağırınca 500 dönüyordu:
+     * @PreAuthorize reddi genel Exception işleyicisine düşüyordu. Erişim yine
+     * engelleniyordu ama arayüz sunucu hatası gösteriyordu.
+     */
+    @Test
+    void accessDenied_returns403() {
+        org.springframework.security.access.AccessDeniedException ex =
+                new org.springframework.security.access.AccessDeniedException("Access Denied");
+        ResponseEntity<ErrorResponse> response = handler.handleAccessDenied(ex, request);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(403, response.getBody().getStatus());
+    }
+
+    /**
+     * Spring Security 6.3'te @PreAuthorize reddi AuthorizationDeniedException fırlatır;
+     * bu AccessDeniedException'ın alt sınıfıdır. Canlıda gelen tam tür buydu, işleyicinin
+     * onu da kapsadığını doğrula.
+     */
+    @Test
+    void authorizationDenied_isCoveredByAccessDeniedHandler() {
+        org.springframework.security.access.AccessDeniedException ex =
+                new org.springframework.security.authorization.AuthorizationDeniedException(
+                        "Access Denied",
+                        new org.springframework.security.authorization.AuthorizationDecision(false));
+        ResponseEntity<ErrorResponse> response = handler.handleAccessDenied(ex, request);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    void missingRequiredParam_returns400() throws Exception {
+        org.springframework.web.bind.MissingServletRequestParameterException ex =
+                new org.springframework.web.bind.MissingServletRequestParameterException("symbol", "String");
+        ResponseEntity<ErrorResponse> response = handler.handleClientRequestErrors(ex, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(400, response.getBody().getStatus());
+        assertTrue(response.getBody().getMessage().contains("symbol"));
+    }
+
+    @Test
+    void unparseableEnumParam_returns400() {
+        org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex =
+                new org.springframework.web.method.annotation.MethodArgumentTypeMismatchException(
+                        "SACMA", String.class, "assetType", null, new IllegalArgumentException("bad enum"));
+        ResponseEntity<ErrorResponse> response = handler.handleClientRequestErrors(ex, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 }

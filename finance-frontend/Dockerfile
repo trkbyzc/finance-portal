@@ -49,8 +49,13 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Build çıktısı
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Healthcheck — root sayfası dönüyor mu
+# Healthcheck — root sayfası dönüyor mu.
+#
+# 127.0.0.1 kullanılır, "localhost" DEĞİL: bu imajda /etc/hosts'ta localhost yalnızca
+# ::1'e çözümleniyor, nginx ise `listen 80;` ile sadece IPv4'ü dinliyor. "localhost"
+# yazıldığında wget IPv6'ya gidip "connection refused" alıyor ve konteyner site gayet
+# çalışırken kalıcı olarak "unhealthy" görünüyordu (canlıda 91 ardışık hata).
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -q --spider http://localhost/ || exit 1
+    CMD wget -q --spider http://127.0.0.1/ || exit 1
 
 EXPOSE 80
