@@ -79,6 +79,14 @@ app:
   kafka:
     enabled: false
 
+  # Demo portföyü — SADECE canlıda. Veritabanı sıfırdan kurulduğu ve Flyway yalnızca
+  # şema ürettiği için demo hesabı boş bir portföyle açılıyordu. Tohumlayıcı idempotent:
+  # kullanıcının hiç pozisyonu yoksa yazar, aksi halde hiçbir şey yapmaz.
+  # Ayrıntılar: com.financeportal.demo.DemoPortfolioSeeder
+  demo:
+    seed-portfolio: true
+    seed-username: demouser
+
 # =====================================================================
 # Veri kaynağı politikası — CANLI ORTAM
 # =====================================================================
