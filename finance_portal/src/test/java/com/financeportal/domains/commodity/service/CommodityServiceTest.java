@@ -49,6 +49,11 @@ class CommodityServiceTest {
     @Mock
     private com.financeportal.domains.stock.client.TradingViewLogoClient logoClient;
 
+    /** Gerçek mapper — önbellekten gelen LinkedHashMap'lerin DTO'ya çevrimini ölçüyoruz. */
+    @org.mockito.Spy
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+
     @InjectMocks
     private CommodityService service;
 
@@ -280,5 +285,69 @@ class CommodityServiceTest {
         assertEquals("CANDLE", gram.getChartType());
         assertEquals("XAUTRY=X", gram.getYahooSymbol());
         assertEquals(0L, gram.getVolume());
+    }
+
+    // -------- Onbellek tip guvenligi (canlida yasanan hata) --------
+
+    /**
+     * CacheService (GenericJackson2) onbellek-isabetinde elemanlari LinkedHashMap olarak
+     * dondurur. Tip silme yuzunden derleyici bunu yakalamaz; DTO sanan ilk kod
+     * ClassCastException alir. getCommodities() artik cevrim yapmali.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    void getCommodities_convertsCachedMapsToTypedDtos() {
+        java.util.Map<String, Object> cachedGold = new java.util.LinkedHashMap<>();
+        cachedGold.put("symbol", "GC=F");
+        cachedGold.put("name", "Altın (ONS)");
+        cachedGold.put("price", 2570.49);
+        cachedGold.put("changePercent", 1.25);
+
+        when(cacheService.getOrFetch(eq("cache:commodities"), any(Supplier.class), anyLong()))
+                .thenReturn((List) List.of(cachedGold));
+
+        List<CommodityDto> result = service.getCommodities();
+
+        assertEquals(1, result.size());
+        assertEquals("GC=F", result.get(0).getSymbol());
+        assertEquals(0, new BigDecimal("2570.49").compareTo(result.get(0).getPrice()));
+    }
+
+    /**
+     * Canlida yasanan senaryo: Truncgil bos liste donmeye basladi ve devreye girmesi
+     * gereken matematiksel altin yedegi, getCommodities()'ten gelen LinkedHashMap'leri
+     * DTO sanip patladi -> Turk altini bolumu tamamen bosaldi. Hata yedegin kendi
+     * catch'i tarafindan yutuldugu icin sessizce kayboldu.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    void getTurkishGold_fallbackWorks_whenCommodityCacheReturnsMaps() {
+        // Truncgil bos -> yedek devreye girmeli
+        when(truncgilClient.fetchLiveTurkishGold()).thenReturn(List.of());
+
+        java.util.Map<String, Object> cachedOns = new java.util.LinkedHashMap<>();
+        cachedOns.put("symbol", "GC=F");
+        cachedOns.put("price", 2570.49);
+        cachedOns.put("changePercent", 1.25);
+        when(cacheService.getOrFetch(eq("cache:commodities"), any(Supplier.class), anyLong()))
+                .thenReturn((List) List.of(cachedOns));
+
+        CurrencyDto usd = new CurrencyDto();
+        usd.setCurrencyCode("USD");
+        usd.setForexSelling(new BigDecimal("48.46"));
+        when(currencyService.getCurrencyRates()).thenReturn(List.of(usd));
+
+        // turkish_gold anahtarinda gercek fetcher'i calistir
+        when(cacheService.getOrFetch(eq("cache:turkish_gold"), any(Supplier.class), anyLong()))
+                .thenAnswer(inv -> ((Supplier<List<CommodityDto>>) inv.getArgument(1)).get());
+
+        List<CommodityDto> gold = service.getTurkishGold();
+
+        assertTrue(gold.stream().anyMatch(g -> "GRAM_ALTIN".equals(g.getSymbol())),
+                "Yedek hesap GRAM_ALTIN uretmeliydi; onbellek tipi yuzunden patlamamali");
+        CommodityDto gram = gold.stream()
+                .filter(g -> "GRAM_ALTIN".equals(g.getSymbol())).findFirst().orElseThrow();
+        assertNotNull(gram.getPrice());
+        assertTrue(gram.getPrice().compareTo(BigDecimal.ZERO) > 0);
     }
 }

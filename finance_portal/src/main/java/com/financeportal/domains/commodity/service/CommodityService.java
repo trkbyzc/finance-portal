@@ -1,5 +1,6 @@
 package com.financeportal.domains.commodity.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.financeportal.domains.commodity.client.TruncgilIntegrationClient;
 import com.financeportal.domains.commodity.dto.CommodityDto;
 import com.financeportal.domains.currency.dto.CurrencyDto;
@@ -29,6 +30,7 @@ public class CommodityService {
     private final CurrencyService currencyService;
     private final CacheService cacheService;
     private final TradingViewLogoClient logoClient;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.market.commodity-symbols}")
     private String[] commoditySymbols;
@@ -51,19 +53,42 @@ public class CommodityService {
     );
 
     public List<CommodityDto> getCommodities() {
-        return cacheService.getOrFetch("cache:commodities", () -> {
+        List<?> raw = cacheService.getOrFetch("cache:commodities", () -> {
             List<MarketAssetDto> rawAssets = yahooFinanceClient.fetchQuotes(commoditySymbols, "EMTİA");
             return rawAssets.stream().map(this::mapToCommodity).toList();
         }, 5);
+        return typed(raw);
     }
 
     public List<CommodityDto> getTurkishGold() {
-        return cacheService.getOrFetch("cache:turkish_gold", () -> {
+        List<?> raw = cacheService.getOrFetch("cache:turkish_gold", () -> {
             List<CommodityDto> list = truncgilIntegrationClient.fetchLiveTurkishGold();
-            List<CommodityDto> result = (list != null && !list.isEmpty()) ? list : calculateGoldMathematically();
+            List<CommodityDto> result = (list != null && !list.isEmpty())
+                    ? new ArrayList<>(list)
+                    : calculateGoldMathematically();
             result.forEach(c -> c.setImage(commodityImage(c)));
             return result;
         }, 5);
+        return typed(raw);
+    }
+
+    /**
+     * Önbellekten dönen kayıtları tipli DTO'ya çevirir.
+     *
+     * <p>CacheService (GenericJackson2) önbellek-isabetinde elemanları {@code LinkedHashMap}
+     * olarak döndürür; jenerik silme (type erasure) yüzünden derleyici bunu yakalamaz ve
+     * {@code List<CommodityDto>} sanılır. Elemanı gerçekten DTO gibi kullanan ilk kod
+     * {@code ClassCastException} alır.
+     *
+     * <p>Canlıda tam olarak bu oldu: Truncgil bir gün boş liste dönmeye başlayınca devreye
+     * girmesi gereken matematiksel altın yedeği, {@code getCommodities()}'ten gelen
+     * LinkedHashMap'leri DTO sanıp patladı ve Türk altını bölümü tamamen boşaldı. Hata
+     * yedek içindeki catch tarafından yutulduğu için aylarca fark edilmedi.
+     */
+    private List<CommodityDto> typed(List<?> raw) {
+        return raw.stream()
+                .map(o -> o instanceof CommodityDto dto ? dto : objectMapper.convertValue(o, CommodityDto.class))
+                .toList();
     }
 
     /** Emtia DTO'su için logo: önce sembol (GC=F vb.), yoksa isimden (Altın/Gümüş) anahtar kelime. */
