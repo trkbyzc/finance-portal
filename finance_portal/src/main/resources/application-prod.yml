@@ -158,5 +158,12 @@ data-sources:
         metnini uygulama içinde göstermek telifli içeriğin yeniden yayını olacağı
         için canlı demoda kapalıdır.
 
+    investing-calendar:
+      enabled: false
+      note: >-
+        Ekonomik takvim TradingView'in belgelenmemiş feed'inden alınır; şartları
+        üçüncü taraflara yeniden sunuma izin vermediği için canlı demoda kapalıdır.
+        Yerel kurulumda tam çalışır.
+
     # --- Resmî API'ler ve RSS: canlıda açık (base profildeki değerler geçerli) ---
     # evds · fred · binance · coingecko · finnhub · truncgil · feargreed · news-rss

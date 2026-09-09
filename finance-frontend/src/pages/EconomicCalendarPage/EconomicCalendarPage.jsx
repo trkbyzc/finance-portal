@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Loader2, AlertCircle } from 'lucide-react';
 import { economicCalendarApi } from '../../services/api/economicCalendarApi';
+import { asDataSourceError } from '../../utils/dataSourceError';
+import DataSourceUnavailableCard from '../../components/common/DataSourceUnavailableCard';
 import { isoOffset } from './calendarHelpers';
 import CalendarFilters from './components/CalendarFilters';
 import EventDayCard from './components/EventDayCard';
@@ -18,7 +20,7 @@ export default function EconomicCalendarPage() {
     const [selectedCountries, setSelectedCountries] = useState(new Set());
     const [minImpact, setMinImpact] = useState('LOW');
 
-    const { data: events = [], isLoading, isError } = useQuery({
+    const { data: events = [], isLoading, isError, error } = useQuery({
         queryKey: ['economic-calendar', fromDate, toDate, Array.from(selectedCountries).sort((a, b) => a.localeCompare(b)).join(','), minImpact],
         queryFn: () => economicCalendarApi.getEvents({
             from: fromDate,
@@ -26,8 +28,14 @@ export default function EconomicCalendarPage() {
             countries: selectedCountries.size > 0 ? Array.from(selectedCountries).join(',') : undefined,
             minImpact: minImpact !== 'LOW' ? minImpact : undefined
         }),
+        // Kapalı kaynak tekrar denemekle açılmaz; boşuna istek atma.
+        retry: (failureCount, err) => !asDataSourceError(err) && failureCount < 3,
         staleTime: 5 * 60 * 1000
     });
+
+    // Takvim, TradingView'in belgelenmemiş feed'inden gelir ve canlı demoda kapalıdır.
+    // Bu bir arıza değil, politika sonucu — kırmızı hata yerine gerekçe kartı gösterilir.
+    const dataSourceError = asDataSourceError(error);
 
     const grouped = useMemo(() => {
         const m = new Map();
@@ -78,6 +86,8 @@ export default function EconomicCalendarPage() {
                         <Loader2 className="animate-spin mr-3" size={24} />
                         <span>{t('common:status.loading')}</span>
                     </div>
+                ) : dataSourceError ? (
+                    <DataSourceUnavailableCard error={dataSourceError} />
                 ) : isError ? (
                     <div className="bg-sell/10 border border-sell/30 rounded-xl p-6 text-sell flex items-center gap-3">
                         <AlertCircle size={20} />

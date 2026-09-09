@@ -242,6 +242,7 @@ data-sources:
     isyatirim:        { enabled: true }   # temel veri, BİST endeksi, VİOP
     ipo-scraper:      { enabled: true }   # halka arz takvimi
     news-content:     { enabled: true }   # haber tam metni (keyfi URL)
+    investing-calendar: { enabled: true } # ekonomik takvim · TradingView ham feed'i
 
 # Uygulama özelinde ayarlar
 app:
