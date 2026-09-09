@@ -3,6 +3,7 @@ package com.financeportal.service.chat.tools;
 import com.financeportal.model.dto.portfolio.PortfolioSummaryDto;
 import com.financeportal.service.portfolio.PortfolioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -15,31 +16,14 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class GetPortfolioSummaryTool implements ChatTool {
+public class GetPortfolioSummaryTool implements ChatToolBean {
 
     private final PortfolioService portfolioService;
 
-    @Override
-    public String name() { return "get_portfolio_summary"; }
-
-    @Override
-    public String description() {
-        return "Kullanıcının portföyünün özetini döner: toplam maliyet, güncel değer, "
+    @Tool(name = "get_portfolio_summary", description = "Kullanıcının portföyünün özetini döner: toplam maliyet, güncel değer, "
                 + "toplam kar/zarar (TL ve %). 'Portföyüm ne kadar', 'kar mı zarar mı', "
-                + "'toplam değerim' gibi sorularda kullan.";
-    }
-
-    @Override
-    public Map<String, Object> parametersJsonSchema() {
-        return Map.of(
-                "type", "object",
-                "properties", Map.of(),
-                "required", List.of()
-        );
-    }
-
-    @Override
-    public Object execute(Map<String, Object> args) {
+                + "'toplam değerim' gibi sorularda kullan.")
+    public Object portfolioSummary() {
         PortfolioSummaryDto s = portfolioService.getMyPortfolioSummary(null);
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("totalCost", s.getTotalAssetCost());

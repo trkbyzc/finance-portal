@@ -282,7 +282,6 @@ app:
   limits:
     max-tickers: ${APP_MAX_TICKERS:20}
     sparkline-max-points: ${APP_SPARKLINE_MAX_POINTS:30}
-    max-tool-iterations: ${APP_MAX_TOOL_ITERATIONS:5}
     what-if-max-series-points: ${APP_WHAT_IF_MAX_SERIES_POINTS:300}
     what-if-per-asset-timeout-sec: ${APP_WHAT_IF_PER_ASSET_TIMEOUT_SEC:8}
     news-max-translations-per-run: ${APP_NEWS_MAX_TRANSLATIONS:60}

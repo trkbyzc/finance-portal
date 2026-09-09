@@ -3,6 +3,7 @@ package com.financeportal.service.chat.tools;
 import com.financeportal.model.dto.portfolio.PortfolioItemDto;
 import com.financeportal.service.portfolio.PortfolioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -15,31 +16,14 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class GetMyPortfolioTool implements ChatTool {
+public class GetMyPortfolioTool implements ChatToolBean {
 
     private final PortfolioService portfolioService;
 
-    @Override
-    public String name() { return "get_my_portfolio"; }
-
-    @Override
-    public String description() {
-        return "Kullanıcının portföyündeki tüm varlıkları (sembol, miktar, ortalama maliyet, "
+    @Tool(name = "get_my_portfolio", description = "Kullanıcının portföyündeki tüm varlıkları (sembol, miktar, ortalama maliyet, "
                 + "anlık fiyat, kar/zarar) döner. Kullanıcı 'portföyümde ne var', 'hangi hisseler', "
-                + "'kar mı zarar mı' gibi sorular sorduğunda bu tool'u çağır.";
-    }
-
-    @Override
-    public Map<String, Object> parametersJsonSchema() {
-        return Map.of(
-                "type", "object",
-                "properties", Map.of(),
-                "required", List.of()
-        );
-    }
-
-    @Override
-    public Object execute(Map<String, Object> args) {
+                + "'kar mı zarar mı' gibi sorular sorduğunda bu tool'u çağır.")
+    public Object myPortfolio() {
         // Default portfolio (portfolioId=null → service default'u çözer)
         List<PortfolioItemDto> items = portfolioService.getMyPortfolio(null);
         List<Map<String, Object>> simplified = items.stream()

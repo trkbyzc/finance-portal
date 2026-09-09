@@ -34,13 +34,6 @@ class GetMyPortfolioToolTest {
     }
 
     @Test
-    void name_ve_schema_dogru() {
-        assertEquals("get_my_portfolio", tool.name());
-        assertNotNull(tool.description());
-        assertTrue(tool.parametersJsonSchema().containsKey("type"));
-    }
-
-    @Test
     void portfoy_listesi_count_ve_holdings_dondurur() {
         when(portfolioService.getMyPortfolio(isNull())).thenReturn(List.of(
                 sample("THYAO", "100", "150", "200"),
@@ -48,7 +41,7 @@ class GetMyPortfolioToolTest {
         ));
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.myPortfolio();
 
         assertEquals(2, out.get("count"));
         @SuppressWarnings("unchecked")
@@ -63,7 +56,7 @@ class GetMyPortfolioToolTest {
     void bos_portfoy_count_0() {
         when(portfolioService.getMyPortfolio(isNull())).thenReturn(List.of());
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.myPortfolio();
         assertEquals(0, out.get("count"));
         @SuppressWarnings("unchecked")
         List<?> holdings = (List<?>) out.get("holdings");
@@ -73,7 +66,7 @@ class GetMyPortfolioToolTest {
     @Test
     void default_portfoy_icin_null_ile_cagriliyor() {
         when(portfolioService.getMyPortfolio(isNull())).thenReturn(List.of());
-        tool.execute(Map.of());
+        tool.myPortfolio();
         verify(portfolioService).getMyPortfolio(isNull());
     }
 }

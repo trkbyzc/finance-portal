@@ -12,12 +12,9 @@ import com.financeportal.repository.ChatConversationRepository;
 import com.financeportal.repository.ChatMessageRepository;
 import com.financeportal.repository.UserRepository;
 import com.financeportal.security.SecurityUtils;
-import com.financeportal.service.chat.llm.LlmGateway;
-import com.financeportal.service.chat.llm.LlmRequest;
-import com.financeportal.service.chat.llm.LlmResponse;
-import com.financeportal.service.chat.llm.LlmToolCall;
-import com.financeportal.service.chat.tools.ChatToolRegistry;
-import com.financeportal.service.chat.tools.ToolExecutor;
+import com.financeportal.service.chat.llm.LlmProviderGateway;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,10 +45,8 @@ class ChatServiceTest {
     @Mock private ChatMessageRepository msgRepo;
     @Mock private UserRepository userRepo;
     @Mock private SecurityUtils securityUtils;
-    @Mock private LlmGateway llmGateway;
+    @Mock private LlmProviderGateway llmGateway;
     @Mock private SystemPromptBuilder systemPromptBuilder;
-    @Mock private ChatToolRegistry toolRegistry;
-    @Mock private ToolExecutor toolExecutor;
 
     @InjectMocks private ChatService chatService;
 
@@ -80,18 +75,12 @@ class ChatServiceTest {
         });
         when(msgRepo.findTop20ByConversation_IdOrderByCreatedAtDesc(any()))
                 .thenReturn(new ArrayList<>());
-        when(toolRegistry.asLlmTools()).thenReturn(Collections.emptyList());
     }
 
     @Test
     void send_yeni_konusma_acar_ve_iki_mesaji_persist_eder() {
         when(llmGateway.generate(any()))
-                .thenReturn(LlmResponse.builder()
-                        .content("merhaba!")
-                        .provider("groq").model("llama-3.3-70b-versatile")
-                        .finishReason("stop")
-                        .toolCalls(Collections.emptyList())
-                        .build());
+                .thenReturn(new LlmProviderGateway.LlmResult("merhaba!", "groq", "llama-3.3-70b-versatile"));
 
         ChatResponseDto r = chatService.sendMessage(
                 ChatRequestDto.builder().message("selam").locale("tr").build());
@@ -115,9 +104,7 @@ class ChatServiceTest {
                 .build();
         when(convRepo.findById(convId)).thenReturn(Optional.of(existing));
         when(llmGateway.generate(any()))
-                .thenReturn(LlmResponse.builder()
-                        .content("OK").provider("groq").model("m").toolCalls(Collections.emptyList())
-                        .build());
+                .thenReturn(new LlmProviderGateway.LlmResult("OK", "groq", "m"));
 
         ChatResponseDto r = chatService.sendMessage(
                 ChatRequestDto.builder().conversationId(convId).message("yeni").locale("tr").build());
@@ -152,17 +139,16 @@ class ChatServiceTest {
     @Test
     void system_prompt_LLM_request_ilk_mesaj_olarak_gider() {
         when(llmGateway.generate(any()))
-                .thenReturn(LlmResponse.builder()
-                        .content("hi").provider("groq").model("m").toolCalls(Collections.emptyList())
-                        .build());
+                .thenReturn(new LlmProviderGateway.LlmResult("hi", "groq", "m"));
 
         chatService.sendMessage(ChatRequestDto.builder().message("hello").locale("en").build());
 
-        ArgumentCaptor<LlmRequest> reqCap = ArgumentCaptor.forClass(LlmRequest.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<Message>> reqCap = ArgumentCaptor.forClass(List.class);
         verify(llmGateway).generate(reqCap.capture());
-        LlmRequest sent = reqCap.getValue();
-        assertEquals(ChatRole.SYSTEM, sent.getMessages().get(0).getRole());
-        assertEquals("SYS-PROMPT", sent.getMessages().get(0).getContent());
+        List<Message> sent = reqCap.getValue();
+        assertInstanceOf(SystemMessage.class, sent.get(0));
+        assertEquals("SYS-PROMPT", sent.get(0).getText());
     }
 
     @Test
@@ -187,56 +173,27 @@ class ChatServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> chatService.getMessages(convId));
     }
 
+    /**
+     * Cok turlu arac dongusunu olcen iki test kaldirildi: o dongu artik ChatService'te
+     * degil, Spring AI'nin icinde. Model bir arac istediginde framework onu calistirip
+     * sonucu modele geri veriyor ve nihai metin gelene kadar yineliyor.
+     *
+     * Yerine servisin KENDI sorumlulugu olan sey olculuyor: saglayici tek cagriyla
+     * konusuyor ve donen metin kaydediliyor.
+     */
     @Test
-    void tool_call_geldiyse_executor_calistirilir_ve_ikinci_LLM_turu_yapilir() {
-        when(toolRegistry.asLlmTools()).thenReturn(Collections.emptyList());
-        when(toolExecutor.execute(any())).thenReturn("{\"count\":3}");
-
-        // Tur 1: tool_calls dön, Tur 2: text yanıt
+    void arac_dongusu_artik_frameworke_ait_tek_cagri_yapilir() {
         when(llmGateway.generate(any()))
-                .thenReturn(LlmResponse.builder()
-                        .toolCalls(List.of(LlmToolCall.builder()
-                                .id("tc1").name("get_my_portfolio").argumentsJson("{}").build()))
-                        .finishReason("tool_calls")
-                        .provider("groq").model("m")
-                        .build())
-                .thenReturn(LlmResponse.builder()
-                        .content("Portföyünde 3 varlık var.")
-                        .toolCalls(Collections.emptyList())
-                        .finishReason("stop")
-                        .provider("groq").model("m")
-                        .build());
+                .thenReturn(new LlmProviderGateway.LlmResult("Portföyünde 3 varlık var.", "gemini", "gemini-2.5-flash"));
 
         ChatResponseDto r = chatService.sendMessage(
                 ChatRequestDto.builder().message("portföyüm").locale("tr").build());
 
         assertEquals("Portföyünde 3 varlık var.", r.getMessage().getContent());
-        verify(llmGateway, times(2)).generate(any());
-        verify(toolExecutor, times(1)).execute(any());
-        // USER + TOOL + final ASSISTANT = 3 persist
-        verify(msgRepo, times(3)).save(any());
-    }
-
-    @Test
-    void max_iter_dolarsa_sonsuz_loop_olmaz() {
-        when(toolRegistry.asLlmTools()).thenReturn(Collections.emptyList());
-        when(toolExecutor.execute(any())).thenReturn("{}");
-
-        // Her seferinde tool_call dön — sonsuza kadar değil, max iter ile sınırlı kal
-        when(llmGateway.generate(any())).thenReturn(LlmResponse.builder()
-                .toolCalls(List.of(LlmToolCall.builder()
-                        .id("x").name("get_my_portfolio").argumentsJson("{}").build()))
-                .finishReason("tool_calls")
-                .provider("groq").model("m")
-                .content("")
-                .build());
-
-        // Hata fırlatmaz, son içeriği boş da olsa kullanır
-        chatService.sendMessage(ChatRequestDto.builder().message("loop").locale("tr").build());
-
-        // MAX_TOOL_ITERATIONS=5 → 5 LLM çağrısı + 5 tool execution
-        verify(llmGateway, times(5)).generate(any());
-        verify(toolExecutor, times(5)).execute(any());
+        assertEquals("gemini", r.getProvider());
+        verify(llmGateway, times(1)).generate(any());
+        // Yalnizca USER + ASSISTANT kaydedilir; ara arac sonuclari artik yazilmiyor.
+        verify(msgRepo, times(2)).save(any());
     }
 
     @Test

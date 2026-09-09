@@ -43,12 +43,6 @@ class GetMyAlarmsToolTest {
     }
 
     @Test
-    void name_ve_schema_dogru() {
-        assertEquals("get_my_alarms", tool.name());
-        assertNotNull(tool.description());
-    }
-
-    @Test
     void alarm_listesi_simplify_olur() {
         when(alarmService.listMyAlarms()).thenReturn(List.of(
                 sample("BTC", AlarmCondition.ABOVE, "70000", true),
@@ -56,7 +50,7 @@ class GetMyAlarmsToolTest {
         ));
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.myAlarms();
 
         assertEquals(2, out.get("count"));
         @SuppressWarnings("unchecked")
@@ -71,7 +65,7 @@ class GetMyAlarmsToolTest {
     void bos_alarm_listesi_count_0() {
         when(alarmService.listMyAlarms()).thenReturn(List.of());
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.myAlarms();
         assertEquals(0, out.get("count"));
     }
 }

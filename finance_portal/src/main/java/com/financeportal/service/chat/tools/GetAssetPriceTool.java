@@ -4,6 +4,8 @@ import com.financeportal.model.enums.AssetType;
 import com.financeportal.service.portfolio.PortfolioPriceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -15,42 +17,22 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GetAssetPriceTool implements ChatTool {
+public class GetAssetPriceTool implements ChatToolBean {
 
     private final PortfolioPriceService priceService;
 
-    @Override
-    public String name() { return "get_asset_price"; }
+    @Tool(name = "get_asset_price",
+          description = "Bir varlığın anlık fiyatını döner. Kullanıcı bir sembolün fiyatını "
+                  + "sorduğunda bu aracı çağır.")
+    public Object assetPrice(
+            @ToolParam(description = "Varlık sembolü, örn. BTC, AAPL, THYAO, USD") String symbol,
+            @ToolParam(description = "STOCK, CRYPTO, CURRENCY, COMMODITY, BOND, FUND veya FUTURE") String assetType) {
 
-    @Override
-    public String description() {
-        return "Bir varlığın anlık fiyatını döner. Argümanlar: symbol (string, gerekli), "
-                + "assetType (string, gerekli; STOCK/CRYPTO/CURRENCY/COMMODITY/BOND/FUND/FUTURE).";
-    }
-
-    @Override
-    public Map<String, Object> parametersJsonSchema() {
-        return Map.of(
-                "type", "object",
-                "properties", Map.of(
-                        "symbol", Map.of(
-                                "type", "string",
-                                "description", "Varlık sembolü, örn. BTC, AAPL, THYAO, USD"
-                        ),
-                        "assetType", Map.of(
-                                "type", "string",
-                                "enum", List.of("STOCK", "CRYPTO", "CURRENCY", "COMMODITY", "BOND", "FUND", "FUTURE"),
-                                "description", "Varlık türü"
-                        )
-                ),
-                "required", List.of("symbol", "assetType")
-        );
-    }
-
-    @Override
-    public Object execute(Map<String, Object> args) {
-        String symbol = asString(args.get("symbol"));
-        String typeStr = asString(args.get("assetType"));
+        // Argümanlar artık Spring AI tarafından tiplenmiş geliyor; JSON Schema'yı elle
+        // yazmaya ve Map'ten çekmeye gerek yok. Doğrulama yine burada: model boş ya da
+        // tanımsız bir tür gönderebilir ve bunu hata olarak DÖNMEK, istisna fırlatmaktan
+        // iyidir — model mesajı okuyup kendini düzeltebiliyor.
+        String typeStr = assetType;
         if (symbol == null || symbol.isBlank()) {
             return Map.of("error", "symbol boş olamaz");
         }

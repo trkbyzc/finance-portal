@@ -38,12 +38,6 @@ class GetMyWatchlistToolTest {
     }
 
     @Test
-    void name_ve_schema_dogru() {
-        assertEquals("get_my_watchlist", tool.name());
-        assertNotNull(tool.description());
-    }
-
-    @Test
     void watchlist_simplify_olur() {
         when(watchlistService.getMyWatchlist()).thenReturn(List.of(
                 sample("BTC", AssetType.CRYPTO, "65000", "-2.5"),
@@ -51,7 +45,7 @@ class GetMyWatchlistToolTest {
         ));
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.myWatchlist();
 
         assertEquals(2, out.get("count"));
         @SuppressWarnings("unchecked")
@@ -66,7 +60,7 @@ class GetMyWatchlistToolTest {
     void bos_watchlist_count_0() {
         when(watchlistService.getMyWatchlist()).thenReturn(List.of());
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.myWatchlist();
         assertEquals(0, out.get("count"));
     }
 }

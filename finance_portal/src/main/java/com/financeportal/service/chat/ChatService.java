@@ -13,13 +13,11 @@ import com.financeportal.repository.ChatConversationRepository;
 import com.financeportal.repository.ChatMessageRepository;
 import com.financeportal.repository.UserRepository;
 import com.financeportal.security.SecurityUtils;
-import com.financeportal.service.chat.llm.LlmGateway;
-import com.financeportal.service.chat.llm.LlmMessage;
-import com.financeportal.service.chat.llm.LlmRequest;
-import com.financeportal.service.chat.llm.LlmResponse;
-import com.financeportal.service.chat.llm.LlmToolCall;
-import com.financeportal.service.chat.tools.ChatToolRegistry;
-import com.financeportal.service.chat.tools.ToolExecutor;
+import com.financeportal.service.chat.llm.LlmProviderGateway;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,16 +44,12 @@ public class ChatService {
     private final ChatMessageRepository msgRepo;
     private final UserRepository userRepo;
     private final SecurityUtils securityUtils;
-    private final LlmGateway llmGateway;
+    private final LlmProviderGateway llmGateway;
     private final SystemPromptBuilder systemPromptBuilder;
-    private final ChatToolRegistry toolRegistry;
-    private final ToolExecutor toolExecutor;
 
     @Value("${app.chat.history-max:20}")
     private int historyMax;
 
-    @Value("${app.limits.max-tool-iterations:5}")
-    private int maxToolIterations = 5;
 
     @Transactional(readOnly = true)
     public List<ConversationDto> listMyConversations() {
@@ -106,68 +100,28 @@ public class ChatService {
                 .build();
         msgRepo.save(userMsg);
 
-        // 2) Geçmişten LLM context'ini kur — buna multi-turn'de tool sonuçları da eklenir
-        List<LlmMessage> context = buildContext(conv, req.getLocale());
+        // 2) Sohbet geçmişinden model bağlamını kur.
+        List<Message> context = buildContext(conv, req.getLocale());
 
-        // 3) Multi-turn tool execution loop:
-        //    LLM çağrısı yap → tool_calls varsa execute et, sonuçları context'e ekle ve tekrar çağır.
-        //    Final assistant text yanıtı gelene kadar veya MAX_TOOL_ITERATIONS dolana kadar.
-        LlmResponse llm = null;
-        for (int iter = 0; iter < maxToolIterations; iter++) {
-            try {
-                llm = llmGateway.generate(LlmRequest.builder()
-                        .messages(context)
-                        .tools(toolRegistry.asLlmTools())
-                        .temperature(0.5)
-                        .maxTokens(1024)
-                        .build());
-            } catch (RuntimeException e) {
-                log.error("[CHAT] LLM çağrısı tamamen başarısız: {}", e.getMessage());
-                throw e;
-            }
+        // 3) Modeli çağır.
+        //
+        // Araç çağrılarının çok turlu döngüsü artık burada DEĞİL: model bir araç istediğinde
+        // Spring AI onu çalıştırıp sonucu modele geri veriyor ve nihai metin gelene kadar
+        // döngüyü kendisi çeviriyor. Önceden bu blok elle yazılmış bir for döngüsüydü;
+        // ara ASSISTANT/TOOL mesajlarını bağlama eklemek, tool_call kimliklerini eşlemek
+        // ve yineleme sayısını sınırlamak bize aitti.
+        //
+        // Buna bağlı bir davranış değişikliği: ara araç sonuçları artık TOOL rolüyle
+        // veritabanına yazılmıyor. O kayıtlar arayüzde zaten gösterilmiyordu
+        // (getMessages yalnızca USER + ASSISTANT döner), yalnızca dahili bir izdi.
+        LlmProviderGateway.LlmResult llm = llmGateway.generate(context);
 
-            List<LlmToolCall> calls = llm.getToolCalls();
-            if (calls == null || calls.isEmpty()) {
-                break;
-            }
-
-            // Assistant'ın tool-call mesajını context'e ekle (LLM bunu bekler)
-            context.add(LlmMessage.builder()
-                    .role(ChatRole.ASSISTANT)
-                    .content(llm.getContent() != null ? llm.getContent() : "")
-                    .toolCalls(calls)
-                    .build());
-
-            for (LlmToolCall call : calls) {
-                String resultJson = toolExecutor.execute(call);
-                LocalDateTime ts = LocalDateTime.now();
-                msgRepo.save(ChatMessage.builder()
-                        .conversation(conv)
-                        .role(ChatRole.TOOL)
-                        .content(resultJson)
-                        .toolName(call.getName())
-                        .createdAt(ts)
-                        .build());
-                context.add(LlmMessage.builder()
-                        .role(ChatRole.TOOL)
-                        .content(resultJson)
-                        .toolName(call.getName())
-                        .toolCallId(call.getId())
-                        .build());
-            }
-            log.debug("[CHAT] iter {}: {} tool call executed", iter, calls.size());
-        }
-
-        if (llm == null) {
-            throw new IllegalStateException("LLM yanıt vermedi");
-        }
-
-        String content = llm.getContent() != null ? llm.getContent() : "";
+        String content = llm.content();
         ChatMessage asstMsg = ChatMessage.builder()
                 .conversation(conv)
                 .role(ChatRole.ASSISTANT)
                 .content(content)
-                .modelUsed(llm.getProvider() + ":" + llm.getModel())
+                .modelUsed(llm.provider() + ":" + llm.model())
                 .createdAt(LocalDateTime.now())
                 .build();
         msgRepo.save(asstMsg);
@@ -178,8 +132,8 @@ public class ChatService {
         return ChatResponseDto.builder()
                 .conversationId(conv.getId())
                 .message(toMsgDto(asstMsg))
-                .provider(llm.getProvider())
-                .model(llm.getModel())
+                .provider(llm.provider())
+                .model(llm.model())
                 .build();
     }
 
@@ -197,12 +151,9 @@ public class ChatService {
         return convRepo.save(c);
     }
 
-    private List<LlmMessage> buildContext(ChatConversation conv, String locale) {
-        List<LlmMessage> ctx = new ArrayList<>();
-        ctx.add(LlmMessage.builder()
-                .role(ChatRole.SYSTEM)
-                .content(systemPromptBuilder.build(locale))
-                .build());
+    private List<Message> buildContext(ChatConversation conv, String locale) {
+        List<Message> ctx = new ArrayList<>();
+        ctx.add(new SystemMessage(systemPromptBuilder.build(locale)));
 
         // Son N mesajı (yeni→eski) çek, ters çevir, sırayla ekle
         List<ChatMessage> recent = msgRepo.findTop20ByConversation_IdOrderByCreatedAtDesc(conv.getId());
@@ -216,12 +167,11 @@ public class ChatService {
         for (ChatMessage m : windowed) {
             if (m.getRole() != ChatRole.USER && m.getRole() != ChatRole.ASSISTANT) continue;
             if (m.getContent() == null || m.getContent().isBlank()) continue;
-            ctx.add(LlmMessage.builder()
-                    .role(m.getRole())
-                    .content(m.getContent())
-                    .build());
+            ctx.add(m.getRole() == ChatRole.USER
+                    ? new UserMessage(m.getContent())
+                    : new AssistantMessage(m.getContent()));
         }
-        return new ArrayList<>(ctx); // mutable — multi-turn loop'unda eklemeler yapılacak
+        return ctx;
     }
 
     private ChatConversation requireOwned(UUID conversationId) {

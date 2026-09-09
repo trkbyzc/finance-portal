@@ -24,12 +24,6 @@ class GetPortfolioSummaryToolTest {
     }
 
     @Test
-    void name_ve_schema_dogru() {
-        assertEquals("get_portfolio_summary", tool.name());
-        assertNotNull(tool.description());
-    }
-
-    @Test
     void ozet_alanlari_relay_ediyor() {
         PortfolioSummaryDto s = new PortfolioSummaryDto();
         s.setTotalAssetCost(new BigDecimal("10000"));
@@ -42,7 +36,7 @@ class GetPortfolioSummaryToolTest {
         when(portfolioService.getMyPortfolioSummary(isNull())).thenReturn(s);
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> out = (Map<String, Object>) tool.execute(Map.of());
+        Map<String, Object> out = (Map<String, Object>) tool.portfolioSummary();
 
         assertEquals(new BigDecimal("10000"), out.get("totalCost"));
         assertEquals(new BigDecimal("12000"), out.get("totalValue"));
@@ -57,7 +51,7 @@ class GetPortfolioSummaryToolTest {
         PortfolioSummaryDto s = new PortfolioSummaryDto();
         s.setTotalAssetCost(BigDecimal.ZERO);
         when(portfolioService.getMyPortfolioSummary(isNull())).thenReturn(s);
-        tool.execute(Map.of());
+        tool.portfolioSummary();
         verify(portfolioService).getMyPortfolioSummary(isNull());
     }
 }
