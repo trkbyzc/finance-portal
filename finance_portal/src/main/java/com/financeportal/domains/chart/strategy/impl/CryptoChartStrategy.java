@@ -1,6 +1,7 @@
 package com.financeportal.domains.chart.strategy.impl;
 
 import com.financeportal.client.binance.BinanceChartClient;
+import com.financeportal.config.datasource.DataSourceKeys;
 import com.financeportal.client.yahoo.YahooChartClient;
 import com.financeportal.domains.chart.strategy.ChartDataStrategy;
 import com.financeportal.domains.crypto.client.CoinGeckoChartClient;
@@ -37,6 +38,7 @@ public class CryptoChartStrategy implements ChartDataStrategy {
     private final BinanceChartClient binanceChartClient;
     private final CoinGeckoChartClient coinGeckoChartClient;
     private final CryptoIdRegistry cryptoIdRegistry;
+    private final com.financeportal.config.datasource.DataSourcePolicy dataSourcePolicy;
 
     @Override
     public boolean supports(String category, String symbol) {
@@ -51,17 +53,34 @@ public class CryptoChartStrategy implements ChartDataStrategy {
 
         // 1) Yahoo dene — sembol "-USD" suffix'i ile (BTC → BTC-USD).
         // Yahoo Finance crypto sembolleri her zaman X-USD formatında; sadece "BTC" tanınmıyor.
-        log.info("[CRYPTO-CHART] Yahoo denemesi: {} (raw: {})", yahooSymbol, clean);
-        List<HistoricalDataDto> data = yahooChartClient.fetchChartHistory(yahooSymbol, range, interval, startDate, endDate);
+        //
+        // ANCAK: Yahoo bu ortamda üretilmiş veri döndürüyorsa (canlı demoda öyle) onu HİÇ
+        // denemeyiz. Aşağıdaki Binance ve CoinGecko resmî, açık ve bu ortamda ETKİN
+        // kaynaklardır — yani kripto için gerçek veri zaten elimizde. Yahoo'yu denersek
+        // üretilmiş veri "dolu" sayılır, kademe hiç ilerlemez ve grafik gerçek fiyatla
+        // çelişir. Canlıda tam olarak bu oldu: BTC grafiği ~33 gösterirken fiyat ~79.000'di
+        // (üreteç kripto sembollerini tanımıyor, varsayılan bir çıpaya düşüyor).
+        List<HistoricalDataDto> data = null;
+        if (dataSourcePolicy.useDemoData(DataSourceKeys.YAHOO)) {
+            log.debug("[CRYPTO-CHART] Yahoo bu ortamda üretilmiş veri veriyor, atlanıyor → Binance.");
+        } else {
+            log.info("[CRYPTO-CHART] Yahoo denemesi: {} (raw: {})", yahooSymbol, clean);
+            data = yahooChartClient.fetchChartHistory(yahooSymbol, range, interval, startDate, endDate);
 
-        if (data != null && data.size() >= MIN_ACCEPTABLE_POINTS) {
-            return data;
+            if (data != null && data.size() >= MIN_ACCEPTABLE_POINTS) {
+                return data;
+            }
         }
 
-        // 2) Binance fallback
+        // 2) Binance
         String binanceSymbol = toBinanceSymbol(clean);
-        log.warn("[CRYPTO-CHART] Yahoo'da '{}' için veri yetersiz ({} nokta). Binance fallback: {}",
-                yahooSymbol, data != null ? data.size() : 0, binanceSymbol);
+        if (data != null) {
+            log.warn("[CRYPTO-CHART] Yahoo'da '{}' için veri yetersiz ({} nokta). Binance fallback: {}",
+                    yahooSymbol, data.size(), binanceSymbol);
+        } else {
+            // Yahoo hiç denenmedi (bu ortamda üretilmiş veri veriyor) — uyarı basmaya gerek yok.
+            log.debug("[CRYPTO-CHART] Binance'ten çekiliyor: {}", binanceSymbol);
+        }
 
         List<HistoricalDataDto> binanceData = binanceChartClient.fetchKlines(binanceSymbol, range);
         if (binanceData != null && binanceData.size() >= MIN_ACCEPTABLE_POINTS) {

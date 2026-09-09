@@ -35,6 +35,8 @@ class CryptoChartStrategyTest {
     private CoinGeckoChartClient coinGeckoChartClient;
     @Mock
     private CryptoIdRegistry cryptoIdRegistry;
+    @Mock
+    private com.financeportal.config.datasource.DataSourcePolicy dataSourcePolicy;
 
     @InjectMocks
     private CryptoChartStrategy strategy;
@@ -115,5 +117,38 @@ class CryptoChartStrategyTest {
         strategy.fetchHistoricalData(" pepe-usd ", "1mo", null, null, null);
 
         verify(cryptoIdRegistry).resolve("PEPE-USD");
+    }
+
+    /**
+     * Canlida yasanan hata: Yahoo uretilmis veri donduru icin "dolu" sayiliyor, kademe
+     * hic ilerlemiyor ve BTC grafigi ~91 gosterirken gercek fiyat ~79.000 oluyordu.
+     * Binance ve CoinGecko resmi/acik kaynaklar; Yahoo demo modundayken atlanmali.
+     */
+    @Test
+    void skipsYahooEntirely_whenYahooServesDemoData() {
+        when(dataSourcePolicy.useDemoData(anyString())).thenReturn(true);
+        List<HistoricalDataDto> real = points(30);
+        when(binanceChartClient.fetchKlines(anyString(), anyString())).thenReturn(real);
+
+        List<HistoricalDataDto> result =
+                strategy.fetchHistoricalData("BTC", "1mo", "1d", null, null);
+
+        assertSame(real, result);
+        verify(yahooChartClient, never()).fetchChartHistory(anyString(), anyString(), anyString(), any(), any());
+    }
+
+    /** Yahoo gercek veri verdigi ortamlarda (yerel) davranis degismemeli. */
+    @Test
+    void stillPrefersYahoo_whenNotInDemoMode() {
+        when(dataSourcePolicy.useDemoData(anyString())).thenReturn(false);
+        List<HistoricalDataDto> yahooData = points(30);
+        when(yahooChartClient.fetchChartHistory(anyString(), anyString(), anyString(), any(), any()))
+                .thenReturn(yahooData);
+
+        List<HistoricalDataDto> result =
+                strategy.fetchHistoricalData("BTC", "1mo", "1d", null, null);
+
+        assertSame(yahooData, result);
+        verify(binanceChartClient, never()).fetchKlines(anyString(), anyString());
     }
 }

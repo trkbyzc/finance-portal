@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { newsApi } from '../../services/api';
+import { asDataSourceError } from '../../utils/dataSourceError';
 
 import NewsArticle from './components/NewsArticle';
 import NewsSidebar from './components/NewsSidebar';
@@ -21,18 +22,26 @@ export default function NewsDetailPage() {
     }, [newsItem, navigate]);
 
     // queryKey'e lang ekli: dil değişince content yeniden çekilir (EN için backend çeviri yapar).
-    const { data: contentData, isLoading: contentLoading } = useQuery({
+    const { data: contentData, isLoading: contentLoading, error } = useQuery({
         queryKey: ['newsContent', newsItem?.link, lang],
         queryFn: async () => {
             try {
                 const res = await newsApi.getNewsContent(newsItem.link, lang);
                 return res?.content || t('detail.notFound');
-            } catch {
+            } catch (err) {
+                // Kaynak bu ortamda kapalıysa bu bir arıza değil, politika sonucu — yüzeye
+                // çıkar ki gerekçe kartı gösterilebilsin. Önceden burada da "makale
+                // bulunamadı" dönülüyordu ve ziyaretçi bozuk sanıyordu.
+                if (asDataSourceError(err)) throw err;
                 return t('detail.notFound');
             }
         },
+        // Kapalı kaynak tekrar denemekle açılmaz; boşuna istek atma.
+        retry: (failureCount, err) => !asDataSourceError(err) && failureCount < 3,
         enabled: !!newsItem
     });
+
+    const dataSourceError = asDataSourceError(error);
 
     const { data: sidebarData = [] } = useQuery({
         queryKey: ['sidebarNews', lang],
@@ -56,6 +65,7 @@ export default function NewsDetailPage() {
                     newsItem={newsItem}
                     content={contentData || ''}
                     loading={contentLoading}
+                    dataSourceError={dataSourceError}
                     navigate={navigate}
                 />
                 <NewsSidebar

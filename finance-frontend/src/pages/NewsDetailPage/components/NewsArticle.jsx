@@ -1,9 +1,10 @@
 import { Clock, Globe, ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateTime } from '../../../utils/formatters/dateFormatter';
+import DataSourceUnavailableCard from '../../../components/common/DataSourceUnavailableCard';
 import NewsAssetChip from '../../../components/news/NewsAssetChip';
 
-export default function NewsArticle({ newsItem, content, loading, navigate }) {
+export default function NewsArticle({ newsItem, content, loading, navigate, dataSourceError }) {
     const { t } = useTranslation('news');
     return (
         <div className="flex-1">
@@ -32,6 +33,14 @@ export default function NewsArticle({ newsItem, content, loading, navigate }) {
                 <div className="flex flex-col items-center justify-center py-20 text-text-muted">
                     <Loader2 className="animate-spin text-primary mb-4" size={40} />
                     <p className="animate-pulse">{t('detail.loading')}</p>
+                </div>
+            ) : dataSourceError ? (
+                // Tam metin bu ortamda sunulmuyor (telifli içeriğin yeniden yayını olurdu).
+                // Başlık, görsel ve "orijinal kaynağa git" bağlantısı yerinde kalır; yalnızca
+                // gövdenin yerine gerekçeyi açıklayan kart gelir — "makale bulunamadı" demek
+                // ziyaretçiye sanki bir arıza varmış izlenimi veriyordu.
+                <div className="pb-10 border-b border-border">
+                    <DataSourceUnavailableCard error={dataSourceError} />
                 </div>
             ) : (
                 <div className="text-text text-lg leading-relaxed whitespace-pre-line font-serif pb-10 border-b border-border">
