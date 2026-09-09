@@ -10,6 +10,7 @@ import com.financeportal.domains.future.service.FutureService;
 import com.financeportal.domains.stock.service.StockService;
 import com.financeportal.domains.turkish_bond.service.TurkishBondService;
 import com.financeportal.domains.viop.service.ViopService;
+import com.financeportal.exception.DataSourceUnavailableException;
 import com.financeportal.model.dto.market.MarketDataResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,5 +75,42 @@ class MarketDataControllerTest {
         assertNotNull(body.getGlobalFunds());
         assertNotNull(body.getTrFunds());
         assertNotNull(body.getEurobonds());
+    }
+
+    /**
+     * Kapalı kaynaklar artık istisna fırlatıyor (önceden önbellek katmanı yutuyordu).
+     * Bu uç 13 kaynağı tek yanıtta birleştirdiği için, biri kapalı diye tamamının
+     * çökmesi ana panoyu tamamen kullanılamaz hale getirirdi.
+     */
+    @Test
+    void getAllMarketData_survivesDisabledSource() {
+        when(currencyService.getCurrencyRates()).thenReturn(List.of());
+        when(cryptoService.getCryptoRates()).thenReturn(List.of());
+        when(commodityService.getCommodities()).thenReturn(List.of());
+        when(commodityService.getTurkishGold()).thenReturn(List.of());
+        when(stockService.getStocks()).thenReturn(List.of());
+        when(stockService.getIndices()).thenReturn(List.of());
+        when(bondService.getGlobalBonds()).thenReturn(List.of());
+        when(turkishBondService.getTurkishBonds()).thenReturn(List.of());
+        when(futureService.getFutures()).thenReturn(List.of());
+        when(viopService.getViopData()).thenReturn(List.of());
+        when(fundService.getGlobalFunds()).thenReturn(List.of());
+        when(fundService.getTrFunds()).thenReturn(List.of());
+        // Canlıda gerçekten kapalı olan kaynak: eurobond → businessinsider.
+        when(eurobondService.getEurobondList()).thenThrow(
+                new DataSourceUnavailableException("businessinsider",
+                        DataSourceUnavailableException.Reason.DISABLED, "canlı demoda kapalı"));
+
+        ResponseEntity<MarketDataResponseDto> resp = controller.getAllMarketData();
+
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+        MarketDataResponseDto body = resp.getBody();
+        assertNotNull(body);
+        // Kapalı kaynak boş gelir...
+        assertTrue(body.getEurobonds().isEmpty());
+        // ...ama diğer 12 kategori etkilenmez.
+        assertNotNull(body.getStocks());
+        assertNotNull(body.getCurrencies());
+        assertNotNull(body.getTrFunds());
     }
 }

@@ -1,5 +1,6 @@
 package com.financeportal.service.cache;
 
+import com.financeportal.exception.DataSourceUnavailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -184,5 +186,30 @@ class CacheServiceTest {
 
         when(redisTemplate.getExpire("null")).thenReturn(null);
         assertEquals(-2L, cacheService.getTtl("null"));
+    }
+
+    /**
+     * Kapalı veri kaynağı istisnası arıza değil, politika sonucudur ve arayüzdeki
+     * gerekçe kartını tetikler. Genel catch bunu yutup boş liste dönseydi ziyaretçi
+     * açıklama yerine bomboş bir sekme görürdü — canlıda tam olarak bu yaşandı.
+     */
+    @Test
+    void getOrFetch_rethrowsDataSourceUnavailable() {
+        DataSourceUnavailableException policy = new DataSourceUnavailableException(
+                "businessinsider", DataSourceUnavailableException.Reason.DISABLED, "canlı demoda kapalı");
+
+        DataSourceUnavailableException thrown = assertThrows(DataSourceUnavailableException.class,
+                () -> cacheService.getOrFetch("k:eurobond", () -> { throw policy; }, 60));
+
+        assertEquals("businessinsider", thrown.getSource());
+    }
+
+    /** Gerçek arızalar (Redis/ağ) eskisi gibi yutulmaya devam etmeli. */
+    @Test
+    void getOrFetch_stillSwallowsRealFailures() {
+        List<String> result = cacheService.getOrFetch(
+                "k:bist", () -> { throw new RuntimeException("downstream down"); }, 60);
+
+        assertTrue(result.isEmpty());
     }
 }

@@ -1,5 +1,6 @@
 package com.financeportal.service.cache;
 
+import com.financeportal.exception.DataSourceUnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -66,6 +67,13 @@ public class CacheService {
             }
 
             return fresh;
+        } catch (DataSourceUnavailableException e) {
+            // Kaynak bu ortamda bilinçli olarak kapatılmış — bu bir arıza değil, politika.
+            // Aşağıdaki genel catch bunu yutup boş liste dönseydi arayüz gerekçeyi
+            // açıklayan bilgi kartı yerine bomboş bir sekme gösterirdi (canlıda tam
+            // olarak bu oldu: /market-data/eurobonds ve /bank-currencies "200 []" dönüyordu).
+            // Yeniden fırlatılır; GlobalExceptionHandler 503 + DATA_SOURCE_UNAVAILABLE üretir.
+            throw e;
         } catch (Exception e) {
             log.error("getOrFetch hatası ({}): {}", key, e.getMessage());
             return new ArrayList<>();
