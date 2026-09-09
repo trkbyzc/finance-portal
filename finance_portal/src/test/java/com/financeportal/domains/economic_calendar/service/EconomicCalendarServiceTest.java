@@ -33,13 +33,17 @@ class EconomicCalendarServiceTest {
     @Mock
     private ValueOperations<String, String> valueOps;
 
+    /** Varsayılan mock hiçbir şey fırlatmaz → kaynak açık kabul edilir, testler eskisi gibi çalışır. */
+    @Mock
+    private com.financeportal.config.datasource.DataSourcePolicy dataSourcePolicy;
+
     private EconomicCalendarService service;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        service = new EconomicCalendarService(redisTemplate, objectMapper);
+        service = new EconomicCalendarService(redisTemplate, objectMapper, dataSourcePolicy);
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
     }
 

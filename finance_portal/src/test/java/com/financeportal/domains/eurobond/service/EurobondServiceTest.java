@@ -35,6 +35,9 @@ class EurobondServiceTest {
     private BusinessInsiderBondClient client;
     @Mock
     private CacheService cacheService;
+    /** Varsayılan mock check() çağrısında hiçbir şey yapmaz → kaynak açık sayılır. */
+    @Mock
+    private com.financeportal.config.datasource.DataSourcePolicy dataSourcePolicy;
 
     // Gerçek ObjectMapper — getEurobondList cache sonucu DTO'ya convertValue ediyor
     @Spy

@@ -21,6 +21,12 @@
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-000000?logo=opentelemetry)
 
 
+### [→ Canlı demo](https://finance.turkbey.dev)
+
+**`demouser` / `test123`** ile giriş yaparak portföy, izleme listesi, alarm ve simülasyon
+özelliklerini deneyebilirsiniz. Hangi verinin gerçek, hangisinin demoya özel üretildiği için
+[Veri Kaynakları](#veri-kaynaklari) bölümüne bakın.
+
 <img src="assets/screenshots/tr/dashboard.png" alt="Finans Portalı kontrol paneli" width="900"/>
 
 [English](README.md) · **Türkçe**
@@ -219,19 +225,47 @@ graph TB
 <a id="veri-kaynaklari"></a>
 ## Veri Kaynakları
 
-Piyasa verisi birden fazla dış sağlayıcıdan toplanır. Her birinin kendi kullanım şartları vardır ve hepsi eşdeğer değildir: bir kısmı resmî API yayınlar, bir kısmı ise üçüncü taraf kullanımı için tasarlanmamış uçlardan okunur. Proje bu iki kategoriyi farklı ele alır:
+Piyasa verisi birden çok sağlayıcıdan toplanır ve hepsi eşdeğer değildir. Bir kısmı şartları belgelenmiş resmî API yayınlar; bir kısmı üçüncü taraf kullanımı için hiç tasarlanmamış uçlardan okunur ya da HTML'den kazınır. Proje bu kategorileri farklı ele alır ve canlı demo buna göre yapılandırılmıştır.
 
 | Sağlayıcı | Veri | Erişim | Canlı demo |
 |-----------|------|--------|------------|
-| **TCMB EVDS** | Döviz & efektif kurlar, Türkiye makro göstergeleri | Resmî API + anahtar | ✅ açık |
-| **FRED** (St. Louis Fed) | ABD makro göstergeleri | Resmî API + anahtar | ✅ açık |
-| **Binance** | Kripto fiyatları, OHLC | Resmî açık API | ✅ açık |
-| **Finnhub** | Piyasa verisi, finans haberleri | Resmî API + anahtar | ✅ açık |
-| **Yahoo Finance** | Hisseler, endeksler, emtia, küresel ETF'ler | Resmî olmayan uç | ❌ kapalı |
-| **TradingView** | Ekonomik takvim | Resmî olmayan akış | ❌ kapalı |
-| **İş Yatırım · TEFAS · Fintables** | BİST temel verileri, TR fonları & tahvilleri | HTML kazıma | ⚠️ önbellekli, düşük frekans |
+| **TCMB EVDS** | Döviz & efektif kurlar, Türkiye makro göstergeleri | Resmî API + anahtar | ✅ gerçek |
+| **FRED** (St. Louis Fed) | ABD makro göstergeleri | Resmî API + anahtar | ✅ gerçek |
+| **Binance** | Kripto fiyatları, OHLC | Resmî açık API | ✅ gerçek |
+| **CoinGecko** | Kripto künye bilgisi, piyasa değeri | Resmî ücretsiz katman | ✅ gerçek |
+| **Finnhub** | Piyasa verisi, şirket haberleri | Resmî API + anahtar | ✅ gerçek |
+| **Truncgil** | Türk altını fiyatları | Yayınlanmış ücretsiz API | ✅ gerçek |
+| **alternative.me** | Kripto Korku & Açgözlülük endeksi | Açık kamuya açık API | ✅ gerçek |
+| **Haber kaynakları** | Başlıklar (TRT, AA, Hürriyet, Habertürk, Sabah, CoinTurk, Uzmancoin) | RSS, yayına açık | ✅ gerçek |
+| **Yahoo Finance** | Küresel hisse, endeks, emtia, ETF | Belgelenmemiş uç | 🟡 üretilmiş veri |
+| **Fintables** | BİST hisseleri, TEFAS fonları | Ücretli ürün, kazıma | 🟡 üretilmiş veri |
+| **İş Yatırım** | BİST temel verileri & endeksi, VİOP kontratları | Kazıma | 🟡 üretilmiş veri |
+| **Business Insider** | Küresel tahvil & eurobond kotasyonları | Belgelenmemiş uç | ❌ kapalı |
+| **Hesapkurdu** | Banka döviz makası, mevduat oranları | Üçüncü tarafın dahili API'si | ❌ kapalı |
+| **TradingView** | Ekonomik takvim; sembol logoları | Belgelenmemiş akış; marka varlıkları | ❌ kapalı |
+| **Halka arz takvimi** | Yaklaşan halka arzlar | Kazıma | ❌ kapalı |
+| **Haber tam metni** | Bağlantı verilen haberin tam gövdesi | Keyfi URL'den kazıma | ❌ kapalı |
 
-**Bazı sağlayıcılar canlı dağıtımda neden kapalı?** Projeyi yerelde kişisel kullanım için çalıştırmak ayrı şeydir; aynı veriyi anonim ziyaretçilere sunmak *yeniden dağıtım* anlamına gelir ve resmî olmayan uçların şartları buna izin vermez. Bu ayrımı görmezden gelmek yerine, dağıtım bu sağlayıcıları yapılandırma üzerinden (`data-sources.*.enabled`) kapatır ve arayüz ilgili bölümü sessizce hata vermek yerine "demoda kullanılamıyor" olarak bildirir. Yerel çalıştırmada her şey tam işlevseldir.
+**Üç durum ne anlama geliyor?**
+
+- **✅ gerçek** — resmî ya da açıkça yayına sunulmuş arayüzler. Demo bunları gerçekten çağırır.
+- **🟡 üretilmiş veri** — demoda sağlayıcıya hiç istek gitmez. Uygulama yerine deterministik olarak üretilmiş rakamlar sunar; böylece ekranlar tam işlevsel kalırken kimsenin verisi yeniden dağıtılmaz. Sitenin üstündeki bant bunu belirtir, `GET /api/v1/meta/runtime` ise hangi kaynakların bu durumda olduğunu döner.
+- **❌ kapalı** — ilgili bölüm `503 DATA_SOURCE_UNAVAILABLE` döner; arayüz kırmızı hata değil, gerekçeyi açıklayan bir bilgi kartı gösterir.
+
+**Neden?** Projeyi yerelde kendi kullanımınız için çalıştırmak ayrı şeydir; aynı veriyi anonim ziyaretçilere sunmak *yeniden dağıtımdır* ve resmî olmayan uçların şartları buna izin vermez. Bu ayrımı görmezden gelmek — ya da sessizce boş liste dönüp bozuk görünmek — yerine dağıtım o sağlayıcıları yapılandırmayla kapatır ve nedenini ekranda söyler.
+
+Kısıtlamalar **yalnızca canlı dağıtımda** geçerlidir. Yerel çalıştırmada tüm kaynaklar açıktır ve uygulama tam işlevseldir. Politika `data-sources.policies.<kaynak>` altında tutulur; `application.yaml` hepsini açar, `application-prod.yml` ezer:
+
+```yaml
+data-sources:
+  policies:
+    fintables:
+      enabled: false
+      demo-data: true      # yerine üretilmiş rakamlar sunulur
+    hesapkurdu:
+      enabled: false       # 503 + bilgi kartı
+      note: "..."          # ziyaretçiye gösterilen gerekçe
+```
 
 > ⚠️ Tüm piyasa verileri **yalnızca bilgilendirme amaçlıdır** ve yatırım tavsiyesi değildir. Veriler gecikmeli veya hatalı olabilir; yatırım kararlarınızın sorumluluğu size aittir.
 

@@ -1,5 +1,7 @@
 package com.financeportal.domains.ipo.service;
 
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.domains.ipo.client.IpoScraperClient;
 import com.financeportal.domains.ipo.dto.IpoDto;
 import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
@@ -22,11 +24,16 @@ public class IpoService {
     private final IpoScraperClient ipoScraperClient;
     private final CacheService cacheService;
     private final BootstrapReadinessTracker bootstrapTracker;
+    private final DataSourcePolicy dataSourcePolicy;
 
     @PostConstruct
     void registerBootstrap() { bootstrapTracker.register(TASK_NAME); }
 
     public List<IpoDto> getIPOCalendar() {
+        // Politika ÖNBELLEKTEN ÖNCE kontrol edilir. İstemcideki kontrol yalnızca önbellek
+        // boşken çalışır; kaynak veri önbelleğe girdikten SONRA kapatılırsa eski kayıtlar
+        // TTL dolana dek sunulmaya devam ederdi — kapatmanın amacı tam da bunu önlemek.
+        dataSourcePolicy.check(DataSourceKeys.IPO_SCRAPER);
         return cacheService.getOrFetch(CACHE_KEY, ipoScraperClient::scrapeIPOCalendar, 60);
     }
 

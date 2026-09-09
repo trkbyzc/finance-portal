@@ -2,6 +2,8 @@ package com.financeportal.domains.economic_calendar.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.domains.economic_calendar.dto.EconomicEventDto;
 import com.financeportal.model.enums.EventImpact;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +28,16 @@ public class EconomicCalendarService {
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final DataSourcePolicy dataSourcePolicy;
 
     private static final String CACHE_KEY = "cache:economic-calendar";
 
     public List<EconomicEventDto> getEvents(LocalDate from, LocalDate to, Set<String> countries, EventImpact minImpact) {
+        // Politika kontrolü ÖNBELLEK OKUMASINDAN ÖNCE. Bu servis dış çağrı yapmaz, yalnızca
+        // sync işinin doldurduğu Redis anahtarını okur — dolayısıyla kontrolü yalnızca
+        // istemciye koymak yetmez: kaynak kapatıldıktan sonra bile önbellekteki kayıtlar
+        // TTL dolana dek sunulmaya devam ederdi. Kapatmanın amacı tam olarak bunu önlemek.
+        dataSourcePolicy.check(DataSourceKeys.INVESTING_CALENDAR);
         try {
             String json = redisTemplate.opsForValue().get(CACHE_KEY);
             if (json == null || json.isEmpty()) {

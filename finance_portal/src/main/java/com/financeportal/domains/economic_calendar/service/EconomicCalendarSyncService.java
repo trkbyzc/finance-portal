@@ -1,6 +1,8 @@
 package com.financeportal.domains.economic_calendar.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.domains.economic_calendar.client.EconomicCalendarClient;
 import com.financeportal.domains.economic_calendar.dto.EconomicEventDto;
 import com.financeportal.service.bootstrap.BootstrapReadinessTracker;
@@ -34,6 +36,7 @@ public class EconomicCalendarSyncService {
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final BootstrapReadinessTracker bootstrapTracker;
+    private final DataSourcePolicy dataSourcePolicy;
 
     private static final String TASK_NAME = "EconomicCalendar";
     private static final String CACHE_KEY = "cache:economic-calendar";
@@ -47,6 +50,17 @@ public class EconomicCalendarSyncService {
     @EventListener(ApplicationReadyEvent.class)
     @Scheduled(fixedRateString = "${app.sync.economic-calendar-rate-ms:21600000}")
     public void syncCalendar() {
+        // Kaynak bu ortamda kapalıysa dış çağrı hiç yapılmaz.
+        //
+        // Burada bilerek check() DEĞİL isEnabled() kullanılıyor: bu metot aynı zamanda bir
+        // ApplicationReadyEvent dinleyicisi ve o aşamada fırlatılan istisna Spring Boot
+        // tarafından "application run failed" olarak ele alınıp açılışı düşürebilir.
+        // Ayrıca erken dönüş, bootstrapTracker'ın tamamlanmasını da atlamamalı.
+        if (!dataSourcePolicy.isEnabled(DataSourceKeys.INVESTING_CALENDAR)) {
+            log.debug("[ECONOMIC-CALENDAR] Kaynak bu ortamda kapalı, senkron atlandı.");
+            bootstrapTracker.markComplete(TASK_NAME);
+            return;
+        }
         try {
             LocalDate today = LocalDate.now();
             LocalDate from = today.minusDays(7);

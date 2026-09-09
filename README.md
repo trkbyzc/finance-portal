@@ -21,6 +21,11 @@
 ![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Observability-000000?logo=opentelemetry)
 
 
+### [→ Live demo](https://finance.turkbey.dev)
+
+Sign in as **`demouser` / `test123`** to explore the portfolio, watchlist, alarms and simulation features.
+See [Data Sources](#data-sources) for what runs on real data and what is generated in the demo.
+
 <img src="assets/screenshots/en/hero.png" alt="Finance Portal dashboard" width="900"/>
 
 **English** · [Türkçe](README.tr.md)
@@ -219,19 +224,47 @@ graph TB
 <a id="data-sources"></a>
 ## Data Sources
 
-Market data is aggregated from several external providers. Each has its own terms of use, and they are not equivalent — some publish an official API, others are read from endpoints that were never meant for third-party consumption. The project treats those categories differently:
+Market data is aggregated from several providers, and they are not equivalent. Some publish an official API with documented terms; others are read from endpoints that were never meant for third-party consumption, or scraped from HTML. The project treats those categories differently, and the public demo is configured accordingly.
 
 | Provider | Data | Access | Public demo |
 |----------|------|--------|-------------|
-| **TCMB EVDS** | FX & effective rates, Turkish macro indicators | Official API + key | ✅ enabled |
-| **FRED** (St. Louis Fed) | US macro indicators | Official API + key | ✅ enabled |
-| **Binance** | Crypto prices, OHLC | Official public API | ✅ enabled |
-| **Finnhub** | Market data, financial news | Official API + key | ✅ enabled |
-| **Yahoo Finance** | Equities, indices, commodities, global ETFs | Unofficial endpoint | ❌ disabled |
-| **TradingView** | Economic calendar | Unofficial feed | ❌ disabled |
-| **İş Yatırım · TEFAS · Fintables** | BIST fundamentals, Turkish funds & bonds | HTML scraping | ⚠️ cached, low frequency |
+| **TCMB EVDS** | FX & effective rates, Turkish macro indicators | Official API + key | ✅ live |
+| **FRED** (St. Louis Fed) | US macro indicators | Official API + key | ✅ live |
+| **Binance** | Crypto prices, OHLC | Official public API | ✅ live |
+| **CoinGecko** | Crypto metadata, market cap | Official free tier | ✅ live |
+| **Finnhub** | Market data, company news | Official API + key | ✅ live |
+| **Truncgil** | Turkish gold prices | Published free API | ✅ live |
+| **alternative.me** | Crypto Fear & Greed index | Public open API | ✅ live |
+| **News publishers** | Headlines (TRT, AA, Hürriyet, Habertürk, Sabah, CoinTurk, Uzmancoin) | RSS, published for syndication | ✅ live |
+| **Yahoo Finance** | Global equities, indices, commodities, ETFs | Undocumented endpoint | 🟡 synthetic data |
+| **Fintables** | BIST equities, TEFAS funds | Paid product, scraped | 🟡 synthetic data |
+| **İş Yatırım** | BIST fundamentals & index, VİOP contracts | Scraped | 🟡 synthetic data |
+| **Business Insider** | Global bond & eurobond quotes | Undocumented endpoint | ❌ disabled |
+| **Hesapkurdu** | Bank FX spreads, deposit rates | Third-party internal API | ❌ disabled |
+| **TradingView** | Economic calendar; symbol logos | Undocumented feed; brand assets | ❌ disabled |
+| **IPO calendar** | Upcoming public offerings | Scraped | ❌ disabled |
+| **Article full text** | Full body of a linked news article | Scraped from arbitrary URLs | ❌ disabled |
 
-**Why some providers are disabled in a public deployment.** Running the stack locally for personal use is one thing; serving the same data to anonymous visitors is redistribution, which the unofficial endpoints' terms do not allow. Instead of ignoring that distinction, the deployment turns those providers off through configuration (`data-sources.*.enabled`) and the UI reports the section as unavailable rather than failing silently. Everything remains fully functional in a local run.
+**What the three states mean.**
+
+- **✅ live** — official or explicitly published interfaces. The demo calls them for real.
+- **🟡 synthetic data** — the provider is never contacted in the demo. The application serves deterministic generated figures instead, so the screens stay fully interactive without redistributing anyone's data. A banner at the top of the site says so, and `GET /api/v1/meta/runtime` reports exactly which sources are in this state.
+- **❌ disabled** — the section returns `503 DATA_SOURCE_UNAVAILABLE` and the UI renders an explanatory card, not a red error.
+
+**Why.** Running the stack locally for your own use is one thing; serving the same data to anonymous visitors is redistribution, which the unofficial endpoints' terms do not permit. Rather than ignore that distinction — or quietly return empty lists, which just looks broken — the deployment turns those providers off through configuration and says why on screen.
+
+Restrictions apply **only to the public deployment**. A local run enables every source and the application is fully functional. The policy lives in `data-sources.policies.<source>` — `application.yaml` enables everything, `application-prod.yml` overrides:
+
+```yaml
+data-sources:
+  policies:
+    fintables:
+      enabled: false
+      demo-data: true      # serve generated figures instead
+    hesapkurdu:
+      enabled: false       # 503 + explanation card
+      note: "..."          # shown to the visitor
+```
 
 > ⚠️ All market data is provided **for informational purposes only** and does not constitute investment advice. Figures may be delayed or inaccurate; you are solely responsible for your investment decisions.
 

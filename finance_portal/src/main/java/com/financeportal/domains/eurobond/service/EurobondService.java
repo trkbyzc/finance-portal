@@ -1,6 +1,8 @@
 package com.financeportal.domains.eurobond.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.financeportal.config.datasource.DataSourceKeys;
+import com.financeportal.config.datasource.DataSourcePolicy;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient;
 import com.financeportal.domains.eurobond.client.BusinessInsiderBondClient.BusinessInsiderBondDetail;
 import com.financeportal.domains.bond.config.BondMath;
@@ -37,6 +39,7 @@ public class EurobondService {
     private final BusinessInsiderBondClient client;
     private final CacheService cacheService;
     private final ObjectMapper objectMapper;
+    private final DataSourcePolicy dataSourcePolicy;
 
     @Value("${app.ttl.eurobond-minutes:360}")
     private long eurobondCacheTtlMinutes = 360;
@@ -47,6 +50,8 @@ public class EurobondService {
      * EurobondDto'ya çeviriyoruz (cache-miss'te zaten DTO).
      */
     public List<EurobondDto> getEurobondList() {
+        // Politika ÖNBELLEKTEN ÖNCE kontrol edilir — gerekçesi IpoService.getIPOCalendar'da.
+        dataSourcePolicy.check(DataSourceKeys.BUSINESS_INSIDER);
         List<?> raw = cacheService.getOrFetch(CACHE_KEY, this::buildList, eurobondCacheTtlMinutes);
         return raw.stream()
                 .map(o -> objectMapper.convertValue(o, EurobondDto.class))

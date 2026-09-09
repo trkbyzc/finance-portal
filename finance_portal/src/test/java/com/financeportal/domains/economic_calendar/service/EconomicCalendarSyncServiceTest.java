@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +38,7 @@ class EconomicCalendarSyncServiceTest {
     @Mock private StringRedisTemplate redisTemplate;
     @Mock private ValueOperations<String, String> valueOps;
     @Mock private BootstrapReadinessTracker bootstrapTracker;
+    @Mock private com.financeportal.config.datasource.DataSourcePolicy dataSourcePolicy;
 
     @InjectMocks private EconomicCalendarSyncService service;
 
@@ -44,6 +46,22 @@ class EconomicCalendarSyncServiceTest {
     void setUp() {
         ReflectionTestUtils.setField(service, "objectMapper", new ObjectMapper().registerModule(new JavaTimeModule()));
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        // Mock varsayılanı false döner ve senkron erken çıkardı; bu testler kaynağın
+        // açık olduğu durumu ölçüyor. Kapalı hali ayrı testte doğrulanıyor.
+        when(dataSourcePolicy.isEnabled(anyString())).thenReturn(true);
+    }
+
+    /** Kaynak kapalıyken dış çağrı yapılmamalı ve önbelleğe dokunulmamalı. */
+    @Test
+    void sync_skipsEntirely_whenSourceDisabled() {
+        when(dataSourcePolicy.isEnabled(anyString())).thenReturn(false);
+
+        service.syncCalendar();
+
+        verifyNoInteractions(finnhubClient);
+        verify(valueOps, never()).set(anyString(), anyString(), anyLong(), any());
+        // Açılış izleyicisi yine tamamlanmalı; aksi halde bootstrap sonsuz "bekliyor" kalır.
+        verify(bootstrapTracker).markComplete("EconomicCalendar");
     }
 
     @Test
