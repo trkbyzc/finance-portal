@@ -26,8 +26,29 @@ public class CurrencyService {
     private final ObjectMapper objectMapper;
 
     public List<CurrencyDto> getCurrencyRates() {
-        return cacheService.getOrFetch("cache:currencies", tcmbIntegrationClient::fetchTcmbCurrencyRates, 60);
+        List<?> raw = cacheService.getOrFetch("cache:currencies", tcmbIntegrationClient::fetchTcmbCurrencyRates, 60);
+        // Önbellek-isabetinde elemanlar LinkedHashMap olarak döner (bkz. aşağıdaki not);
+        // DTO gibi kullanan çağıranlar aksi halde ClassCastException alır.
+        return raw.stream()
+                .map(o -> o instanceof CurrencyDto dto ? dto : objectMapper.convertValue(o, CurrencyDto.class))
+                .toList();
     }
+
+    /*
+     * NEDEN BU ÇEVRİM GEREKİYOR — ve asıl çözümün nerede olduğu:
+     *
+     * RedisConfig, GenericJackson2JsonRedisSerializer'ı uygulamanın ObjectMapper'ıyla
+     * kuruyor. O mapper'da varsayılan tipleme (default typing) kapalı olduğu için değerler
+     * `@class` bilgisi olmadan yazılıyor; geri okurken Jackson tipi bilemeyip LinkedHashMap
+     * üretiyor. Jenerik silme yüzünden derleyici bunu göremiyor, kod List<CurrencyDto>
+     * sanıyor ve ilk getter çağrısında patlıyor.
+     *
+     * Kalıcı çözüm serileştiriciye tip bilgisi eklemektir; ancak bu, önbellekteki TÜM
+     * anahtarların formatını değiştirir ve ayrı olarak test edilmeyi hak eder. O yapılana
+     * kadar, önbellekten okunan listeyi DTO gibi kullanan servisler bu çevrimi yapmalı.
+     * (PortfolioPriceService.extractPriceFromList aynı sorunu LinkedHashMap dalı ekleyerek
+     * tolere ediyor — aynı hatanın başka bir belirtisi.)
+     */
 
     /**
      * Belirli bir döviz kodunun (USD/EUR/GBP vb.) TRY karşılığı geçmiş günlük serisi.
