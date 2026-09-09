@@ -60,12 +60,43 @@ public class CommodityService {
         return typed(raw);
     }
 
+    /**
+     * Truncgil kesintiye uğradığında son başarılı anlık görüntüden beslenir; o da yoksa
+     * ONS altın × USD ile matematiksel olarak hesaplanır.
+     *
+     * <p><b>Sıralama neden böyle:</b> matematiksel yedek ONS altını {@code GC=F}'ten alır,
+     * o da Yahoo'dan gelir — canlı demoda Yahoo üretilmiş veri veriyor. Yani türetilen
+     * fiyat gerçek değil. Truncgil iki kez düştüğünde gram altın 6.870 ₺'den 4.006 ₺'ye
+     * indi (%42); aynı sembolün dış bir kesintiye göre zıplaması bir finans uygulamasında
+     * kabul edilemez. Son geçerli değer 48 saat saklanarak bu zıplama önlenir.
+     * Matematiksel hesap yine de duruyor: hiç veri olmamasındansa yaklaşık bir değer iyidir
+     * (isimleri "(Yedek)" ile işaretli).
+     */
+    private static final String GOLD_LAST_GOOD_KEY = "cache:turkish_gold:last-good";
+
+    @Value("${app.ttl.turkish-gold-last-good-minutes:2880}")
+    private long goldLastGoodTtlMinutes = 2880;
+
     public List<CommodityDto> getTurkishGold() {
         List<?> raw = cacheService.getOrFetch("cache:turkish_gold", () -> {
-            List<CommodityDto> list = truncgilIntegrationClient.fetchLiveTurkishGold();
-            List<CommodityDto> result = (list != null && !list.isEmpty())
-                    ? new ArrayList<>(list)
-                    : calculateGoldMathematically();
+            List<CommodityDto> live = truncgilIntegrationClient.fetchLiveTurkishGold();
+
+            List<CommodityDto> result;
+            if (live != null && !live.isEmpty()) {
+                result = new ArrayList<>(live);
+                cacheService.save(GOLD_LAST_GOOD_KEY, result, goldLastGoodTtlMinutes);
+            } else {
+                List<CommodityDto> lastGood = typed(cacheService.get(GOLD_LAST_GOOD_KEY));
+                if (!lastGood.isEmpty()) {
+                    log.info("[TURKISH_GOLD] Truncgil boş döndü, son geçerli anlık görüntü kullanılıyor: {} kayıt.",
+                            lastGood.size());
+                    result = new ArrayList<>(lastGood);
+                } else {
+                    log.warn("[TURKISH_GOLD] Truncgil boş ve son geçerli kayıt yok — matematiksel hesaba düşülüyor.");
+                    result = calculateGoldMathematically();
+                }
+            }
+
             result.forEach(c -> c.setImage(commodityImage(c)));
             return result;
         }, 5);

@@ -350,4 +350,48 @@ class CommodityServiceTest {
         assertNotNull(gram.getPrice());
         assertTrue(gram.getPrice().compareTo(BigDecimal.ZERO) > 0);
     }
+
+    /**
+     * Truncgil bugun iki kez dustu. Matematiksel yedek ONS altini GC=F'ten aliyor, o da
+     * Yahoo'dan geliyor ve canli demoda Yahoo uretilmis veri veriyor → gram altin
+     * 6.870 TL'den 4.006 TL'ye indi (%42). Ayni sembolun dis bir kesintiye gore zipla-
+     * masi kabul edilemez; once son gecerli GERCEK deger kullanilmali.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    void getTurkishGold_prefersLastGoodSnapshot_overMathFallback() {
+        when(truncgilClient.fetchLiveTurkishGold()).thenReturn(List.of());
+
+        CommodityDto lastGood = new CommodityDto();
+        lastGood.setSymbol("GRAM_ALTIN");
+        lastGood.setPrice(new BigDecimal("6870.55"));
+        when(cacheService.get("cache:turkish_gold:last-good")).thenReturn((List) List.of(lastGood));
+
+        when(cacheService.getOrFetch(eq("cache:turkish_gold"), any(Supplier.class), anyLong()))
+                .thenAnswer(inv -> ((Supplier<List<CommodityDto>>) inv.getArgument(1)).get());
+
+        List<CommodityDto> result = service.getTurkishGold();
+
+        assertEquals(1, result.size());
+        assertEquals(0, new BigDecimal("6870.55").compareTo(result.get(0).getPrice()));
+        // Matematiksel hesap hic calismamali → doviz servisine gidilmemeli
+        org.mockito.Mockito.verify(currencyService, org.mockito.Mockito.never()).getCurrencyRates();
+    }
+
+    /** Truncgil calisirken sonuc ayrica "son gecerli" anahtarina da yazilmali. */
+    @Test
+    @SuppressWarnings("unchecked")
+    void getTurkishGold_storesLastGoodSnapshot_whenLiveDataArrives() {
+        CommodityDto gram = new CommodityDto();
+        gram.setSymbol("GRAM_ALTIN");
+        gram.setPrice(new BigDecimal("6870.55"));
+        when(truncgilClient.fetchLiveTurkishGold()).thenReturn(List.of(gram));
+        when(cacheService.getOrFetch(eq("cache:turkish_gold"), any(Supplier.class), anyLong()))
+                .thenAnswer(inv -> ((Supplier<List<CommodityDto>>) inv.getArgument(1)).get());
+
+        service.getTurkishGold();
+
+        org.mockito.Mockito.verify(cacheService)
+                .save(eq("cache:turkish_gold:last-good"), any(), anyLong());
+    }
 }
