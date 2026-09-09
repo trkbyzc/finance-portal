@@ -109,4 +109,54 @@ class LlmProviderGatewayWiringTest {
             return "ok";
         }
     }
+
+    /**
+     * Bu testin varlik sebebi somut: starter'in OpenAI otomatik yapilandirmasi
+     * spring.ai.openai.* ozelliklerinden model bean'leri kurmaya calisiyor ve anahtar
+     * yoksa ACILISTA patliyor ("OpenAI API key must be set"). Canlida uygulama tam
+     * olarak bu yuzden dongude kaldi; onceki testler yakalayamadi cunku yalnizca bizim
+     * yapilandirmamizi yukluyorlardi, starter'in otomatik yapilandirmasini degil.
+     *
+     * Burada otomatik yapilandirmalar SINIF YOLUNDA ama application.yaml'daki gibi
+     * disariniyor; anahtar olmadan da baglam ayaga kalkmali.
+     */
+    @Test
+    @DisplayName("OpenAI otomatik yapılandırması dışlanınca anahtarsız bağlam ayağa kalkar")
+    void contextStartsWhenOpenAiAutoConfigurationIsExcluded() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(JacksonAutoConfiguration.class))
+                .withUserConfiguration(LlmConfig.class, TestTools.class)
+                .withBean(LlmProviderGateway.class)
+                .withPropertyValues(
+                        "spring.autoconfigure.exclude="
+                                + "org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration,"
+                                + "org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration,"
+                                + "org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration,"
+                                + "org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration,"
+                                + "org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration,"
+                                + "org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration")
+                .run(context -> {
+                    assertThat(context).hasNotFailed();
+                    assertThat(context).hasSingleBean(LlmProviderGateway.class);
+                });
+    }
+
+    /**
+     * application.yaml'daki dislama listesi ile gercek sinif adlari ayni kalmali.
+     * Spring AI yukseltmesinde sinif tasinirsa bu test kirilir ve sessizce
+     * "yeniden otomatik yapilandirma acildi" durumuna dusmeyiz.
+     */
+    @Test
+    @DisplayName("Dışlanan otomatik yapılandırma sınıfları sınıf yolunda gerçekten var")
+    void excludedAutoConfigurationClassesExist() throws Exception {
+        for (String fqcn : List.of(
+                "org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration",
+                "org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration",
+                "org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration",
+                "org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration",
+                "org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration",
+                "org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration")) {
+            assertThat(Class.forName(fqcn)).as("dışlanan sınıf: %s", fqcn).isNotNull();
+        }
+    }
 }

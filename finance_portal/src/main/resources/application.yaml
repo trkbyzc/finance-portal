@@ -1,6 +1,23 @@
 spring:
   application:
     name: finance-portal
+
+  # Spring AI'nin OpenAI otomatik yapilandirmasi KAPALI.
+  #
+  # Starter, spring.ai.openai.* ozelliklerinden sohbet/ses/gorsel/embedding modelleri
+  # kurmaya calisir ve anahtar yoksa ACILISTA PATLAR ("OpenAI API key must be set").
+  # Biz iki saglayiciyi (Gemini + Groq) LlmConfig icinde ELLE kuruyoruz, dolayisiyla
+  # otomatik kurulan tek bir bean'e bile ihtiyacimiz yok.
+  #
+  # Bu satirlar kaldirilirsa uygulama acilmaz. Canlida tam olarak bu yasandi.
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
   profiles:
     # Aktif profil zinciri (son okunan üstte):
     #   dev    — application-dev.yml: SQL log, full actuator, DEBUG log
