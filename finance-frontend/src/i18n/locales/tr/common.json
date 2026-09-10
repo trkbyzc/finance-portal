@@ -151,7 +151,18 @@
     "disabledBody": "Bu veri, sağlayıcının kullanım şartları nedeniyle canlı demoda sunulmuyor. Projeyi kendi bilgisayarınızda çalıştırdığınızda bölüm tam işlevsel gelir.",
     "authTitle": "Giriş gerekiyor",
     "authBody": "Bu bölümü görüntülemek için giriş yapmanız gerekiyor.",
-    "runLocally": "Yerelde nasıl çalıştırılır"
+    "runLocally": "Yerelde nasıl çalıştırılır",
+    "notes": {
+      "businessinsider": "Küresel tahvil kotasyonları resmî olmayan bir uçtan alınır; canlı demoda kapalıdır.",
+      "fintables": "BİST hisseleri ve TEFAS fonları Fintables'tan alınır. Fintables ücretli bir abonelik ürünüdür; verisini canlı bir demoda yeniden sunmak doğru olmaz. Yerel kurulumda bu bölümler tam çalışır.",
+      "hesapkurdu": "Mevduat ve kredi oranları üçüncü tarafın dahili API'sinden gelir; canlı demoda kapalıdır.",
+      "investing-calendar": "Ekonomik takvim TradingView'in belgelenmemiş feed'inden alınır; şartları üçüncü taraflara yeniden sunuma izin vermediği için canlı demoda kapalıdır. Yerel kurulumda tam çalışır.",
+      "ipo-scraper": "Halka arz takvimi üçüncü taraf bir siteden kazınır; canlı demoda kapalıdır.",
+      "isyatirim": "Temel veriler, BİST endeksi ve VİOP kontratları İş Yatırım sayfalarından kazınarak elde edilir; canlı demoda kapalıdır.",
+      "news-content": "Haber başlıkları RSS ile gelir ve kaynağına yönlendirir. Makalenin tam metnini uygulama içinde göstermek telifli içeriğin yeniden yayını olacağı için canlı demoda kapalıdır.",
+      "tradingview-logo": "Sembol logoları TradingView'in marka varlıklarıdır; canlı demoda sunulmaz, yerine sembolün baş harfleri gösterilir.",
+      "yahoo": "Küresel hisse, endeks, emtia ve ETF verisi Yahoo Finance'in belgelenmemiş ucundan gelir; şartları üçüncü taraflara yeniden sunuma izin vermediği için canlı demoda kapalıdır. Yerel kurulumda tam çalışır."
+    }
   },
   "demoBanner": {
     "text": "Demo modu — bu sayfadaki hisse, fon ve vadeli verileri örnek amaçlı üretilmiştir, gerçek piyasa verisi değildir. Döviz, kripto ve makro veriler gerçektir."

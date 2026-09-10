@@ -151,7 +151,18 @@
     "disabledBody": "This data is not served in the live demo because of the provider's terms of use. Run the project locally and the section works in full.",
     "authTitle": "Sign in required",
     "authBody": "You need to sign in to view this section.",
-    "runLocally": "How to run it locally"
+    "runLocally": "How to run it locally",
+    "notes": {
+      "businessinsider": "Global bond quotes come from an unofficial endpoint, so they are switched off in the live demo.",
+      "fintables": "BIST equities and TEFAS funds come from Fintables, which is a paid subscription product. Re-serving its data in a public demo would not be right. These sections work in full when you run the project locally.",
+      "hesapkurdu": "Deposit and loan rates come from a third party's internal API, so they are switched off in the live demo.",
+      "investing-calendar": "The economic calendar comes from TradingView's undocumented feed. Its terms do not allow re-serving it to third parties, so it is switched off in the live demo. It works in full when you run the project locally.",
+      "ipo-scraper": "The IPO calendar is scraped from a third-party site, so it is switched off in the live demo.",
+      "isyatirim": "Fundamentals, the BIST index and VIOP futures are scraped from Is Yatirim's pages, so they are switched off in the live demo.",
+      "news-content": "Headlines arrive over RSS and link back to their source. Showing an article's full text inside the app would republish copyrighted content, so it is switched off in the live demo.",
+      "tradingview-logo": "Symbol logos are TradingView brand assets, so they are not served in the live demo. Symbol initials are shown instead.",
+      "yahoo": "Global equity, index, commodity and ETF data comes from Yahoo Finance's undocumented endpoint. Its terms do not allow re-serving that data to third parties, so it is switched off in the live demo. It works in full when you run the project locally."
+    }
   },
   "demoBanner": {
     "text": "Demo mode — stock, fund and futures figures on this site are generated samples, not real market data. FX, crypto and macro figures are real."

@@ -22,8 +22,25 @@ export default function DataSourceUnavailableCard({ error, title }) {
         ? t('dataSource.authTitle', 'Giriş gerekiyor')
         : t('dataSource.disabledTitle', 'Bu bölüm canlı demoda kapalı');
 
-    // Gerekçe backend'den gelir (yapılandırmadaki not); yoksa genel metne düşülür.
-    const body = error.message || (needsAuth
+    // Gerekçe metni.
+    //
+    // ESKIDEN doğrudan error.message yazılıyordu ve bu bir HATAYDI: o metin backend'den,
+    // application-prod.yml'deki `note` alanından geliyor ve orada YALNIZCA TÜRKÇE yazılı.
+    // Sonuç olarak siteyi İngilizceye alan biri İngilizce başlık altında Türkçe açıklama
+    // görüyordu.
+    //
+    // Çözüm: backend zaten hangi kaynağın kapalı olduğunu `source` alanında söylüyor
+    // ("news-content", "fintables"...). Metni buradan, kaynak adına göre seçiyoruz —
+    // çeviriler zaten burada duruyor, backend'in dil bilmesine gerek yok.
+    //
+    // Sıra: kaynağa özel çeviri → backend'in gönderdiği not → genel metin.
+    // Ortadaki basamak bilerek duruyor: yeni bir kaynak eklenip çevirisi henüz
+    // yazılmamışsa kullanıcı en azından doğru gerekçeyi görsün, genel metni değil.
+    const sourceNote = error.source
+        ? t(`dataSource.notes.${error.source}`, { defaultValue: '' })
+        : '';
+
+    const body = sourceNote || error.message || (needsAuth
         ? t('dataSource.authBody', 'Bu bölümü görüntülemek için giriş yapmanız gerekiyor.')
         : t('dataSource.disabledBody',
             'Bu veri, sağlayıcının kullanım şartları nedeniyle canlı demoda sunulmuyor. ' +
