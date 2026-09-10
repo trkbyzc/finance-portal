@@ -24,13 +24,13 @@ jobs:
       # (Git on Windows core.fileMode=false default). chmod +x ile fix.
       - name: mvnw'ye Execute Yetkisi Ver
         run: chmod +x ./mvnw
-        working-directory: ./finance_portal
+        working-directory: ./finance-portal-backend
 
       # mvn verify = compile + Surefire (unit) + Failsafe (IT) + JaCoCo report
       # JaCoCo plugin'i verify fazında target/site/jacoco/jacoco.xml uretir.
       - name: Maven Build + Test + Coverage (mvn verify)
         run: ./mvnw -B --no-transfer-progress verify
-        working-directory: ./finance_portal
+        working-directory: ./finance-portal-backend
 
       # JaCoCo XML + HTML raporlarini artifact olarak yukle (14 gun saklanir).
       # SonarQube analizi local'de yapiliyor (docs/sonar.md) - SonarCloud private
@@ -40,9 +40,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-coverage-report
-          path: finance_portal/target/site/jacoco/
+          path: finance-portal-backend/target/site/jacoco/
           retention-days: 14
 
       - name: Docker Compose Testi (Build Kontrolu)
         run: docker compose config
-        working-directory: ./finance_portal
+        working-directory: ./finance-portal-backend

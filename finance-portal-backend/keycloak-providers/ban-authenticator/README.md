@@ -15,7 +15,7 @@ kendi JPA bağlantısı ile native SQL olarak yapılır (ek REST çağrısı yok
 ## 1. Derle
 
 ```bash
-# finance_portal/ dizininden:
+# finance-portal-backend/ dizininden:
 ./mvnw -f keycloak-providers/ban-authenticator/pom.xml package
 ```
 

@@ -7,7 +7,7 @@
 #   kubectl get pods -n finance -l app=app-backend -w   # 2. terminal: pod sayısı izle
 #   # 3. terminal: yük başlat
 #   $INGRESS_IP = kubectl get ingress -n finance finance-portal-ingress -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
-#   docker run --rm -e BASE_URL=http://$INGRESS_IP -v ${PWD}/finance_portal/scripts:/scripts grafana/k6 run /scripts/perf-test.js
+#   docker run --rm -e BASE_URL=http://$INGRESS_IP -v ${PWD}/finance-portal-backend/scripts:/scripts grafana/k6 run /scripts/perf-test.js
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:

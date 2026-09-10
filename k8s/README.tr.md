@@ -62,7 +62,7 @@ kubectl get hpa -n finance -w
 
 # k6 load test (2. terminal, ingress IP'sini değiştir):
 $BASE_URL = "http://<INGRESS_IP>"
-docker run --rm -e BASE_URL=$BASE_URL -v ${PWD}/finance_portal/scripts:/scripts grafana/k6 run /scripts/perf-test.js
+docker run --rm -e BASE_URL=$BASE_URL -v ${PWD}/finance-portal-backend/scripts:/scripts grafana/k6 run /scripts/perf-test.js
 ```
 
 Backend replica'ları **1 → 5** otomatik scale olur (HPA CPU > %70 threshold).

@@ -2,7 +2,7 @@
 #
 # Finance Portal Frontend — Multi-stage Node 20 build → Nginx static serve.
 #
-# Build:   docker build -t finance-portal-frontend ./finance-frontend
+# Build:   docker build -t finance-portal-frontend ./finance-portal-frontend
 # Run:     docker run --rm -p 5173:80 finance-portal-frontend
 #
 # docker-compose.yml içindeki `app-frontend` servisi tarafından kullanılır.

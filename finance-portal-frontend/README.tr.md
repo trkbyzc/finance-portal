@@ -9,7 +9,7 @@
 ## Önkoşullar
 
 - **Node.js 20+** ve **npm**
-- Çalışan bir **backend** + **Keycloak** (en kolayı: `../finance_portal`'dan `docker compose up -d` — kök README'ye bak)
+- Çalışan bir **backend** + **Keycloak** (en kolayı: `../finance-portal-backend`'dan `docker compose up -d` — kök README'ye bak)
 
 ## Çalıştırma (dev)
 

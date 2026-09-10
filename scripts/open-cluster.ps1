@@ -151,7 +151,7 @@ docker build `
     --build-arg VITE_KEYCLOAK_CLIENT_ID=finance-client `
     --build-arg VITE_APP_URL="https://${HOST_DOMAIN}" `
     -t "${REGISTRY}/frontend:${FE_TAG}" `
-    .\finance-frontend
+    .\finance-portal-frontend
 Assert-Ok "docker build"
 docker push "${REGISTRY}/frontend:${FE_TAG}"
 Assert-Ok "docker push"

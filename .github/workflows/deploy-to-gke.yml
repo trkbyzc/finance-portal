@@ -64,7 +64,7 @@ jobs:
       - name: Build + push backend image
         run: |
           IMG=$REGISTRY/$PROJECT/$REPOSITORY/backend:${{ github.sha }}
-          docker build -t $IMG ./finance_portal
+          docker build -t $IMG ./finance-portal-backend
           docker push $IMG
           echo "BACKEND_IMG=$IMG" >> $GITHUB_ENV
 
@@ -77,7 +77,7 @@ jobs:
             --build-arg VITE_KEYCLOAK_REALM=finance-realm \
             --build-arg VITE_KEYCLOAK_CLIENT_ID=finance-client \
             --build-arg VITE_APP_URL="${{ secrets.VITE_APP_URL }}" \
-            -t $IMG ./finance-frontend
+            -t $IMG ./finance-portal-frontend
           docker push $IMG
           echo "FRONTEND_IMG=$IMG" >> $GITHUB_ENV
 

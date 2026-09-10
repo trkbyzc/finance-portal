@@ -2,7 +2,7 @@
 #
 # Finance Portal Backend — Multi-stage Maven (Java 21) → Slim JRE 21 runtime.
 #
-# Build:   docker build -t finance-portal-backend ./finance_portal
+# Build:   docker build -t finance-portal-backend ./finance-portal-backend
 # Run:     docker run --rm -p 8081:8081 \
 #            -e DB_URL=jdbc:postgresql://postgres:5432/finance_db \
 #            -e SPRING_PROFILES_ACTIVE=docker \
@@ -35,7 +35,10 @@ RUN for i in 1 2 3; do \
         ./mvnw -B -DskipTests package -Dmaven.wagon.http.retryHandler.count=5 && break \
         || (echo "Build attempt $i failed, retrying..." && sleep 5); \
     done && \
-    mv target/finance_portal-*.jar /app/app.jar
+    # Joker karakter BILEREK genis: jar adi pom.xml'deki artifactId + surumden
+    # olusur (finance-portal-backend-0.0.1-SNAPSHOT.jar). Ikisinden biri degisirse
+    # burasi kirilmasin diye tam ad yazilmiyor.
+    mv target/*.jar /app/app.jar
 
 # -----------------------------------------------------------------------------
 # Stage 2 — runtime (slim JRE 21)

@@ -9,7 +9,7 @@
 ## Prerequisites
 
 - **Node.js 20+** and **npm**
-- A running **backend** + **Keycloak** (easiest: `docker compose up -d` from `../finance_portal` — see root README)
+- A running **backend** + **Keycloak** (easiest: `docker compose up -d` from `../finance-portal-backend` — see root README)
 
 ## Run (dev)
 

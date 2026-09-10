@@ -356,7 +356,7 @@ services:
 
   app-frontend:
     build:
-      context: ../finance-frontend
+      context: ../finance-portal-frontend
       dockerfile: Dockerfile
       args:
         # Browser'dan API'ye relative path — nginx /api/ → app-backend:8081 proxy eder.

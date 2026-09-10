@@ -39,5 +39,5 @@ for (const b of order) {
   out.push(...arr);
   console.error(`${b}: ${arr.length} (havuz ${items.filter(i=>i.bucket===b).length})`);
 }
-fs.writeFileSync('finance_portal/src/main/resources/tr-bonds-catalog.json', JSON.stringify(out, null, 2));
+fs.writeFileSync('finance-portal-backend/src/main/resources/tr-bonds-catalog.json', JSON.stringify(out, null, 2));
 console.error('TOPLAM secilen:', out.length);

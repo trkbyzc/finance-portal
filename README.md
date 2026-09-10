@@ -288,7 +288,7 @@ The entire stack (backend + frontend + all infrastructure) runs with a single Do
 ```bash
 # 1. Clone
 git clone <repo-url>
-cd finance_portal
+cd finance-portal-backend
 
 # 2. Build the Keycloak ban-authenticator plugin (one time)
 #    Linux/macOS: if you get "Permission denied", run `chmod +x mvnw` first
@@ -308,20 +308,20 @@ docker compose up -d
 
 ### Keycloak Realm (auto-imported)
 
-The Keycloak realm `finance-realm` — including roles, seeded users, and the **ban-check login flow** — is **imported automatically** on first startup. Docker Compose runs Keycloak with `--import-realm` and mounts the bundled, sanitized realm export ([`finance_portal/finance-realm.json`](finance_portal/finance-realm.json) — no private keys/SMTP; Keycloak generates signing keys on import); the ban-authenticator plugin (built in step 2) is loaded so the login-flow binding resolves. **No manual step required.**
+The Keycloak realm `finance-realm` — including roles, seeded users, and the **ban-check login flow** — is **imported automatically** on first startup. Docker Compose runs Keycloak with `--import-realm` and mounts the bundled, sanitized realm export ([`finance-portal-backend/finance-realm.json`](finance-portal-backend/finance-realm.json) — no private keys/SMTP; Keycloak generates signing keys on import); the ban-authenticator plugin (built in step 2) is loaded so the login-flow binding resolves. **No manual step required.**
 
 <details>
 <summary><b>Alternative — manual import</b> (if you prefer the console or disabled auto-import)</summary>
 
 1. Open the Keycloak admin console at <app_url>:8080 (`admin` / `admin`).
-2. **Create realm → Import** the file [`finance_portal/finance-realm.json`](finance_portal/finance-realm.json).
+2. **Create realm → Import** the file [`finance-portal-backend/finance-realm.json`](finance-portal-backend/finance-realm.json).
 3. In **Authentication → browser flow**, add the **"Ban Check (Finance Portal)"** step *before* OTP, so banned users are blocked at login.
 
 </details>
 
 ### Configuration (`.env`)
 
-Create `finance_portal/.env` to enable external integrations. **All keys are optional** — missing ones only disable their feature (the core app keeps running):
+Create `finance-portal-backend/.env` to enable external integrations. **All keys are optional** — missing ones only disable their feature (the core app keeps running):
 
 ```env
 # Market data
@@ -417,7 +417,7 @@ All REST endpoints are served under the `/api/v1` prefix, return JSON, and (wher
 
 - **OpenAPI / Swagger UI:** <app_url>:8081/api/v1/swagger-ui.html
 - **OpenAPI spec (JSON):** <app_url>:8081/api/v1/v3/api-docs
-- **Javadoc:** generate with `./mvnw javadoc:javadoc` (from `finance_portal/`) → `target/site/apidocs/index.html`
+- **Javadoc:** generate with `./mvnw javadoc:javadoc` (from `finance-portal-backend/`) → `target/site/apidocs/index.html`
 
 ### Endpoint Groups
 
@@ -535,7 +535,7 @@ docker compose --profile sonar up -d sonarqube      # start SonarQube (<app_url>
 
 ```
 .
-├── finance_portal/                 # Backend — Spring Boot (Java 21), 19 domain modules
+├── finance-portal-backend/                 # Backend — Spring Boot (Java 21), 19 domain modules
 │   ├── src/                        # application code, Flyway migrations, Log4j2 config
 │   ├── keycloak-providers/         # Keycloak ban-authenticator (SPI)
 │   ├── keycloak-themes/            # custom Keycloak login themes
@@ -543,7 +543,7 @@ docker compose --profile sonar up -d sonarqube      # start SonarQube (<app_url>
 │   ├── docker-compose.yml          # full local stack (app + infra)
 │   ├── finance-realm.json          # Keycloak realm (sanitized; auto-imported)
 │   └── Dockerfile
-├── finance-frontend/               # Frontend — React 19 + Vite
+├── finance-portal-frontend/               # Frontend — React 19 + Vite
 │   ├── src/                        # pages, components, hooks, context, i18n
 │   └── Dockerfile
 ├── k8s/                            # Kubernetes manifests (layered)

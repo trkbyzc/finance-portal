@@ -3,7 +3,7 @@
 # Finance Portal — canli ortam icin Keycloak imaji
 #
 #   docker build -f keycloak.Dockerfile -t finance-portal-keycloak:prod .
-#   (build context = finance_portal/ ; docker-compose.prod.yml bunu kullanir)
+#   (build context = finance-portal-backend/ ; docker-compose.prod.yml bunu kullanir)
 #
 # NEDEN AYRI BIR IMAJ?
 # Yerel docker-compose.yml, temayi/SPI'i/realm'i host'tan volume ile baglar. Bu

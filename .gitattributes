@@ -1,8 +1,8 @@
 # Linguist: config/data/i18n dosyaları hariç, gerçek React kodu (JS/JSX) görünür kalır
-finance-frontend/public/**        linguist-detectable=false
-finance-frontend/src/i18n/**      linguist-detectable=false
-finance-frontend/*.json           linguist-detectable=false
-finance-frontend/*.js             linguist-detectable=false
-finance-frontend/*.ts             linguist-detectable=false
-finance-frontend/src/**/*.test.js  linguist-detectable=false
-finance-frontend/src/**/*.test.jsx linguist-detectable=false
+finance-portal-frontend/public/**        linguist-detectable=false
+finance-portal-frontend/src/i18n/**      linguist-detectable=false
+finance-portal-frontend/*.json           linguist-detectable=false
+finance-portal-frontend/*.js             linguist-detectable=false
+finance-portal-frontend/*.ts             linguist-detectable=false
+finance-portal-frontend/src/**/*.test.js  linguist-detectable=false
+finance-portal-frontend/src/**/*.test.jsx linguist-detectable=false

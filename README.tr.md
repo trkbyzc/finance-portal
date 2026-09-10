@@ -290,7 +290,7 @@ Tüm yığın (backend + frontend + tüm altyapı) tek bir Docker Compose komutu
 ```bash
 # 1. Klonla
 git clone <repo-url>
-cd finance_portal
+cd finance-portal-backend
 
 # 2. Keycloak ban-authenticator eklentisini derle (tek seferlik)
 #    Linux/macOS: "Permission denied" alırsan önce `chmod +x mvnw`
@@ -310,20 +310,20 @@ docker compose up -d
 
 ### Keycloak Realm (otomatik içe aktarılır)
 
-Keycloak realm'i `finance-realm` — roller, hazır kullanıcılar ve **ban-check giriş akışı** dahil — ilk açılışta **otomatik içe aktarılır**. Docker Compose, Keycloak'ı `--import-realm` ile çalıştırır ve repodaki temizlenmiş realm dosyasını ([`finance_portal/finance-realm.json`](finance_portal/finance-realm.json) — private key/SMTP yok; Keycloak imza anahtarlarını import'ta kendisi üretir) mount eder; ban-authenticator eklentisi (2. adımda derlenir) yüklendiği için giriş-akışı bağlaması çözülür. **Manuel adım gerekmez.**
+Keycloak realm'i `finance-realm` — roller, hazır kullanıcılar ve **ban-check giriş akışı** dahil — ilk açılışta **otomatik içe aktarılır**. Docker Compose, Keycloak'ı `--import-realm` ile çalıştırır ve repodaki temizlenmiş realm dosyasını ([`finance-portal-backend/finance-realm.json`](finance-portal-backend/finance-realm.json) — private key/SMTP yok; Keycloak imza anahtarlarını import'ta kendisi üretir) mount eder; ban-authenticator eklentisi (2. adımda derlenir) yüklendiği için giriş-akışı bağlaması çözülür. **Manuel adım gerekmez.**
 
 <details>
 <summary><b>Alternatif — manuel içe aktarma</b> (konsolu tercih edersen veya otomatik import'u kapattıysan)</summary>
 
 1. Keycloak admin konsolunu aç: <app_url>:8080 (`admin` / `admin`).
-2. **Create realm → Import** ile [`finance_portal/finance-realm.json`](finance_portal/finance-realm.json) dosyasını içe aktar.
+2. **Create realm → Import** ile [`finance-portal-backend/finance-realm.json`](finance-portal-backend/finance-realm.json) dosyasını içe aktar.
 3. **Authentication → browser flow** içinde **"Ban Check (Finance Portal)"** adımını OTP'den *önce* ekle; böylece banlı kullanıcılar girişte engellenir.
 
 </details>
 
 ### Yapılandırma (`.env`)
 
-Dış entegrasyonları etkinleştirmek için `finance_portal/.env` oluştur. **Tüm anahtarlar opsiyoneldir** — eksik olanlar yalnızca kendi özelliğini devre dışı bırakır (çekirdek uygulama çalışmaya devam eder):
+Dış entegrasyonları etkinleştirmek için `finance-portal-backend/.env` oluştur. **Tüm anahtarlar opsiyoneldir** — eksik olanlar yalnızca kendi özelliğini devre dışı bırakır (çekirdek uygulama çalışmaya devam eder):
 
 ```env
 # Piyasa verileri
@@ -422,7 +422,7 @@ Tüm REST uçları `/api/v1` öneki altında sunulur, JSON döner ve (korumalı 
 
 - **OpenAPI / Swagger UI:** <app_url>:8081/api/v1/swagger-ui.html
 - **OpenAPI şeması (JSON):** <app_url>:8081/api/v1/v3/api-docs
-- **Javadoc:** `./mvnw javadoc:javadoc` (`finance_portal/` içinden) → `target/site/apidocs/index.html`
+- **Javadoc:** `./mvnw javadoc:javadoc` (`finance-portal-backend/` içinden) → `target/site/apidocs/index.html`
 
 ### Uç Grupları
 
@@ -545,7 +545,7 @@ docker compose --profile sonar up -d sonarqube      # SonarQube'u başlat (<app_
 
 ```
 .
-├── finance_portal/                 # Backend — Spring Boot (Java 21), 19 domain modülü
+├── finance-portal-backend/                 # Backend — Spring Boot (Java 21), 19 domain modülü
 │   ├── src/                        # uygulama kodu, Flyway migration'ları, Log4j2 config
 │   ├── keycloak-providers/         # Keycloak ban-authenticator (SPI)
 │   ├── keycloak-themes/            # özel Keycloak giriş temaları
@@ -553,7 +553,7 @@ docker compose --profile sonar up -d sonarqube      # SonarQube'u başlat (<app_
 │   ├── docker-compose.yml          # tam yerel yığın (uygulama + altyapı)
 │   ├── finance-realm.json          # Keycloak realm (temizlenmiş; otomatik içe aktarılır)
 │   └── Dockerfile
-├── finance-frontend/               # Frontend — React 19 + Vite
+├── finance-portal-frontend/               # Frontend — React 19 + Vite
 │   ├── src/                        # sayfalar, bileşenler, hook'lar, context, i18n
 │   └── Dockerfile
 ├── k8s/                            # Kubernetes manifestleri (katmanlı)

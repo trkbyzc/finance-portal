@@ -143,12 +143,12 @@ Backend ile aynı SonarQube container'ı kullanılır, ama **ayrı projectKey**
 ```bash
 # 1) SonarQube container'ı zaten ayakta olmalı (yukarıdaki docker compose komutu)
 # 2) Frontend dizinine geç:
-cd finance-frontend
+cd finance-portal-frontend
 
 # 3) Coverage üret + Sonar'a gönder (tek komut):
 npm run sonar
 # Bu komut iki şey yapar: 'vitest run --coverage' → lcov.info üretir,
-# sonra 'sonar-scanner' → finance-frontend/sonar-project.properties'i okur ve gönderir.
+# sonra 'sonar-scanner' → finance-portal-frontend/sonar-project.properties'i okur ve gönderir.
 ```
 
 ### Sonar token nasıl geçilir
@@ -165,7 +165,7 @@ $env:SONAR_TOKEN = "squ_xxxxx"
 npm run sonar
 ```
 
-### Sonar config — `finance-frontend/sonar-project.properties`
+### Sonar config — `finance-portal-frontend/sonar-project.properties`
 
 | Property | Değer |
 |---|---|

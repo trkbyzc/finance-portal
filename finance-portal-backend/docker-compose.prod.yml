@@ -212,7 +212,7 @@ services:
 
   app-frontend:
     build:
-      context: ../finance-frontend
+      context: ../finance-portal-frontend
       dockerfile: Dockerfile
       args:
         # Tarayıcı API'ye göreli yoldan gider; nginx /api/ → app-backend:8081 proxy'ler.
