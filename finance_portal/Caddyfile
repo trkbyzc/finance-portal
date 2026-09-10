@@ -53,28 +53,28 @@
 		# Acilan pencerelerle bu sayfa arasindaki baglantiyi kes (tabnabbing).
 		Cross-Origin-Opener-Policy same-origin
 
-		# ZORLAYICI CSP — yalnizca cerceveleme kisitlamasi.
-		# frame-ancestors betiklerden bagimsiz calisir, hicbir sey kirma riski yok.
-		Content-Security-Policy "frame-ancestors 'none'; base-uri 'self'"
+		# --- Icerik Guvenlik Politikasi (ZORLAYICI) ---
+		# Once rapor modunda yayinlandi, tarayici konsolundan dogrulandi (2026-09-10):
+		# script/style/font/connect/frame yonergelerinin HICBIRI ihlal edilmedi.
+		# Ozellikle paketteki `Function("return this")` (globalThis polyfill'i)
+		# TETIKLENMIYOR — || zinciri ona ulasmadan kisa devre yapiyor. Bu yuzden
+		# 'unsafe-eval'e gerek kalmadi, script-src en sikisi ('self') olarak kaldi.
+		#
+		# img-src NEDEN `https:` (her HTTPS kaynagi)?
+		# Haberler RSS'ten geliyor ve kucuk resimler kaynagin kendi sunucusunda barinir:
+		# aa.com.tr, tmgrup.com.tr, coin-turk.com, uzmancoin.com... Bu liste akis
+		# degistikce degisir; sabit bir izin listesi bugun degilse gelecek hafta
+		# haberleri kirar. Gorselleri backend uzerinden proxy'lemek de dogru degil,
+		# o zaman telifli gorseli BIZ sunmus oluruz — canli demoda kacindigimiz sey.
+		# Gorsel kod calistirmaz; script-src 'self' yerinde durdugu surece bedeli dusuk.
+		#
+		# object-src 'none': jsPDF disa aktarimi doc.save() ile (blob indirme) yapiliyor.
+		# Kutuphanenin cdnjs'ten pdfobject.min.js ceken yolu HIC cagrilmiyor, olu kod.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://auth.turkbey.dev; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://auth.turkbey.dev; frame-ancestors 'none'"
 
 		# Sunucu imzasini gizle.
 		-Server
 	}
-
-	# --- Kaynak tabanli CSP: SIMDILIK RAPOR MODU ---
-	# Bu satir hicbir seyi ENGELLEMEZ, yalnizca tarayici konsoluna ihlalleri yazar.
-	# Zorlayiciya cevirmeden once gozlenmesi gereken iki bilinen risk var:
-	#
-	#  1) Paket icinde `Function("return this")` var (globalThis polyfill'i, decimal.js
-	#     kaynakli). ES modulu strict mode'da calistigi icin bu satir gercekten
-	#     tetiklenebilir ve `script-src 'self'` onu bloklar. Tetiklenirse ya
-	#     'unsafe-eval' eklenecek ya da kutuphane degistirilecek.
-	#  2) PDF goruntuleyicinin bir yedek yolu cdnjs.cloudflare.com'dan
-	#     pdfobject.min.js cekiyor. Bilerek izin VERILMEDI: uygulama disaridan
-	#     betik yuklememeli. O yol kullaniliyorsa dosya yerele alinmali.
-	#
-	# Ihlal cikmazsa bu baslik Content-Security-Policy olarak degistirilecek.
-	header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://www.google.com; connect-src 'self' https://auth.turkbey.dev; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://auth.turkbey.dev; frame-ancestors 'none'"
 
 	log {
 		output stdout
