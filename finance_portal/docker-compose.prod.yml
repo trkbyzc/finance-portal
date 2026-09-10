@@ -1,3 +1,20 @@
+# Docker Compose proje adi — KLASOR ADINDAN BAGIMSIZ OLARAK SABITLENDI.
+#
+# Compose, proje adini varsayilan olarak icinde bulundugu KLASORUN adindan turetir
+# ve adlandirilmis birimleri (volume) bu onekle olusturur:
+#   finance_portal_postgres_data, finance_portal_caddy_data, ...
+#
+# Yani klasor yeniden adlandirilirsa Compose bunlari BASKA bir projeye ait sanar,
+# bos birimler olusturur ve mevcut veriye bir daha bakmaz. Pratikte sonuc:
+# veritabani sifirlanmis gibi acilir, Let's Encrypt sertifikalari kaybolur
+# (yeniden alinirken sertifika sayisi sinirina takilma riskiyle birlikte).
+#
+# Bu satir onu klasor adina degil, sabit bir degere baglar. Klasor adi 2026-09-10'da
+# finance_portal -> finance-portal-backend olarak degistirildi; proje adi BILEREK
+# eski haliyle birakildi ki sunucudaki mevcut birimler oldugu gibi kullanilmaya
+# devam etsin. DEGISTIRME.
+name: finance_portal
+
 # =====================================================================
 # CANLI DAĞITIM — Oracle Cloud (Ampere A1 / arm64, 2 OCPU · 12 GB)
 # =====================================================================
