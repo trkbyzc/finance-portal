@@ -128,10 +128,19 @@ public class ChatRateLimitFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * Govde alan adlari GlobalExceptionHandler'in ErrorResponse bicimini izler.
+     * Ozellikle {@code message} onemli: arayuzdeki ChatWidget ayrinti satirini
+     * {@code err.response.data.message} uzerinden okuyor. Sadece {@code error}
+     * yazsaydik kullanici dakikalik sinire mi gunluk sinire mi takildigini goremezdi —
+     * ikisi cok farkli seyler ("biraz bekle" ile "yarin tekrar dene").
+     */
     private void reject(HttpServletResponse response, String message, long retryAfterSeconds) throws IOException {
         response.setStatus(429); // HttpStatus.TOO_MANY_REQUESTS
         response.setContentType("application/json;charset=UTF-8");
         response.setHeader("Retry-After", String.valueOf(retryAfterSeconds));
-        response.getWriter().write("{\"error\":\"" + message + "\",\"code\":\"RATE_LIMITED\"}");
+        response.getWriter().write(
+                "{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"" + message
+                        + "\",\"code\":\"RATE_LIMITED\"}");
     }
 }

@@ -91,6 +91,8 @@ class ChatRateLimitFilterTest {
         assertEquals(429, response.getStatus());
         assertEquals("60", response.getHeader("Retry-After"));
         assertTrue(response.getContentAsString().contains("RATE_LIMITED"));
+        // ChatWidget ayrıntı satırını data.message üzerinden okuyor.
+        assertTrue(response.getContentAsString().contains("\"message\""));
     }
 
     /** TTL yalnızca sayaç ilk kez oluşturulduğunda yazılmalı; her istekte yazmak pencereyi kaydırırdı. */
