@@ -273,7 +273,14 @@ app:
   chat:
     enabled: ${APP_CHAT_ENABLED:true}
     history-max: ${APP_CHAT_HISTORY_MAX:20}        # context'e koyulacak max geçmiş mesaj
-    user-rate-limit-per-min: ${APP_CHAT_USER_RATE:20}
+    # Hız sınırı. Eskiden burada `user-rate-limit-per-min` vardı ama HİÇBİR YERDE
+    # OKUNMUYORDU — yapılandırmaya bakan "sınır var" sanıyordu, oysa yoktu.
+    # Uygulaması: com.financeportal.security.ChatRateLimitFilter
+    # Yerelde KAPALI (kendi makinende kısıtlama olmasın); prod'da açık.
+    rate-limit:
+      enabled: ${APP_CHAT_RATE_LIMIT_ENABLED:false}
+      per-minute: ${APP_CHAT_RATE_PER_MIN:10}
+      per-day: ${APP_CHAT_RATE_PER_DAY:200}
   llm:
     # 2026 Q2: Gemini primary'e alındı (daha bol token bütçesi: ~1M input token/gün).
     # Groq fallback — hızlı ama günlük 100k TPD'de hemen tükeniyor.

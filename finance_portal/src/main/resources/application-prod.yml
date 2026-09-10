@@ -85,6 +85,17 @@ app:
   kafka:
     enabled: false
 
+  # Asistan hız sınırı — CANLIDA AÇIK.
+  # Her mesaj bir LLM sağlayıcısına gidiyor ve hesabın günlük kotasından düşüyor.
+  # Uç kimlik doğrulaması istiyor ama demo hesabının şifresi (demouser / test123)
+  # README'de ve link önizleme kartında herkese açık yazıyor — yani "giriş yapabilen
+  # herkes" pratikte "herkes" demek. Sınır olmadan tek bir döngü kotayı birkaç
+  # dakikada tüketip asistanı herkes için çalışmaz hale getirebilir.
+  # Ayrıntılar: com.financeportal.security.ChatRateLimitFilter
+  chat:
+    rate-limit:
+      enabled: true
+
   # Demo portföyü — SADECE canlıda. Veritabanı sıfırdan kurulduğu ve Flyway yalnızca
   # şema ürettiği için demo hesabı boş bir portföyle açılıyordu. Tohumlayıcı idempotent:
   # kullanıcının hiç pozisyonu yoksa yazar, aksi halde hiçbir şey yapmaz.

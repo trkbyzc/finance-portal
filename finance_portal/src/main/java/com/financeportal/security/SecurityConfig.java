@@ -17,6 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.beans.factory.ObjectProvider;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +33,13 @@ public class SecurityConfig {
     private final UserBanFilter userBanFilter;
     private final UserSyncFilter userSyncFilter;
     private final SessionRevocationFilter sessionRevocationFilter; // Admin force-logout için
+
+    /**
+     * Asistan hız sınırı. ObjectProvider ile ALINIYOR çünkü bu filtre
+     * {@code app.rate-limit.chat.enabled=true} iken var; yerel çalıştırmada bean hiç
+     * oluşmaz. Doğrudan enjekte edilseydi yerel başlatma "bean bulunamadı" ile düşerdi.
+     */
+    private final ObjectProvider<ChatRateLimitFilter> chatRateLimitFilter;
 
     /**
      * CORS allowed origin pattern listesi. Default sadece local dev (localhost/127.0.0.1, herhangi port).
@@ -67,6 +76,11 @@ public class SecurityConfig {
                 .addFilterAfter(userBanFilter, UserSyncFilter.class)
                 // 4. Admin force-logout sonrası eski token'ları reddet (server-side revocation)
                 .addFilterAfter(sessionRevocationFilter, UserBanFilter.class);
+
+        // 5. Asistan hız sınırı (yalnızca canlıda). Zincirin SONUNDA duruyor: sayaç ancak
+        //    kimliği doğrulanmış, banlı olmayan, oturumu geçerli bir kullanıcı için artmalı.
+        //    Daha erkene alınsaydı reddedilecek istekler de kullanıcının hakkını yerdi.
+        chatRateLimitFilter.ifAvailable(f -> http.addFilterAfter(f, SessionRevocationFilter.class));
 
         return http.build();
     }
