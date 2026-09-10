@@ -27,13 +27,54 @@
 	# bu yuzden Caddy tek bir hedefe yonlendirir.
 	reverse_proxy app-frontend:80
 
+	# --- Guvenlik basliklari ---
+	# NOT: Onceki yorumda "Caddy zaten HSTS ekler" yaziyordu, bu YANLIS.
+	# Caddy HSTS eklemez; olculdu, baslik yoktu. auth.turkbey.dev'de gorulen
+	# strict-transport-security Keycloak'in kendi ekledigi basliktir.
 	header {
 		# Tarayici MIME turunu tahmin etmeye calismasin.
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
-		# Caddy zaten HSTS ekler; sunucu imzasini gizle.
+
+		# HTTPS zorunlulugunu tarayiciya bir yil hatirlat. .dev uzantisi zaten
+		# HSTS preload listesinde, ama alt alan adlari icin bu satir gerekli.
+		# "preload" anahtari BILEREK yok: preload listesine girmek geri alinmasi
+		# aylar suren bir taahhut, buradaki kazanci ise .dev sayesinde sifir.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+		# Tiklama hirsizligi (clickjacking): sayfa hicbir iframe icine alinamaz.
+		# X-Frame-Options eski tarayicilar, frame-ancestors ise yenileri icin.
+		X-Frame-Options DENY
+
+		# Kullanilmayan tarayici yetenekleri kapatilir. Bir XSS gerceklesse bile
+		# kamera/mikrofon/konum istenemez.
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+
+		# Acilan pencerelerle bu sayfa arasindaki baglantiyi kes (tabnabbing).
+		Cross-Origin-Opener-Policy same-origin
+
+		# ZORLAYICI CSP — yalnizca cerceveleme kisitlamasi.
+		# frame-ancestors betiklerden bagimsiz calisir, hicbir sey kirma riski yok.
+		Content-Security-Policy "frame-ancestors 'none'; base-uri 'self'"
+
+		# Sunucu imzasini gizle.
 		-Server
 	}
+
+	# --- Kaynak tabanli CSP: SIMDILIK RAPOR MODU ---
+	# Bu satir hicbir seyi ENGELLEMEZ, yalnizca tarayici konsoluna ihlalleri yazar.
+	# Zorlayiciya cevirmeden once gozlenmesi gereken iki bilinen risk var:
+	#
+	#  1) Paket icinde `Function("return this")` var (globalThis polyfill'i, decimal.js
+	#     kaynakli). ES modulu strict mode'da calistigi icin bu satir gercekten
+	#     tetiklenebilir ve `script-src 'self'` onu bloklar. Tetiklenirse ya
+	#     'unsafe-eval' eklenecek ya da kutuphane degistirilecek.
+	#  2) PDF goruntuleyicinin bir yedek yolu cdnjs.cloudflare.com'dan
+	#     pdfobject.min.js cekiyor. Bilerek izin VERILMEDI: uygulama disaridan
+	#     betik yuklememeli. O yol kullaniliyorsa dosya yerele alinmali.
+	#
+	# Ihlal cikmazsa bu baslik Content-Security-Policy olarak degistirilecek.
+	header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://flagcdn.com https://www.google.com; connect-src 'self' https://auth.turkbey.dev; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://auth.turkbey.dev; frame-ancestors 'none'"
 
 	log {
 		output stdout
