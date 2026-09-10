@@ -1,0 +1,65 @@
+# =====================================================================
+# Haber Servisi — temel yapılandırma
+# =====================================================================
+# Bu dosya YEREL/GELİŞTİRME içindir; hiçbir kaynak kapalı değildir.
+# Canlıya özgü kısıtlamalar application-prod.yml'de.
+
+spring:
+  application:
+    name: finance-portal-news
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  # Backend 8081'de. Haber servisi 8082'de.
+  port: ${SERVER_PORT:8082}
+  servlet:
+    # Backend ile AYNI önek — çünkü arayüz her iki servise de /api/v1/... diye gidiyor.
+    # nginx yalnızca /api/v1/news/ yolunu buraya yönlendirir, yolu değiştirmez.
+    # Önek farklı olsaydı nginx'in adresi yeniden yazması gerekirdi; gereksiz karmaşa.
+    context-path: /api/v1
+
+# Konteyner sağlık kontrolü buradan bakıyor. Geri kalan uçlar kapalı.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      show-details: never
+
+external-api:
+  lingva:
+    # Çeviri servisi — zaten ayrı bir konteyner (lingva-translate).
+    url: ${LINGVA_URL:http://localhost:5050}
+    timeout-ms: ${LINGVA_TIMEOUT_MS:15000}
+
+app:
+  news:
+    # POST /news/sync elle tetikleme. Yerelde açık (çeviri geçişini beklemeden
+    # denemek pratik), canlıda kapalı — bkz. application-prod.yml.
+    allow-manual-sync: ${APP_NEWS_ALLOW_MANUAL_SYNC:true}
+  sync:
+    # RSS toplama sıklığı — 15 dakika.
+    news-rate-ms: ${APP_SYNC_NEWS_RATE_MS:900000}
+  limits:
+    # Tek turda kaç haber İngilizceye çevrilsin. Lingva'yı boğmamak için sınırlı.
+    news-max-translations-per-run: ${APP_NEWS_MAX_TRANSLATIONS:60}
+  ttl:
+    # Çevrilmiş makale metni Redis'te kaç gün dursun.
+    news-content-days: ${APP_TTL_NEWS_CONTENT_DAYS:7}
+
+# Veri kaynağı politikası — yerelde hepsi açık.
+data-sources:
+  policies:
+    news-rss:     { enabled: true }
+    news-content: { enabled: true }
+
+logging:
+  level:
+    root: INFO
+    com.financeportal.news: INFO

@@ -1,0 +1,44 @@
+# =====================================================================
+# Haber Servisi — CANLI ortam
+# =====================================================================
+# Aktive: SPRING_PROFILES_ACTIVE=prod
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-exception: false
+
+app:
+  news:
+    # Elle tetikleme KAPALI. Backend'de bu uç herkese açıktı: internetteki
+    # herhangi biri RSS toplamayı istediği kadar tetikleyebiliyordu. Zamanlanmış
+    # iş zaten 15 dakikada bir çalıştığı için dışarıya açık olmasının faydası yok.
+    allow-manual-sync: false
+
+# =====================================================================
+# Veri kaynağı politikası — CANLI
+# =====================================================================
+# Backend'deki mantığın aynısı: bir kaynağı kendi makinende kullanmak ile onu
+# anonim ziyaretçilere SUNMAK aynı şey değildir.
+data-sources:
+  policies:
+
+    # Başlıklar: AÇIK. RSS zaten yeniden dağıtım için yayımlanır ve başlık
+    # okuyucuyu kaynağın kendi sayfasına götürür.
+    news-rss:
+      enabled: true
+
+    # Makalenin tam metni: KAPALI.
+    news-content:
+      enabled: false
+      note: >-
+        Haber başlıkları RSS ile gelir ve kaynağına yönlendirir. Makalenin tam
+        metnini uygulama içinde göstermek telifli içeriğin yeniden yayını olacağı
+        için canlı demoda kapalıdır.
+
+logging:
+  level:
+    root: WARN
+    com.financeportal.news: INFO
+    org.springframework: WARN

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.3.9</version>
+		<relativePath/>
+	</parent>
+	<groupId>com.financeportal</groupId>
+	<artifactId>finance-portal-news</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Finance Portal News</name>
+	<description>Haber toplama ve sunma servisi — RSS okur, siniflandirir, cevirir, Redis'te tutar.</description>
+
+	<properties>
+		<java.version>21</java.version>
+	</properties>
+
+	<!--
+	  Bagimlilik listesi BILEREK kisa tutuldu. Backend'in pom'unda 20'den fazla
+	  starter var (JPA, Postgres, Flyway, Kafka, Keycloak, mail, Spring AI...);
+	  haber servisi bunlarin HICBIRINE dokunmuyor.
+
+	  Ozellikle veritabani yok: haberlerin tablosu hic olmadi, RSS'ten gelir ve
+	  Redis'te durur. Mikroservise ayirmanin en zor kismi olan "veritabanini bolme"
+	  problemi bu yuzden bize hic ugramadi.
+	-->
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<!-- Konteyner saglik kontrolu /actuator/health uzerinden yapiliyor. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--
+		  Security starter'i kimlik dogrulamasi icin DEGIL: haberler herkese acik.
+		  Tek isi POST /news/sync'i kapatmak (bkz. WebSecurityConfig).
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- RSS ve makale icerigi ayristirma -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+
+		<!-- @Operation / @Tag anotasyonlari ve /swagger-ui -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
