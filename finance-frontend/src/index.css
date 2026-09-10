@@ -282,6 +282,30 @@ body {
     .skeleton { animation: pulse 1.6s ease-in-out infinite; background-image: none; }
 }
 
+/*
+   İşletim sistemi "animasyon istemiyorum" diyorsa (Windows'ta Erişilebilirlik →
+   Görsel efektler → Animasyon efektleri kapalı, macOS'ta Reduce Motion), bunu
+   dinliyoruz ve geçişleri anında bitiriyoruz.
+
+   Neden önemli: bu ayarı açan makineler genelde zaten zorlanan makineler. Site
+   ayarı yok sayıp animasyonu yine de oynatınca sonuç akıcı bir geçiş değil,
+   TAKILAN bir geçiş oluyor — yani kullanıcının kapattığı şeyin en kötü hali.
+   Menü artık kaymak yerine anında açılıyor.
+
+   .skeleton hariç tutuldu: yükleniyor göstergesinin nabzı devam etmeli, yoksa
+   sayfa donmuş gibi görünür (yukarıdaki kural onu zaten sadeleştiriyor).
+*/
+@media (prefers-reduced-motion: reduce) {
+    *:not(.skeleton),
+    *:not(.skeleton)::before,
+    *:not(.skeleton)::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 /* ============================================================
    UTILITY: tablo zebra stripe (dark only)
    ============================================================ */
