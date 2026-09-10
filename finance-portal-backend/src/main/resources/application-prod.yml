@@ -168,13 +168,6 @@ data-sources:
         Halka arz takvimi üçüncü taraf bir siteden kazınır;
         canlı demoda kapalıdır.
 
-    news-content:
-      enabled: false
-      note: >-
-        Haber başlıkları RSS ile gelir ve kaynağına yönlendirir. Makalenin tam
-        metnini uygulama içinde göstermek telifli içeriğin yeniden yayını olacağı
-        için canlı demoda kapalıdır.
-
     investing-calendar:
       enabled: false
       note: >-
@@ -183,4 +176,5 @@ data-sources:
         Yerel kurulumda tam çalışır.
 
     # --- Resmî API'ler ve RSS: canlıda açık (base profildeki değerler geçerli) ---
-    # evds · fred · binance · coingecko · finnhub · truncgil · feargreed · news-rss
+    # evds · fred · binance · coingecko · finnhub · truncgil · feargreed
+    # (haber kaynaklari AYRILDI -> finance-portal-news/src/main/resources/application-prod.yml)

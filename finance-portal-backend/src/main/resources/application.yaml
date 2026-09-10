@@ -203,9 +203,7 @@ external-api:
   finnhub:
     base-url: ${FINNHUB_BASE_URL:https://finnhub.io}
     api-key: ${FINNHUB_API_KEY:}
-  lingva:
-    url: ${LINGVA_URL:http://localhost:5050}
-    timeout-ms: ${LINGVA_TIMEOUT_MS:15000}
+  # lingva (ceviri) AYRILDI -> finance-portal-news. Bu uygulama ceviri yapmiyor.
   yahoo:
     base-url: ${YAHOO_FINANCE_BASE_URL:https://query1.finance.yahoo.com/v8/finance/chart/}
   truncgil:
@@ -246,7 +244,6 @@ data-sources:
     finnhub:          { enabled: true }   # Finnhub · resmî API + anahtar
     truncgil:         { enabled: true }   # Truncgil · ücretsiz yayınlanan API
     feargreed:        { enabled: true }   # alternative.me · ücretsiz açık API
-    news-rss:         { enabled: true }   # RSS · syndication için yayınlanır
 
     # --- Resmî olmayan uçlar ---
     yahoo:            { enabled: true }   # küresel hisse/endeks/emtia/ETF/tahvil/vadeli
@@ -258,7 +255,6 @@ data-sources:
     fintables:        { enabled: true }   # BİST hisseleri + TEFAS fonları · ücretli ürün
     isyatirim:        { enabled: true }   # temel veri, BİST endeksi, VİOP
     ipo-scraper:      { enabled: true }   # halka arz takvimi
-    news-content:     { enabled: true }   # haber tam metni (keyfi URL)
     investing-calendar: { enabled: true } # ekonomik takvim · TradingView ham feed'i
 
 # Uygulama özelinde ayarlar
@@ -308,9 +304,7 @@ app:
     sparkline-max-points: ${APP_SPARKLINE_MAX_POINTS:30}
     what-if-max-series-points: ${APP_WHAT_IF_MAX_SERIES_POINTS:300}
     what-if-per-asset-timeout-sec: ${APP_WHAT_IF_PER_ASSET_TIMEOUT_SEC:8}
-    news-max-translations-per-run: ${APP_NEWS_MAX_TRANSLATIONS:60}
   ttl:
-    news-content-days: ${APP_TTL_NEWS_CONTENT_DAYS:7}
     economic-calendar-hours: ${APP_TTL_ECONOMIC_CALENDAR_HOURS:6}
     eurobond-minutes: ${APP_TTL_EUROBOND_MINUTES:360}
     futures-minutes: ${APP_TTL_FUTURES_MINUTES:5}
@@ -332,7 +326,6 @@ app:
     market-rate-ms: ${APP_SYNC_MARKET_RATE_MS:3600000}
     viop-rate-ms: ${APP_SYNC_VIOP_RATE_MS:300000}
     bist-index-rate-ms: ${APP_SYNC_BIST_INDEX_RATE_MS:86400000}
-    news-rate-ms: ${APP_SYNC_NEWS_RATE_MS:900000}
     effective-currency-rate-ms: ${APP_SYNC_EFFECTIVE_CURRENCY_RATE_MS:3600000}
     economic-calendar-rate-ms: ${APP_SYNC_ECONOMIC_CALENDAR_RATE_MS:21600000}
     ipo-rate-ms: ${APP_SYNC_IPO_RATE_MS:3600000}

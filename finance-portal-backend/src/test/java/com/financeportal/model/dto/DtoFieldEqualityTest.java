@@ -4,7 +4,6 @@ import com.financeportal.domains.crypto.dto.CryptoDto;
 import com.financeportal.domains.economy.dto.EconomyDto;
 import com.financeportal.domains.economy_us.dto.EconomyUsDto;
 import com.financeportal.domains.future.dto.FutureDto;
-import com.financeportal.domains.news.dto.NewsDto;
 import com.financeportal.model.dto.chart.SavedChartRequest;
 import org.junit.jupiter.api.Test;
 
@@ -154,34 +153,6 @@ class DtoFieldEqualityTest {
         assertEquals(base, built);
         assertEquals("ES=F", built.getSymbol());
         assertEquals(new BigDecimal("4500"), built.getPrice());
-    }
-
-    @Test
-    void newsDto_eachFieldDifference() {
-        NewsDto base = new NewsDto("Title", "Desc", "http://link", "2024-01-01", "Source", "http://img", "Cat");
-        NewsDto equal = new NewsDto("Title", "Desc", "http://link", "2024-01-01", "Source", "http://img", "Cat");
-        assertEquals(base, equal);
-        assertEquals(base.hashCode(), equal.hashCode());
-
-        assertNotEquals(base, new NewsDto("X", "Desc", "http://link", "2024-01-01", "Source", "http://img", "Cat"));
-        assertNotEquals(base, new NewsDto("Title", "X", "http://link", "2024-01-01", "Source", "http://img", "Cat"));
-        assertNotEquals(base, new NewsDto("Title", "Desc", "X", "2024-01-01", "Source", "http://img", "Cat"));
-        assertNotEquals(base, new NewsDto("Title", "Desc", "http://link", "X", "Source", "http://img", "Cat"));
-        assertNotEquals(base, new NewsDto("Title", "Desc", "http://link", "2024-01-01", "X", "http://img", "Cat"));
-        assertNotEquals(base, new NewsDto("Title", "Desc", "http://link", "2024-01-01", "Source", "X", "Cat"));
-        assertNotEquals(base, new NewsDto("Title", "Desc", "http://link", "2024-01-01", "Source", "http://img", "X"));
-        assertNotEquals(base, new NewsDto());
-        assertNotEquals(new NewsDto(), base);
-        assertNotNull(base);
-        assertNotNull(base.toString());
-        assertNotNull(new NewsDto().toString());
-
-        NewsDto built = new NewsDto();
-        built.setTitle("Title"); built.setDescription("Desc"); built.setLink("http://link");
-        built.setPubDate("2024-01-01"); built.setSource("Source"); built.setImageUrl("http://img");
-        built.setCategory("Cat");
-        assertEquals(base, built);
-        assertEquals("Title", built.getTitle());
     }
 
     @Test

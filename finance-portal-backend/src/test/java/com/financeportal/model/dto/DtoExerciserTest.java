@@ -10,7 +10,6 @@ import com.financeportal.domains.economy_us.dto.EconomyUsDto;
 import com.financeportal.domains.effective_currency.dto.EffectiveCurrencyDto;
 import com.financeportal.domains.fund.dto.FundDto;
 import com.financeportal.domains.future.dto.FutureDto;
-import com.financeportal.domains.news.dto.NewsDto;
 import com.financeportal.domains.stock.dto.StockDto;
 import com.financeportal.domains.viop.dto.ViopDto;
 import com.financeportal.model.dto.chart.SavedChartDto;
@@ -114,13 +113,6 @@ class DtoExerciserTest {
                 new BigDecimal("0.5"), 1000L, "ES=F", "CANDLE", "GLOBAL_FUTURE");
         FutureDto b = new FutureDto("ES=F", "S&P", "FUT", new BigDecimal("5800"),
                 new BigDecimal("0.5"), 1000L, "ES=F", "CANDLE", "GLOBAL_FUTURE");
-        rountTrip(a, b);
-    }
-
-    @Test
-    void newsDto() {
-        NewsDto a = new NewsDto("Başlık", "Açıklama", "https://link", "2026-06-01", "Kaynak", "img.jpg", "Genel");
-        NewsDto b = new NewsDto("Başlık", "Açıklama", "https://link", "2026-06-01", "Kaynak", "img.jpg", "Genel");
         rountTrip(a, b);
     }
 

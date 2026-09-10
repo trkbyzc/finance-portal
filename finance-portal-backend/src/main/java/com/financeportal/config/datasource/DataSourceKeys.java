@@ -37,7 +37,6 @@ public final class DataSourceKeys {
     public static final String FEAR_GREED = "feargreed";
 
     /** RSS haber akışları — syndication için yayınlanır, başlık + özet + kaynak linki. */
-    public static final String NEWS_RSS = "news-rss";
 
     // --- Resmî olmayan uçlar ---
 
@@ -65,7 +64,6 @@ public final class DataSourceKeys {
     public static final String IPO_SCRAPER = "ipo-scraper";
 
     /** Haber tam metni — keyfi bir URL'in içeriğini çekip uygulamada gösterme. */
-    public static final String NEWS_CONTENT = "news-content";
 
     /**
      * tr.investing.com ekonomik takvimi. Sahte User-Agent ile kazınıyor;

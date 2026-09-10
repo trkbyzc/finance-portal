@@ -61,7 +61,9 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/market-data/**").permitAll()
                         .requestMatchers("/analysis/**").permitAll()
-                        .requestMatchers("/news/**").permitAll()
+                        // /news/** ARTIK BURADA DEGIL — ayri bir servise tasindi
+                        // (finance-portal-news). nginx o yolu dogrudan oraya yonlendiriyor,
+                        // istek bu uygulamaya hic ulasmiyor.
                         .requestMatchers("/interest/**").permitAll()
                         .requestMatchers("/economic-calendar/**").permitAll()
                         // Demo modu bandı giriş yapmamış ziyaretçiye de görünmeli.
