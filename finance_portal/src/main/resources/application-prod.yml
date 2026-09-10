@@ -24,15 +24,21 @@ spring:
       max-lifetime: 1800000
       leak-detection-threshold: 60000
 
-# Actuator — sadece monitoring için zorunlu olanlar dış dünyaya
-# health/info/prometheus public, diğerleri (heapdump, env, beans) KAPALI
-# (S5852 — endpoint exposure attack surface'ı azaltır)
+# Actuator — dışarıya yalnızca sağlık kontrolü için gerekli olan kadarı.
+# Konteyner healthcheck'i /actuator/health kullanıyor, o yüzden o açık kalmalı.
+# Geri kalan her şey kapalı (S5852 — saldırı yüzeyini küçültür).
 management:
   endpoints:
     web:
       exposure:
-        include: "health,info,prometheus"
-        exclude: "env,beans,configprops,heapdump,threaddump,mappings,loggers"
+        # prometheus BİLEREK ÇIKARILDI. Canlı dağıtımda Prometheus çalışmıyor
+        # (gözlemlenebilirlik yığını kaynak yetersizliğinden alınmadı), dolayısıyla bu uç
+        # kimseye veri sağlamıyordu — yalnızca dışarıya 4.700 satır iç bilgi veriyordu:
+        # disk kapasitesi, thread havuzları, sınıf adları, tüm uç adresleri ve veritabanı
+        # havuz istatistikleri. Saldırgan için hazır keşif verisi.
+        # Prometheus canlıya alınırsa geri eklenmeli AMA erişimi kısıtlanarak.
+        include: "health,info"
+        exclude: "env,beans,configprops,heapdump,threaddump,mappings,loggers,prometheus,metrics"
   endpoint:
     health:
       # PII sızdırmasın — sadece authenticated kullanıcı detay görsün
