@@ -9,13 +9,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -110,7 +113,26 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(500, response.getBody().getStatus());
-        assertTrue(response.getBody().getMessage().contains("DB connection lost"));
+    }
+
+    /** İstisna mesajı yanıta sızmamalı; ayrıntı yalnızca log'da kalır. */
+    @Test
+    void uncaughtException_doesNotLeakExceptionMessage() {
+        RuntimeException ex = new RuntimeException("ORA-00942: table or view does not exist");
+        ResponseEntity<ErrorResponse> response = handler.handleGlobalException(ex, request);
+
+        assertFalse(response.getBody().getMessage().contains("ORA-00942"));
+    }
+
+    /** Var olmayan adres 500 değil 404 dönmeli. */
+    @Test
+    void unknownPath_returns404() {
+        NoResourceFoundException ex =
+                new NoResourceFoundException(HttpMethod.GET, "/actuator/metrics");
+        ResponseEntity<ErrorResponse> response = handler.handleNoResourceFound(ex, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(404, response.getBody().getStatus());
     }
 
     @Test

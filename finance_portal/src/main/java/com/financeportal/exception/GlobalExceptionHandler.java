@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -166,10 +167,28 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "İstek geçersiz: " + ex.getMessage(), request);
     }
 
+    /**
+     * Var olmayan bir adres istendi.
+     *
+     * <p>Spring bunu {@link NoResourceFoundException} olarak fırlatır, ancak bu sınıf
+     * {@code ResponseEntityExceptionHandler}'ı genişletmediği için istisna genel
+     * işleyiciye düşüyor ve <b>500</b> dönüyordu. İki sorunu vardı: istemciye "sunucu
+     * bozuldu" deniyordu (oysa yalnızca adres yanlıştı) ve her yanlış istek yığın
+     * iziyle birlikte ERROR seviyesinde loglanıyordu — adres taraması yapan biri
+     * tek başına log'u şişirebilirdi.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        log.debug("Bilinmeyen adres istendi: {}", request.getRequestURI());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "İstenen kaynak bulunamadı.", request);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, HttpServletRequest request) {
+        // İstisna mesajı BİLEREK yanıta konulmuyor. Ayrıntı burada, log'da duruyor;
+        // istemciye gitmesi sınıf adı, SQL parçası veya dosya yolu sızdırabilir.
         log.error("BEKLENMEDİK SİSTEM HATASI: ", ex);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Sunucu içinde beklenmeyen bir hata oluştu: " + ex.getMessage(), request);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Sunucu içinde beklenmeyen bir hata oluştu.", request);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message, HttpServletRequest request) {
