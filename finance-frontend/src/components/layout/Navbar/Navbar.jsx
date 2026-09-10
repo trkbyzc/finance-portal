@@ -74,8 +74,15 @@ export default function Navbar() {
 
     return (
         <>
+            {/*
+              blur-xl (24px) yerine blur-md (12px): --nav-bg zaten %85 opak oldugu
+              icin aradaki fark gozle secilmiyor, ama bulaniklastirma maliyeti
+              yariya iniyor. Bu cubuk sayfa boyunca ekranda SABIT duruyor, yani
+              arkasindan bir sey her gectiginde (menu kaymasi, sayfa kaydirma)
+              yeniden hesaplaniyor — bu yuzden ucuz olmasi onemli.
+            */}
             <nav
-                className="min-h-16 sticky top-0 z-50 backdrop-blur-xl border-b"
+                className="min-h-16 sticky top-0 z-50 backdrop-blur-md border-b"
                 style={{
                     backgroundColor: 'var(--nav-bg)',
                     borderColor: 'var(--nav-border)'

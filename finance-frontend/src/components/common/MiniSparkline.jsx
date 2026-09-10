@@ -57,7 +57,10 @@ export default function MiniSparkline({ symbol, color, category = 'STOCK', width
     });
 
     return (
-        <div ref={containerRef} style={{ width, height }}>
+        // shrink-0: bu kutu esnek bir satirin icinde duruyor ve yanindaki metin
+        // uzun oldugunda flexbox onu 56px'in altina sikistirabiliyordu. Grafik
+        // olcusunu kabindan aldigi icin sikisinca cizim de bozuluyor.
+        <div ref={containerRef} className="shrink-0" style={{ width, height }}>
             {isVisible && data && data.length >= 2 && (
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>

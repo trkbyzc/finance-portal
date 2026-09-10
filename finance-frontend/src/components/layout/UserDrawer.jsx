@@ -40,15 +40,28 @@ export default function UserDrawer({ open, onClose }) {
 
     return (
         <>
-            <div
-                onClick={onClose}
-                className={`fixed inset-0 z-90 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ${
-                    open ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
-            />
+            {/*
+              Karartma katmani.
+
+              Burada eskiden `backdrop-blur-sm` vardi ve menu kayarken takilmanin
+              asil sebebi oydu: bulaniklastirma, arkasindaki gorunumu HER KAREDE
+              yeniden hesaplatir. Menu kaydikca arkadaki goruntu surekli degistigi
+              icin tarayici tum ekrani kare kare yeniden bulaniklastiriyordu.
+              %50 siyah ortuyle bulanikligin gorsel katkisi zaten fark edilmiyordu,
+              bedeli ise akiciligin tamamiydi.
+
+              Ayrica artik sadece menu ACIKKEN DOM'a giriyor. Kapaliyken de durmasi
+              tarayicinin bos yere ekran boyu bir katman tutmasina yol aciyordu.
+            */}
+            {open && (
+                <div
+                    onClick={onClose}
+                    className="fixed inset-0 z-90 bg-black/60 animate-overlay-in"
+                />
+            )}
 
             <aside
-                className={`fixed top-0 left-0 h-full w-[85vw] max-w-sm bg-surface border-r border-border z-100 shadow-2xl transition-transform duration-250 ease-out flex flex-col ${
+                className={`fixed top-0 left-0 h-full w-[85vw] max-w-sm bg-surface border-r border-border z-100 shadow-xl transition-transform duration-250 ease-out flex flex-col will-change-transform ${
                     open ? 'translate-x-0' : '-translate-x-full'
                 }`}
                 role="dialog"
