@@ -298,7 +298,7 @@ services:
       REDIS_PORT: "6379"
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KAFKA_LOG_BOOTSTRAP_SERVERS: kafka:29092
-      LINGVA_URL: http://lingva:3000
+      # LINGVA_URL KALDIRILDI — ceviri haber servisine tasindi (app-news).
       ISYATIRIM_FUNDAMENTALS_URL: "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/Temel-Degerler-Ve-Oranlar.aspx?endeks=09"
       # Keycloak issuer: browser ile aynı (token iss claim match için)
       KEYCLOAK_ISSUER_URI: http://localhost:8080/realms/finance-realm
@@ -354,6 +354,29 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  # --- Haber servisi ---
+  # Yerelde de ayri bir konteyner olarak calisir ki gelistirme ortami canliyla
+  # ayni sekilde davransin. IDE'den calistirmak istersen bu servisi durdur ve
+  # finance-portal-news'i 8082'de baslat.
+  app-news:
+    build:
+      context: ../finance-portal-news
+      dockerfile: Dockerfile
+    image: finance-portal-news:dev
+    container_name: finance-app-news
+    restart: unless-stopped
+    ports:
+      # Yerelde dogrudan erisim (nginx'e ugramadan denemek icin).
+      - "8082:8082"
+    environment:
+      SERVER_PORT: "8082"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      LINGVA_URL: http://lingva:3000
+    depends_on:
+      - redis
+      - lingva
+
   app-frontend:
     build:
       context: ../finance-portal-frontend
@@ -369,8 +392,11 @@ services:
     container_name: finance-app-frontend
     ports:
       - "5173:80"
+    # nginx proxy_pass host adlarini ACILISTA cozer; app-news yoksa nginx hic
+    # baslamaz ve tum site acilmaz.
     depends_on:
       - app-backend
+      - app-news
     restart: unless-stopped
 
   # SonarQube — kod kalitesi / statik analiz.

@@ -175,7 +175,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD gerekli}
       REDIS_HOST: redis
       REDIS_PORT: "6379"
-      LINGVA_URL: http://lingva:3000
+      # LINGVA_URL KALDIRILDI — ceviri haber servisine tasindi.
 
       # Token'ın iss claim'i tarayıcının gördüğü adresle aynı olmalı;
       # JWK ise iç ağdan çekilir (Caddy'ye çıkmaya gerek yok).
@@ -210,6 +210,32 @@ services:
       redis:
         condition: service_started
 
+  # --- Haber servisi (ikinci uygulama) ---
+  # RSS toplar, siniflandirir, cevirir, Redis'te tutar. Veritabani YOK, Keycloak YOK.
+  # Arayuz buraya dogrudan gitmez: nginx /api/v1/news/... yolunu buraya yonlendirir.
+  app-news:
+    build:
+      context: ../finance-portal-news
+      dockerfile: Dockerfile
+    image: finance-portal-news:prod
+    container_name: finance-app-news
+    restart: unless-stopped
+    dns: ["1.1.1.1", "8.8.8.8"]
+    # Backend'e 3g verildi cunku 19 alan + Spring AI tasiyor. Haber servisi cok daha
+    # kucuk: tek is, veritabani baglantisi yok. 512m rahat yetiyor.
+    mem_limit: 512m
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: "8082"
+      JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      # Ceviri servisi — zaten ayri bir konteynerdi, sadece cagiran degisti.
+      LINGVA_URL: http://lingva:3000
+    depends_on:
+      redis:
+        condition: service_started
+
   app-frontend:
     build:
       context: ../finance-portal-frontend
@@ -224,8 +250,12 @@ services:
     image: finance-portal-frontend:prod
     container_name: finance-app-frontend
     restart: unless-stopped
+    # nginx, proxy_pass'teki host adlarini ACILISTA cozer. app-news ayakta degilse
+    # ad cozulemez ve nginx HIC BASLAMAZ — yani haber servisi eksikse tum site
+    # acilmaz. depends_on bu yuzden sart.
     depends_on:
       - app-backend
+      - app-news
 
 volumes:
   postgres_data:
