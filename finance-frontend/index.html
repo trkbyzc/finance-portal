@@ -4,8 +4,36 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon-finans.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FinansPortal</title>
+    <title>Finance Portal — Multi-Asset Market Tracking &amp; Portfolio Management</title>
     <meta name="referrer" content="no-referrer" />
+
+    <!--
+      Link önizleme kartı (Open Graph).
+
+      Bu etiketler olmadan adres LinkedIn, WhatsApp, Slack veya bir gönderiye
+      yapıştırıldığında kart yalnızca "FinansPortal" yazan gri bir kutu olarak çıkıyordu.
+      Bu proje bir vitrin olduğu için paylaşılan linkin nasıl göründüğü doğrudan önemli.
+
+      og:image MUTLAKA tam adres olmalı (göreli yol çalışmaz) ve herkese açık erişilebilir
+      olmalı. Görsel public/og-image.png altında duruyor: 1200x632, Open Graph'ın önerdiği
+      1.91 en-boy oranına uygun.
+    -->
+    <meta name="description" content="Full-stack multi-asset market tracking and portfolio management platform. Spring Boot 3, React 19, Keycloak authentication and 2,050 automated tests." />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Finance Portal" />
+    <meta property="og:url" content="https://finance.turkbey.dev/" />
+    <meta property="og:title" content="Finance Portal — Multi-Asset Market Tracking &amp; Portfolio Management" />
+    <meta property="og:description" content="Equities, crypto, currencies, commodities, funds, bonds and futures in one place. Spring Boot 3 + React 19, Keycloak auth, 2,050 automated tests. Live demo — sign in as demouser / test123." />
+    <meta property="og:image" content="https://finance.turkbey.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="632" />
+    <meta property="og:image:alt" content="Finance Portal dashboard" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Finance Portal — Multi-Asset Market Tracking &amp; Portfolio Management" />
+    <meta name="twitter:description" content="Spring Boot 3 + React 19, Keycloak auth, 2,050 automated tests. Live demo — sign in as demouser / test123." />
+    <meta name="twitter:image" content="https://finance.turkbey.dev/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
